@@ -4,10 +4,18 @@ description: Reusable workflow to build Docker images for multiple platforms and
 on:
   workflow_call:
     inputs:
-      push:
+      push_image_to_dockerhub:
         description: Whether to push the image to a registry
         type: boolean
         default: false
+      load_image_to_docker_daemon:
+        description: Load Docker image into local Docker daemon (incompatible with push)
+        type: boolean
+        default: false
+      build_target:
+        description: Specific Dockerfile target to build (e.g., 'publish', 'minimal'). If empty, build all stages
+        type: string
+        default: ''
       tags_publish_amd64:
         description: Docker tag for publish image on amd64
         type: string
@@ -36,6 +44,13 @@ on:
         description: Skip ARM64 builds
         type: boolean
         default: false
+    secrets:
+      registry_username:
+        description: Docker registry username (optional, for authentication)
+        required: false
+      registry_password:
+        description: Docker registry password (optional, for authentication)
+        required: false
     outputs:
       dockerfile_hash:
         description: Hash of the Dockerfile
@@ -47,6 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       dockerfile_hash: ${{ steps.dockerfile-hash.outputs.hash }}
+      build_matrix: ${{ steps.build-matrix.outputs.matrix }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,56 +71,47 @@ jobs:
         run: |
           HASH=$(sha256sum Dockerfile | cut -d' ' -f1 | cut -c1-8)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
-
-  prepare_maven_dependencies:
-    name: Prepare Maven dependencies for ${{ matrix.name }}
-    runs-on: ${{ matrix.runner }}
-    needs:
-      - prepare_environment
-    strategy:
-      matrix:
-        include:
-          - platform: linux/amd64
-            name: linux-amd64
-            runner: ubuntu-latest
-          - platform: linux/arm64
-            name: linux-arm64
-            runner: ubuntu-24.04-arm
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Generate build matrix
+        id: build-matrix
+        env:
+          BUILD_TARGET: ${{ inputs.build_target }}
+        run: |
+          # Determine the build matrix based on the build target
+          if [ -z "$BUILD_TARGET" ]; then
+            # Build all stages
+            MATRIX='[
+              {"platform":"linux/amd64","name":"linux-amd64","runner":"ubuntu-latest","image_stage":"publish","docker_tag_input":"tags_publish_amd64"},
+              {"platform":"linux/arm64","name":"linux-arm64","runner":"ubuntu-24.04-arm","image_stage":"publish","docker_tag_input":"tags_publish_arm64"},
+              {"platform":"linux/amd64","name":"linux-amd64","runner":"ubuntu-latest","image_stage":"minimal","docker_tag_input":"tags_minimal_amd64"},
+              {"platform":"linux/arm64","name":"linux-arm64","runner":"ubuntu-24.04-arm","image_stage":"minimal","docker_tag_input":"tags_minimal_arm64"}
+            ]'
+          else
+            # Build specific stage only
+            if [ "$BUILD_TARGET" = "publish" ]; then
+              MATRIX='[
+                {"platform":"linux/amd64","name":"linux-amd64","runner":"ubuntu-latest","image_stage":"publish","docker_tag_input":"tags_publish_amd64"},
+                {"platform":"linux/arm64","name":"linux-arm64","runner":"ubuntu-24.04-arm","image_stage":"publish","docker_tag_input":"tags_publish_arm64"}
+              ]'
+            elif [ "$BUILD_TARGET" = "minimal" ]; then
+              MATRIX='[
+                {"platform":"linux/amd64","name":"linux-amd64","runner":"ubuntu-latest","image_stage":"minimal","docker_tag_input":"tags_minimal_amd64"},
+                {"platform":"linux/arm64","name":"linux-arm64","runner":"ubuntu-24.04-arm","image_stage":"minimal","docker_tag_input":"tags_minimal_arm64"}
+              ]'
+            else
+              echo "Unknown build target: $BUILD_TARGET"
+              exit 1
+            fi
+          fi
+          echo "matrix=$(echo $MATRIX | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
   build_docker_images:
     name: Build ${{ matrix.image_stage }} for ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
     needs:
       - prepare_environment
-      - prepare_maven_dependencies
     strategy:
       matrix:
-        include:
-          - platform: linux/amd64
-            name: linux-amd64
-            runner: ubuntu-latest
-            image_stage: publish
-            docker_tag_input: tags_publish_amd64
-          - platform: linux/arm64
-            name: linux-arm64
-            runner: ubuntu-24.04-arm
-            image_stage: publish
-            docker_tag_input: tags_publish_arm64
-          - platform: linux/amd64
-            name: linux-amd64
-            runner: ubuntu-latest
-            image_stage: minimal
-            docker_tag_input: tags_minimal_amd64
-          - platform: linux/arm64
-            name: linux-arm64
-            runner: ubuntu-24.04-arm
-            image_stage: minimal
-            docker_tag_input: tags_minimal_arm64
+        include: ${{ fromJson(needs.prepare_environment.outputs.build_matrix) }}
     steps:
       - name: Check if should skip (ARM64)
         id: should_skip
@@ -112,33 +119,41 @@ jobs:
           MATRIX_NAME: ${{ matrix.name }}
           SKIP_ARM64: ${{ inputs.skip_arm64 }}
         run: |
-          SKIP="false"
+          SKIP=false
           # Skip ARM64 builds if requested
-          if [[ "$MATRIX_NAME" == "linux-arm64" && "$SKIP_ARM64" == "true" ]]; then
-            SKIP="true"
+          if [[ "$MATRIX_NAME" == "linux-arm64" && $SKIP_ARM64 == true ]]; then
+            SKIP=true
           fi
           echo "skip=$SKIP" >> $GITHUB_OUTPUT
 
       - name: Checkout
-        if: steps.should_skip.outputs.skip != 'true'
+        if: steps.should_skip.outputs.skip == 'false'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Get and save the UID
-        if: steps.should_skip.outputs.skip != 'true'
+        if: steps.should_skip.outputs.skip == 'false'
         run: |
           echo "UID=$(id -u)" >> $GITHUB_ENV
 
+      - name: Login to Docker registry
+        if: steps.should_skip.outputs.skip == 'false' && inputs.push_image_to_dockerhub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
+        continue-on-error: true
+
       - name: Set up build environment
-        if: steps.should_skip.outputs.skip != 'true'
+        if: steps.should_skip.outputs.skip == 'false'
         uses: ./.github/actions/setup-build-environment
         with:
           java_version: ${{ inputs.java_version }}
           dockerfile: 'Dockerfile'
 
       - name: Resolve Docker tag
-        if: steps.should_skip.outputs.skip != 'true'
+        if: steps.should_skip.outputs.skip == 'false'
         id: resolve_tag
         env:
           TAG_INPUT: ${{ matrix.docker_tag_input }}
@@ -157,28 +172,28 @@ jobs:
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Determine Docker output
-        if: steps.should_skip.outputs.skip != 'true'
+        if: steps.should_skip.outputs.skip == 'false'
         id: output
         env:
-          PUSH: ${{ inputs.push }}
+          PUSH: ${{ inputs.push_image_to_dockerhub }}
           RUNNER_TEMP: ${{ runner.temp }}
           MATRIX_NAME: ${{ matrix.name }}
           MATRIX_STAGE: ${{ matrix.image_stage }}
         run: |
-          if [ "$PUSH" == "true" ]; then
+          if [ $PUSH = true ]; then
             echo "output=type=image,push=true" >> $GITHUB_OUTPUT
           else
             echo "output=type=docker,dest=$RUNNER_TEMP/image-$MATRIX_NAME-$MATRIX_STAGE.tar" >> $GITHUB_OUTPUT
           fi
 
       - name: Build ${{ matrix.image_stage }} image stage for ${{ matrix.name }}
-        if: steps.should_skip.outputs.skip != 'true'
+        if: steps.should_skip.outputs.skip == 'false'
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 #v6.18.0
         with:
           context: .
           target: ${{ matrix.image_stage }}
-          push: ${{ inputs.push }}
-          load: false
+          push: ${{ inputs.push_image_to_dockerhub }}
+          load: ${{ inputs.load_image_to_docker_daemon }}
           tags: ${{ steps.resolve_tag.outputs.tag }}
           platforms: "${{ matrix.platform }}"
           cache-from: type=${{ inputs.cache_from_type }}
@@ -186,7 +201,7 @@ jobs:
           outputs: ${{ steps.output.outputs.output }}
 
       - name: Upload image artifact
-        if: steps.should_skip.outputs.skip != 'true' && inputs.push != true
+        if: steps.should_skip.outputs.skip == 'false' && !inputs.push_image_to_dockerhub && !inputs.load_image_to_docker_daemon
         uses: actions/upload-artifact@v4
         with:
           name: image-${{ matrix.name }}-${{ matrix.image_stage }}-${{ needs.prepare_environment.outputs.dockerfile_hash }}-artifact

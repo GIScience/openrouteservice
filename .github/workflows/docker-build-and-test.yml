@@ -45,7 +45,6 @@ jobs:
       - prepare_environment
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     with:
-      push: false
       tags_publish_amd64: ${{ needs.prepare_environment.outputs.test_image_name }}
       tags_publish_arm64: ${{ needs.prepare_environment.outputs.test_image_name }}
       tags_minimal_amd64: ${{ needs.prepare_environment.outputs.test_minimal_image_name }}
