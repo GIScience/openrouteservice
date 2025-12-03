@@ -1,6 +1,16 @@
-# Description: Workflow to test the parse-release-tag action
-# This gets executed when there are changes to the action or this workflow file
-# Run tests locally with act: act -j test_action_parse_release_tag
+# Test Parse Release Tag Action
+# ============================
+# Test suite for the parse-release-tag composite action.
+#
+# Tests validate:
+# - Tag parsing from inputs and GitHub events
+# - Docker image tag generation (version and latest)
+# - DockerHub registry lookup for build decision
+# - Pre-release tag handling (e.g., v8.0.0-rc1)
+# - build_version output logic (true/false based on existence)
+#
+# Triggers: Push/PR to action files, manual workflow_dispatch
+# Local testing: act -j test_action_parse_release_tag
 
 name: Test Parse Release Tag Action
 

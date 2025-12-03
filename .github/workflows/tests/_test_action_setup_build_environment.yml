@@ -1,6 +1,17 @@
-# Description: Workflow to test the setup-build-environment action
-# This gets executed when there are changes to the action or this workflow file
-# Run tests locally with act: act -j test_action_setup_build_environment
+# Test Setup Build Environment Action
+# ===================================
+# Test suite for the setup-build-environment composite action.
+#
+# Tests validate:
+# - Java/Maven setup with custom versions
+# - Docker Buildx setup and configuration
+# - Maven dependency caching and cache-hit output
+# - Dockerfile preparation for cache mounts
+# - Conditional Docker setup (enabled/disabled)
+# - Output parameter correctness and formatting
+#
+# Triggers: Push/PR to action files, manual workflow_dispatch
+# Local testing: act -j test_action_setup_build_environment
 
 name: Test Setup Build Environment Action
 
