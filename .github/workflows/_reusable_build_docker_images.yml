@@ -40,6 +40,16 @@ on:
         description: Path to the Dockerfile to use
         type: string
         default: 'Dockerfile'
+      artifact_name:
+        description: Name of the artifact to upload (used when not pushing or loading to daemon)
+        type: string
+        required: false
+        default: ''
+      artifact_path:
+        description: Path pattern for the artifact file (used when not pushing or loading to daemon)
+        type: string
+        required: false
+        default: ''
     secrets:
       registry_username:
         description: Docker registry username (optional, for authentication)
@@ -47,41 +57,18 @@ on:
       registry_password:
         description: Docker registry password (optional, for authentication)
         required: false
-    outputs:
-      dockerfile_hash:
-        description: Hash of the Dockerfile
-        value: ${{ jobs.build_docker_image.outputs.dockerfile_hash }}
-      artifact_name:
-        description: Name of the uploaded artifact
-        value: ${{ jobs.build_docker_image.outputs.artifact_name }}
-      artifact_path:
-        description: Path of the uploaded artifact
-        value: ${{ jobs.build_docker_image.outputs.artifact_path }}
 
 jobs:
   build_docker_image:
     name: Build ${{ inputs.image_stage }} for ${{ inputs.platform }}
     runs-on: ${{ (inputs.platform == 'linux/arm64') && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     if: ${{ !(inputs.skip_on_draft && github.event_name == 'pull_request' && github.event.pull_request.draft) }}
-    outputs:
-      dockerfile_hash: ${{ steps.dockerfile-hash.outputs.hash }}
-      artifact_name: ${{ steps.artifact-info.outputs.artifact-name }}
-      artifact_path: ${{ steps.artifact-info.outputs.artifact-path }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Set up build environment
+        uses: ./.github/actions/setup-build-environment
         with:
-          fetch-depth: 0
-
-      - name: Generate Dockerfile hash
-        id: dockerfile-hash
-        run: |
-          HASH=$(sha256sum "${{ inputs.dockerfile_path }}" | cut -d' ' -f1 | cut -c1-8)
-          echo "hash=$HASH" >> $GITHUB_OUTPUT
-
-      - name: Get and save the UID
-        run: |
-          echo "UID=$(id -u)" >> $GITHUB_ENV
+          java_version: ${{ inputs.java_version }}
+          dockerfile: ${{ inputs.dockerfile_path }}
 
       - name: Login to Docker registry
         if: inputs.push_image_to_dockerhub
@@ -90,12 +77,6 @@ jobs:
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
         continue-on-error: true
-
-      - name: Set up build environment
-        uses: ./.github/actions/setup-build-environment
-        with:
-          java_version: ${{ inputs.java_version }}
-          dockerfile: ${{ inputs.dockerfile_path }}
 
       - name: Determine Docker output
         id: output
@@ -133,23 +114,14 @@ jobs:
       - name: Upload image artifact
         if: |
           !inputs.push_image_to_dockerhub && 
-          !inputs.load_image_to_docker_daemon
+          !inputs.load_image_to_docker_daemon &&
+          !inputs.artifact_name == '' &&
+          !inputs.artifact_path == ''
         uses: actions/upload-artifact@v4
         with:
-          name: image-${{ inputs.platform }}-${{ inputs.image_stage }}-${{ steps.dockerfile-hash.outputs.hash }}-artifact
-          path: ${{ runner.temp }}/image-*-${{ inputs.image_stage }}.tar
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.artifact_path }}
           retention-days: 1
           if-no-files-found: error
           compression-level: 0
           overwrite: true
-
-      - name: Capture artifact information
-        if: |
-          !inputs.push_image_to_dockerhub && 
-          !inputs.load_image_to_docker_daemon
-        id: artifact-info
-        run: |
-          ARTIFACT_NAME="image-${{ inputs.platform }}-${{ inputs.image_stage }}-${{ steps.dockerfile-hash.outputs.hash }}-artifact"
-          ARTIFACT_PATH="${{ runner.temp }}/image-*-${{ inputs.image_stage }}.tar"
-          echo "artifact-name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
-          echo "artifact-path=${ARTIFACT_PATH}" >> $GITHUB_OUTPUT
