@@ -86,7 +86,7 @@ jobs:
         env:
           PUSH: ${{ inputs.push_image_to_dockerhub }}
           LOAD: ${{ inputs.load_image_to_docker_daemon }}
-          RUNNER_TEMP: ${{ runner.temp }}
+          ARTIFACT_PATH: ${{ inputs.artifact_path }}
         run: |
           if [ "$PUSH" = "true" ]; then
             echo "output=type=image,push=true" >> $GITHUB_OUTPUT
@@ -94,8 +94,7 @@ jobs:
             # Load into Docker daemon requires specific platform syntax
             echo "output=type=docker" >> $GITHUB_OUTPUT
           else
-            # Save as tar artifact
-            echo "output=type=docker,dest=${{ inputs.artifact_path }}" >> $GITHUB_OUTPUT
+            echo "output=type=tar,dest=$ARTIFACT_PATH" >> $GITHUB_OUTPUT
           fi
 
       - name: Build Docker image
