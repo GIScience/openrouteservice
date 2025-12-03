@@ -64,6 +64,9 @@ jobs:
     runs-on: ${{ (inputs.platform == 'linux/arm64') && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     if: ${{ !(inputs.skip_on_draft && github.event_name == 'pull_request' && github.event.pull_request.draft) }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set up build environment
         uses: ./.github/actions/setup-build-environment
         with:
