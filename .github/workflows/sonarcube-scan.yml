@@ -12,6 +12,11 @@ jobs:
     permissions:
       actions: read # Required to download artifacts
     steps:
+      - name: Set up build environment
+        uses: ./.github/actions/setup-build-environment
+        with:
+          with_docker: 'false'
+          java_version: '21'
       - name: 'Sonar analysis'
         uses: evaristegalois11/sonar-fork-analysis@v1
         with:
