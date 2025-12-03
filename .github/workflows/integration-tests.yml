@@ -43,7 +43,6 @@ jobs:
       - name: Set up build environment
         uses: ./.github/actions/setup-build-environment
         with:
-          java_version: '21'
           dockerfile: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
 
       - name: Build ors-test-scenarios-builder
@@ -121,7 +120,6 @@ jobs:
       - name: Set up build environment
         uses: ./.github/actions/setup-build-environment
         with:
-          java_version: '21'
           dockerfile: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
 
       - name: Restore cached graph

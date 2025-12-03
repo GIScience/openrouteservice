@@ -21,7 +21,6 @@ jobs:
         uses: ./.github/actions/setup-build-environment
         with:
           with_docker: 'false'
-          java_version: '21'
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
