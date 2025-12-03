@@ -9,6 +9,10 @@ inputs:
     description: Set up Docker (Buildx) for image builds
     required: false
     default: 'true'
+  with_docker_cache_injection:
+    description: Inject Maven cache into Docker builds
+    required: false
+    default: 'true'
   dockerfile:
     description: Path to the primary Dockerfile to use for buildkit injection (only used if with_docker is true)
     required: false
@@ -23,6 +27,13 @@ outputs:
 runs:
   using: composite
   steps:
+
+    - name: Checkout
+      if: steps.check_build.outputs.skip == 'false'
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
     - name: Set up JDK ${{ inputs.java_version }}
       id: setup-java
       uses: actions/setup-java@v4
@@ -44,7 +55,7 @@ runs:
       uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 #v3.11.1
 
     - name: Prepare all Dockerfiles for Maven cache mount
-      if: inputs.with_docker == 'true'
+      if: inputs.with_docker == 'true' && inputs.with_docker_cache_injection == 'true'
       shell: bash
       run: |
         # Find and prepare all Dockerfiles in the repository
@@ -53,7 +64,7 @@ runs:
         done
 
     - name: Inject Maven cache into Docker build
-      if: inputs.with_docker == 'true'
+      if: inputs.with_docker == 'true' && inputs.with_docker_cache_injection == 'true'
       uses: 'reproducible-containers/buildkit-cache-dance@5b81f4d29dc8397a7d341dba3aeecc7ec54d6361' # v3.3.0
       with:
         builder: ${{ steps.buildx.outputs.name }}
