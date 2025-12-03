@@ -44,6 +44,10 @@ on:
         description: Skip ARM64 builds
         type: boolean
         default: false
+      dockerfile_path:
+        description: Path to the Dockerfile to use
+        type: string
+        default: 'Dockerfile'
     secrets:
       registry_username:
         description: Docker registry username (optional, for authentication)
@@ -69,7 +73,7 @@ jobs:
       - name: Generate Dockerfile hash
         id: dockerfile-hash
         run: |
-          HASH=$(sha256sum Dockerfile | cut -d' ' -f1 | cut -c1-8)
+          HASH=$(sha256sum "${{ inputs.dockerfile_path }}" | cut -d' ' -f1 | cut -c1-8)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
       - name: Generate build matrix
         id: build-matrix
@@ -150,7 +154,7 @@ jobs:
         uses: ./.github/actions/setup-build-environment
         with:
           java_version: ${{ inputs.java_version }}
-          dockerfile: 'Dockerfile'
+          dockerfile: ${{ inputs.dockerfile_path }}
 
       - name: Resolve Docker tag
         if: steps.should_skip.outputs.skip == 'false'
@@ -191,6 +195,7 @@ jobs:
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 #v6.18.0
         with:
           context: .
+          file: ${{ inputs.dockerfile_path }}
           target: ${{ matrix.image_stage }}
           push: ${{ inputs.push_image_to_dockerhub }}
           load: ${{ inputs.load_image_to_docker_daemon }}
