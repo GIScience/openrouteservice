@@ -91,7 +91,7 @@ jobs:
         if: steps.cache_graph.outputs.cache-hit != 'true'
         run: |
           # Build the shared graph
-          ./mvnw -pl ors-test-scenarios -q -Dtest=integrationtests.OneShotGraphBuilderTest\#oneShotGraphBuilder test \
+          ./mvnw -pl ors-test-scenarios -Dtest=integrationtests.OneShotGraphBuilderTest\#oneShotGraphBuilder test \
             -Dcontainer.builder.use_prebuild=true \
             -Dcontainer.run.scenario=jar
         env:
@@ -156,4 +156,4 @@ jobs:
           ./mvnw -pl ors-test-scenarios -Dtest=${{ matrix.test-class }} test \
             -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4 \
             -Dcontainer.run.scenario=${{ matrix.test-scenario }} \
-            -Dcontainer.builder.use_prebuild=true -q
+            -Dcontainer.builder.use_prebuild=true
