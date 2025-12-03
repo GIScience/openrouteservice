@@ -23,11 +23,20 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Setup Java and Maven
+    - name: Set up JDK ${{ inputs.java_version }}
       id: setup-java
-      uses: ./.github/actions/setup-java-maven
+      uses: actions/setup-java@v4
       with:
-        java_version: ${{ inputs.java_version }}
+        distribution: 'temurin'
+        java-version: ${{ inputs.java_version }}
+        cache: 'maven'
+
+    - name: Download maven dependencies
+      if: steps.setup-java.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
+        ./mvnw clean -q
 
     - name: Set up Docker Buildx
       if: inputs.with_docker == 'true'
