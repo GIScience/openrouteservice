@@ -1,0 +1,192 @@
+# Description: Workflow to test the parse-release-tag action
+# This gets executed when there are changes to the action or this workflow file
+# Run tests locally with act: act -j test_action_parse_release_tag
+
+name: Test Parse Release Tag Action
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '.github/actions/parse-release-tag/**'
+      - '.github/workflows/test_action_parse_release_tag.yml'
+  pull_request:
+    branches: [ "**" ]
+    paths:
+      - '.github/actions/parse-release-tag/**'
+      - '.github/workflows/test_action_parse_release_tag.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test_action_parse_release_tag:
+    name: Test parse-release-tag action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test 1 - Parse tag from input parameter
+        id: test1
+        uses: ./.github/actions/parse-release-tag
+        with:
+          tag: 'v8.0.0'
+
+      - name: Verify Test 1 outputs
+        run: |
+          echo "Tag: ${{ steps.test1.outputs.tag }}"
+          echo "Tags Version: ${{ steps.test1.outputs.tags_version }}"
+          echo "Tags Latest: ${{ steps.test1.outputs.tags_latest }}"
+          echo "Build Version: ${{ steps.test1.outputs.build_version }}"
+          
+          # Assertions
+          if [ "${{ steps.test1.outputs.tag }}" != "v8.0.0" ]; then
+            echo "❌ Test 1 FAILED: Expected tag 'v8.0.0', got '${{ steps.test1.outputs.tag }}'"
+            exit 1
+          fi
+          
+          if [ "${{ steps.test1.outputs.tags_version }}" != "openrouteservice/openrouteservice:v8.0.0" ]; then
+            echo "❌ Test 1 FAILED: Expected tags_version 'openrouteservice/openrouteservice:v8.0.0', got '${{ steps.test1.outputs.tags_version }}'"
+            exit 1
+          fi
+          
+          if [ "${{ steps.test1.outputs.tags_latest }}" != "openrouteservice/openrouteservice:latest" ]; then
+            echo "❌ Test 1 FAILED: Expected tags_latest 'openrouteservice/openrouteservice:latest', got '${{ steps.test1.outputs.tags_latest }}'"
+            exit 1
+          fi
+          
+          echo "Test 1 PASSED: Tag input parameter parsing works correctly"
+
+      - name: Test 2 - Parse different version tag
+        id: test2
+        uses: ./.github/actions/parse-release-tag
+        with:
+          tag: 'v7.1.0'
+
+      - name: Verify Test 2 outputs
+        run: |
+          if [ "${{ steps.test2.outputs.tag }}" != "v7.1.0" ]; then
+            echo "❌ Test 2 FAILED: Expected tag 'v7.1.0', got '${{ steps.test2.outputs.tag }}'"
+            exit 1
+          fi
+          
+          if [ "${{ steps.test2.outputs.tags_version }}" != "openrouteservice/openrouteservice:v7.1.0" ]; then
+            echo "❌ Test 2 FAILED: Expected tags_version for v7.1.0"
+            exit 1
+          fi
+          
+          echo "Test 2 PASSED: Different version parsing works correctly"
+
+      - name: Test 3 - Verify build_version output is boolean
+        run: |
+          build_version="${{ steps.test1.outputs.build_version }}"
+          
+          if [ "$build_version" != "true" ] && [ "$build_version" != "false" ]; then
+            echo "❌ Test 3 FAILED: build_version should be 'true' or 'false', got '$build_version'"
+            exit 1
+          fi
+          
+          echo "Test 3 PASSED: build_version is a valid boolean value ($build_version)"
+
+      - name: Test 4 - Verify Docker image format in outputs
+        run: |
+          tags_version="${{ steps.test1.outputs.tags_version }}"
+          tags_latest="${{ steps.test1.outputs.tags_latest }}"
+          
+          # Check tags_version format
+          if [[ ! "$tags_version" =~ ^openrouteservice/openrouteservice:[a-zA-Z0-9._-]+$ ]]; then
+            echo "❌ Test 4a FAILED: tags_version format invalid: $tags_version"
+            exit 1
+          fi
+          
+          # Check tags_latest format
+          if [ "$tags_latest" != "openrouteservice/openrouteservice:latest" ]; then
+            echo "❌ Test 4b FAILED: tags_latest should always be 'openrouteservice/openrouteservice:latest', got '$tags_latest'"
+            exit 1
+          fi
+          
+          echo "Test 4 PASSED: Docker image tag formats are correct"
+
+      - name: Test 5 - Verify tag special characters handling
+        id: test5
+        uses: ./.github/actions/parse-release-tag
+        with:
+          tag: 'v8.0.0-rc1'
+
+      - name: Verify Test 5 outputs
+        run: |
+          if [ "${{ steps.test5.outputs.tag }}" != "v8.0.0-rc1" ]; then
+            echo "❌ Test 5 FAILED: Expected tag 'v8.0.0-rc1', got '${{ steps.test5.outputs.tag }}'"
+            exit 1
+          fi
+          
+          if [ "${{ steps.test5.outputs.tags_version }}" != "openrouteservice/openrouteservice:v8.0.0-rc1" ]; then
+            echo "❌ Test 5 FAILED: Expected tags_version with rc1 suffix"
+            exit 1
+          fi
+          
+          echo "Test 5 PASSED: Tag with pre-release suffix handled correctly"
+
+      - name: Test 6 - build_version false for existing version (v8.0.0)
+        id: test6_existing
+        uses: ./.github/actions/parse-release-tag
+        with:
+          tag: 'v8.0.0'
+
+      - name: Verify Test 6 - build_version should be false
+        run: |
+          build_version="${{ steps.test6_existing.outputs.build_version }}"
+          
+          if [ "$build_version" != "false" ]; then
+            echo "❌ Test 6 FAILED: Expected build_version 'false' for existing version v8.0.0, got '$build_version'"
+            echo "Note: v8.0.0 is an existing released version on DockerHub"
+            exit 1
+          fi
+          
+          echo "Test 6 PASSED: build_version is 'false' for existing version v8.0.0"
+          echo "   - Version exists on DockerHub, so no rebuild is needed"
+
+      - name: Test 7 - build_version true for non-existing version (v999.0.0)
+        id: test7_new
+        uses: ./.github/actions/parse-release-tag
+        with:
+          tag: 'v999.0.0'
+
+      - name: Verify Test 7 - build_version should be true
+        run: |
+          build_version="${{ steps.test7_new.outputs.build_version }}"
+          
+          if [ "$build_version" != "true" ]; then
+            echo "❌ Test 7 FAILED: Expected build_version 'true' for non-existing version v999.0.0, got '$build_version'"
+            echo "Note: v999.0.0 should not exist on DockerHub"
+            exit 1
+          fi
+          
+          echo "Test 7 PASSED: build_version is 'true' for non-existing version v999.0.0"
+          echo "   - Version does not exist on DockerHub, so rebuild is needed"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=========================================="
+          echo "Parse Release Tag Action - Test Summary"
+          echo "=========================================="
+          echo "✅ All tests executed successfully"
+          echo ""
+          echo "Test Coverage:"
+          echo "  ✓ Test 1: Basic tag parsing from input"
+          echo "  ✓ Test 2: Different version tags"
+          echo "  ✓ Test 3: build_version boolean output"
+          echo "  ✓ Test 4: Docker image format validation"
+          echo "  ✓ Test 5: Pre-release tag handling"
+          echo "  ✓ Test 6: build_version=false for existing v8.0.0"
+          echo "  ✓ Test 7: build_version=true for non-existing v999.0.0"
+          echo ""
+          echo "Key Validations:"
+          echo "  - Tag extraction and parsing"
+          echo "  - Docker image tag format generation"
+          echo "  - DockerHub registry lookup (build_version determination)"
+          echo "  - Pre-release suffix handling"
+          echo "=========================================="

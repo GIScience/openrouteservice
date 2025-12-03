@@ -1,0 +1,65 @@
+name: Parse Release Tag
+description: Extracts and validates the release tag from GitHub event
+inputs:
+  tag:
+    description: Optional override for the tag (if not from github.event.release)
+    required: false
+    default: ''
+outputs:
+  tag:
+    description: The release tag
+    value: ${{ steps.parse.outputs.tag }}
+  tags_version:
+    description: Docker tag for the specific version
+    value: ${{ steps.parse.outputs.tags_version }}
+  tags_latest:
+    description: Docker tag for latest
+    value: ${{ steps.parse.outputs.tags_latest }}
+  build_version:
+    description: Whether to build (true if version not already on DockerHub)
+    value: ${{ steps.parse.outputs.build_version }}
+runs:
+  using: composite
+  steps:
+    - name: Extract and validate release tag
+      id: parse
+      shell: bash
+      run: |
+        # Determine the tag to use
+        if [ -n "${{ inputs.tag }}" ]; then
+          TAG="${{ inputs.tag }}"
+        else
+          TAG="${{ github.event.release.tag_name }}"
+        fi
+        
+        if [ -z "$TAG" ]; then
+          echo "Error: No tag provided and github.event.release.tag_name is empty"
+          exit 1
+        fi
+        
+        DOCKER_IMAGE=openrouteservice/openrouteservice
+        TAGS_VERSION="${DOCKER_IMAGE}:${TAG}"
+        TAGS_LATEST="${DOCKER_IMAGE}:latest"
+        BUILD_VERSION=true
+        
+        # Test if the version is already published on DockerHub
+        function test_version() {
+          curl -s -S "https://registry.hub.docker.com/v2/repositories/openrouteservice/openrouteservice/tags/?page_size=1024" |
+            sed -e 's/,/,\n/g' -e 's/\[/\[\n/g' |
+            grep '"name"' |
+            awk -F\" '{print $4;}' |
+            sort -fu
+        }
+        
+        CURRENT_VERSIONS=$(test_version)
+        
+        # Check if version already exists on DockerHub
+        if [[ $CURRENT_VERSIONS =~ $TAG ]]; then
+          echo "Image version: $TAG present or latest. Skipping it!"
+          BUILD_VERSION=false
+        fi
+        
+        echo "tag=${TAG}" >> $GITHUB_OUTPUT
+        echo "tags_version=${TAGS_VERSION}" >> $GITHUB_OUTPUT
+        echo "tags_latest=${TAGS_LATEST}" >> $GITHUB_OUTPUT
+        echo "build_version=${BUILD_VERSION}" >> $GITHUB_OUTPUT
