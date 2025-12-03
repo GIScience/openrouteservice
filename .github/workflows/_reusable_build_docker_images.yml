@@ -12,6 +12,10 @@ on:
         description: Load Docker image into local Docker daemon (incompatible with push)
         type: boolean
         default: false
+      skip_on_draft:
+        description: Skip this workflow for draft pull requests
+        type: boolean
+        default: false
       platform:
         description: Target platform (e.g., 'linux/amd64' or 'linux/arm64')
         type: string
@@ -58,6 +62,7 @@ jobs:
   build_docker_image:
     name: Build ${{ inputs.image_stage }} for ${{ inputs.platform }}
     runs-on: ${{ (inputs.platform == 'linux/arm64') && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    if: ${{ !(inputs.skip_on_draft && github.event_name == 'pull_request' && github.event.pull_request.draft) }}
     outputs:
       dockerfile_hash: ${{ steps.dockerfile-hash.outputs.hash }}
       artifact_name: ${{ steps.artifact-info.outputs.artifact-name }}
