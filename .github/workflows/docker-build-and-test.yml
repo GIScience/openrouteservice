@@ -18,16 +18,8 @@ jobs:
     outputs:
       test_image_name: ${{ env.TEST_IMAGE_NAME }}
       test_minimal_image_name: ${{ env.TEST_minimal_IMAGE_NAME }}
-      dockerfile_hash: ${{ steps.dockerfile-hash.outputs.hash }}
       should_skip_arm64: ${{ steps.should_skip_arm64.outputs.skip }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Generate Dockerfile hash
-        id: dockerfile-hash
-        run: |
-          HASH=$(sha256sum Dockerfile | cut -d' ' -f1 | cut -c1-8)
-          echo "hash=$HASH" >> $GITHUB_OUTPUT
       - name: Check if should skip ARM64 (draft PR)
         id: should_skip_arm64
         run: |
@@ -38,68 +30,79 @@ jobs:
           echo "skip=$SKIP" >> $GITHUB_OUTPUT
       - run: |
           echo "Publish environment variables"
-
-  build_docker_images:
-    name: Build Docker images
-    needs:
-      - prepare_environment
-    uses: ./.github/workflows/_reusable_build_docker_images.yml
-    with:
-      tags_publish_amd64: ${{ needs.prepare_environment.outputs.test_image_name }}
-      tags_publish_arm64: ${{ needs.prepare_environment.outputs.test_image_name }}
-      tags_minimal_amd64: ${{ needs.prepare_environment.outputs.test_minimal_image_name }}
-      tags_minimal_arm64: ${{ needs.prepare_environment.outputs.test_minimal_image_name }}
-      skip_arm64: ${{ needs.prepare_environment.outputs.should_skip_arm64 == 'true' }}
   docker_image_tests:
-    name: Test ${{ matrix.name }} - publish image
+    name: Build and test ${{ matrix.platform }} - publish image
     runs-on: ${{ matrix.runner }}
     needs:
       - prepare_environment
-      - build_docker_images
+    permissions:
+      actions: read
+      contents: read
     strategy:
       matrix:
         include:
           - platform: linux/amd64
-            name: linux-amd64
-            health_wait_time: 260
-            image_stage: publish
             runner: ubuntu-latest
-          - platform: linux/arm64
-            name: linux-arm64
             health_wait_time: 260
             image_stage: publish
+          - platform: linux/arm64
             runner: ubuntu-24.04-arm
+            health_wait_time: 260
+            image_stage: publish
     steps:
+      - name: Check if should skip (ARM64 draft PR)
+        id: should_skip
+        run: |
+          SKIP=false
+          if [[ "${{ matrix.platform }}" == "linux/arm64" && "${{ needs.prepare_environment.outputs.should_skip_arm64 }}" == "true" ]]; then
+            SKIP=true
+          fi
+          echo "skip=$SKIP" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        if: steps.should_skip.outputs.skip == 'false'
+        uses: ./.github/workflows/_reusable_build_docker_images.yml
+        id: build
+        with:
+          platform: ${{ matrix.platform }}
+          image_stage: ${{ matrix.image_stage }}
+          docker_tag: ${{ env.TEST_IMAGE_NAME }}
+
       - name: Checkout
-        if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
+        if: steps.should_skip.outputs.skip == 'false'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Download image artifact
-        if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
+        if: steps.should_skip.outputs.skip == 'false'
         uses: actions/download-artifact@v4
         with:
-          name: image-${{ matrix.name }}-${{ matrix.image_stage }}-${{ needs.prepare_environment.outputs.dockerfile_hash }}-artifact
+          name: ${{ steps.build.outputs.artifact_name }}
           path: ${{ runner.temp }}
+
       - name: Set up Docker Buildx
-        if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
+        if: steps.should_skip.outputs.skip == 'false'
         uses: docker/setup-buildx-action@v3
+
       - name: Load image
-        if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
+        if: steps.should_skip.outputs.skip == 'false'
         run: |
-          docker load --input ${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar
+          docker load --input ${{ steps.build.outputs.artifact_path }}
+
       - name: Get and save the UID
         run: |
           echo "UID=$(id -u)" >> $GITHUB_ENV
+
       - name: Start container from previously build image and wait for successful checks
-        if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
+        if: steps.should_skip.outputs.skip == 'false'
         run: |
           mkdir -p $(pwd)/ors-docker/graphs $(pwd)/ors-docker/config $(pwd)/ors-docker/elevation_cache
           chown -R $UID $(pwd)/ors-docker/graphs $(pwd)/ors-docker/config $(pwd)/ors-docker $(pwd)/ors-docker/elevation_cache
           # Place cached elevation file where docker compose expects it to mount into the image 
           cp ors-api/src/test/files/elevation/srtm_38_03.gh $(pwd)/ors-docker/elevation_cache
           # Replace image: in the docker-compose.yml with the test image. The value of image: can vary.
-          sed -i "s|image:.*|image: ${{ needs.prepare_environment.outputs.test_image_name }}|" docker-compose.yml
+          sed -i "s|image:.*|image: ${{ env.TEST_IMAGE_NAME }}|" docker-compose.yml
           sed -i "s|#logging.level.org.heigit: INFO|logging.level.org.heigit: DEBUG|" docker-compose.yml
           # Start the first build with the docker-compose setup
           docker compose up -d
@@ -108,7 +111,7 @@ jobs:
           # Set graphs data access to MMAPP
           sudo yq '.ors.engine.graphs_data_access = "MMAP"' -i $(pwd)/ors-docker/config/ors-config.yml
           # Start the container with the test image and the raw docker run command
-          docker run -it -d -p 8080:8082 -v $(pwd)/ors-docker/graphs:/home/ors/graphs -v $(pwd)/ors-docker/config:/home/ors/config -v $(pwd)/ors-api/src/test/files/elevation:/home/ors/elevation_cache --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          docker run -it -d -p 8080:8082 -v $(pwd)/ors-docker/graphs:/home/ors/graphs -v $(pwd)/ors-docker/config:/home/ors/config -v $(pwd)/ors-api/src/test/files/elevation:/home/ors/elevation_cache --name ors-instance ${{ env.TEST_IMAGE_NAME }}
           # Check for health to turn 200 after the graphs are build and spring-boot completely started
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ matrix.health_wait_time }}
           # Check for correct preflight settings to avoid CORS issues with ORIGIN wildcard from the example config
@@ -126,50 +129,73 @@ jobs:
           echo "Recreate the container to test if the graph can be properly read again"
           docker stop ors-instance
           docker container prune -f 
-          docker run -it -d -p 8080:8082 -v $(pwd)/ors-docker/graphs:/home/ors/graphs -v $(pwd)/ors-docker/config:/home/ors/config -e ors.cors.allowed_origins=https://example.org --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          docker run -it -d -p 8080:8082 -v $(pwd)/ors-docker/graphs:/home/ors/graphs -v $(pwd)/ors-docker/config:/home/ors/config -e ors.cors.allowed_origins=https://example.org --name ors-instance ${{ env.TEST_IMAGE_NAME }}
           # Request preflight with https://example.com and https://example.org to see if it gets applied correctly
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 ${{ matrix.health_wait_time }}
           # It should fail with http code 403 for https://example.com since the Origin is not covered.
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 403 10
 
   minimal_image_tests:
+    name: Build and test ${{ matrix.platform }} - minimal image
     runs-on: ${{ matrix.runner }}
     needs:
       - prepare_environment
-      - build_docker_images
+    permissions:
+      actions: read
+      contents: read
     strategy:
       matrix:
         include:
           - platform: linux/amd64
-            name: linux-amd64
-            image_stage: minimal
             runner: ubuntu-latest
-          - platform: linux/arm64
-            name: linux-arm64
             image_stage: minimal
+          - platform: linux/arm64
             runner: ubuntu-24.04-arm
+            image_stage: minimal
     steps:
+      - name: Check if should skip (ARM64 draft PR)
+        id: should_skip
+        run: |
+          SKIP=false
+          if [[ "${{ matrix.platform }}" == "linux/arm64" && "${{ needs.prepare_environment.outputs.should_skip_arm64 }}" == "true" ]]; then
+            SKIP=true
+          fi
+          echo "skip=$SKIP" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        if: steps.should_skip.outputs.skip == 'false'
+        uses: ./.github/workflows/_reusable_build_docker_images.yml
+        id: build
+        with:
+          platform: ${{ matrix.platform }}
+          image_stage: ${{ matrix.image_stage }}
+          docker_tag: ${{ env.TEST_minimal_IMAGE_NAME }}
+
       - name: Checkout
-        if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
+        if: steps.should_skip.outputs.skip == 'false'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Download image artifact
-        if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
+        if: steps.should_skip.outputs.skip == 'false'
         uses: actions/download-artifact@v4
         with:
-          name: image-${{ matrix.name }}-${{ matrix.image_stage }}-${{ needs.prepare_environment.outputs.dockerfile_hash }}-artifact
+          name: ${{ steps.build.outputs.artifact_name }}
           path: ${{ runner.temp }}
+
       - name: Load image
-        if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
+        if: steps.should_skip.outputs.skip == 'false'
         run: |
-          docker load --input ${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar
+          docker load --input ${{ steps.build.outputs.artifact_path }}
+
       - name: Get and save the UID
-        if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
+        if: steps.should_skip.outputs.skip == 'false'
         run: |
           echo "UID=$(id -u)" >> $GITHUB_ENV
+
       - name: Test minimal image with graph build
-        if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
+        if: steps.should_skip.outputs.skip == 'false'
         run: |
           mkdir -p $(pwd)/ors-docker/elevation_cache
           chown -R $UID $(pwd)/ors-docker/elevation_cache
@@ -190,6 +216,6 @@ jobs:
             -e ors.engine.elevation.cache_path=/home/ors/elevation_cache \
             -e ors.engine.profiles.driving-car.enabled=true \
             --name ors-minimal-test \
-            ${{ needs.prepare_environment.outputs.test_minimal_image_name }}
+            ${{ env.TEST_minimal_IMAGE_NAME }}
           # Wait for graph build and health check (kubernetes image is non-interactive)
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-minimal-test && exit 1)
