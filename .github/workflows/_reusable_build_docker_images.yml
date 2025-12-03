@@ -95,9 +95,7 @@ jobs:
             echo "output=type=docker" >> $GITHUB_OUTPUT
           else
             # Save as tar artifact
-            PLATFORM_NAME="${{ inputs.platform }}"
-            PLATFORM_NAME="${PLATFORM_NAME//\//-}"
-            echo "output=type=docker,dest=$RUNNER_TEMP/image-${PLATFORM_NAME}-${{ inputs.image_stage }}.tar" >> $GITHUB_OUTPUT
+            echo "output=type=docker,dest=${{ inputs.artifact_path }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Build Docker image
