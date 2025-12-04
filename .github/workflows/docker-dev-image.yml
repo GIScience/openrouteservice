@@ -2,7 +2,7 @@ name: Docker development snapshot image CI
 
 on:
   push:
-    branches: [ "feat/matching_endpoint" ] # Replace with the development branch you want to use
+    branches: [ "feat/preparation-mode-pack-graph" ] # Replace with the development branch you want to use
   workflow_dispatch:
 
 jobs:
