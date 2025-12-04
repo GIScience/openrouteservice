@@ -43,7 +43,7 @@ public class EngineService implements ServletContextListener {
     /*
      * Waits for the RoutingProfileManager to be fully initialized and ready.
      * This method blocks the calling thread until the initialization is complete.
-     * EngineSevice.getRoutingProfileManager().isReady() can be used to check the readiness without blocking.
+     * EngineService.getRoutingProfileManager().isReady() can be used to check the readiness without blocking.
      *
      * @return The initialized RoutingProfileManager instance.
      * */
