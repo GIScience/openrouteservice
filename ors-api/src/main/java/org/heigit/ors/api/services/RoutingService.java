@@ -352,7 +352,7 @@ public class RoutingService extends ApiService {
     }
 
     private RoutingProfile parseRoutingProfile(String profileName) throws InternalServerException {
-        RoutingProfile rp = engineService.waitForActiveRoutingProfileManager().getRoutingProfile(profileName);
+        RoutingProfile rp = engineService.waitForInitializedRoutingProfileManager().getRoutingProfile(profileName);
         if (rp == null)
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to find routing profile named '" + profileName + "'.");
         return rp;

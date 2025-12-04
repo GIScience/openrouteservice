@@ -1,8 +1,6 @@
 package org.heigit.ors.api.services;
 
 import org.apache.log4j.Logger;
-import org.heigit.ors.routing.RoutingProfile;
-import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,8 +9,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -23,7 +21,7 @@ public class GraphService {
     // get this value from ors.engine.graph_management.enabled
     private final Boolean enabled;
 
-    private final List<ORSGraphManager> graphManagers = new ArrayList<>();
+    private final List<ORSGraphManager> graphManagers = new CopyOnWriteArrayList<>();
 
     private final AtomicBoolean graphActivationAttemptWasBlocked = new AtomicBoolean(false);
     private final AtomicBoolean isActivatingGraphs = new AtomicBoolean(true);
@@ -194,25 +192,12 @@ public class GraphService {
 
     private void activateGraphs() {
         try {
-            isActivatingGraphs.set(true);
             graphManagers.clear();
-            RoutingProfileManager routingProfileManager = applicationContext.getBean(EngineService.class).waitForActiveRoutingProfileManager();
-            routingProfileManager.initialize();
-            for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
-                ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
-                if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
-                    LOGGER.debug("[%s] Adding orsGraphManager for profile %s with encoder %s to GraphService".formatted(
-                            orsGraphManager.getQualifiedProfileName(),
-                            orsGraphManager.getQualifiedProfileName(),
-                            profile.getProfileConfiguration().getEncoderName()));
-                    addGraphManagerInstance(orsGraphManager);
-                }
-            }
+            applicationContext.getBean(EngineService.class).reloadGraphs();
             applicationContext.getBean(DynamicDataService.class).reinitialize();
         } catch (Exception e) {
             LOGGER.warn("Unable to activate graphs due to an unexpected exception: " + e);
         } finally {
-            isActivatingGraphs.set(false);
             graphActivationAttemptWasBlocked.set(false);
         }
     }

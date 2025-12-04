@@ -260,13 +260,24 @@ public class ApiService {
         if (restrictions == null) {
             return params;
         }
-        params.setLength(restrictions.hasLength() ? restrictions.getLength() : 0.0);
-        params.setWidth(restrictions.hasWidth() ? restrictions.getWidth() : 0.0);
-        params.setHeight(restrictions.hasHeight() ? restrictions.getHeight() : 0.0);
-        params.setWeight(restrictions.hasWeight() ? restrictions.getWeight() : 0.0);
-        params.setAxleload(restrictions.hasAxleLoad() ? restrictions.getAxleLoad() : 0.0);
-        params.setLoadCharacteristics(restrictions.hasHazardousMaterial() && restrictions.getHazardousMaterial() ?
-                VehicleLoadCharacteristicsFlags.HAZMAT : VehicleLoadCharacteristicsFlags.NONE);
+        if (restrictions.hasLength()) {
+            params.setLength(restrictions.getLength());
+        }
+        if (restrictions.hasWidth()) {
+            params.setWidth(restrictions.getWidth());
+        }
+        if (restrictions.hasHeight()) {
+            params.setHeight(restrictions.getHeight());
+        }
+        if (restrictions.hasWeight()) {
+            params.setWeight(restrictions.getWeight());
+        }
+        if (restrictions.hasAxleLoad()) {
+            params.setAxleload(restrictions.getAxleLoad());
+        }
+        if (restrictions.hasHazardousMaterial() && restrictions.getHazardousMaterial()) {
+            params.setLoadCharacteristics(VehicleLoadCharacteristicsFlags.HAZMAT);
+        }
         return params;
     }
 
@@ -371,7 +382,7 @@ public class ApiService {
     }
 
     public EncoderNameEnum getEncoderForProfile(String profile) {
-        return ofNullable(engineService.waitForActiveRoutingProfileManager().getRoutingProfile(profile))
+        return ofNullable(engineService.waitForInitializedRoutingProfileManager().getRoutingProfile(profile))
                 .map(RoutingProfile::getProfileProperties)
                 .map(ProfileProperties::getEncoderName)
                 .orElse(EncoderNameEnum.UNKNOWN);

@@ -18,6 +18,7 @@ import com.graphhopper.config.CHProfile;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
@@ -43,7 +44,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -63,27 +63,26 @@ public class RoutingProfile {
     private static final Object lockObj = new Object();
     private static int profileIdentifier = 0;
 
-    private String profileName;
+    private final String profileName;
+    private final EngineProperties engineProperties;
+    @Getter
     private ProfileProperties profileProperties;
-    private EngineProperties engineProperties;
-    private String graphVersion;
 
     private final ORSGraphHopper mGraphHopper;
+    @Getter
     private String astarApproximation;
+    @Getter
     private Double astarEpsilon;
 
+    @Getter
     private final List<String> dynamicDatasets = new ArrayList<>();
 
-    public RoutingProfile(String profileName, ProfileProperties profile, EngineProperties engine, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
-
+    public RoutingProfile(String profileName, ProfileProperties profile, EngineProperties engine, RoutingProfileLoadContext loadCntx) throws Exception {
         this.profileName = profileName;
         this.profileProperties = profile;
         this.engineProperties = engine;
-        this.graphVersion = graphVersion;
-
         mGraphHopper = initGraphHopper(loadCntx);
         ExecutionProperties execution = profile.getService().getExecution();
-
         if (execution.getMethods().getAstar().getApproximation() != null)
             astarApproximation = execution.getMethods().getAstar().getApproximation();
         if (execution.getMethods().getAstar().getEpsilon() != null)
@@ -92,7 +91,7 @@ public class RoutingProfile {
 
 
     public ORSGraphHopper initGraphHopper(RoutingProfileLoadContext loadCntx) throws Exception {
-        ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(graphVersion, engineProperties, profileProperties);
+        ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(engineProperties, profileProperties);
         profileProperties = orsGraphManager.loadProfilePropertiesFromActiveGraph(orsGraphManager, profileProperties);
 
         ORSGraphHopperConfig args = ORSGraphHopperConfig.createGHSettings(profileProperties, engineProperties, orsGraphManager.getActiveGraphDirAbsPath());
@@ -205,7 +204,12 @@ public class RoutingProfile {
         // create a zip archive of all files in graphFilesPath with .ghz extension
         Path graphArchiveDst = profileProperties.getGraphPath().resolve(graphName + ".ghz");
         try (FileOutputStream fos = new FileOutputStream(graphArchiveDst.toFile()); ZipOutputStream zos = new ZipOutputStream(fos)) {
-            for (File file : Objects.requireNonNull(graphFilesPath.toFile().listFiles())) {
+            File[] graphFiles = graphFilesPath.toFile().listFiles();
+            if (graphFiles == null) {
+                LOGGER.error("No graph files found to archive at %s, though we found a graph_build_info file before.".formatted(graphFilesPath.toString()));
+                return;
+            }
+            for (File file : graphFiles) {
                 if (!Files.isDirectory(file.toPath())) {
                     try (FileInputStream fis = new FileInputStream(file)) {
                         ZipEntry zipEntry = new ZipEntry(graphFilesPath.relativize(file.toPath()).toString());
@@ -236,8 +240,10 @@ public class RoutingProfile {
     public boolean hasCHProfile(String profileName) {
         boolean hasCHProfile = false;
         for (CHProfile chProfile : getGraphhopper().getCHPreparationHandler().getCHProfiles()) {
-            if (profileName.equals(chProfile.getProfile()))
+            if (profileName.equals(chProfile.getProfile())) {
                 hasCHProfile = true;
+                break;
+            }
         }
         return hasCHProfile;
     }
@@ -262,14 +268,6 @@ public class RoutingProfile {
         mGraphHopper.close();
     }
 
-    public String getAstarApproximation() {
-        return astarApproximation;
-    }
-
-    public Double getAstarEpsilon() {
-        return astarEpsilon;
-    }
-
     public boolean equals(Object o) {
         return o != null && o.getClass().equals(RoutingProfile.class) && this.hashCode() == o.hashCode();
     }
@@ -282,10 +280,6 @@ public class RoutingProfile {
         return this.profileName;
     }
 
-    public ProfileProperties getProfileProperties() {
-        return this.profileProperties;
-    }
-
     public void addDynamicData(String datasetName) {
         getGraphhopper().addSparseEncodedValue(datasetName);
         dynamicDatasets.add(datasetName);
@@ -293,10 +287,6 @@ public class RoutingProfile {
 
     public boolean hasDynamicData() {
         return !dynamicDatasets.isEmpty();
-    }
-
-    public List<String> getDynamicDatasets() {
-        return dynamicDatasets;
     }
 
     public void updateDynamicData(String key, int edgeID, String value) {

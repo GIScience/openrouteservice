@@ -22,15 +22,14 @@ import org.springframework.stereotype.Service;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class EngineService implements ServletContextListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(EngineService.class);
-
+    public static final String SHUTDOWN_IMMEDIATELY = "ors.engine_service.shutdown";
     private final EngineProperties engineProperties;
     private final GraphService graphService;
-    private
-    final Environment environment;
     @Getter
     private final RoutingProfileManager routingProfileManager;
 
@@ -38,18 +37,23 @@ public class EngineService implements ServletContextListener {
     public EngineService(EngineProperties engineProperties, GraphService graphService, Environment environment) {
         this.engineProperties = engineProperties;
         this.graphService = graphService;
-        this.environment = environment;
-        routingProfileManager = new RoutingProfileManager(engineProperties, AppInfo.GRAPH_VERSION);
+        routingProfileManager = new RoutingProfileManager(engineProperties, engineProperties.getPreparationMode() && environment.getActiveProfiles().length == 0);
     }
 
-    public synchronized RoutingProfileManager waitForActiveRoutingProfileManager() {
-        while (!routingProfileManager.isReady()) {
-            try {
-                this.wait(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                LOGGER.error("Thread interrupted while waiting for RoutingProfileManager to be ready.", e);
-            }
+    /*
+     * Waits for the RoutingProfileManager to be fully initialized and ready.
+     * This method blocks the calling thread until the initialization is complete.
+     * EngineSevice.getRoutingProfileManager().isReady() can be used to check the readiness without blocking.
+     *
+     * @return The initialized RoutingProfileManager instance.
+     * */
+    public RoutingProfileManager waitForInitializedRoutingProfileManager() {
+        try {
+            routingProfileManager.awaitReady();
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error("Thread interrupted while waiting for RoutingProfileManager to be ready.");
+            routingProfileManager.setFailed(true);
+            Thread.currentThread().interrupt();
         }
         return routingProfileManager;
     }
@@ -59,41 +63,46 @@ public class EngineService implements ServletContextListener {
         String outputTarget = configurationOutputTarget(engineProperties);
         if (!StringUtility.isNullOrEmpty(outputTarget)) {
             copyDefaultConfigurationToFile(outputTarget);
-            routingProfileManager.setShutdown(true);
+            System.setProperty(SHUTDOWN_IMMEDIATELY, "true");
             return;
         }
+        LOGGER.info("Initializing ORS...");
         new Thread(this::initializeORS, "ORS-Init").start();
     }
 
+    public void reloadGraphs() {
+        if (!routingProfileManager.isReady()) {
+            LOGGER.warn("RoutingProfileManager initialization is in progress, skipping graph reload request.");
+            return;
+        }
+        LOGGER.info("Reloading ORS graphs...");
+        new Thread(this::initializeORS, "ORS-Reload").start();
+    }
+
     private void initializeORS() {
-        synchronized (EngineService.class) {
-            try {
-                LOGGER.info("Initializing ORS...");
-                graphService.setIsActivatingGraphs(true);
-                routingProfileManager.initialize();
-                if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
-                    LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
-                    if (environment.getActiveProfiles().length == 0) { // only exit if no active profile is set (i.e., not in test mode)
-                        routingProfileManager.setShutdown(true);
-                    }
-                }
-                if (routingProfileManager.isShutdown()) {
-                    System.exit(routingProfileManager.hasFailed() ? 1 : 0);
-                }
-                for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
-                    ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
-                    if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Adding orsGraphManager for profile %s with encoder %s to GraphService".formatted(profile.getProfileConfiguration().getProfileName(), profile.getProfileConfiguration().getEncoderName()));
-                        }
-                        graphService.addGraphManagerInstance(orsGraphManager);
-                    }
-                }
-            } catch (Exception e) {
-                LOGGER.warn("Unable to initialize ORS due to an unexpected exception: %s".formatted(e.toString()));
-            } finally {
-                graphService.setIsActivatingGraphs(false);
+        try {
+            graphService.setIsActivatingGraphs(true);
+            routingProfileManager.initialize();
+            routingProfileManager.awaitReady();
+            if (routingProfileManager.isShutdown() || routingProfileManager.hasFailed()) {
+                System.exit(routingProfileManager.hasFailed() ? 1 : 0);
             }
+            for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
+                ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
+                if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("[%s] Adding orsGraphManager for profile %s with encoder %s to GraphService".formatted(orsGraphManager.getQualifiedProfileName(), orsGraphManager.getQualifiedProfileName(), profile.getProfileConfiguration().getEncoderName()));
+                    }
+                    graphService.addGraphManagerInstance(orsGraphManager);
+                }
+            }
+        } catch (InterruptedException e) {
+            LOGGER.error("Thread interrupted during ORS initialization.");
+            Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            LOGGER.warn("Unable to initialize ORS due to an unexpected exception: %s".formatted(e.toString()));
+        } finally {
+            graphService.setIsActivatingGraphs(false);
         }
     }
 
@@ -112,10 +121,8 @@ public class EngineService implements ServletContextListener {
 
     public static String configurationOutputTarget(EngineProperties engineProperties) {
         String output = engineProperties.getConfigOutput();
-        if (StringUtility.isNullOrEmpty(output))
-            return null;
-        if (!output.endsWith(".yml") && !output.endsWith(".yaml"))
-            output += ".yml";
+        if (StringUtility.isNullOrEmpty(output)) return null;
+        if (!output.endsWith(".yml") && !output.endsWith(".yaml")) output += ".yml";
         return output;
     }
 

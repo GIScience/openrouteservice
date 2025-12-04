@@ -27,7 +27,7 @@ class ORSStartupTest extends ServiceTest {
 
     @Test
     void testGraphBuildInfoFilesWrittenCorrectly() throws ParseException, ORSGraphFileManagerException {
-        RoutingProfileManager rpm = engineService.waitForActiveRoutingProfileManager();
+        RoutingProfileManager rpm = engineService.waitForInitializedRoutingProfileManager();
         RoutingProfile profile = rpm.getRoutingProfile(EncoderNameEnum.DRIVING_CAR.getEncoderName());
         GraphBuildInfo graphBuildInfo = profile.getGraphhopper().getOrsGraphManager().getActiveGraphBuildInfo();
         ProfileProperties profileProperties = graphBuildInfo.getPersistedGraphBuildInfo().getProfileProperties();

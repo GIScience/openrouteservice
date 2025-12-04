@@ -57,7 +57,7 @@ public class IsochronesService extends ApiService {
         validateAgainstConfig(isochroneRequest);
 
         if (!travellers.isEmpty()) {
-            IsochroneMapCollection isoMaps = isochroneRequest.computeIsochrones(engineService.waitForActiveRoutingProfileManager());
+            IsochroneMapCollection isoMaps = isochroneRequest.computeIsochrones(engineService.waitForInitializedRoutingProfileManager());
             // TODO: is this necessary? It seems unusual to transport the response through the request object
             isochronesRequest.setIsoMaps(isoMaps);
         }
@@ -284,7 +284,7 @@ public class IsochronesService extends ApiService {
         String calcMethod = isochroneRequest.getCalcMethod();
         Integer res;
 
-        RoutingProfileManager rpm = engineService.waitForActiveRoutingProfileManager();
+        RoutingProfileManager rpm = engineService.waitForInitializedRoutingProfileManager();
         FastIsochroneFactory fastIsochroneFactory = rpm.getRoutingProfile(traveller.getRouteSearchParameters().getProfileName()).getGraphhopper().getFastIsochroneFactory();
         if (fastIsochroneFactory.isEnabled() && calcMethod.equalsIgnoreCase("fastisochrone"))
             return getMaximumRangeFastIsochrone(traveller, isochroneRequest);

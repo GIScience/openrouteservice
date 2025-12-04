@@ -10,7 +10,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -30,11 +29,10 @@ public class Application extends SpringBootServletInitializer {
         if (args.length > 0 && !StringUtility.isNullOrEmpty(args[0]) && !args[0].startsWith("-")) {
             System.setProperty(ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY, args[0]);
         }
-        ApplicationContext context = SpringApplication.run(Application.class, args);
+        SpringApplication.run(Application.class, args);
         LOG.info("openrouteservice %s".formatted(AppInfo.getEngineInfo()));
-
-        if (context.getBean(EngineService.class).getRoutingProfileManager().isShutdown()) {
-            System.exit(context.getBean(EngineService.class).getRoutingProfileManager().hasFailed() ? 1 : 0);
+        if (System.getProperty(EngineService.SHUTDOWN_IMMEDIATELY, "").equals("true")) {
+            System.exit(0);
         }
     }
 

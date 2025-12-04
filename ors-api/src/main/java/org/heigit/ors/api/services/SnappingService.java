@@ -29,7 +29,7 @@ public class SnappingService extends ApiService {
         SnappingRequest snappingRequest = this.convertSnappingRequest(snappingApiRequest);
         validateAgainstConfig(snappingRequest);
         try {
-            RoutingProfile rp = engineService.waitForActiveRoutingProfileManager().getRoutingProfile(snappingRequest.getProfileName());
+            RoutingProfile rp = engineService.waitForInitializedRoutingProfileManager().getRoutingProfile(snappingRequest.getProfileName());
             if (rp == null)
                 throw new InternalServerException(SnappingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
             return snappingRequest.computeResult(rp);

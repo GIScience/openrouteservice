@@ -34,7 +34,7 @@ public class MatchingService extends ApiService {
     }
 
     public MatchingInfo generateMatchingInformation(String profileName) throws StatusCodeException {
-        RoutingProfile rp = engineService.waitForActiveRoutingProfileManager().getRoutingProfile(profileName);
+        RoutingProfile rp = engineService.waitForInitializedRoutingProfileManager().getRoutingProfile(profileName);
         if (rp == null) {
             throw new InternalServerException(MatchingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         }
@@ -45,7 +45,7 @@ public class MatchingService extends ApiService {
     public MatchingRequest.MatchingResult generateMatchingFromRequest(MatchingApiRequest matchingApiRequest) throws StatusCodeException {
         MatchingRequest matchingRequest = this.convertMatchingRequest(matchingApiRequest);
         try {
-            RoutingProfile rp = engineService.waitForActiveRoutingProfileManager().getRoutingProfile(matchingRequest.getProfileName());
+            RoutingProfile rp = engineService.waitForInitializedRoutingProfileManager().getRoutingProfile(matchingRequest.getProfileName());
             if (rp == null) {
                 throw new InternalServerException(MatchingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
             }

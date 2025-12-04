@@ -13,7 +13,7 @@ import java.util.Map;
 @Setter
 public class EngineProperties {
     private Integer initThreads;
-    private Boolean preparationMode;
+    private Boolean preparationMode = false;
     private String configOutput;
     private DataAccessEnum graphsDataAccess;
 

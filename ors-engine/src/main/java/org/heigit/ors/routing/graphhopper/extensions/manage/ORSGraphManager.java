@@ -12,6 +12,7 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.local.FlatORSGraphFo
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.remote.*;
+import org.heigit.ors.util.AppInfo;
 
 import java.io.File;
 
@@ -29,8 +30,8 @@ public class ORSGraphManager {
     private ORSGraphFileManager orsGraphFileManager;
     private ORSGraphRepoClient orsGraphRepoClient;
 
-    public static ORSGraphManager initializeGraphManagement(String graphVersion, EngineProperties engineProperties, ProfileProperties profileProperties) {
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, profileProperties, graphVersion).build();
+    public static ORSGraphManager initializeGraphManagement(EngineProperties engineProperties, ProfileProperties profileProperties) {
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, profileProperties, AppInfo.GRAPH_VERSION).build();
         return initializeGraphManagement(managementProps);
     }
 

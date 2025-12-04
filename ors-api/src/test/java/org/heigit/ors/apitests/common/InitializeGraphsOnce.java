@@ -29,7 +29,7 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
     public void beforeAll(ExtensionContext extensionContext) {
         SpringExtension.getApplicationContext(extensionContext);
         EngineService engineService = SpringExtension.getApplicationContext(extensionContext).getBean(EngineService.class);
-        engineService.waitForActiveRoutingProfileManager();
+        engineService.waitForInitializedRoutingProfileManager();
     }
 
     private static synchronized void deleteGraphsFolderOncePerTestRun() {

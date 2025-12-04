@@ -56,7 +56,7 @@ public class ExportService extends ApiService {
     }
 
     private RoutingProfile parseRoutingProfile(String profileName) throws InternalServerException {
-        RoutingProfile rp = engineService.waitForActiveRoutingProfileManager().getRoutingProfile(profileName);
+        RoutingProfile rp = engineService.waitForInitializedRoutingProfileManager().getRoutingProfile(profileName);
         if (rp == null)
             throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         return rp;

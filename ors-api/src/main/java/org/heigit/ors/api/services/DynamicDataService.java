@@ -50,8 +50,7 @@ public class DynamicDataService {
     }
 
     private void initialize() {
-        LOGGER.info("Initializing Dynamic data service.");
-        RoutingProfileManager routingProfileManager = engineService.waitForActiveRoutingProfileManager();
+        RoutingProfileManager routingProfileManager = engineService.waitForInitializedRoutingProfileManager();
         if (routingProfileManager.isShutdown() || routingProfileManager.hasFailed()) {
             return;
         }

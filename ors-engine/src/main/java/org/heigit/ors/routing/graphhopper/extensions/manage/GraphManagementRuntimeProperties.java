@@ -195,7 +195,7 @@ public class GraphManagementRuntimeProperties {
                     derivedRepoPath = Path.of(uri);
                     derivedRepoType = GraphRepoType.FILESYSTEM;
                 } else if (isSupportedMinioScheme(uri)) {
-                    derivedRepoBaseUrl = toURL(uri);
+                    derivedRepoBaseUrl = toURL(toUri(uri.toString().substring(6)));
                     derivedRepoType = GraphRepoType.MINIO;
                 } else {
                     derivedRepoPath = Path.of(repoBaseUri);
