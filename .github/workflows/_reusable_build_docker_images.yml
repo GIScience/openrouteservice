@@ -106,7 +106,7 @@ jobs:
             # Load into Docker daemon requires specific platform syntax
             echo "output=type=docker" >> $GITHUB_OUTPUT
           else
-            echo "output=type=tar,dest=${{ steps.artifact.outputs.artifact_full_path }}" >> $GITHUB_OUTPUT
+            echo "output=type=docker,dest=${{ steps.artifact.outputs.artifact_full_path }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Build Docker image
