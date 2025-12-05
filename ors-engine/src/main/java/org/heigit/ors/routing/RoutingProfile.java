@@ -13,10 +13,12 @@
  */
 package org.heigit.ors.routing;
 
+import com.google.common.base.Strings;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
@@ -26,16 +28,27 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
+import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.TimeUtility;
 import org.json.simple.JSONObject;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.
@@ -50,27 +63,26 @@ public class RoutingProfile {
     private static final Object lockObj = new Object();
     private static int profileIdentifier = 0;
 
-    private String profileName;
+    private final String profileName;
+    private final EngineProperties engineProperties;
+    @Getter
     private ProfileProperties profileProperties;
-    private EngineProperties engineProperties;
-    private String graphVersion;
 
     private final ORSGraphHopper mGraphHopper;
+    @Getter
     private String astarApproximation;
+    @Getter
     private Double astarEpsilon;
 
+    @Getter
     private final List<String> dynamicDatasets = new ArrayList<>();
 
-    public RoutingProfile(String profileName, ProfileProperties profile, EngineProperties engine, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
-
+    public RoutingProfile(String profileName, ProfileProperties profile, EngineProperties engine, RoutingProfileLoadContext loadCntx) throws Exception {
         this.profileName = profileName;
         this.profileProperties = profile;
         this.engineProperties = engine;
-        this.graphVersion = graphVersion;
-
         mGraphHopper = initGraphHopper(loadCntx);
         ExecutionProperties execution = profile.getService().getExecution();
-
         if (execution.getMethods().getAstar().getApproximation() != null)
             astarApproximation = execution.getMethods().getAstar().getApproximation();
         if (execution.getMethods().getAstar().getEpsilon() != null)
@@ -79,7 +91,7 @@ public class RoutingProfile {
 
 
     public ORSGraphHopper initGraphHopper(RoutingProfileLoadContext loadCntx) throws Exception {
-        ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(graphVersion, engineProperties, profileProperties);
+        ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(engineProperties, profileProperties);
         profileProperties = orsGraphManager.loadProfilePropertiesFromActiveGraph(orsGraphManager, profileProperties);
 
         ORSGraphHopperConfig args = ORSGraphHopperConfig.createGHSettings(profileProperties, engineProperties, orsGraphManager.getActiveGraphDirAbsPath());
@@ -141,14 +153,101 @@ public class RoutingProfile {
             if (!file2.exists())
                 Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
         }
+
+        if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
+            prepareGeneratedGraphForUpload(profileProperties, AppInfo.GRAPH_VERSION);
+        }
         return gh;
+    }
+
+    /**
+     * Prepares the generated graph for upload when running in preparation mode.
+     *
+     * <p>This is a static helper method which expects a fully-initialized {@link ProfileProperties}
+     * instance and prepares the graph files located under {@code profileProperties.getGraphPath()/profileProperties.getProfileName()}.
+     * The method performs the following steps:
+     * <ul>
+     *     <li>Constructs a graph name using the profile group, graph extent, the application graph version and the encoder name, separated by underscores.</li>
+     *     <li>Copies the graph build info file ("graph_build_info.yml") from the profile directory to the graph path, renaming it to "{graphName}.yml".</li>
+     *     <li>Creates a ZIP archive of the graph directory, saving it as "{graphName}.ghz" in the graph path.</li>
+     *     <li>Deletes the original graph directory after archiving.</li>
+     * </ul>
+     *
+     * <p>Important behaviour and error handling:
+     * <ul>
+     *     <li>The method is defensive: IO errors while copying the graph build info or while creating the archive are logged and cause an early return so no further steps are executed.</li>
+     *     <li>Errors while deleting the original graph directory are caught and logged; the method does not rethrow them.</li>
+     *     <li>This method mutates the filesystem (creates files and archives, and attempts to delete directories). Tests that exercise it should use temporary directories.</li>
+     * </ul>
+     *
+     * @param profileProperties profile properties holding graph path and profile name; must not be null and must include a non-null graph path and profile name
+     */
+    public static void prepareGeneratedGraphForUpload(ProfileProperties profileProperties, String graphVersion) {
+        LOGGER.info("Running in preparation_mode, preparing graph for upload");
+        String graphBaseFilename = getPreparationBaseFilename(profileProperties, graphVersion);
+        Path graphFilesPath = profileProperties.getGraphPath().resolve(profileProperties.getProfileName());
+
+        // copy graph_build_info.yml to {graphBaseFilename}.yml
+        try {
+            Path graphInfoSrc = graphFilesPath.resolve("graph_build_info.yml");
+            Path graphInfoDst = profileProperties.getGraphPath().resolve(graphBaseFilename + ".yml");
+            Files.copy(graphInfoSrc, graphInfoDst, REPLACE_EXISTING);
+            LOGGER.info("Copied graph info from %s to %s".formatted(graphInfoSrc.toString(), graphInfoDst.toString()));
+        } catch (IOException e) {
+            LOGGER.error("Failed to copy graph build info: %s".formatted(e.toString()));
+            return;
+        }
+
+        // create a zip archive of all files in graphFilesPath with .ghz extension
+        Path graphArchiveDst = profileProperties.getGraphPath().resolve(graphBaseFilename + ".ghz");
+        try (FileOutputStream fos = new FileOutputStream(graphArchiveDst.toFile()); ZipOutputStream zos = new ZipOutputStream(fos)) {
+            File[] graphFiles = graphFilesPath.toFile().listFiles();
+            if (graphFiles == null) {
+                LOGGER.error("No graph files found to archive at %s, though we found a graph_build_info file before.".formatted(graphFilesPath.toString()));
+                return;
+            }
+            for (File file : graphFiles) {
+                if (!Files.isDirectory(file.toPath())) {
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        ZipEntry zipEntry = new ZipEntry(graphFilesPath.relativize(file.toPath()).toString());
+                        zos.putNextEntry(zipEntry);
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = fis.read(buffer)) > 0) {
+                            zos.write(buffer, 0, len);
+                        }
+                    }
+                }
+            }
+            LOGGER.info("Created archive %s".formatted(graphArchiveDst.toString()));
+        } catch (IOException e) {
+            LOGGER.error("Failed to create archive: %s".formatted(e.toString()));
+            return;
+        }
+
+        // delete original graph files
+        try {
+            FileSystemUtils.deleteRecursively(graphFilesPath);
+            LOGGER.info("Deleted original graph files at %s after archiving.".formatted(graphFilesPath.toString()));
+        } catch (IOException e) {
+            LOGGER.error("Failed to delete graph files: %s".formatted(e.toString()));
+        }
+    }
+
+    public static String getPreparationBaseFilename(ProfileProperties profileProperties, String graphVersion) {
+        String profileGroup = Strings.isNullOrEmpty(profileProperties.getBuild().getProfileGroup()) ? "unknownGroup" : profileProperties.getBuild().getProfileGroup();
+        String graphExtent = Strings.isNullOrEmpty(profileProperties.getBuild().getGraphExtent()) ? "unknownExtent" : profileProperties.getBuild().getGraphExtent();
+        String encoderName = Strings.isNullOrEmpty(profileProperties.getEncoderName().toString()) ? "unknownEncoder" : profileProperties.getEncoderName().toString();
+        return String.join("_", profileGroup, graphExtent, graphVersion, encoderName);
     }
 
     public boolean hasCHProfile(String profileName) {
         boolean hasCHProfile = false;
         for (CHProfile chProfile : getGraphhopper().getCHPreparationHandler().getCHProfiles()) {
-            if (profileName.equals(chProfile.getProfile()))
+            if (profileName.equals(chProfile.getProfile())) {
                 hasCHProfile = true;
+                break;
+            }
         }
         return hasCHProfile;
     }
@@ -173,14 +272,6 @@ public class RoutingProfile {
         mGraphHopper.close();
     }
 
-    public String getAstarApproximation() {
-        return astarApproximation;
-    }
-
-    public Double getAstarEpsilon() {
-        return astarEpsilon;
-    }
-
     public boolean equals(Object o) {
         return o != null && o.getClass().equals(RoutingProfile.class) && this.hashCode() == o.hashCode();
     }
@@ -193,10 +284,6 @@ public class RoutingProfile {
         return this.profileName;
     }
 
-    public ProfileProperties getProfileProperties() {
-        return this.profileProperties;
-    }
-
     public void addDynamicData(String datasetName) {
         getGraphhopper().addSparseEncodedValue(datasetName);
         dynamicDatasets.add(datasetName);
@@ -206,12 +293,8 @@ public class RoutingProfile {
         return !dynamicDatasets.isEmpty();
     }
 
-    public List<String> getDynamicDatasets() {
-        return dynamicDatasets;
-    }
-
     public void updateDynamicData(String key, int edgeID, String value) {
-        Function<String,Object> stateFromString = null;
+        Function<String, Object> stateFromString = null;
         switch (key) {
             case LogieBorders.KEY:
                 stateFromString = s -> LogieBorders.valueOf(s.replace(" ", "_").toUpperCase());

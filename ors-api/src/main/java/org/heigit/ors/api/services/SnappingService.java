@@ -6,7 +6,6 @@ import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.RoutingProfile;
-import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.snapping.SnappingErrorCodes;
 import org.heigit.ors.snapping.SnappingRequest;
 import org.heigit.ors.snapping.SnappingResult;
@@ -20,7 +19,8 @@ import java.util.List;
 public class SnappingService extends ApiService {
 
     @Autowired
-    public SnappingService(EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
+    public SnappingService(EngineService engineService, EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
+        super(engineService);
         this.endpointsProperties = endpointsProperties;
         this.apiEngineProperties = apiEngineProperties;
     }
@@ -29,7 +29,7 @@ public class SnappingService extends ApiService {
         SnappingRequest snappingRequest = this.convertSnappingRequest(snappingApiRequest);
         validateAgainstConfig(snappingRequest);
         try {
-            RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(snappingRequest.getProfileName());
+            RoutingProfile rp = engineService.waitForInitializedRoutingProfileManager().getRoutingProfile(snappingRequest.getProfileName());
             if (rp == null)
                 throw new InternalServerException(SnappingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
             return snappingRequest.computeResult(rp);
@@ -43,7 +43,7 @@ public class SnappingService extends ApiService {
     }
 
     private SnappingRequest convertSnappingRequest(SnappingApiRequest snappingApiRequest) throws StatusCodeException {
-        int profileType = -1;
+        int profileType;
         try {
             profileType = convertRouteProfileType(snappingApiRequest.getProfile());
         } catch (Exception e) {

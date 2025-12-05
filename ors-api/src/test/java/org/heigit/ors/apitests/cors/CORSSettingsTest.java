@@ -18,7 +18,6 @@ import org.heigit.ors.api.config.CorsProperties;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,20 +37,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @EndPointAnnotation(name = "status")
 @VersionAnnotation(version = "v2")
 class CORSSettingsTest extends ServiceTest {
+    private final CorsProperties corsProperties;
+    private final List<String> allowedOrigins;
+    private final List<String> allowedHeaders;
+    private static final List<String> exposedHeaders = List.of("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
 
     @Autowired
-    CorsProperties corsProperties;
-
-    @BeforeEach
-    void init() {
+    public CORSSettingsTest(CorsProperties corsProperties) {
+        this.corsProperties = corsProperties;
         allowedOrigins = corsProperties.getAllowedOrigins();
         allowedHeaders = corsProperties.getAllowedHeaders();
     }
-
-    List<String> allowedOrigins;
-    List<String> allowedHeaders;
-
-    final static List<String> exposedHeaders = List.of("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
 
     @Test
     @DisplayName("Requests without 'Origin' header pass with 200 response")

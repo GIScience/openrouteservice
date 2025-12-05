@@ -2,6 +2,7 @@ package org.heigit.ors.api.requests.isochrones;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
 import org.heigit.ors.exceptions.ParameterValueException;
 
 import static org.heigit.ors.isochrones.IsochronesErrorCodes.INVALID_PARAMETER_VALUE;
@@ -94,6 +95,7 @@ public class IsochronesRequestEnums {
         CONCAVE_BALLS("concaveballs"),
         FASTISOCHRONE("fastisochrone");
 
+        @Getter
         private final String value;
 
         CalculationMethod(String value) {

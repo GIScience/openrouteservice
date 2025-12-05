@@ -125,6 +125,8 @@ ors:
 #    init_threads: 1
 #    preparation_mode: false
 #    graphs_data_access: RAM_STORE
+#    dynamic_data:
+#      enabled: false
 #    elevation:
 #      preprocessed: false
 #      data_access: MMAP

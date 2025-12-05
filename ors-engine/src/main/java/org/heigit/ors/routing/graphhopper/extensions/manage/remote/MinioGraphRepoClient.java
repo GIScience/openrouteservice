@@ -145,7 +145,7 @@ public class MinioGraphRepoClient extends AbstractGraphRepoClient implements ORS
         try {
             if (minioClient == null) {
                 MinioClient.Builder builder = MinioClient.builder()
-                        .endpoint(managementProps.getRepoBaseUri().replace("minio:", ""));
+                        .endpoint(managementProps.getDerivedRepoBaseUrl());
                 if (!isNullOrEmpty(managementProps.getRepoUser()) && !isNullOrEmpty(managementProps.getRepoPass())) {
                     builder.credentials(managementProps.getRepoUser(), managementProps.getRepoPass());
                 }

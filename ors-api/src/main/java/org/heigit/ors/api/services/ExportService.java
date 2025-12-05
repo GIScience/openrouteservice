@@ -14,7 +14,6 @@ import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.routing.RoutingProfile;
-import org.heigit.ors.routing.RoutingProfileManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,8 @@ import java.util.List;
 public class ExportService extends ApiService {
 
     @Autowired
-    public ExportService(EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
+    public ExportService(EngineService engineService, EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
+        super(engineService);
         this.endpointsProperties = endpointsProperties;
         this.apiEngineProperties = apiEngineProperties;
     }
@@ -55,21 +55,19 @@ public class ExportService extends ApiService {
         return exportRequest;
     }
 
-    private static RoutingProfile parseRoutingProfile(String profileName) throws InternalServerException {
-        RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(profileName);
+    private RoutingProfile parseRoutingProfile(String profileName) throws InternalServerException {
+        RoutingProfile rp = engineService.waitForInitializedRoutingProfileManager().getRoutingProfile(profileName);
         if (rp == null)
             throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         return rp;
     }
 
     private static int parseProfileType(APIEnums.Profile profile) throws ParameterValueException {
-        int profileType = -1;
         try {
-            profileType = convertRouteProfileType(profile);
+            return convertRouteProfileType(profile);
         } catch (Exception e) {
             throw new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_VALUE, ExportApiRequest.PARAM_PROFILE);
         }
-        return profileType;
     }
 
     BBox convertBBox(List<List<Double>> coordinates) throws ParameterValueException {

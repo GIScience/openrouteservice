@@ -20,12 +20,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.services.DynamicDataService;
-import org.heigit.ors.api.services.MatchingService;
+import org.heigit.ors.api.services.EngineService;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
-import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.AppInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -46,10 +45,12 @@ import java.util.List;
 @RequestMapping("/v2/status")
 public class StatusAPI {
 
+    private final EngineService engineService;
     private final EndpointsProperties endpointsProperties;
     DynamicDataService dynamicDataService;
 
-    public StatusAPI(EndpointsProperties endpointsProperties, DynamicDataService dynamicDataService) {
+    public StatusAPI(EngineService engineService, EndpointsProperties endpointsProperties, DynamicDataService dynamicDataService) {
+        this.engineService = engineService;
         this.endpointsProperties = endpointsProperties;
         this.dynamicDataService = dynamicDataService;
     }
@@ -62,14 +63,11 @@ public class StatusAPI {
         JSONObject jInfo = new JSONObject(true);
         jInfo.put("engine", AppInfo.getEngineInfo());
 
-        if (RoutingProfileManagerStatus.isReady()) {
-            RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
-
-            if (!profileManager.getUniqueProfiles().isEmpty()) {
-                addServicesInfo(jInfo);
-                addLanguagesInfo(jInfo);
-                addProfilesInfo(jInfo, profileManager);
-            }
+        RoutingProfileManager routingProfileManager = engineService.getRoutingProfileManager();
+        if (routingProfileManager.isReady() && !routingProfileManager.getUniqueProfiles().isEmpty()) {
+            addServicesInfo(jInfo);
+            addLanguagesInfo(jInfo);
+            addProfilesInfo(jInfo, routingProfileManager);
         }
 
         String jsonResponse = constructResponse(request, jInfo);
@@ -145,7 +143,7 @@ public class StatusAPI {
 
     private String constructResponse(HttpServletRequest req, JSONObject json) {
         String type = getParam(req, "type", "json");
-        boolean debug = getBooleanParam(req, "debug", false) || getBooleanParam(req, "pretty", false);
+        boolean debug = getBooleanParam(req, "debug") || getBooleanParam(req, "pretty");
         if ("jsonp".equals(type)) {
 
             String callbackName = getParam(req, "callback", null);
@@ -167,19 +165,18 @@ public class StatusAPI {
         }
     }
 
-    protected boolean getBooleanParam(HttpServletRequest req, String string, boolean defaultValue) {
+    protected boolean getBooleanParam(HttpServletRequest req, String string) {
         try {
-            return Boolean.parseBoolean(getParam(req, string, "" + defaultValue));
+            return Boolean.parseBoolean(getParam(req, string, "false"));
         } catch (Exception ex) {
-            return defaultValue;
+            return false;
         }
     }
 
-    protected String getParam(HttpServletRequest req, String string, String defaultValue) {
-        String[] l = req.getParameterMap().get(string);
+    protected String getParam(HttpServletRequest req, String parameterKey, String defaultValue) {
+        String[] l = req.getParameterMap().get(parameterKey);
         if (l != null && l.length > 0)
             return l[0];
-
         return defaultValue;
     }
 }

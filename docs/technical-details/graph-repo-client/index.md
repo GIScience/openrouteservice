@@ -103,7 +103,7 @@ In the following graph repository example there are graphs for three target grou
 http://repos.provider.com/graphs/                        # repo base URL
 ├── project-b                                            # repo name
 │   └── basic                                            # profile group
-│       └── switzerland                                  # coverage
+│       └── switzerland                                  # graph extent
 │           └── 2                                        # graph version
 │               ├── switzerland_2_cycling-mountain.ghz   # compacted graph
 │               ├── switzerland_2_cycling-mountain.yml   # metadata
@@ -113,7 +113,7 @@ http://repos.provider.com/graphs/                        # repo base URL
 │               └── switzerland_2_cycling-street.yml     # metadata       
 ├── public                                               # repo name       
 │   └── basic                                            # profile group   
-│       └── europe                                       # coverage        
+│       └── europe                                       # graph extent        
 │           ├── 1                                        # graph version   
 │           │   ├── europe_1_driving-car.ghz             # compacted graph 
 │           │   ├── europe_1_driving-car.yml             # metadata        

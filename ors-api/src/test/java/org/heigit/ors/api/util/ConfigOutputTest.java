@@ -15,7 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = Application.class,
-        properties = "ors.engine.config_output=./target/config_output.yml")
+        properties = {
+            "ors.engine.config_output=./target/config_output.yml",
+            "ors.engine.dynamic_data.enabled=false"
+        })
 @ActiveProfiles("test")
 class ConfigOutputTest {
 

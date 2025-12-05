@@ -1,7 +1,6 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.APIEnums;
-import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
@@ -34,23 +33,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("unittest")
-public class IsochronesServiceTest {
+class IsochronesServiceTest {
     IsochronesRequest request;
 
-    private RequestProfileParamsRestrictions vehicleParams;
-    private RequestProfileParamsRestrictions cyclingParams;
-    private RequestProfileParamsRestrictions walkingParams;
-    private RequestProfileParamsRestrictions wheelchairParams;
     private JSONObject geoJsonPolygon;
 
-    @Autowired
-    private EndpointsProperties endpointsProperties = new EndpointsProperties();
     @Autowired
     private IsochronesService isochronesService;
 
     private JSONObject constructGeoJson() {
-        JSONObject geoJsonPolygon = new JSONObject();
-        geoJsonPolygon.put("type", "Polygon");
+        JSONObject polygon = new JSONObject();
+        polygon.put("type", "Polygon");
         JSONArray coordsArray = new JSONArray();
         coordsArray.add(new Double[]{49.0, 8.0});
         coordsArray.add(new Double[]{49.005, 8.01});
@@ -59,13 +52,13 @@ public class IsochronesServiceTest {
         JSONArray coordinates = new JSONArray();
 
         coordinates.add(coordsArray);
-        geoJsonPolygon.put("coordinates", coordinates);
+        polygon.put("coordinates", coordinates);
 
-        return geoJsonPolygon;
+        return polygon;
     }
 
     @BeforeEach
-    void init() throws Exception {
+    void init() {
 
         geoJsonPolygon = constructGeoJson();
 
@@ -87,7 +80,7 @@ public class IsochronesServiceTest {
 
         options.setAvoidPolygonFeatures(geoJsonPolygon);
 
-        vehicleParams = new RequestProfileParamsRestrictions();
+        RequestProfileParamsRestrictions vehicleParams = new RequestProfileParamsRestrictions();
 
         vehicleParams.setAxleLoad(10.0f);
         vehicleParams.setHazardousMaterial(true);
@@ -96,7 +89,7 @@ public class IsochronesServiceTest {
         vehicleParams.setWeight(30.0f);
         vehicleParams.setWidth(4.5f);
 
-        wheelchairParams = new RequestProfileParamsRestrictions();
+        RequestProfileParamsRestrictions wheelchairParams = new RequestProfileParamsRestrictions();
         wheelchairParams.setMaxIncline(3);
         wheelchairParams.setMaxSlopedKerb(1.0f);
         wheelchairParams.setMinWidth(2.0f);
@@ -122,29 +115,17 @@ public class IsochronesServiceTest {
     }
 
     @Test
-    void convertSmoothingFailWhenTooHigh() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            isochronesService.convertSmoothing(105.0);
-        });
+    void convertSmoothingFailWhenTooHigh() {
+        assertThrows(ParameterValueException.class, () -> isochronesService.convertSmoothing(105.0));
     }
 
     @Test
-    void convertSmoothingFailWhenTooLow() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            isochronesService.convertSmoothing(-5.0);
-        });
+    void convertSmoothingFailWhenTooLow() {
+        assertThrows(ParameterValueException.class, () -> isochronesService.convertSmoothing(-5.0));
     }
 
     @Test
-    void convertLocationType() throws ParameterValueException {
-        String locationType = isochronesService.convertLocationType(IsochronesRequestEnums.LocationType.DESTINATION);
-        assertEquals("destination", locationType);
-        locationType = isochronesService.convertLocationType(IsochronesRequestEnums.LocationType.START);
-        assertEquals("start", locationType);
-    }
-
-    @Test
-    void convertRangeType() throws ParameterValueException {
+    void convertRangeType() {
         TravelRangeType rangeType = isochronesService.convertRangeType(IsochronesRequestEnums.RangeType.DISTANCE);
         assertEquals(TravelRangeType.DISTANCE, rangeType);
         rangeType = isochronesService.convertRangeType(IsochronesRequestEnums.RangeType.TIME);
@@ -179,17 +160,13 @@ public class IsochronesServiceTest {
     }
 
     @Test
-    void convertSingleCoordinateInvalidLengthShort() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            isochronesService.convertSingleCoordinate(new Double[]{123.4});
-        });
+    void convertSingleCoordinateInvalidLengthShort() {
+        assertThrows(ParameterValueException.class, () -> isochronesService.convertSingleCoordinate(new Double[]{123.4}));
     }
 
     @Test
-    void convertSingleCoordinateInvalidLengthLong() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            isochronesService.convertSingleCoordinate(new Double[]{123.4, 123.4, 123.4});
-        });
+    void convertSingleCoordinateInvalidLengthLong() {
+        assertThrows(ParameterValueException.class, () -> isochronesService.convertSingleCoordinate(new Double[]{123.4, 123.4, 123.4}));
     }
 
     @Test
@@ -224,34 +201,26 @@ public class IsochronesServiceTest {
     }
 
     @Test
-    void convertCalcMethod() throws ParameterValueException {
-        String calcMethod = isochronesService.convertCalcMethod(IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS);
-        assertEquals("concaveballs", calcMethod);
-        calcMethod = isochronesService.convertCalcMethod(IsochronesRequestEnums.CalculationMethod.GRID);
-        assertEquals("grid", calcMethod);
-    }
-
-    @Test
     void convertIsochroneRequest() throws Exception {
-        IsochronesRequest request = new IsochronesRequest();
+        IsochronesRequest isochronesRequest = new IsochronesRequest();
         Double[][] locations = {{9.676034, 50.409675}, {9.676034, 50.409675}};
         Coordinate coord0 = new Coordinate();
         coord0.x = 9.676034;
         coord0.y = 50.409675;
 
-        request.setLocations(locations);
-        request.setProfile(APIEnums.Profile.DRIVING_CAR);
+        isochronesRequest.setLocations(locations);
+        isochronesRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         List<Double> range = new ArrayList<>();
         range.add(300.0);
         range.add(600.0);
-        request.setRange(range);
-        IsochroneRequest isochroneRequest = isochronesService.convertIsochroneRequest(request);
+        isochronesRequest.setRange(range);
+        IsochroneRequest isochroneRequest = isochronesService.convertIsochroneRequest(isochronesRequest);
         assertNotNull(isochroneRequest);
         assertFalse(isochroneRequest.getIncludeIntersections());
-        assertNull(request.getAttributes());
-        assertFalse(request.hasSmoothing());
-        assertNull(request.getSmoothing());
-        assertNull(request.getId());
+        assertNull(isochronesRequest.getAttributes());
+        assertFalse(isochronesRequest.hasSmoothing());
+        assertNull(isochronesRequest.getSmoothing());
+        assertNull(isochronesRequest.getId());
         assertEquals(coord0.x, isochroneRequest.getLocations()[0].x, 0);
         assertEquals(coord0.y, isochroneRequest.getLocations()[0].y, 0);
         assertEquals(coord0.x, isochroneRequest.getLocations()[1].x, 0);
@@ -276,14 +245,14 @@ public class IsochronesServiceTest {
         Coordinate realCoordinate = new Coordinate();
         realCoordinate.x = 1.0;
         realCoordinate.y = 3.0;
-        IsochronesRequest request = new IsochronesRequest();
-        request.setProfile(APIEnums.Profile.DRIVING_CAR);
-        request.setLocations(coordinates);
+        IsochronesRequest isochronesRequest = new IsochronesRequest();
+        isochronesRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        isochronesRequest.setLocations(coordinates);
         List<Double> range = new ArrayList<>();
         range.add(300.0);
         range.add(600.0);
-        request.setRange(range);
-        TravellerInfo travellerInfo = isochronesService.constructTravellerInfo(request, coordinate);
+        isochronesRequest.setRange(range);
+        TravellerInfo travellerInfo = isochronesService.constructTravellerInfo(isochronesRequest, coordinate);
         assertEquals(String.valueOf(0), travellerInfo.getId());
         assertEquals(realCoordinate, travellerInfo.getLocation());
         assertEquals("start", travellerInfo.getLocationType());
@@ -294,10 +263,10 @@ public class IsochronesServiceTest {
     @Test
     void constructRouteSearchParametersTest() throws Exception {
         Double[][] coordinates = {{1.0, 3.0}, {1.0, 3.0}};
-        IsochronesRequest request = new IsochronesRequest();
-        request.setProfile(APIEnums.Profile.DRIVING_CAR);
-        request.setLocations(coordinates);
-        RouteSearchParameters routeSearchParameters = isochronesService.constructRouteSearchParameters(request);
+        IsochronesRequest isochronesRequest = new IsochronesRequest();
+        isochronesRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        isochronesRequest.setLocations(coordinates);
+        RouteSearchParameters routeSearchParameters = isochronesService.constructRouteSearchParameters(isochronesRequest);
         assertEquals(RoutingProfileType.DRIVING_CAR, routeSearchParameters.getProfileType());
         assertEquals(WeightingMethod.RECOMMENDED, routeSearchParameters.getWeightingMethod());
         assertFalse(routeSearchParameters.getConsiderTurnRestrictions());

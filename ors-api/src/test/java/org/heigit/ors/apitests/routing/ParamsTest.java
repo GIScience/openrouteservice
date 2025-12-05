@@ -35,11 +35,12 @@ import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
 class ParamsTest extends ServiceTest {
+    private final EndpointsProperties endpointsProperties;
 
     @Autowired
-    EndpointsProperties endpointsProperties;
+    public ParamsTest(EndpointsProperties endpointsProperties) {
+        this.endpointsProperties = endpointsProperties;
 
-    public ParamsTest() {
         JSONArray coordsShort = new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.680916);
