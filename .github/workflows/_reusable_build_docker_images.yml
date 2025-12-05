@@ -48,15 +48,18 @@ on:
         description: Docker registry password (optional, for authentication)
         required: false
     outputs:
-      artifact_name:
-        description: Name of the built image artifact (if applicable, backward compatible)
-        value: ${{ jobs.build_docker_image.outputs.artifact_name || '' }}
       artifact_name_amd64:
         description: Name of the built image artifact for linux/amd64
         value: ${{ jobs.build_docker_image.outputs.artifact_name_amd64 || '' }}
       artifact_name_arm64:
         description: Name of the built image artifact for linux/arm64
         value: ${{ jobs.build_docker_image.outputs.artifact_name_arm64 || '' }}
+      image_hash_amd64:
+        description: Hash of the built image for linux/amd64
+        value: ${{ jobs.build_docker_image.outputs.image_hash_amd64 || '' }}
+      image_hash_arm64:
+        description: Hash of the built image for linux/arm64
+        value: ${{ jobs.build_docker_image.outputs.image_hash_arm64 || '' }}
 
 jobs:
   build_docker_image:
@@ -73,7 +76,8 @@ jobs:
     name: Build ${{ inputs.image_stage }} for ${{ matrix.platform }}
     runs-on: ${{ matrix.runner }}
     outputs:
-      artifact_name: ${{ steps.final-artifact.outputs.artifact_name }}
+      image_hash_amd64: ${{ matrix.platform == 'linux/amd64' && steps.final-artifact.outputs.image_hash || '' }}
+      image_hash_arm64: ${{ matrix.platform == 'linux/arm64' && steps.final-artifact.outputs.image_hash || '' }}
       artifact_name_amd64: ${{ matrix.platform == 'linux/amd64' && steps.final-artifact.outputs.artifact_name || '' }}
       artifact_name_arm64: ${{ matrix.platform == 'linux/arm64' && steps.final-artifact.outputs.artifact_name || '' }}
     steps:
@@ -136,6 +140,7 @@ jobs:
 
       - name: Build Docker image
         if: matrix.build == true
+        id: build-image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 #v6.18.0
         with:
           context: .
@@ -170,6 +175,7 @@ jobs:
         run: |
           if [ -f "${{ steps.artifact.outputs.artifact_full_path }}" ]; then
             echo "artifact_name=${{ steps.artifact.outputs.artifact_name }}" >> $GITHUB_OUTPUT
+            echo "image_hash=${{ steps.build-image.outputs.imageid }}" >> $GITHUB_OUTPUT
           else
             echo "Artifact not created, skipping upload."
             echo "artifact_name=" >> $GITHUB_OUTPUT

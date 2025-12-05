@@ -29,11 +29,31 @@ on:
       - '.rpm-packaging/**'
 
 jobs:
-  build-default-builder:
-    name: Build default builder image
+  build_test_scenario_base_image:
+    name: Build test scenario builder images
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    with:
+      image_stage: ors-test-scenarios-builder
+      docker_tag: ors-test-scenarios-builder:latest
+      dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+      build_amd64: true
+      build_arm64: false
+
+  build_test_scenario_jar_builder_image:
+    name: Build test scenario jar builder image
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    with:
+      image_stage: ors-test-scenarios-jar-builder
+      docker_tag: ors-test-scenarios-jar-builder:latest
+      dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+      build_amd64: true
+      build_arm64: false
+
+  cache-graph:
+    name: Build and cache shared graph for integration tests
     runs-on: ubuntu-latest
-    outputs:
-      builder_image_id: ${{ steps.docker_build.outputs.imageid }}
+    needs: 
+      - build_test_scenario_base_image
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,50 +63,17 @@ jobs:
       - name: Set up build environment
         uses: ./.github/actions/setup-build-environment
         with:
-          dockerfile: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+          with_java: 'true'
+          with_docker: 'false'
 
-      - name: Build ors-test-scenarios-builder
-        id: docker_build
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          load: false
-          file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
-          tags: ors-test-scenarios-builder:latest
-          target: ors-test-scenarios-builder
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
       - name: Cache the graph
         id: cache_graph
         uses: actions/cache@v4
         with:
           path: |
             ors-test-scenarios/graphs-integrationtests
-          key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ steps.docker_build.outputs.imageid }}
-      - name: Load the ors-test-scenarios-builder image
-        if: steps.cache_graph.outputs.cache-hit != 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          load: false
-          file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
-          tags: ors-test-scenarios-builder:latest
-          target: ors-test-scenarios-builder
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      - name: Load ors-test-scenarios-jar-builder image
-        if: steps.cache_graph.outputs.cache-hit != 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          load: true
-          file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
-          tags: ors-test-scenarios-jar-builder:latest
-          target: ors-test-scenarios-jar-builder
-          cache-from: type=gha
-          cache-to: type=gha,mode=min
+          key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ needs.build_test_scenario_base_image.outputs.image_hash_amd64 }}
+
       - name: Build shared graph
         if: steps.cache_graph.outputs.cache-hit != 'true'
         run: |
@@ -96,11 +83,14 @@ jobs:
             -Dcontainer.run.scenario=jar
         env:
           ONE_SHOT_GRAPH_BUILDER: true
+
   integration-tests:
     name: Integration tests
     runs-on: ubuntu-22.04
     needs:
-      - build-default-builder
+      - build_test_scenario_base_image
+      - build_test_scenario_jar_builder_image
+      - cache-graph
     strategy:
       matrix:
         test-scenario: [ "maven", "jar", "war" ]
@@ -128,16 +118,16 @@ jobs:
         with:
           path: |
             ors-test-scenarios/graphs-integrationtests
-          key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ needs.build-default-builder.outputs.builder_image_id }}
-      - name: Load ors-test-scenarios-builder image
-        uses: docker/build-push-action@v6
+          key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ needs.build_test_scenario_base_image.outputs.image_hash_amd64 }}
+      
+      - name: Download image artifact
+        uses: actions/download-artifact@v4
         with:
-          context: .
-          load: true
-          file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
-          tags: ors-test-scenarios-builder:latest
-          target: ors-test-scenarios-builder
-          cache-from: type=gha
+          name: ${{ needs.build_test_scenario_base_image.outputs.artifact_name_amd64 }}
+          path: ${{ runner.temp }}/
+      - name: Load ors-test-scenarios-base image
+        run: |
+          docker load -i ${{ runner.temp }}/${{ needs.build_test_scenario_base_image.outputs.artifact_name_amd64 }}
       - name: Build the ${{ matrix.test-scenario }} builder image
         id: docker_build
         uses: docker/build-push-action@v6
