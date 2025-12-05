@@ -1,6 +1,10 @@
 name: Setup Build Environment
 description: Set up Java/Maven and optionally Docker (QEMU + Buildx) with Maven cache injection
 inputs:
+  with_java: 
+    description: Set up Java and Maven
+    required: false
+    default: 'true'
   java_version:
     description: Java version to install
     required: false
@@ -28,6 +32,7 @@ runs:
   using: composite
   steps:
     - name: Set up JDK ${{ inputs.java_version }}
+      if: inputs.with_java == 'true'
       id: setup-java
       uses: actions/setup-java@v4
       with:
@@ -36,7 +41,7 @@ runs:
         cache: 'maven'
 
     - name: Download maven dependencies
-      if: steps.setup-java.outputs.cache-hit != 'true'
+      if: inputs.with_java == 'true' && steps.setup-java.outputs.cache-hit != 'true'
       shell: bash
       run: |
         ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
