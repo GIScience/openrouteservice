@@ -5,6 +5,7 @@ inputs:
     description: Optional override for the tag (if not from github.event.release)
     required: false
     default: ''
+    type: string
 outputs:
   tag:
     description: The release tag
