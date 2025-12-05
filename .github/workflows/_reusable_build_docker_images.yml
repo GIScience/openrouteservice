@@ -51,9 +51,6 @@ on:
       artifact_name:
         description: Name of the built image artifact (if applicable)
         value: ${{ jobs.build_docker_image.outputs.artifact_name || '' }}
-      artifact_filename:
-        description: Filename of the Docker image tarball (if applicable)
-        value: ${{ jobs.build_docker_image.outputs.artifact_filename || '' }}
 
 jobs:
   build_docker_image:
@@ -62,7 +59,6 @@ jobs:
     if: ${{ !(inputs.skip_on_draft && github.event_name == 'pull_request' && github.event.pull_request.draft) }}
     outputs:
       artifact_name: ${{ steps.final-artifact.outputs.artifact_name }}
-      artifact_filename: ${{ steps.final-artifact.outputs.artifact_filename }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -84,9 +80,7 @@ jobs:
         run: |
           PLATFORM_NAME=$(echo "${{ inputs.platform }}" | sed 's/\//_/g')
           ARTIFACT_NAME="image-${PLATFORM_NAME}-${{ inputs.image_stage }}-${{ steps.dockerfile-hash.outputs.hash }}.tar"
-          ARTIFACT_FILENAME="image-${PLATFORM_NAME}-${{ inputs.image_stage }}.tar"
           echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
-          echo "artifact_filename=$ARTIFACT_FILENAME" >> $GITHUB_OUTPUT
           ARTIFACT_PATH="${{ runner.temp }}"
           echo "artifact_path=$ARTIFACT_PATH" >> $GITHUB_OUTPUT
           ARTIFACT_FULL_PATH="${ARTIFACT_PATH}/${ARTIFACT_NAME}"
@@ -148,9 +142,7 @@ jobs:
         run: |
           if [ -f "${{ steps.artifact.outputs.artifact_full_path }}" ]; then
             echo "artifact_name=${{ steps.artifact.outputs.artifact_name }}" >> $GITHUB_OUTPUT
-            echo "artifact_filename=${{ steps.artifact.outputs.artifact_filename }}" >> $GITHUB_OUTPUT
           else
             echo "Artifact not created, skipping upload."
             echo "artifact_name=" >> $GITHUB_OUTPUT
-            echo "artifact_filename=" >> $GITHUB_OUTPUT
           fi
