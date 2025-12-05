@@ -16,7 +16,7 @@ jobs:
         uses: evaristegalois11/sonar-fork-analysis@v1
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
           project-key: 'GIScience_openrouteservice'

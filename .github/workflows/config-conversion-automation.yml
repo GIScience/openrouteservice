@@ -21,13 +21,13 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
       - name: yq - portable yaml processor
-        uses: mikefarah/yq@v4.40.5
+        uses: mikefarah/yq@7ccaf8e700ce99eb3f0f6cef7f5930a0b3c827cd #v4.49.2
+        with:
+          cmd: yq --version
       - name: validate application.yml
         run: .github/utils/yml_config_validation.sh ors-api/src/main/resources/application.yml
       - name: Convert application.yml to ors-config.yml and ors-config.env
         run: |
-          # Print yq version
-          yq --version
           .github/utils/yml_config_to_ors_config_conversion.sh ors-api/src/main/resources/application.yml ors-config.yml
           .github/utils/yml_config_to_properties_conversion.sh ors-api/src/main/resources/application.yml ors-config.env
       - uses: MichaelsJP/git-auto-commit-action@v5

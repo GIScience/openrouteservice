@@ -17,30 +17,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          with_docker: 'false'
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-sonar
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Download maven dependencies
-        run: ./mvnw install -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
       - name: run unit tests
-        run: ./mvnw -B verify -Papitests -T $(nproc) -DCI=true
+        run: ./mvnw -B install -Papitests -T $(nproc) -DCI=true
       - name: Run the unit tests a second time with jacoco
         run: |
           # Ensure test stability across graph reloads.
           ./mvnw -B verify -Papitests -T $(nproc) jacoco:report
       - name: 'Prepare Sonar analysis'
         uses: evaristegalois11/sonar-fork-analysis@v1
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          project-key: 'GIScience_openrouteservice'
