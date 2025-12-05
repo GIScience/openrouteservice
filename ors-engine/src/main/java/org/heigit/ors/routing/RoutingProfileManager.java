@@ -41,9 +41,9 @@ public class RoutingProfileManager {
     private boolean statusFailed = false;
     private boolean statusShutdown;
 
-    public RoutingProfileManager(EngineProperties engineProperties, boolean shutdownAfterInit) {
+    public RoutingProfileManager(EngineProperties engineProperties) {
         this.engineProperties = engineProperties;
-        this.statusShutdown = shutdownAfterInit;
+        this.statusShutdown = Boolean.TRUE.equals(engineProperties.getPreparationMode());
     }
 
     public void initialize() {
@@ -95,6 +95,7 @@ public class RoutingProfileManager {
             LOGGER.info("========================================================================");
             if (statusShutdown) {
                 LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
+                return this;
             }
             RuntimeUtility.clearMemory(LOGGER);
             if (LOGGER.isInfoEnabled())
@@ -168,7 +169,7 @@ public class RoutingProfileManager {
 
     public void awaitReady() throws ExecutionException, InterruptedException {
         if (initTask == null) {
-            // Nothing initialized yet—ensure we have at least one task before waiting
+            LOGGER.warn("RoutingProfileManager.awaitReady() called before initialization. This should not happen, initializing now.");
             initialize();
         }
         initTask.get();

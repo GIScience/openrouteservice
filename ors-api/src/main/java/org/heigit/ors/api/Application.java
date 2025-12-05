@@ -14,6 +14,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY;
+import static org.heigit.ors.api.services.EngineService.SHUTDOWN_IMMEDIATELY;
+
 @ServletComponentScan("org.heigit.ors.api.servlet.listeners")
 @SpringBootApplication
 @EnableScheduling
@@ -27,11 +30,11 @@ public class Application extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         if (args.length > 0 && !StringUtility.isNullOrEmpty(args[0]) && !args[0].startsWith("-")) {
-            System.setProperty(ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY, args[0]);
+            System.setProperty(ORS_CONFIG_LOCATION_PROPERTY, args[0]);
         }
         SpringApplication.run(Application.class, args);
         LOG.info("openrouteservice %s".formatted(AppInfo.getEngineInfo()));
-        if (System.getProperty(EngineService.SHUTDOWN_IMMEDIATELY, "").equals("true")) {
+        if (System.getProperty(SHUTDOWN_IMMEDIATELY, "").equals("true")) {
             System.exit(0);
         }
     }

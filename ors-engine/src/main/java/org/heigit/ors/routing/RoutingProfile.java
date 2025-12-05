@@ -184,16 +184,13 @@ public class RoutingProfile {
      */
     public static void prepareGeneratedGraphForUpload(ProfileProperties profileProperties, String graphVersion) {
         LOGGER.info("Running in preparation_mode, preparing graph for upload");
-        String profileGroup = Strings.isNullOrEmpty(profileProperties.getBuild().getProfileGroup()) ? "unknownGroup" : profileProperties.getBuild().getProfileGroup();
-        String graphExtent = Strings.isNullOrEmpty(profileProperties.getBuild().getGraphExtent()) ? "unknownExtent" : profileProperties.getBuild().getGraphExtent();
-        String encoderName = Strings.isNullOrEmpty(profileProperties.getEncoderName().toString()) ? "unknownEncoder" : profileProperties.getEncoderName().toString();
-        String graphName = String.join("_", profileGroup, graphExtent, graphVersion, encoderName);
+        String graphBaseFilename = getPreparationBaseFilename(profileProperties, graphVersion);
         Path graphFilesPath = profileProperties.getGraphPath().resolve(profileProperties.getProfileName());
 
-        // copy graph_build_info.yml to {graphName}.yml
+        // copy graph_build_info.yml to {graphBaseFilename}.yml
         try {
             Path graphInfoSrc = graphFilesPath.resolve("graph_build_info.yml");
-            Path graphInfoDst = profileProperties.getGraphPath().resolve(graphName + ".yml");
+            Path graphInfoDst = profileProperties.getGraphPath().resolve(graphBaseFilename + ".yml");
             Files.copy(graphInfoSrc, graphInfoDst, REPLACE_EXISTING);
             LOGGER.info("Copied graph info from %s to %s".formatted(graphInfoSrc.toString(), graphInfoDst.toString()));
         } catch (IOException e) {
@@ -202,7 +199,7 @@ public class RoutingProfile {
         }
 
         // create a zip archive of all files in graphFilesPath with .ghz extension
-        Path graphArchiveDst = profileProperties.getGraphPath().resolve(graphName + ".ghz");
+        Path graphArchiveDst = profileProperties.getGraphPath().resolve(graphBaseFilename + ".ghz");
         try (FileOutputStream fos = new FileOutputStream(graphArchiveDst.toFile()); ZipOutputStream zos = new ZipOutputStream(fos)) {
             File[] graphFiles = graphFilesPath.toFile().listFiles();
             if (graphFiles == null) {
@@ -235,6 +232,13 @@ public class RoutingProfile {
         } catch (IOException e) {
             LOGGER.error("Failed to delete graph files: %s".formatted(e.toString()));
         }
+    }
+
+    public static String getPreparationBaseFilename(ProfileProperties profileProperties, String graphVersion) {
+        String profileGroup = Strings.isNullOrEmpty(profileProperties.getBuild().getProfileGroup()) ? "unknownGroup" : profileProperties.getBuild().getProfileGroup();
+        String graphExtent = Strings.isNullOrEmpty(profileProperties.getBuild().getGraphExtent()) ? "unknownExtent" : profileProperties.getBuild().getGraphExtent();
+        String encoderName = Strings.isNullOrEmpty(profileProperties.getEncoderName().toString()) ? "unknownEncoder" : profileProperties.getEncoderName().toString();
+        return String.join("_", profileGroup, graphExtent, graphVersion, encoderName);
     }
 
     public boolean hasCHProfile(String profileName) {

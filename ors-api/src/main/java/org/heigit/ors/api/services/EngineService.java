@@ -15,7 +15,6 @@ import org.heigit.ors.util.StringUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -34,10 +33,10 @@ public class EngineService implements ServletContextListener {
     private final RoutingProfileManager routingProfileManager;
 
     @Autowired
-    public EngineService(EngineProperties engineProperties, GraphService graphService, Environment environment) {
+    public EngineService(EngineProperties engineProperties, GraphService graphService) {
         this.engineProperties = engineProperties;
         this.graphService = graphService;
-        routingProfileManager = new RoutingProfileManager(engineProperties, engineProperties.getPreparationMode() && environment.getActiveProfiles().length == 0);
+        routingProfileManager = new RoutingProfileManager(engineProperties);
     }
 
     /*
