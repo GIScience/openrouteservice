@@ -62,7 +62,6 @@ jobs:
           echo "skip=$SKIP" >> $GITHUB_OUTPUT
 
       - name: Checkout
-        if: steps.should_skip.outputs.skip == 'false'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
