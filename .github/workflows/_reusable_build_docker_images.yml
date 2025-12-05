@@ -12,14 +12,14 @@ on:
         description: Load Docker image into local Docker daemon (incompatible with push)
         type: boolean
         default: false
-      skip_on_draft:
-        description: Skip this workflow for draft pull requests
+      build_arm64:
+        description: Build both amd64 and arm64 platforms (if false, only builds specified platform)
         type: boolean
         default: false
-      platform:
-        description: Target platform (e.g., 'linux/amd64' or 'linux/arm64')
-        type: string
-        required: true
+      build_amd64:
+        description: Build amd64 platform
+        type: boolean
+        default: true
       image_stage:
         description: Dockerfile target stage to build (e.g., 'publish' or 'minimal')
         type: string
@@ -49,36 +49,58 @@ on:
         required: false
     outputs:
       artifact_name:
-        description: Name of the built image artifact (if applicable)
+        description: Name of the built image artifact (if applicable, backward compatible)
         value: ${{ jobs.build_docker_image.outputs.artifact_name || '' }}
+      artifact_name_amd64:
+        description: Name of the built image artifact for linux/amd64
+        value: ${{ jobs.build_docker_image.outputs.artifact_name_amd64 || '' }}
+      artifact_name_arm64:
+        description: Name of the built image artifact for linux/arm64
+        value: ${{ jobs.build_docker_image.outputs.artifact_name_arm64 || '' }}
 
 jobs:
   build_docker_image:
-    name: Build ${{ inputs.image_stage }} for ${{ inputs.platform }}
-    runs-on: ${{ (inputs.platform == 'linux/arm64') && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
-    if: ${{ !(inputs.skip_on_draft && github.event_name == 'pull_request' && github.event.pull_request.draft) }}
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+            build: ${{ inputs.build_amd64 }}
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            build: ${{ inputs.build_arm64 }}
+    
+    name: Build ${{ inputs.image_stage }} for ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
     outputs:
       artifact_name: ${{ steps.final-artifact.outputs.artifact_name }}
+      artifact_name_amd64: ${{ matrix.platform == 'linux/amd64' && steps.final-artifact.outputs.artifact_name || '' }}
+      artifact_name_arm64: ${{ matrix.platform == 'linux/arm64' && steps.final-artifact.outputs.artifact_name || '' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up build environment
+        if: matrix.build == true
         uses: ./.github/actions/setup-build-environment
         with:
           java_version: ${{ inputs.java_version }}
           dockerfile: ${{ inputs.dockerfile_path }}
 
       - name: Generate Dockerfile hash
+        if: matrix.build == true
         id: dockerfile-hash
         run: |
           HASH=$(sha256sum "${{ inputs.dockerfile_path }}" | cut -d' ' -f1 | cut -c1-8)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
 
       - name: Set artifact names
+        if: matrix.build == true
         id: artifact
+        env:
+          dockerfile-hash: ${{ steps.dockerfile-hash.outputs.hash }}
         run: |
-          PLATFORM_NAME=$(echo "${{ inputs.platform }}" | sed 's/\//_/g')
+          PLATFORM_NAME=$(echo "${{ matrix.platform }}" | sed 's/\//_/g')
           ARTIFACT_NAME="image-${PLATFORM_NAME}-${{ inputs.image_stage }}-${{ steps.dockerfile-hash.outputs.hash }}.tar"
           echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
           ARTIFACT_PATH="${{ runner.temp }}"
@@ -87,7 +109,7 @@ jobs:
           echo "artifact_full_path=$ARTIFACT_FULL_PATH" >> $GITHUB_OUTPUT
 
       - name: Login to Docker registry
-        if: inputs.push_image_to_dockerhub
+        if: inputs.push_image_to_dockerhub && matrix.build == true
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.registry_username }}
@@ -95,6 +117,7 @@ jobs:
         continue-on-error: true
 
       - name: Determine Docker output
+        if: matrix.build == true
         id: output
         env:
           PUSH: ${{ inputs.push_image_to_dockerhub }}
@@ -110,6 +133,7 @@ jobs:
           fi
 
       - name: Build Docker image
+        if: matrix.build == true
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 #v6.18.0
         with:
           context: .
@@ -118,7 +142,7 @@ jobs:
           push: ${{ inputs.push_image_to_dockerhub }}
           load: ${{ inputs.load_image_to_docker_daemon }}
           tags: ${{ inputs.docker_tag }}
-          platforms: ${{ inputs.platform }}
+          platforms: ${{ matrix.platform }}
           cache-from: type=${{ inputs.cache_from_type }}
           cache-to: type=${{ inputs.cache_from_type }},mode=max
           outputs: ${{ steps.output.outputs.output }}
@@ -127,7 +151,8 @@ jobs:
         id: upload-artifact
         if: |
           !inputs.push_image_to_dockerhub && 
-          !inputs.load_image_to_docker_daemon
+          !inputs.load_image_to_docker_daemon && 
+          matrix.build == true
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.artifact.outputs.artifact_name }}
@@ -138,6 +163,7 @@ jobs:
           overwrite: true
 
       - name: Set final artifact info
+        if: matrix.build == true
         id: final-artifact
         run: |
           if [ -f "${{ steps.artifact.outputs.artifact_full_path }}" ]; then
