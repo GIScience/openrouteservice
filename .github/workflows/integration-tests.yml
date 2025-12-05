@@ -38,6 +38,7 @@ jobs:
       dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
       build_amd64: true
       build_arm64: false
+      upload_image_as_artifact: false
 
   build_test_scenario_jar_builder_image:
     name: Build test scenario jar builder image
@@ -50,6 +51,33 @@ jobs:
       dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
       build_amd64: true
       build_arm64: false
+      upload_image_as_artifact: true
+
+  build_test_scenario_maven_builder_image:
+    name: Build test scenario maven builder image
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    needs: 
+      - build_test_scenario_base_image # It's faster when it can use the cache from the base image
+    with:
+      image_stage: ors-test-scenarios-maven-builder
+      docker_tag: ors-test-scenarios-maven-builder:latest
+      dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+      build_amd64: true
+      build_arm64: false
+      upload_image_as_artifact: true
+
+  build_test_scenario_war_builder_image:
+    name: Build test scenario war builder image
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    needs: 
+      - build_test_scenario_base_image # It's faster when it can use the cache from the base image
+    with:
+      image_stage: ors-test-scenarios-war-builder
+      docker_tag: ors-test-scenarios-war-builder:latest
+      dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+      build_amd64: true
+      build_arm64: false
+      upload_image_as_artifact: true
 
   cache-graph:
     name: Build and cache shared graph for integration tests
@@ -91,8 +119,10 @@ jobs:
     runs-on: ubuntu-22.04
     needs:
       - build_test_scenario_base_image
-      - build_test_scenario_jar_builder_image
       - cache-graph
+      - build_test_scenario_jar_builder_image
+      - build_test_scenario_maven_builder_image
+      - build_test_scenario_war_builder_image
     strategy:
       matrix:
         test-scenario: [ "maven", "jar", "war" ]
@@ -122,24 +152,36 @@ jobs:
             ors-test-scenarios/graphs-integrationtests
           key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ needs.build_test_scenario_base_image.outputs.image_hash_amd64 }}
       
-      - name: Download image artifact
+      - name: Download base builder image artifact
         uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build_test_scenario_base_image.outputs.artifact_name_amd64 }}
           path: ${{ runner.temp }}/
+
+      - name: Identify image artifact names
+        id: identify-image-artifact-names
+        run: |
+          if [ "${{ matrix.test-scenario }}" == "jar" ]; then
+            echo "ARTIFACT_NAME=${{ needs.build_test_scenario_jar_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
+          elif [ "${{ matrix.test-scenario }}" == "maven" ]; then
+            echo "ARTIFACT_NAME=${{ needs.build_test_scenario_maven_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
+          elif [ "${{ matrix.test-scenario }}" == "war" ]; then
+            echo "ARTIFACT_NAME=${{ needs.build_test_scenario_war_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
+          else
+            echo "Unknown test scenario: ${{ matrix.test-scenario }}"
+            exit 1
+          fi
+          
+      - name: Download runner ${{matrix.test-scenario}} artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.identify-image-artifact-names.outputs.ARTIFACT_NAME }}
+          path: ${{ runner.temp }}/
+
       - name: Load ors-test-scenarios-base image
         run: |
-          docker load -i ${{ runner.temp }}/${{ needs.build_test_scenario_base_image.outputs.artifact_name_amd64 }}
-      - name: Build the ${{ matrix.test-scenario }} builder image
-        id: docker_build
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          load: true
-          file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
-          tags: ors-test-scenarios-${{ matrix.test-scenario }}-builder:latest
-          target: ors-test-scenarios-${{ matrix.test-scenario }}-builder
-          cache-from: type=gha
+          docker load -i ${{ runner.temp }}/${{ steps.identify-image-artifact-names.outputs.ARTIFACT_NAME }}
+      
       - name: Run integration tests
         run: |
           # List the cached images
