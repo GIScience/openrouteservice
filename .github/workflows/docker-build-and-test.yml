@@ -45,19 +45,34 @@ jobs:
             runner: ubuntu-latest
             health_wait_time: 260
             image_stage: publish
+            skip_on_draft: false
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
             health_wait_time: 260
             image_stage: publish
+            skip_on_draft: true
     steps:
       - name: Check if should skip (ARM64 draft PR)
         id: should_skip
         run: |
           SKIP=false
-          if [[ "${{ matrix.platform }}" == "linux/arm64" && "${{ needs.prepare_environment.outputs.should_skip_arm64 }}" == "true" ]]; then
+          if [[ "${{ matrix.skip_on_draft }}" == "true" && "${{ needs.prepare_environment.outputs.should_skip_arm64 }}" == "true" ]]; then
             SKIP=true
           fi
           echo "skip=$SKIP" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        if: steps.should_skip.outputs.skip == 'false'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Build environment
+        if: steps.should_skip.outputs.skip == 'false'
+        uses: ./.github/actions/setup-build-environment
+        with:
+          with_java: false
+          with_docker: true
 
       - name: Build Docker image
         if: steps.should_skip.outputs.skip == 'false'
@@ -68,29 +83,20 @@ jobs:
           image_stage: ${{ matrix.image_stage }}
           docker_tag: ${{ env.TEST_IMAGE_NAME }}
 
-      - name: Checkout
-        if: steps.should_skip.outputs.skip == 'false'
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Download image artifact
         if: steps.should_skip.outputs.skip == 'false'
         uses: actions/download-artifact@v4
         with:
           name: ${{ steps.build.outputs.artifact_name }}
-          path: ${{ runner.temp }}
-
-      - name: Set up Docker Buildx
-        if: steps.should_skip.outputs.skip == 'false'
-        uses: docker/setup-buildx-action@v3
+          path: ${{ runner.temp }}/
 
       - name: Load image
         if: steps.should_skip.outputs.skip == 'false'
         run: |
-          docker load --input ${{ steps.build.outputs.artifact_path }}
+          docker load --input ${{ runner.temp }}/${{ steps.build.outputs.artifact_name }}
 
       - name: Get and save the UID
+        if: steps.should_skip.outputs.skip == 'false'
         run: |
           echo "UID=$(id -u)" >> $GITHUB_ENV
 
@@ -149,18 +155,26 @@ jobs:
           - platform: linux/amd64
             runner: ubuntu-latest
             image_stage: minimal
+            skip_on_draft: false
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
             image_stage: minimal
+            skip_on_draft: true
     steps:
       - name: Check if should skip (ARM64 draft PR)
         id: should_skip
         run: |
           SKIP=false
-          if [[ "${{ matrix.platform }}" == "linux/arm64" && "${{ needs.prepare_environment.outputs.should_skip_arm64 }}" == "true" ]]; then
+          if [[ "${{ matrix.skip_on_draft }}" == "true" && "${{ needs.prepare_environment.outputs.should_skip_arm64 }}" == "true" ]]; then
             SKIP=true
           fi
           echo "skip=$SKIP" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        if: steps.should_skip.outputs.skip == 'false'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Build Docker image
         if: steps.should_skip.outputs.skip == 'false'
@@ -171,23 +185,17 @@ jobs:
           image_stage: ${{ matrix.image_stage }}
           docker_tag: ${{ env.TEST_minimal_IMAGE_NAME }}
 
-      - name: Checkout
-        if: steps.should_skip.outputs.skip == 'false'
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Download image artifact
         if: steps.should_skip.outputs.skip == 'false'
         uses: actions/download-artifact@v4
         with:
           name: ${{ steps.build.outputs.artifact_name }}
-          path: ${{ runner.temp }}
+          path: ${{ runner.temp }}/
 
       - name: Load image
         if: steps.should_skip.outputs.skip == 'false'
         run: |
-          docker load --input ${{ steps.build.outputs.artifact_path }}
+          docker load --input ${{ runner.temp }}/${{ steps.build.outputs.artifact_name }}
 
       - name: Get and save the UID
         if: steps.should_skip.outputs.skip == 'false'
