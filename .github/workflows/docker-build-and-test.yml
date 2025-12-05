@@ -18,23 +18,44 @@ jobs:
     outputs:
       test_image_name: ${{ env.TEST_IMAGE_NAME }}
       test_minimal_image_name: ${{ env.TEST_minimal_IMAGE_NAME }}
-      should_skip_arm64: ${{ steps.should_skip_arm64.outputs.skip }}
+      is_draft: ${{ steps.check-draft.outputs.is_draft }}
     steps:
-      - name: Check if should skip ARM64 (draft PR)
-        id: should_skip_arm64
+      - name: Check if draft PR
+        id: check-draft
         run: |
-          SKIP="false"
           if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.draft }}" == "true" ]]; then
-            SKIP="true"
+            echo "is_draft=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_draft=false" >> $GITHUB_OUTPUT
           fi
-          echo "skip=$SKIP" >> $GITHUB_OUTPUT
       - run: |
           echo "Publish environment variables"
+  build_docker_images:
+    name: Build Docker images for both platforms - publish
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    needs: prepare_environment
+    with:
+      image_stage: publish
+      docker_tag: local/openrouteservice:test
+      build_amd64: true
+      build_arm64: ${{ !needs.prepare_environment.outputs.is_draft }}
+  
+  build_minimal_images:
+    name: Build Docker images for both platforms - minimal
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    needs: prepare_environment
+    with:
+      image_stage: minimal
+      docker_tag: local/openrouteservice:test-minimal
+      build_amd64: true
+      build_arm64: ${{ !needs.prepare_environment.outputs.is_draft }}
+
   docker_image_tests:
-    name: Build and test ${{ matrix.platform }} - publish image
+    name: Test ${{ matrix.platform }} - publish image
     runs-on: ${{ matrix.runner }}
     needs:
       - prepare_environment
+      - build_docker_images
     permissions:
       actions: read
       contents: read
@@ -46,17 +67,19 @@ jobs:
             health_wait_time: 260
             image_stage: publish
             skip_on_draft: false
+            artifact_name: ${{ needs.build_docker_images.outputs.artifact_name_amd64 }}
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
             health_wait_time: 260
             image_stage: publish
             skip_on_draft: true
+            artifact_name: ${{ needs.build_docker_images.outputs.artifact_name_arm64 }}
     steps:
       - name: Check if should skip (ARM64 draft PR)
         id: should_skip
         run: |
           SKIP=false
-          if [[ "${{ matrix.skip_on_draft }}" == "true" && "${{ needs.prepare_environment.outputs.should_skip_arm64 }}" == "true" ]]; then
+          if [[ "${{ matrix.skip_on_draft }}" == "true" && "${{ needs.prepare_environment.outputs.is_draft }}" == "true" ]]; then
             SKIP=true
           fi
           echo "skip=$SKIP" >> $GITHUB_OUTPUT
@@ -73,26 +96,17 @@ jobs:
           with_java: false
           with_docker: true
 
-      - name: Build Docker image
-        if: steps.should_skip.outputs.skip == 'false'
-        uses: ./.github/workflows/_reusable_build_docker_images.yml
-        id: build
-        with:
-          platform: ${{ matrix.platform }}
-          image_stage: ${{ matrix.image_stage }}
-          docker_tag: ${{ env.TEST_IMAGE_NAME }}
-
       - name: Download image artifact
         if: steps.should_skip.outputs.skip == 'false'
         uses: actions/download-artifact@v4
         with:
-          name: ${{ steps.build.outputs.artifact_name }}
+          name: ${{ matrix.artifact_name }}
           path: ${{ runner.temp }}/
 
       - name: Load image
         if: steps.should_skip.outputs.skip == 'false'
         run: |
-          docker load --input ${{ runner.temp }}/${{ steps.build.outputs.artifact_name }}
+          docker load --input ${{ runner.temp }}/${{ matrix.artifact_name }}
 
       - name: Get and save the UID
         if: steps.should_skip.outputs.skip == 'false'
@@ -141,10 +155,11 @@ jobs:
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 403 10
 
   minimal_image_tests:
-    name: Build and test ${{ matrix.platform }} - minimal image
+    name: Test ${{ matrix.platform }} - minimal image
     runs-on: ${{ matrix.runner }}
     needs:
       - prepare_environment
+      - build_minimal_images
     permissions:
       actions: read
       contents: read
@@ -155,16 +170,18 @@ jobs:
             runner: ubuntu-latest
             image_stage: minimal
             skip_on_draft: false
+            artifact_name: ${{ needs.build_minimal_images.outputs.artifact_name_amd64 }}
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
             image_stage: minimal
             skip_on_draft: true
+            artifact_name: ${{ needs.build_minimal_images.outputs.artifact_name_arm64 }}
     steps:
       - name: Check if should skip (ARM64 draft PR)
         id: should_skip
         run: |
           SKIP=false
-          if [[ "${{ matrix.skip_on_draft }}" == "true" && "${{ needs.prepare_environment.outputs.should_skip_arm64 }}" == "true" ]]; then
+          if [[ "${{ matrix.skip_on_draft }}" == "true" && "${{ needs.prepare_environment.outputs.is_draft }}" == "true" ]]; then
             SKIP=true
           fi
           echo "skip=$SKIP" >> $GITHUB_OUTPUT
@@ -174,26 +191,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build Docker image
-        if: steps.should_skip.outputs.skip == 'false'
-        uses: ./.github/workflows/_reusable_build_docker_images.yml
-        id: build
-        with:
-          platform: ${{ matrix.platform }}
-          image_stage: ${{ matrix.image_stage }}
-          docker_tag: ${{ env.TEST_minimal_IMAGE_NAME }}
-
       - name: Download image artifact
         if: steps.should_skip.outputs.skip == 'false'
         uses: actions/download-artifact@v4
         with:
-          name: ${{ steps.build.outputs.artifact_name }}
+          name: ${{ matrix.artifact_name }}
           path: ${{ runner.temp }}/
 
       - name: Load image
         if: steps.should_skip.outputs.skip == 'false'
         run: |
-          docker load --input ${{ runner.temp }}/${{ steps.build.outputs.artifact_name }}
+          docker load --input ${{ runner.temp }}/${{ matrix.artifact_name }}
 
       - name: Get and save the UID
         if: steps.should_skip.outputs.skip == 'false'
