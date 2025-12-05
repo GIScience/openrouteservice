@@ -48,9 +48,6 @@ on:
         description: Docker registry password (optional, for authentication)
         required: false
     outputs:
-      artifact_path:
-        description: Path to the built image artifact (if applicable)
-        value: ${{ jobs.build_docker_image.outputs.artifact_path || '' }}
       artifact_name:
         description: Name of the built image artifact (if applicable)
         value: ${{ jobs.build_docker_image.outputs.artifact_name || '' }}
@@ -62,7 +59,6 @@ jobs:
     if: ${{ !(inputs.skip_on_draft && github.event_name == 'pull_request' && github.event.pull_request.draft) }}
     outputs:
       artifact_name: ${{ steps.final-artifact.outputs.artifact_name }}
-      artifact_path: ${{ steps.final-artifact.outputs.artifact_path }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -83,10 +79,12 @@ jobs:
         id: artifact
         run: |
           PLATFORM_NAME=$(echo "${{ inputs.platform }}" | sed 's/\//_/g')
-          ARTIFACT_NAME="image-${PLATFORM_NAME}-${{ inputs.image_stage }}-${{ steps.dockerfile-hash.outputs.hash }}-artifact"
-          ARTIFACT_PATH="${{ runner.temp }}/image-${PLATFORM_NAME}-${{ inputs.image_stage }}.tar"
+          ARTIFACT_NAME="image-${PLATFORM_NAME}-${{ inputs.image_stage }}-${{ steps.dockerfile-hash.outputs.hash }}.tar"
           echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
+          ARTIFACT_PATH="${{ runner.temp }}/"
           echo "artifact_path=$ARTIFACT_PATH" >> $GITHUB_OUTPUT
+          ARTIFACT_FULL_PATH="${ARTIFACT_PATH}/${ARTIFACT_NAME}"
+          echo "artifact_full_path=$ARTIFACT_FULL_PATH" >> $GITHUB_OUTPUT
 
       - name: Login to Docker registry
         if: inputs.push_image_to_dockerhub
@@ -108,7 +106,7 @@ jobs:
             # Load into Docker daemon requires specific platform syntax
             echo "output=type=docker" >> $GITHUB_OUTPUT
           else
-            echo "output=type=tar,dest=${{ steps.artifact.outputs.artifact_path }}" >> $GITHUB_OUTPUT
+            echo "output=type=tar,dest=${{ steps.artifact.outputs.artifact_full_path }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Build Docker image
@@ -142,10 +140,9 @@ jobs:
       - name: Set final artifact info
         id: final-artifact
         run: |
-          if [ -f "${{ steps.artifact.outputs.artifact_path }}" ]; then
+          if [ -f "${{ steps.artifact.outputs.artifact_full_path }}" ]; then
             echo "artifact_name=${{ steps.artifact.outputs.artifact_name }}" >> $GITHUB_OUTPUT
-            echo "artifact_path=${{ steps.artifact.outputs.artifact_path }}" >> $GITHUB_OUTPUT
           else
+            echo "Artifact not created, skipping upload."
             echo "artifact_name=" >> $GITHUB_OUTPUT
-            echo "artifact_path=" >> $GITHUB_OUTPUT
           fi
