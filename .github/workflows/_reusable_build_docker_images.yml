@@ -81,7 +81,7 @@ jobs:
           PLATFORM_NAME=$(echo "${{ inputs.platform }}" | sed 's/\//_/g')
           ARTIFACT_NAME="image-${PLATFORM_NAME}-${{ inputs.image_stage }}-${{ steps.dockerfile-hash.outputs.hash }}.tar"
           echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
-          ARTIFACT_PATH="${{ runner.temp }}/"
+          ARTIFACT_PATH="${{ runner.temp }}"
           echo "artifact_path=$ARTIFACT_PATH" >> $GITHUB_OUTPUT
           ARTIFACT_FULL_PATH="${ARTIFACT_PATH}/${ARTIFACT_NAME}"
           echo "artifact_full_path=$ARTIFACT_FULL_PATH" >> $GITHUB_OUTPUT
