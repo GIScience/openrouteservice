@@ -42,6 +42,8 @@ jobs:
   build_test_scenario_jar_builder_image:
     name: Build test scenario jar builder image
     uses: ./.github/workflows/_reusable_build_docker_images.yml
+    needs: 
+      - build_test_scenario_base_image # It's faster when it can use the cache from the base image
     with:
       image_stage: ors-test-scenarios-jar-builder
       docker_tag: ors-test-scenarios-jar-builder:latest
