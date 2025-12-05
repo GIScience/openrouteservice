@@ -30,7 +30,8 @@ COPY .mvn $CONTAINER_BUILD_DIR/.mvn
 # Cache the dependencies to speed up the build process
 ARG MAVEN_OPTS="-Dmaven.repo.local=/root/.m2/repository"
 ENV MAVEN_OPTS="${MAVEN_OPTS}"
-RUN ./mvnw dependency:go-offline -B -q
+RUN ./mvnw -pl '!:ors-report-aggregation,!:ors-benchmark' -q \
+    dependency:resolve dependency:resolve-plugins -Dmaven.test.skip=true > /dev/null || true
 
 # Copy project files
 COPY ors-api "$CONTAINER_BUILD_DIR"/ors-api
