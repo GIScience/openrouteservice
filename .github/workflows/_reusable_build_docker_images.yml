@@ -90,18 +90,20 @@ jobs:
       - name: Generate Dockerfile hash
         if: matrix.build == true
         id: dockerfile-hash
+        env:
+          DOCKERFILE_PATH: ${{ inputs.dockerfile_path }}
         run: |
-          HASH=$(sha256sum "${{ inputs.dockerfile_path }}" | cut -d' ' -f1 | cut -c1-8)
+          HASH=$(sha256sum "${{ env.DOCKERFILE_PATH }}" | cut -d' ' -f1 | cut -c1-8)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
 
       - name: Set artifact names
         if: matrix.build == true
         id: artifact
         env:
-          dockerfile-hash: ${{ steps.dockerfile-hash.outputs.hash }}
+          IMAGE_STAGE: ${{ inputs.image_stage }}
         run: |
           PLATFORM_NAME=$(echo "${{ matrix.platform }}" | sed 's/\//_/g')
-          ARTIFACT_NAME="image-${PLATFORM_NAME}-${{ inputs.image_stage }}-${{ steps.dockerfile-hash.outputs.hash }}.tar"
+          ARTIFACT_NAME="image-${PLATFORM_NAME}-${{ env.IMAGE_STAGE }}-${{ steps.dockerfile-hash.outputs.hash }}.tar"
           echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
           ARTIFACT_PATH="${{ runner.temp }}"
           echo "artifact_path=$ARTIFACT_PATH" >> $GITHUB_OUTPUT

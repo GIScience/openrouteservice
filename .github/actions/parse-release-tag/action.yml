@@ -24,11 +24,13 @@ runs:
   steps:
     - name: Extract and validate release tag
       id: parse
+      env:
+        TAG: ${{ inputs.tag }}
       shell: bash
       run: |
         # Determine the tag to use
-        if [ -n "${{ inputs.tag }}" ]; then
-          TAG="${{ inputs.tag }}"
+        if [ -n "${{ env.TAG }}" ]; then
+          TAG="${{ env.TAG }}"
         else
           TAG="${{ github.event.release.tag_name }}"
         fi
