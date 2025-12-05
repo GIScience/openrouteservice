@@ -8,10 +8,10 @@ on:
         description: Whether to push the image to a registry
         type: boolean
         default: false
-      load_image_to_docker_daemon:
-        description: Load Docker image into local Docker daemon (incompatible with push)
+      upload_image_as_artifact:
+        description: Upload Docker image as artifact (incompatible with push)
         type: boolean
-        default: false
+        default: true
       build_arm64:
         description: Build both amd64 and arm64 platforms (if false, only builds specified platform)
         type: boolean
@@ -127,7 +127,6 @@ jobs:
         id: output
         env:
           PUSH: ${{ inputs.push_image_to_dockerhub }}
-          LOAD: ${{ inputs.load_image_to_docker_daemon }}
         run: |
           if [ "$PUSH" = "true" ]; then
             echo "output=type=image,push=true" >> $GITHUB_OUTPUT
@@ -147,7 +146,7 @@ jobs:
           file: ${{ inputs.dockerfile_path }}
           target: ${{ inputs.image_stage }}
           push: ${{ inputs.push_image_to_dockerhub }}
-          load: ${{ inputs.load_image_to_docker_daemon }}
+          load: false
           tags: ${{ inputs.docker_tag }}
           platforms: ${{ matrix.platform }}
           cache-from: type=${{ inputs.cache_from_type }}
@@ -158,8 +157,8 @@ jobs:
         id: upload-artifact
         if: |
           !inputs.push_image_to_dockerhub && 
-          !inputs.load_image_to_docker_daemon && 
-          matrix.build == true
+          matrix.build == true && 
+          inputs.upload_image_as_artifact == true
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.artifact.outputs.artifact_name }}
