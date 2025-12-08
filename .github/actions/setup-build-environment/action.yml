@@ -1,0 +1,79 @@
+name: Setup Build Environment
+description: Set up Java/Maven and optionally Docker (QEMU + Buildx) with Maven cache injection
+inputs:
+  with_java:
+    description: Set up Java and Maven
+    required: false
+    type: boolean
+    default: 'true'
+  java_version:
+    description: Java version to install
+    required: false
+    type: number
+    default: 21
+  with_docker:
+    description: Set up Docker (Buildx) for image builds
+    required: false
+    type: boolean
+    default: 'true'
+  with_docker_cache_injection:
+    description: Inject Maven cache into Docker builds
+    required: false
+    type: boolean
+    default: 'true'
+  dockerfile:
+    description: Path to the primary Dockerfile to use for buildkit injection (only used if with_docker is true)
+    required: false
+    type: string
+    default: 'Dockerfile'
+outputs:
+  buildx_builder:
+    description: Name of the buildx builder (only available if with_docker is true)
+    value: ${{ steps.buildx.outputs.name }}
+  cache-hit:
+    description: Whether the Maven cache was hit
+    value: ${{ steps.setup-java.outputs.cache-hit }}
+runs:
+  using: composite
+  steps:
+    - name: Set up JDK ${{ inputs.java_version }}
+      if: inputs.with_java == 'true'
+      id: setup-java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ inputs.java_version }}
+        cache: 'maven'
+
+    - name: Download maven dependencies
+      if: inputs.with_java == 'true' && steps.setup-java.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
+        ./mvnw clean -q
+
+    - name: Set up Docker Buildx
+      if: inputs.with_docker == 'true'
+      id: buildx
+      uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 #v3.11.1
+
+    - name: Prepare all Dockerfiles for Maven cache mount
+      if: inputs.with_docker == 'true' && inputs.with_docker_cache_injection == 'true'
+      shell: bash
+      run: |
+        # Find and prepare all Dockerfiles in the repository
+        find . -name "Dockerfile" -o -name "*.Dockerfile" | while read dockerfile; do
+          sed -i "s|RUN \./mvnw |RUN --mount=type=cache,target=/root/.m2/repository ./mvnw |g" "$dockerfile"
+        done
+
+    - name: Inject Maven cache into Docker build
+      if: inputs.with_docker == 'true' && inputs.with_docker_cache_injection == 'true'
+      uses: 'reproducible-containers/buildkit-cache-dance@5b81f4d29dc8397a7d341dba3aeecc7ec54d6361' # v3.3.0
+      with:
+        builder: ${{ steps.buildx.outputs.name }}
+        dockerfile: ${{ inputs.dockerfile }}
+        skip-extraction: ${{ steps.setup-java.outputs.cache-hit }}
+        cache-map: |
+          {
+            "/home/runner/.m2/repository": "/root/.m2/repository"
+          }
