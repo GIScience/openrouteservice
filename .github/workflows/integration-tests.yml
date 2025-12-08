@@ -6,13 +6,15 @@ name: Integration test suite
 on:
   push:
     branches: [ "main" ]
-    paths-ignore:
-      - 'docs/**'
-      - 'ors-api/src/test/java/**'
-      - 'ors-api/src/test/resources/**'
-      - 'ors-engine/src/test/**'
-      - 'ors-report-aggregation/**'
-      - '.rpm-packaging/**'
+    paths:
+      - '**/pom.xml'
+      - 'ors-api/main/**'
+      - 'ors-engine/main/**'
+      - 'ors-test-scenarios/**'
+      - '.github/workflows/integration-tests.yml'
+      - '.github/actions/setup-build-environment/**'
+      - '.github/workflows/_reusable_build_docker_images.yml'
+      - 'ors-config.yml'
   pull_request:
     branches: [ "main" ]
     types:
@@ -20,13 +22,15 @@ on:
       - reopened
       - synchronize
       - ready_for_review
-    paths-ignore:
-      - 'docs/**'
-      - 'ors-api/src/test/java/**'
-      - 'ors-api/src/test/resources/**'
-      - 'ors-engine/src/test/**'
-      - 'ors-report-aggregation/**'
-      - '.rpm-packaging/**'
+    paths:
+      - '**/pom.xml'
+      - 'ors-api/main/**'
+      - 'ors-engine/main/**'
+      - 'ors-test-scenarios/**'
+      - '.github/workflows/integration-tests.yml'
+      - '.github/actions/setup-build-environment/**'
+      - '.github/workflows/_reusable_build_docker_images.yml'
+      - 'ors-config.yml'
 
 jobs:
   build_test_scenario_base_image:
@@ -48,19 +52,6 @@ jobs:
     with:
       image_stage: ors-test-scenarios-jar-builder
       docker_tag: ors-test-scenarios-jar-builder:latest
-      dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
-      build_amd64: true
-      build_arm64: false
-      upload_image_as_artifact: true
-
-  build_test_scenario_maven_builder_image:
-    name: Build test scenario maven builder image
-    uses: ./.github/workflows/_reusable_build_docker_images.yml
-    needs:
-      - build_test_scenario_base_image # It's faster when it can use the cache from the base image
-    with:
-      image_stage: ors-test-scenarios-maven-builder
-      docker_tag: ors-test-scenarios-maven-builder:latest
       dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
       build_amd64: true
       build_arm64: false
@@ -119,11 +110,10 @@ jobs:
       - build_test_scenario_base_image
       - cache-graph
       - build_test_scenario_jar_builder_image
-      - build_test_scenario_maven_builder_image
       - build_test_scenario_war_builder_image
     strategy:
       matrix:
-        test-scenario: [ "maven", "jar", "war" ]
+        test-scenario: [ "jar", "war" ]
         test-class:
           - integrationtests.ConfigEnvironmentTest
           - integrationtests.ConfigFileTest
@@ -148,19 +138,11 @@ jobs:
             ors-test-scenarios/graphs-integrationtests
           key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ needs.build_test_scenario_base_image.outputs.image_hash_amd64 }}
 
-      # - name: Download base builder image artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: ${{ needs.build_test_scenario_base_image.outputs.artifact_name_amd64 }}
-      #     path: ${{ runner.temp }}/
-
       - name: Identify image artifact names
         id: identify-image-artifact-names
         run: |
           if [ "${{ matrix.test-scenario }}" == "jar" ]; then
             echo "ARTIFACT_NAME=${{ needs.build_test_scenario_jar_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
-          elif [ "${{ matrix.test-scenario }}" == "maven" ]; then
-            echo "ARTIFACT_NAME=${{ needs.build_test_scenario_maven_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
           elif [ "${{ matrix.test-scenario }}" == "war" ]; then
             echo "ARTIFACT_NAME=${{ needs.build_test_scenario_war_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
           else
