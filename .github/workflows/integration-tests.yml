@@ -29,101 +29,98 @@ on:
       - '.rpm-packaging/**'
 
 jobs:
-  build-default-builder:
-    name: Build default builder image
+  build_test_scenario_base_image:
+    name: Build test scenario builder images
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    with:
+      image_stage: ors-test-scenarios-builder
+      docker_tag: ors-test-scenarios-builder:latest
+      dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+      build_amd64: true
+      build_arm64: false
+      upload_image_as_artifact: false
+
+  build_test_scenario_jar_builder_image:
+    name: Build test scenario jar builder image
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    needs:
+      - build_test_scenario_base_image # It's faster when it can use the cache from the base image
+    with:
+      image_stage: ors-test-scenarios-jar-builder
+      docker_tag: ors-test-scenarios-jar-builder:latest
+      dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+      build_amd64: true
+      build_arm64: false
+      upload_image_as_artifact: true
+
+  build_test_scenario_maven_builder_image:
+    name: Build test scenario maven builder image
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    needs:
+      - build_test_scenario_base_image # It's faster when it can use the cache from the base image
+    with:
+      image_stage: ors-test-scenarios-maven-builder
+      docker_tag: ors-test-scenarios-maven-builder:latest
+      dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+      build_amd64: true
+      build_arm64: false
+      upload_image_as_artifact: true
+
+  build_test_scenario_war_builder_image:
+    name: Build test scenario war builder image
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    needs:
+      - build_test_scenario_base_image # It's faster when it can use the cache from the base image
+    with:
+      image_stage: ors-test-scenarios-war-builder
+      docker_tag: ors-test-scenarios-war-builder:latest
+      dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+      build_amd64: true
+      build_arm64: false
+      upload_image_as_artifact: true
+
+  cache-graph:
+    name: Build and cache shared graph for integration tests
     runs-on: ubuntu-latest
-    outputs:
-      builder_image_id: ${{ steps.docker_build.outputs.imageid }}
+    needs:
+      - build_test_scenario_base_image
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up build environment
+        uses: ./.github/actions/setup-build-environment
         with:
-          fetch-depth: 0
-      - name: Set up JDK 17
-        id: setup-java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: latest
-      - name: Prepare the maven cache dependencies
-        run: |
-          echo "Sync the maven dependencies"
-          ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
-          # Replace all RUN ./mvnw with RUN --mount=type=cache,target=/root/.m2 ./mvnw
-          sed -i 's/RUN \.\/mvnw /RUN --mount=type=cache,target=\/root\/.m2 \.\/mvnw /g' ors-test-scenarios/src/test/resources/Builder.Dockerfile
-      - name: inject maven-build-cache into docker
-        uses: reproducible-containers/buildkit-cache-dance@v3.1.2
-        with:
-          cache-map: |
-            {
-              "/home/runner/.m2": "/root/.m2"
-            }
-      - name: Build ors-test-scenarios-builder
-        id: docker_build
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          load: false
-          file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
-          tags: ors-test-scenarios-builder:latest
-          target: ors-test-scenarios-builder
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          with_java: 'true'
+          with_docker: 'false'
+
       - name: Cache the graph
         id: cache_graph
         uses: actions/cache@v4
         with:
           path: |
             ors-test-scenarios/graphs-integrationtests
-          key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ steps.docker_build.outputs.imageid }}
-      - name: Load the ors-test-scenarios-builder image
-        if: steps.cache_graph.outputs.cache-hit != 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          load: false
-          file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
-          tags: ors-test-scenarios-builder:latest
-          target: ors-test-scenarios-builder
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      - name: Load ors-test-scenarios-jar-builder image
-        if: steps.cache_graph.outputs.cache-hit != 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          load: true
-          file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
-          tags: ors-test-scenarios-jar-builder:latest
-          target: ors-test-scenarios-jar-builder
-          cache-from: type=gha
-          cache-to: type=gha,mode=min
+          key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ needs.build_test_scenario_base_image.outputs.image_hash_amd64 }}
+
       - name: Build shared graph
         if: steps.cache_graph.outputs.cache-hit != 'true'
         run: |
           # Build the shared graph
-          ./mvnw -pl ors-test-scenarios -q -Dtest=integrationtests.OneShotGraphBuilderTest\#oneShotGraphBuilder test \
+          ./mvnw -pl ors-test-scenarios -Dtest=integrationtests.OneShotGraphBuilderTest\#oneShotGraphBuilder test \
             -Dcontainer.builder.use_prebuild=true \
             -Dcontainer.run.scenario=jar
         env:
           ONE_SHOT_GRAPH_BUILDER: true
+
   integration-tests:
     name: Integration tests
     runs-on: ubuntu-22.04
     needs:
-      - build-default-builder
+      - build_test_scenario_base_image
+      - cache-graph
+      - build_test_scenario_jar_builder_image
+      - build_test_scenario_maven_builder_image
+      - build_test_scenario_war_builder_image
     strategy:
       matrix:
         test-scenario: [ "maven", "jar", "war" ]
@@ -137,61 +134,50 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up build environment
+        uses: ./.github/actions/setup-build-environment
         with:
-          fetch-depth: 0
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Cache local Maven repository
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: latest
-      - name: inject maven-build-cache into docker
-        uses: reproducible-containers/buildkit-cache-dance@v3.1.2
-        with:
-          cache-map: |
-            {
-              "/home/runner/.m2": "/root/.m2"
-            }
-      - name: Prepare the maven cache dependencies
-        run: |
-          # Replace all RUN ./mvnw with RUN --mount=type=cache,target=/root/.m2 ./mvnw
-          sed -i 's/RUN \.\/mvnw /RUN --mount=type=cache,target=\/root\/.m2 \.\/mvnw /g' ors-test-scenarios/src/test/resources/Builder.Dockerfile
+          dockerfile: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+
       - name: Restore cached graph
         id: restore-cached-image
         uses: actions/cache/restore@v4
         with:
           path: |
             ors-test-scenarios/graphs-integrationtests
-          key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ needs.build-default-builder.outputs.builder_image_id }}
-      - name: Load ors-test-scenarios-builder image
-        uses: docker/build-push-action@v6
+          key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ needs.build_test_scenario_base_image.outputs.image_hash_amd64 }}
+
+      - name: Download base builder image artifact
+        uses: actions/download-artifact@v4
         with:
-          context: .
-          load: true
-          file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
-          tags: ors-test-scenarios-builder:latest
-          target: ors-test-scenarios-builder
-          cache-from: type=gha
-      - name: Build the ${{ matrix.test-scenario }} builder image
-        id: docker_build
-        uses: docker/build-push-action@v6
+          name: ${{ needs.build_test_scenario_base_image.outputs.artifact_name_amd64 }}
+          path: ${{ runner.temp }}/
+
+      - name: Identify image artifact names
+        id: identify-image-artifact-names
+        run: |
+          if [ "${{ matrix.test-scenario }}" == "jar" ]; then
+            echo "ARTIFACT_NAME=${{ needs.build_test_scenario_jar_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
+          elif [ "${{ matrix.test-scenario }}" == "maven" ]; then
+            echo "ARTIFACT_NAME=${{ needs.build_test_scenario_maven_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
+          elif [ "${{ matrix.test-scenario }}" == "war" ]; then
+            echo "ARTIFACT_NAME=${{ needs.build_test_scenario_war_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
+          else
+            echo "Unknown test scenario: ${{ matrix.test-scenario }}"
+            exit 1
+          fi
+
+      - name: Download runner ${{matrix.test-scenario}} artifact
+        uses: actions/download-artifact@v4
         with:
-          context: .
-          load: true
-          file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
-          tags: ors-test-scenarios-${{ matrix.test-scenario }}-builder:latest
-          target: ors-test-scenarios-${{ matrix.test-scenario }}-builder
-          cache-from: type=gha
+          name: ${{ steps.identify-image-artifact-names.outputs.ARTIFACT_NAME }}
+          path: ${{ runner.temp }}/
+
+      - name: Load ors-test-scenarios-base image
+        run: |
+          docker load -i ${{ runner.temp }}/${{ steps.identify-image-artifact-names.outputs.ARTIFACT_NAME }}
+
       - name: Run integration tests
         run: |
           # List the cached images
@@ -200,4 +186,4 @@ jobs:
           ./mvnw -pl ors-test-scenarios -Dtest=${{ matrix.test-class }} test \
             -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4 \
             -Dcontainer.run.scenario=${{ matrix.test-scenario }} \
-            -Dcontainer.builder.use_prebuild=true -q
+            -Dcontainer.builder.use_prebuild=true
