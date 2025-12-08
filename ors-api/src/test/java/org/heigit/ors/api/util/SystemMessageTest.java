@@ -19,9 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @ActiveProfiles("unittest")
 class SystemMessageTest {
+    private final SystemMessageProperties systemMessageProperties;
 
     @Autowired
-    private final SystemMessageProperties systemMessageProperties = new SystemMessageProperties();
+    public SystemMessageTest(SystemMessageProperties systemMessageProperties) {
+        this.systemMessageProperties = systemMessageProperties;
+    }
 
     @Test
     void testGetSystemMessage() throws ParameterValueException {

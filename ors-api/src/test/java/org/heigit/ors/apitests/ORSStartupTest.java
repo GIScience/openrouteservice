@@ -1,5 +1,6 @@
 package org.heigit.ors.apitests;
 
+import org.heigit.ors.api.services.EngineService;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
@@ -8,6 +9,7 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,15 +17,21 @@ import java.text.SimpleDateFormat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ORSStartupTest extends ServiceTest {
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    private final EngineService engineService;
+
+    @Autowired
+    public ORSStartupTest(EngineService engineService) {
+        this.engineService = engineService;
+    }
 
     @Test
     void testGraphBuildInfoFilesWrittenCorrectly() throws ParseException, ORSGraphFileManagerException {
-        RoutingProfileManager rpm = RoutingProfileManager.getInstance();
+        RoutingProfileManager rpm = engineService.waitForInitializedRoutingProfileManager();
         RoutingProfile profile = rpm.getRoutingProfile(EncoderNameEnum.DRIVING_CAR.getEncoderName());
         GraphBuildInfo graphBuildInfo = profile.getGraphhopper().getOrsGraphManager().getActiveGraphBuildInfo();
         ProfileProperties profileProperties = graphBuildInfo.getPersistedGraphBuildInfo().getProfileProperties();
-        assertEquals(dateFormat.parse("2024-09-08T20:21:00+0000"), graphBuildInfo.getPersistedGraphBuildInfo().getOsmDate(), "graph_build_info should contain OSM data timestamp");
+        assertEquals(DATE_FORMAT.parse("2024-09-08T20:21:00+0000"), graphBuildInfo.getPersistedGraphBuildInfo().getOsmDate(), "graph_build_info should contain OSM data timestamp");
         assertEquals(EncoderNameEnum.DRIVING_CAR, profileProperties.getEncoderName(), "Encoder name should be set in the graph_build_info");
         assertTrue(profileProperties.getBuild().getElevation(), "Elevation should be set in the graph_build_info");
         assertNull(profileProperties.getService().getMaximumDistance(), "Maximum distance should not be set in the graph_build_info");

@@ -30,38 +30,46 @@ import java.util.concurrent.*;
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
-    private LinkedHashMap<String, RoutingProfile> routingProfiles = new LinkedHashMap<>();
-    private static RoutingProfileManager instance;
 
-    public RoutingProfileManager(EngineProperties config, String graphVersion) {
-        if (instance == null) {
-            instance = this;
-            initialize(config, graphVersion);
-            if (RoutingProfileManagerStatus.isShutdown()) {
-                System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
+    // The current initialization task. Replaced for each cycle.
+    private FutureTask<RoutingProfileManager> initTask;
+    // Lock protecting creation of a new FutureTask.
+    private final Object lock = new Object();
+
+    private final EngineProperties engineProperties;
+    private LinkedHashMap<String, RoutingProfile> routingProfiles = new LinkedHashMap<>();
+    private boolean statusFailed = false;
+    private boolean statusShutdown;
+
+    public RoutingProfileManager(EngineProperties engineProperties) {
+        this.engineProperties = engineProperties;
+        this.statusShutdown = Boolean.TRUE.equals(engineProperties.getPreparationMode());
+    }
+
+    public void initialize() {
+        // If no initialization is in progress or complete, create a new task
+        if (initTask == null || initTask.isDone()) {
+            synchronized (lock) {
+                if (initTask == null || initTask.isDone()) {
+                    initTask = new FutureTask<>(this::loadProfiles);
+                }
             }
         }
+        // Run the task. Only one thread will actually execute it.
+        initTask.run();
     }
 
-    public static synchronized RoutingProfileManager getInstance() {
-        if (instance == null) {
-            throw new UnsupportedOperationException("RoutingProfileManager has not been initialized!");
-        }
-        return instance;
-    }
-
-    public void initialize(EngineProperties config, String graphVersion) {
+    private RoutingProfileManager loadProfiles() {
         RuntimeUtility.printRAMInfo("", LOGGER);
         long startTime = System.currentTimeMillis();
-        RoutingProfileManagerStatus.setReady(false);
         routingProfiles = new LinkedHashMap<>();
         try {
-            Map<String, ProfileProperties> profiles = config.getInitializedActiveProfiles();
+            Map<String, ProfileProperties> profiles = engineProperties.getInitializedActiveProfiles();
             if (profiles.isEmpty()) {
                 fail("No profiles configured. Exiting.");
-                return;
+                return this;
             }
-            int initializationThreads = config.getInitThreads();
+            int initializationThreads = engineProperties.getInitThreads();
             LOGGER.info("====> Initializing %d profiles (%d threads) ...".formatted(profiles.size(), initializationThreads));
             RoutingProfileLoadContext loadContext = new RoutingProfileLoadContext();
             ExecutorService executor = Executors.newFixedThreadPool(initializationThreads);
@@ -69,7 +77,7 @@ public class RoutingProfileManager {
             int nTotalTasks = 0;
             for (Map.Entry<String, ProfileProperties> profile : profiles.entrySet()) {
                 if (profile.getValue().getProfilesTypes() != null && profile.getValue().getEnabled()) {
-                    Callable<RoutingProfile> task = new RoutingProfileLoader(profile.getKey(), profile.getValue(), config, graphVersion, loadContext);
+                    Callable<RoutingProfile> task = new RoutingProfileLoader(profile.getKey(), profile.getValue(), engineProperties, loadContext);
                     compService.submit(task);
                     nTotalTasks++;
                 }
@@ -78,38 +86,45 @@ public class RoutingProfileManager {
 
             int nCompletedTasks = 0;
             while (nCompletedTasks < nTotalTasks) {
-                Future<RoutingProfile> future = compService.take();
-
-                try {
-                    RoutingProfile rp = future.get();
-                    nCompletedTasks++;
-                    routingProfiles.put(rp.name(), rp);
-                } catch (ExecutionException e) {
-                    LOGGER.debug(e);
-                    if (ExceptionUtils.indexOfThrowable(e, FileNotFoundException.class) != -1) {
-                        throw new IllegalStateException("Output files can not be written. Make sure ors.engine.graphs_data_access is set to a writable type! ");
-                    }
-                    throw e;
-                } catch (InterruptedException e) {
-                    LOGGER.debug(e);
-                    Thread.currentThread().interrupt();
-                    throw e;
-                }
+                nCompletedTasks = handleCompletedTasks(compService, nCompletedTasks);
             }
             executor.shutdown();
             loadContext.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
             LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
             LOGGER.info("========================================================================");
-            RoutingProfileManagerStatus.setReady(true);
+            if (statusShutdown) {
+                LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
+                return this;
+            }
+            RuntimeUtility.clearMemory(LOGGER);
+            if (LOGGER.isInfoEnabled())
+                printStatistics();
         } catch (Exception ex) {
             fail("Exception at RoutingProfileManager initialization: " + ex.getClass() + ": " + ex.getMessage());
             Thread.currentThread().interrupt();
-            return;
         }
-        RuntimeUtility.clearMemory(LOGGER);
-        if (LOGGER.isInfoEnabled())
-            printStatistics();
+        return this;
+    }
+
+    private int handleCompletedTasks(ExecutorCompletionService<RoutingProfile> compService, int nCompletedTasks) throws InterruptedException, ExecutionException {
+        Future<RoutingProfile> future = compService.take();
+        try {
+            RoutingProfile rp = future.get();
+            nCompletedTasks++;
+            routingProfiles.put(rp.name(), rp);
+        } catch (ExecutionException e) {
+            LOGGER.debug(e);
+            if (ExceptionUtils.indexOfThrowable(e, FileNotFoundException.class) != -1) {
+                throw new IllegalStateException("Output files can not be written. Make sure ors.engine.graphs_data_access is set to a writable type! ");
+            }
+            throw e;
+        } catch (InterruptedException e) {
+            LOGGER.debug(e);
+            Thread.currentThread().interrupt();
+            throw e;
+        }
+        return nCompletedTasks;
     }
 
     private void printStatistics() {
@@ -142,14 +157,37 @@ public class RoutingProfileManager {
         for (RoutingProfile rp : routingProfiles.values()) {
             rp.close();
         }
-        instance = null;
     }
 
     private void fail(String message) {
         LOGGER.error("");
         LOGGER.error(message);
         LOGGER.error("");
-        RoutingProfileManagerStatus.setFailed(true);
-        RoutingProfileManagerStatus.setShutdown(true);
+        statusFailed = true;
+        statusShutdown = true;
+    }
+
+    public void awaitReady() throws ExecutionException, InterruptedException {
+        if (initTask == null) {
+            LOGGER.warn("RoutingProfileManager.awaitReady() called before initialization. This should not happen, initializing now.");
+            initialize();
+        }
+        initTask.get();
+    }
+
+    public boolean isReady() {
+        return initTask != null && initTask.isDone();
+    }
+
+    public boolean hasFailed() {
+        return statusFailed;
+    }
+
+    public boolean isShutdown() {
+        return statusShutdown;
+    }
+
+    public void setFailed(boolean b) {
+        this.statusFailed = b;
     }
 }

@@ -1,4 +1,4 @@
-package org.heigit.ors.config.profile;
+package org.heigit.ors.config;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

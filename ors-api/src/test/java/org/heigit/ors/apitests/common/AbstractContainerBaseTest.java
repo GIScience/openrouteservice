@@ -12,7 +12,6 @@ import java.sql.Statement;
 public abstract class AbstractContainerBaseTest extends ServiceTest {
 
     static final PostgreSQLContainer POSTGIS;
-
     static {
         POSTGIS = new PostgreSQLContainer<>(DockerImageName.parse("postgis/postgis:17-3.6-alpine")
                 .asCompatibleSubstituteFor("postgres"))
@@ -23,7 +22,6 @@ public abstract class AbstractContainerBaseTest extends ServiceTest {
                 );
         POSTGIS.start();
 
-        System.setProperty("ors.engine.dynamic_data.enabled", "true");
         System.setProperty("ors.engine.dynamic_data.store_url", POSTGIS.getJdbcUrl());
         System.setProperty("ors.engine.dynamic_data.store_user", POSTGIS.getUsername());
         System.setProperty("ors.engine.dynamic_data.store_pass", POSTGIS.getPassword());

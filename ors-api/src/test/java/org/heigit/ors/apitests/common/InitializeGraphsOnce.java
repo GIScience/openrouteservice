@@ -1,7 +1,7 @@
 package org.heigit.ors.apitests.common;
 
 import org.apache.log4j.Logger;
-import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.api.services.EngineService;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -28,13 +28,8 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
     @Override
     public void beforeAll(ExtensionContext extensionContext) {
         SpringExtension.getApplicationContext(extensionContext);
-        while (!RoutingProfileManagerStatus.isReady()) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        EngineService engineService = SpringExtension.getApplicationContext(extensionContext).getBean(EngineService.class);
+        engineService.waitForInitializedRoutingProfileManager();
     }
 
     private static synchronized void deleteGraphsFolderOncePerTestRun() {
@@ -55,9 +50,5 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
             }
             System.setProperty(GRAPHS_FOLDER_DELETED, "true");
         }
-    }
-
-    private static ExtensionContext.Store rootStore(ExtensionContext extensionContext) {
-        return extensionContext.getRoot().getStore(ExtensionContext.Namespace.create(InitializeGraphsOnce.class));
     }
 }

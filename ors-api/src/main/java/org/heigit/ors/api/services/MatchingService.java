@@ -11,7 +11,6 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matching.MatchingErrorCodes;
 import org.heigit.ors.matching.MatchingRequest;
 import org.heigit.ors.routing.RoutingProfile;
-import org.heigit.ors.routing.RoutingProfileManager;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.locationtech.jts.geom.Geometry;
@@ -28,13 +27,14 @@ import java.util.Map;
 public class MatchingService extends ApiService {
 
     @Autowired
-    public MatchingService(EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
+    public MatchingService(EngineService engineService, EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
+        super(engineService);
         this.endpointsProperties = endpointsProperties;
         this.apiEngineProperties = apiEngineProperties;
     }
 
     public MatchingInfo generateMatchingInformation(String profileName) throws StatusCodeException {
-        RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(profileName);
+        RoutingProfile rp = engineService.waitForInitializedRoutingProfileManager().getRoutingProfile(profileName);
         if (rp == null) {
             throw new InternalServerException(MatchingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         }
@@ -45,7 +45,7 @@ public class MatchingService extends ApiService {
     public MatchingRequest.MatchingResult generateMatchingFromRequest(MatchingApiRequest matchingApiRequest) throws StatusCodeException {
         MatchingRequest matchingRequest = this.convertMatchingRequest(matchingApiRequest);
         try {
-            RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(matchingRequest.getProfileName());
+            RoutingProfile rp = engineService.waitForInitializedRoutingProfileManager().getRoutingProfile(matchingRequest.getProfileName());
             if (rp == null) {
                 throw new InternalServerException(MatchingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
             }
@@ -62,7 +62,7 @@ public class MatchingService extends ApiService {
     }
 
     private MatchingRequest convertMatchingRequest(MatchingApiRequest matchingApiRequest) throws StatusCodeException {
-        int profileType = -1;
+        int profileType;
         try {
             profileType = convertRouteProfileType(matchingApiRequest.getProfile());
         } catch (Exception e) {
@@ -93,7 +93,6 @@ public class MatchingService extends ApiService {
                 if (!(featureObj instanceof Map<?, ?> featureMap)) {
                     throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_FORMAT, "invalid GeoJSON format: 'feature' is not a map");
                 }
-                @SuppressWarnings("unchecked")
                 Map<String, Object> feature = (Map<String, Object>) featureMap;
                 Geometry geometry = reader.read(JSONValue.toJSONString(feature));
                 if (geometry == null) {

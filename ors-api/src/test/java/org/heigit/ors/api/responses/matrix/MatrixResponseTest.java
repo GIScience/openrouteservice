@@ -19,10 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ActiveProfiles("unittest")
 class MatrixResponseTest {
     private MatrixResponse bareMatrixResponse;
+    private final SystemMessageProperties systemMessageProperties;
+    private final EndpointsProperties endpointsProperties;
+
     @Autowired
-    private final SystemMessageProperties systemMessageProperties = new SystemMessageProperties();
-    @Autowired
-    private final EndpointsProperties endpointsProperties = new EndpointsProperties();
+    public MatrixResponseTest(SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) {
+        this.systemMessageProperties = systemMessageProperties;
+        this.endpointsProperties = endpointsProperties;
+    }
 
     @BeforeEach
     void setUp() {

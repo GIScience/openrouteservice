@@ -1,0 +1,41 @@
+ors:
+  engine:
+    preparation_mode: true
+    elevation:
+      preprocessed: true
+    profile_default:
+      enabled: false
+      graph_path: graphs-apitests
+      build:
+        source_file: ./src/test/files/heidelberg.test.pbf
+    profiles:
+      driving-car-prepmode:
+        enabled: true
+        encoder_name: driving-car
+        build:
+          profile_group: prepmodetest
+          graph_extent: heidelberg
+          encoder_options:
+            turn_costs: true
+            block_fords: false
+            use_acceleration: true
+            maximum_grade_level: 1
+            conditional_access: true
+            conditional_speed: true
+            enable_custom_models: true
+          preparation:
+            min_network_size: 200
+            methods:
+              ch:
+                enabled: false
+              lm:
+                enabled: false
+              core:
+                enabled: false
+          ext_storages:
+            WayCategory:
+            HeavyVehicle:
+              restrictions: true
+            WaySurfaceType:
+            Tollways:
+            OsmId:

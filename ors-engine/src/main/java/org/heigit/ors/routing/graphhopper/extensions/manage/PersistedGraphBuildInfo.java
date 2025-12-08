@@ -25,6 +25,9 @@ public class PersistedGraphBuildInfo {
     @JsonProperty("graph_version")
     private String graphVersion;
 
+    @JsonProperty("graph_size_bytes")
+    private Long graphSizeBytes;
+
     @JsonProperty("profile_properties")
     private ProfileProperties profileProperties;
 
