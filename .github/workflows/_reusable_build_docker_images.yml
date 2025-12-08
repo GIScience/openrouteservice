@@ -68,10 +68,10 @@ jobs:
         include:
           - platform: linux/amd64
             runner: ubuntu-latest
-            build: ${{ inputs.build_amd64 }}
+            build: ${{ fromJSON(inputs.build_amd64) }}
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
-            build: ${{ inputs.build_arm64 }}
+            build: ${{ fromJSON(inputs.build_arm64) }}
     
     name: Build ${{ inputs.image_stage }} for ${{ matrix.platform }}
     runs-on: ${{ matrix.runner }}
@@ -118,7 +118,7 @@ jobs:
           echo "artifact_full_path=$ARTIFACT_FULL_PATH" >> $GITHUB_OUTPUT
 
       - name: Login to Docker registry
-        if: inputs.push_image_to_dockerhub && matrix.build == true
+        if: fromJSON(inputs.push_image_to_dockerhub) && matrix.build == true
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef #3.6.0
         with:
           username: ${{ secrets.registry_username }}
@@ -160,9 +160,9 @@ jobs:
       - name: Upload image artifact
         id: upload-artifact
         if: |
-          !inputs.push_image_to_dockerhub && 
+          !fromJSON(inputs.push_image_to_dockerhub) && 
           matrix.build == true && 
-          inputs.upload_image_as_artifact == true
+          fromJSON(inputs.upload_image_as_artifact) == true
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.artifact.outputs.artifact_name }}

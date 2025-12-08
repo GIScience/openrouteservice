@@ -20,7 +20,10 @@ COPY mvnw /tmp/ors/mvnw
 COPY .mvn /tmp/ors/.mvn
 
 # Download dependencies
-RUN ./mvnw -pl 'ors-api,ors-engine' -q dependency:resolve dependency:resolve-plugins -Dmaven.test.skip=true > /dev/null || true
+ARG MAVEN_OPTS="-Dmaven.repo.local=/root/.m2/repository"
+ENV MAVEN_OPTS="${MAVEN_OPTS}"
+RUN ./mvnw -pl 'ors-api,ors-engine' -q \
+    dependency:resolve dependency:resolve-plugins -Dmaven.test.skip=true > /dev/null || true
 
 COPY ors-api /tmp/ors/ors-api
 COPY ors-engine /tmp/ors/ors-engine

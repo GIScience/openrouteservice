@@ -9,155 +9,56 @@ on:
 env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
   TEST_minimal_IMAGE_NAME: 'local/openrouteservice:test-minimal'
-  BUILD_PLATFORMS: 'linux/amd64,linux/arm64'
 
 
 jobs:
-  # This way the env variables are accessible in the individual jobs
   prepare_environment:
     name: Prepare the environment variables
     runs-on: ubuntu-latest
     outputs:
       test_image_name: ${{ env.TEST_IMAGE_NAME }}
       test_minimal_image_name: ${{ env.TEST_minimal_IMAGE_NAME }}
-      build_platforms: ${{ env.BUILD_PLATFORMS }}
-      dockerfile_hash: ${{ steps.dockerfile-hash.outputs.hash }}
+      is_draft: ${{ steps.check-draft.outputs.is_draft }}
+      build_arm64: ${{ steps.check-draft.outputs.build_arm64 }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Generate Dockerfile hash
-        id: dockerfile-hash
+      - name: Check if draft PR
+        id: check-draft
         run: |
-          HASH=$(sha256sum Dockerfile | cut -d' ' -f1 | cut -c1-8)
-          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          if [[ "${{ github.event_name }}" = "pull_request" && "${{ github.event.pull_request.draft }}" = "true" ]]; then
+            echo "is_draft=true" >> $GITHUB_OUTPUT
+            echo "build_arm64=false" >> $GITHUB_OUTPUT
+          else
+            echo "is_draft=false" >> $GITHUB_OUTPUT
+            echo "build_arm64=true" >> $GITHUB_OUTPUT
+          fi
       - run: |
           echo "Publish environment variables"
-  prepare_maven_dependencies:
-    name: Prepare Maven dependencies for ${{ matrix.name }}
-    runs-on: ${{ matrix.runner }}
-    needs:
-      - prepare_environment
-    strategy:
-      matrix:
-        include:
-          - platform: linux/amd64
-            name: linux-amd64
-            runner: ubuntu-latest
-          - platform: linux/arm64
-            name: linux-arm64
-            runner: ubuntu-24.04-arm
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        id: setup-java
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
-      - name: Download Maven dependencies
-        if: steps.setup-java.outputs.cache-hit != 'true'
-        run: |
-          ./mvnw package -q dependency:resolve dependency:resolve-plugins -Dmaven.test.skip=true > /dev/null || true
+          echo "Test Image Name: ${{ env.TEST_IMAGE_NAME }}"
+          echo "Test Minimal Image Name: ${{ env.TEST_minimal_IMAGE_NAME }}"
+          echo " Is Draft: ${{ steps.check-draft.outputs.is_draft }}"
+          echo " Build ARM64: ${{ steps.check-draft.outputs.build_arm64 }}"
   build_docker_images:
-    name: Build ${{ matrix.image_stage }} for ${{ matrix.name }}
-    runs-on: ${{ matrix.runner }}
-    needs:
-      - prepare_environment
-      - prepare_maven_dependencies
-    strategy:
-      matrix:
-        include:
-          - platform: linux/amd64
-            name: linux-amd64
-            runner: ubuntu-latest
-            image_stage: publish
-            skip_on_draft_pr: false
-            tags: ${{ needs.prepare_environment.outputs.test_image_name }}
-          - platform: linux/arm64
-            name: linux-arm64
-            runner: ubuntu-24.04-arm
-            image_stage: publish
-            skip_on_draft_pr: true
-            tags: ${{ needs.prepare_environment.outputs.test_image_name }}
-          - platform: linux/amd64
-            name: linux-amd64
-            runner: ubuntu-latest
-            image_stage: minimal
-            skip_on_draft_pr: false
-            tags: ${{ needs.prepare_environment.outputs.test_minimal_image_name }}
-          - platform: linux/arm64
-            name: linux-arm64
-            runner: ubuntu-24.04-arm
-            image_stage: minimal
-            skip_on_draft_pr: true
-            tags: ${{ needs.prepare_environment.outputs.test_minimal_image_name }}
-    steps:
-      - name: Checkout
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Get and save the UID
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
-        run: |
-          echo "UID=$(id -u)" >> $GITHUB_ENV
-      - name: Set up Docker Buildx
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
-        uses: docker/setup-buildx-action@v3
-        id: setup-buildx
-      - name: Set up JDK 21
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
-        uses: actions/setup-java@v4
-        id: setup-java
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
-      - name: Prepare Dockerfile for Maven cache
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
-        run: |
-          sed -i "s|RUN \./mvnw |RUN --mount=type=cache,target=/root/.m2/repository ./mvnw |g" Dockerfile
-      - name: Inject Maven cache into Docker build
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
-        uses: 'reproducible-containers/buildkit-cache-dance@5b81f4d29dc8397a7d341dba3aeecc7ec54d6361' # v3.3.0
-        with:
-          builder: ${{ steps.setup-buildx.outputs.name }}
-          dockerfile: Dockerfile
-          skip-extraction: ${{ steps.setup-java.outputs.cache-hit }}
-          cache-map: |
-            {
-              "/home/runner/.m2/repository": "/root/.m2/repository"
-            }
-      - name: Build ${{ matrix.image_stage }} image stage for ${{ matrix.name }}
-        uses: docker/build-push-action@v6
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
-        with:
-          context: .
-          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
-          target: ${{ matrix.image_stage }}
-          push: false
-          load: false
-          tags: ${{ matrix.tags }}
-          platforms: "${{ matrix.platform }}"
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          outputs: type=docker,dest=${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar
-      - name: Upload image artifact
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: image-${{ matrix.name }}-${{ matrix.image_stage }}-${{ needs.prepare_environment.outputs.dockerfile_hash }}-artifact
-          path: ${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar
-          retention-days: 1
-          if-no-files-found: error
-          compression-level: 0
-          overwrite: true
+    name: Build Docker images for both platforms - publish
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    needs: prepare_environment
+    with:
+      image_stage: publish
+      docker_tag: local/openrouteservice:test
+      build_amd64: true
+      build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
+  
+  build_minimal_images:
+    name: Build Docker images for both platforms - minimal
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    needs: prepare_environment
+    with:
+      image_stage: minimal
+      docker_tag: local/openrouteservice:test-minimal
+      build_amd64: true
+      build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
+
   docker_image_tests:
-    name: Test ${{ matrix.name }} - publish image
+    name: Test ${{ matrix.platform }} - publish image
     runs-on: ${{ matrix.runner }}
     needs:
       - prepare_environment
@@ -166,48 +67,54 @@ jobs:
       matrix:
         include:
           - platform: linux/amd64
-            name: linux-amd64
-            health_wait_time: 260
-            image_stage: publish
-            skip_on_draft_pr: false
             runner: ubuntu-latest
-          - platform: linux/arm64
-            name: linux-arm64
             health_wait_time: 260
-            skip_on_draft_pr: true
             image_stage: publish
+            skip_on_draft: false
+            artifact_name: ${{ needs.build_docker_images.outputs.artifact_name_amd64 }}
+          - platform: linux/arm64
             runner: ubuntu-24.04-arm
+            health_wait_time: 260
+            image_stage: publish
+            skip_on_draft: true
+            artifact_name: ${{ needs.build_docker_images.outputs.artifact_name_arm64 }}
     steps:
       - name: Checkout
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
         uses: actions/checkout@v4
+
+      - name: Setup Build environment
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        uses: ./.github/actions/setup-build-environment
         with:
-          fetch-depth: 0
+          with_java: false
+          with_docker: true
+
       - name: Download image artifact
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         uses: actions/download-artifact@v4
         with:
-          name: image-${{ matrix.name }}-${{ matrix.image_stage }}-${{ needs.prepare_environment.outputs.dockerfile_hash }}-artifact
-          path: ${{ runner.temp }}
-      - name: Set up Docker Buildx
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
-        uses: docker/setup-buildx-action@v3
+          name: ${{ matrix.artifact_name }}
+          path: ${{ runner.temp }}/
+
       - name: Load image
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |
-          docker load --input ${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar
+          docker load --input ${{ runner.temp }}/${{ matrix.artifact_name }}
+
       - name: Get and save the UID
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |
           echo "UID=$(id -u)" >> $GITHUB_ENV
+
       - name: Start container from previously build image and wait for successful checks
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |
           mkdir -p $(pwd)/ors-docker/graphs $(pwd)/ors-docker/config $(pwd)/ors-docker/elevation_cache
           chown -R $UID $(pwd)/ors-docker/graphs $(pwd)/ors-docker/config $(pwd)/ors-docker $(pwd)/ors-docker/elevation_cache
           # Place cached elevation file where docker compose expects it to mount into the image 
           cp ors-api/src/test/files/elevation/srtm_38_03.gh $(pwd)/ors-docker/elevation_cache
           # Replace image: in the docker-compose.yml with the test image. The value of image: can vary.
-          sed -i "s|image:.*|image: ${{ needs.prepare_environment.outputs.test_image_name }}|" docker-compose.yml
+          sed -i "s|image:.*|image: ${{ env.TEST_IMAGE_NAME }}|" docker-compose.yml
           sed -i "s|#logging.level.org.heigit: INFO|logging.level.org.heigit: DEBUG|" docker-compose.yml
           # Start the first build with the docker-compose setup
           docker compose up -d
@@ -216,7 +123,7 @@ jobs:
           # Set graphs data access to MMAPP
           sudo yq '.ors.engine.graphs_data_access = "MMAP"' -i $(pwd)/ors-docker/config/ors-config.yml
           # Start the container with the test image and the raw docker run command
-          docker run -it -d -p 8080:8082 -v $(pwd)/ors-docker/graphs:/home/ors/graphs -v $(pwd)/ors-docker/config:/home/ors/config -v $(pwd)/ors-api/src/test/files/elevation:/home/ors/elevation_cache --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          docker run -it -d -p 8080:8082 -v $(pwd)/ors-docker/graphs:/home/ors/graphs -v $(pwd)/ors-docker/config:/home/ors/config -v $(pwd)/ors-api/src/test/files/elevation:/home/ors/elevation_cache --name ors-instance ${{ env.TEST_IMAGE_NAME }}
           # Check for health to turn 200 after the graphs are build and spring-boot completely started
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ matrix.health_wait_time }}
           # Check for correct preflight settings to avoid CORS issues with ORIGIN wildcard from the example config
@@ -234,52 +141,54 @@ jobs:
           echo "Recreate the container to test if the graph can be properly read again"
           docker stop ors-instance
           docker container prune -f 
-          docker run -it -d -p 8080:8082 -v $(pwd)/ors-docker/graphs:/home/ors/graphs -v $(pwd)/ors-docker/config:/home/ors/config -e ors.cors.allowed_origins=https://example.org --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          docker run -it -d -p 8080:8082 -v $(pwd)/ors-docker/graphs:/home/ors/graphs -v $(pwd)/ors-docker/config:/home/ors/config -e ors.cors.allowed_origins=https://example.org --name ors-instance ${{ env.TEST_IMAGE_NAME }}
           # Request preflight with https://example.com and https://example.org to see if it gets applied correctly
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 ${{ matrix.health_wait_time }}
           # It should fail with http code 403 for https://example.com since the Origin is not covered.
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 403 10
 
   minimal_image_tests:
+    name: Test ${{ matrix.platform }} - minimal image
     runs-on: ${{ matrix.runner }}
     needs:
       - prepare_environment
-      - build_docker_images
+      - build_minimal_images
     strategy:
       matrix:
         include:
           - platform: linux/amd64
-            name: linux-amd64
-            image_stage: minimal
-            skip_on_draft_pr: false
             runner: ubuntu-latest
-          - platform: linux/arm64
-            name: linux-arm64
-            skip_on_draft_pr: true
             image_stage: minimal
+            skip_on_draft: false
+            artifact_name: ${{ needs.build_minimal_images.outputs.artifact_name_amd64 }}
+          - platform: linux/arm64
             runner: ubuntu-24.04-arm
+            image_stage: minimal
+            skip_on_draft: true
+            artifact_name: ${{ needs.build_minimal_images.outputs.artifact_name_arm64 }}
     steps:
       - name: Checkout
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+
       - name: Download image artifact
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         uses: actions/download-artifact@v4
         with:
-          name: image-${{ matrix.name }}-${{ matrix.image_stage }}-${{ needs.prepare_environment.outputs.dockerfile_hash }}-artifact
-          path: ${{ runner.temp }}
+          name: ${{ matrix.artifact_name }}
+          path: ${{ runner.temp }}/
+
       - name: Load image
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |
-          docker load --input ${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar
+          docker load --input ${{ runner.temp }}/${{ matrix.artifact_name }}
+
       - name: Get and save the UID
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |
           echo "UID=$(id -u)" >> $GITHUB_ENV
+
       - name: Test minimal image with graph build
-        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true && matrix.skip_on_draft_pr) }}
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |
           mkdir -p $(pwd)/ors-docker/elevation_cache
           chown -R $UID $(pwd)/ors-docker/elevation_cache
@@ -300,6 +209,6 @@ jobs:
             -e ors.engine.elevation.cache_path=/home/ors/elevation_cache \
             -e ors.engine.profiles.driving-car.enabled=true \
             --name ors-minimal-test \
-            ${{ needs.prepare_environment.outputs.test_minimal_image_name }}
+            ${{ env.TEST_minimal_IMAGE_NAME }}
           # Wait for graph build and health check (kubernetes image is non-interactive)
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-minimal-test && exit 1)
