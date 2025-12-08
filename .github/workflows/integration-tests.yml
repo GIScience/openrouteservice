@@ -148,11 +148,11 @@ jobs:
             ors-test-scenarios/graphs-integrationtests
           key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ needs.build_test_scenario_base_image.outputs.image_hash_amd64 }}
 
-      - name: Download base builder image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.build_test_scenario_base_image.outputs.artifact_name_amd64 }}
-          path: ${{ runner.temp }}/
+      # - name: Download base builder image artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: ${{ needs.build_test_scenario_base_image.outputs.artifact_name_amd64 }}
+      #     path: ${{ runner.temp }}/
 
       - name: Identify image artifact names
         id: identify-image-artifact-names
