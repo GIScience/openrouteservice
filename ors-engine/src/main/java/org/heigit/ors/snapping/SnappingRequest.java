@@ -1,20 +1,12 @@
 package org.heigit.ors.snapping;
 
-import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.AccessFilter;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.util.PMap;
 import org.heigit.ors.common.ServiceRequest;
-import org.heigit.ors.matrix.MatrixSearchContext;
-import org.heigit.ors.matrix.MatrixSearchContextBuilder;
+import org.heigit.ors.matrix.ResolvedLocation;
 import org.heigit.ors.routing.RoutingProfile;
-import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
-import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
-import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
+
+import java.util.stream.Stream;
 
 public class SnappingRequest extends ServiceRequest {
     private String profileName;
@@ -58,21 +50,12 @@ public class SnappingRequest extends ServiceRequest {
     }
 
     public SnappingResult computeResult(RoutingProfile rp) throws Exception {
-        GraphHopper gh = rp.getGraphhopper();
-        String encoderName = RoutingProfileType.getEncoderName(getProfileType());
-        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-        PMap hintsMap = new PMap();
-        int weightingMethod = WeightingMethod.RECOMMENDED; // Only needed to create the profile string
-        ProfileTools.setWeightingMethod(hintsMap, weightingMethod, getProfileType(), false);
-        ProfileTools.setWeighting(hintsMap, weightingMethod, getProfileType(), false);
-        String localProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
-        GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
-        String graphDate = ghStorage.getProperties().get("datareader.import.date");
+        Snapper snapper = new Snapper(rp, WeightingMethod.RECOMMENDED);
 
-        // TODO: replace usage of matrix search context by snapping-specific class
-        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(ghStorage, gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), true);
-        Weighting weighting = new ORSWeightingFactory(ghStorage, gh.getEncodingManager()).createWeighting(gh.getProfile(localProfileName), hintsMap, false);
-        MatrixSearchContext mtxSearchCntx = builder.create(ghStorage.getBaseGraph(), null, weighting, localProfileName, getLocations(), getLocations(), getMaximumSearchRadius());
-        return new SnappingResult(mtxSearchCntx.getSources().getLocations(), graphDate);
+        ResolvedLocation[] resolvedLocations = Stream.of(getLocations()).map(snapper::resolveLocation).toArray(ResolvedLocation[]::new);
+
+        String graphDate = rp.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.import.date");
+        return new SnappingResult(resolvedLocations, graphDate);
     }
+
 }

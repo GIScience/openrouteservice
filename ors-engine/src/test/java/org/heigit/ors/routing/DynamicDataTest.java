@@ -15,7 +15,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.BooleanEncodedValueEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.ev.DynamicData;
+import com.graphhopper.routing.ev.DynamicData;
 import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -15,8 +15,12 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.storage.index.Snap;
+import com.graphhopper.util.EdgeIteratorState;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
@@ -26,16 +30,22 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
+import org.heigit.ors.snapping.Snapper;
 import org.heigit.ors.util.TimeUtility;
 import org.json.simple.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
+
+import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.
@@ -75,6 +85,8 @@ public class RoutingProfile {
             astarApproximation = execution.getMethods().getAstar().getApproximation();
         if (execution.getMethods().getAstar().getEpsilon() != null)
             astarEpsilon = execution.getMethods().getAstar().getEpsilon();
+
+        if (hasExternalData()) loadStaticExternalData(mGraphHopper);
     }
 
 
@@ -144,6 +156,70 @@ public class RoutingProfile {
         return gh;
     }
 
+    private boolean hasExternalData() {
+        return true; // TODO: implement properly
+    }
+
+    private void loadStaticExternalData(ORSGraphHopper gh) throws IOException {
+        EncodingManager em = gh.getEncodingManager();
+        DecimalEncodedValue dev = em.getDecimalEncodedValue(getKey("pedestrian_ors", PointData.KEY));
+        if (dev == null) {
+            LOGGER.error("Could not create EncodedValue %s.".formatted(PointData.KEY));
+            return;
+        }
+
+        Path csvFile = Path.of("external_point_data.csv").toAbsolutePath(); // TODO: parametrize
+
+        try (BufferedReader csvBuffer = new BufferedReader(new FileReader(csvFile.toString()))) {
+            // Read header line
+            String row = csvBuffer.readLine();
+            String[] columnNames = Arrays.stream(row.split(",")).toArray(String[]::new);
+            // TODO: check that column names are lon, lat, value
+
+            Snapper snapper = new Snapper(this, WeightingMethod.CUSTOM);
+
+            double maxSearchRadius = 300; // TODO: initialize from config
+            int numIgnored = 0;
+            int numNotSnapped = 0;
+            int numLoaded = 0;
+
+            while ((row = csvBuffer.readLine()) != null) {
+                String[] fields = row.split(",", 4);
+                if (fields.length != 3) { // ignore rows with too few or too many entires
+                    numIgnored ++;
+                    continue;
+                }
+
+                float lon = Float.parseFloat(fields[0].trim());
+                float lat = Float.parseFloat(fields[1].trim());
+                double value = Float.parseFloat(fields[2].trim());
+
+                Snap snap = snapper.snapToGraph(lon, lat);
+                if (!snap.isValid() || snap.getQueryDistance() > maxSearchRadius) {
+                    numNotSnapped ++;
+                    continue;
+                }
+
+                EdgeIteratorState closestEdge = snap.getClosestEdge();
+                IntsRef edgeFlags = closestEdge.getFlags();
+
+                double current = dev.getDecimal(false, edgeFlags);
+                if (current != dev.getMaxDecimal()) value += current;
+
+                dev.setDecimal(false, edgeFlags, value);
+                closestEdge.setFlags(edgeFlags);
+                numLoaded ++;
+            }
+            LOGGER.info("External data points: "
+                    + numLoaded + " loaded, "
+                    + numNotSnapped + " not snapped, "
+                    + numIgnored + " ignored.");
+        } catch (IOException openFileEx) {
+            LOGGER.error(openFileEx.getStackTrace());
+            throw openFileEx;
+        }
+    }
+
     public boolean hasCHProfile(String profileName) {
         boolean hasCHProfile = false;
         for (CHProfile chProfile : getGraphhopper().getCHPreparationHandler().getCHProfiles()) {
@@ -191,6 +267,10 @@ public class RoutingProfile {
 
     public String name() {
         return this.profileName;
+    }
+
+    public int profileType() {
+        return RoutingProfileType.getFromString(profileName);
     }
 
     public ProfileProperties getProfileProperties() {
