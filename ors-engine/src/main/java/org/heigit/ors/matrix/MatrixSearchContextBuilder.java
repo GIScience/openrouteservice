@@ -119,6 +119,7 @@ public class MatrixSearchContextBuilder {
         return idsArray;
     }
 
+    // TODO: refactor using org.heigit.ors.snapping.Snapper instead to match Snapping and loadExternalPointData
     private void resolveLocations(String profileName, Coordinate[] coords, List<Snap> queryResults, double maxSearchRadius) {
         for (Coordinate p : coords) {
             LocationEntry ld = locationCache.get(p);

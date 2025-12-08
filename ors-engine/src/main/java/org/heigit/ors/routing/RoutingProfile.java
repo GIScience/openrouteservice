@@ -15,17 +15,12 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.routing.ev.*;
-import com.graphhopper.routing.util.DefaultSnapFilter;
-import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.storage.StorableProperties;
-import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PMap;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
@@ -35,10 +30,9 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
-import org.heigit.ors.util.ProfileTools;
+import org.heigit.ors.snapping.Snapper;
 import org.heigit.ors.util.TimeUtility;
 import org.json.simple.JSONObject;
-import org.locationtech.jts.geom.Coordinate;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -182,17 +176,17 @@ public class RoutingProfile {
             String[] columnNames = Arrays.stream(row.split(",")).toArray(String[]::new);
             // TODO: check that column names are lon, lat, value
 
-            Snapper snapper = setupSnapper(gh, WeightingMethod.CUSTOM);
+            Snapper snapper = new Snapper(this, WeightingMethod.CUSTOM);
 
             double maxSearchRadius = 300; // TODO: initialize from config
-            int num_ignored = 0;
-            int num_not_snapped = 0;
-            int num_loaded = 0;
+            int numIgnored = 0;
+            int numNotSnapped = 0;
+            int numLoaded = 0;
 
             while ((row = csvBuffer.readLine()) != null) {
                 String[] fields = row.split(",", 4);
                 if (fields.length != 3) { // ignore rows with too few or too many entires
-                    num_ignored ++;
+                    numIgnored ++;
                     continue;
                 }
 
@@ -200,9 +194,9 @@ public class RoutingProfile {
                 float lat = Float.parseFloat(fields[1].trim());
                 double value = Float.parseFloat(fields[2].trim());
 
-                Snap snap = snapper.snapToGraphEdge(lon, lat);
+                Snap snap = snapper.snapToGraph(lon, lat);
                 if (!snap.isValid() || snap.getQueryDistance() > maxSearchRadius) {
-                    num_not_snapped ++;
+                    numNotSnapped ++;
                     continue;
                 }
 
@@ -214,47 +208,16 @@ public class RoutingProfile {
 
                 dev.setDecimal(false, edgeFlags, value);
                 closestEdge.setFlags(edgeFlags);
-                num_loaded ++;
+                numLoaded ++;
             }
             LOGGER.info("External data points: "
-                    + num_loaded + " loaded, "
-                    + num_not_snapped + " not snapped, "
-                    + num_ignored + " ignored.");
+                    + numLoaded + " loaded, "
+                    + numNotSnapped + " not snapped, "
+                    + numIgnored + " ignored.");
         } catch (IOException openFileEx) {
             LOGGER.error(openFileEx.getStackTrace());
             throw openFileEx;
         }
-    }
-
-    private Snapper setupSnapper(ORSGraphHopper gh, int weightingMethod) {
-        LocationIndex locationIndex = gh.getLocationIndex();
-        int profileType = RoutingProfileType.getFromString(profileName);
-        String encoderName = RoutingProfileType.getEncoderName(profileType);
-        String localProfileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(weightingMethod), false);
-        PMap hintsMap = new PMap();
-        ProfileTools.setWeightingMethod(hintsMap, weightingMethod, profileType, false);
-        ProfileTools.setWeighting(hintsMap, weightingMethod, profileType, false);
-        Weighting weighting = new ORSWeightingFactory(gh.getGraphHopperStorage(), gh.getEncodingManager())
-                .createWeighting(gh.getProfile(localProfileName), hintsMap, false);
-        BooleanEncodedValue profileSubnetwork = gh.getEncodingManager().getBooleanEncodedValue(Subnetwork.key(localProfileName));
-        EdgeFilter snappingEdgeFilter = new DefaultSnapFilter(weighting, profileSubnetwork);
-        return new Snapper(locationIndex, snappingEdgeFilter);
-    }
-
-    class Snapper {
-        LocationIndex locationIndex;
-        EdgeFilter edgeFilter;
-
-        Snapper(LocationIndex locationIndex, EdgeFilter edgeFilter) {
-            this.locationIndex = locationIndex;
-            this.edgeFilter = edgeFilter;
-        }
-
-        public Snap snapToGraphEdge(Float lon, Float lat) {
-            Coordinate p = new Coordinate(lon, lat);
-            return locationIndex.findClosest(p.y, p.x, edgeFilter);
-        }
-
     }
 
     public boolean hasCHProfile(String profileName) {
@@ -304,6 +267,10 @@ public class RoutingProfile {
 
     public String name() {
         return this.profileName;
+    }
+
+    public int profileType() {
+        return RoutingProfileType.getFromString(profileName);
     }
 
     public ProfileProperties getProfileProperties() {
