@@ -1,0 +1,189 @@
+name: Build Docker Images (Reusable)
+description: Reusable workflow to build Docker images for multiple platforms and stages
+
+on:
+  workflow_call:
+    inputs:
+      push_image_to_dockerhub:
+        description: Whether to push the image to a registry
+        type: boolean
+        default: false
+      upload_image_as_artifact:
+        description: Upload Docker image as artifact (incompatible with push)
+        type: boolean
+        default: true
+      build_arm64:
+        description: Build both amd64 and arm64 platforms (if false, only builds specified platform)
+        type: boolean
+        default: false
+      build_amd64:
+        description: Build amd64 platform
+        type: boolean
+        default: true
+      image_stage:
+        description: Dockerfile target stage to build (e.g., 'publish' or 'minimal')
+        type: string
+        required: true
+      docker_tag:
+        description: Docker tag for the built image
+        type: string
+        required: true
+      cache_from_type:
+        description: Cache backend type (default gha for GitHub Actions)
+        type: string
+        default: 'gha'
+      java_version:
+        description: Java version to use for Maven builds
+        type: string
+        default: '21'
+      dockerfile_path:
+        description: Path to the Dockerfile to use
+        type: string
+        default: 'Dockerfile'
+    secrets:
+      registry_username:
+        description: Docker registry username (optional, for authentication)
+        required: false
+      registry_password:
+        description: Docker registry password (optional, for authentication)
+        required: false
+    outputs:
+      artifact_name_amd64:
+        description: Name of the built image artifact for linux/amd64
+        value: ${{ jobs.build_docker_image.outputs.artifact_name_amd64 || '' }}
+      artifact_name_arm64:
+        description: Name of the built image artifact for linux/arm64
+        value: ${{ jobs.build_docker_image.outputs.artifact_name_arm64 || '' }}
+      image_hash_amd64:
+        description: Hash of the built image for linux/amd64
+        value: ${{ jobs.build_docker_image.outputs.image_hash_amd64 || '' }}
+      image_hash_arm64:
+        description: Hash of the built image for linux/arm64
+        value: ${{ jobs.build_docker_image.outputs.image_hash_arm64 || '' }}
+
+jobs:
+  build_docker_image:
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+            build: ${{ inputs.build_amd64 }}
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            build: ${{ inputs.build_arm64 }}
+    
+    name: Build ${{ inputs.image_stage }} for ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    outputs:
+      image_hash_amd64: ${{ matrix.platform == 'linux/amd64' && steps.final-artifact.outputs.image_hash || '' }}
+      image_hash_arm64: ${{ matrix.platform == 'linux/arm64' && steps.final-artifact.outputs.image_hash || '' }}
+      artifact_name_amd64: ${{ matrix.platform == 'linux/amd64' && steps.final-artifact.outputs.artifact_name || '' }}
+      artifact_name_arm64: ${{ matrix.platform == 'linux/arm64' && steps.final-artifact.outputs.artifact_name || '' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up build environment
+        if: matrix.build == true
+        uses: ./.github/actions/setup-build-environment
+        with:
+          java_version: ${{ inputs.java_version }}
+          dockerfile: ${{ inputs.dockerfile_path }}
+
+      - name: Generate Dockerfile hash
+        if: matrix.build == true
+        id: dockerfile-hash
+        env:
+          DOCKERFILE_PATH: ${{ inputs.dockerfile_path }}
+        run: |
+          HASH=$(sha256sum "$DOCKERFILE_PATH" | cut -d' ' -f1 | cut -c1-8)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+
+      - name: Set artifact names
+        if: matrix.build == true
+        id: artifact
+        env:
+          IMAGE_STAGE: ${{ inputs.image_stage }}
+          PLATFORM: ${{ matrix.platform }}
+          HASH: ${{ steps.dockerfile-hash.outputs.hash }}
+          RUNNER_TEMP: ${{ runner.temp }}
+        run: |
+          PLATFORM_NAME=$(echo "$PLATFORM" | sed 's/\//_/g')
+          ARTIFACT_NAME="image-${PLATFORM_NAME}-${IMAGE_STAGE}-${HASH}.tar"
+          echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
+          ARTIFACT_PATH="$RUNNER_TEMP"
+          echo "artifact_path=$ARTIFACT_PATH" >> $GITHUB_OUTPUT
+          ARTIFACT_FULL_PATH="${ARTIFACT_PATH}/${ARTIFACT_NAME}"
+          echo "artifact_full_path=$ARTIFACT_FULL_PATH" >> $GITHUB_OUTPUT
+
+      - name: Login to Docker registry
+        if: inputs.push_image_to_dockerhub && matrix.build == true
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef #3.6.0
+        with:
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
+        continue-on-error: true
+
+      - name: Determine Docker output
+        if: matrix.build == true
+        id: output
+        env:
+          PUSH: ${{ inputs.push_image_to_dockerhub }}
+          ARTIFACT_FULL_PATH: ${{ steps.artifact.outputs.artifact_full_path }}
+        run: |
+          if [ "$PUSH" = "true" ]; then
+            echo "output=type=image,push=true" >> $GITHUB_OUTPUT
+          elif [ "$LOAD" = "true" ]; then
+            # Load into Docker daemon requires specific platform syntax
+            echo "output=type=docker" >> $GITHUB_OUTPUT
+          else
+            echo "output=type=docker,dest=$ARTIFACT_FULL_PATH" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Docker image
+        if: matrix.build == true
+        id: build-image
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 #v6.18.0
+        with:
+          context: .
+          file: ${{ inputs.dockerfile_path }}
+          target: ${{ inputs.image_stage }}
+          push: ${{ inputs.push_image_to_dockerhub }}
+          load: false
+          tags: ${{ inputs.docker_tag }}
+          platforms: ${{ matrix.platform }}
+          cache-from: type=${{ inputs.cache_from_type }}
+          cache-to: type=${{ inputs.cache_from_type }},mode=max
+          outputs: ${{ steps.output.outputs.output }}
+
+      - name: Upload image artifact
+        id: upload-artifact
+        if: |
+          !inputs.push_image_to_dockerhub && 
+          matrix.build == true && 
+          inputs.upload_image_as_artifact == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact.outputs.artifact_name }}
+          path: ${{ steps.artifact.outputs.artifact_path }}
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+          overwrite: true
+
+      - name: Set final artifact info
+        if: matrix.build == true
+        id: final-artifact
+        env:
+          ARTIFACT_FULL_PATH: ${{ steps.artifact.outputs.artifact_full_path }}
+          ARTIFACT_NAME: ${{ steps.artifact.outputs.artifact_name }}
+          IMAGE_ID: ${{ steps.build-image.outputs.imageid }}
+        run: |
+          if [ -f "$ARTIFACT_FULL_PATH" ]; then
+            echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
+            echo "image_hash=$IMAGE_ID" >> $GITHUB_OUTPUT
+          else
+            echo "Artifact not created, skipping upload."
+            echo "artifact_name=" >> $GITHUB_OUTPUT
+          fi
