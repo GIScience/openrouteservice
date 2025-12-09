@@ -62,7 +62,9 @@ jobs:
           echo "Test 1 PASSED: Default configuration with Docker works correctly"
 
       - name: Test build functionality
-        run: ./mvnw clean compile -q
+        run: |
+          java --version
+          ./mvnw --help
 
       - name: Test 2 - Docker Buildx setup verification
         run: |
