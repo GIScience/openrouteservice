@@ -11,6 +11,7 @@ import com.graphhopper.util.PMap;
 import org.heigit.ors.matrix.ResolvedLocation;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.util.ProfileTools;
@@ -42,7 +43,9 @@ public class Snapper {
         PMap hintsMap = new PMap();
         ProfileTools.setWeightingMethod(hintsMap, weightingMethod, profileType, false);
         ProfileTools.setWeighting(hintsMap, weightingMethod, profileType, false);
-        String effectiveWeighting = hintsMap.getString("weightingMethod", "");
+// TODO: which effectiveWeighting used at different places is correct?
+//        String effectiveWeighting = hintsMap.getString("weightingMethod", "");
+        String effectiveWeighting = WeightingMethod.getName(weightingMethod);
         String localProfileName = ProfileTools.makeProfileName(encoderName, effectiveWeighting, false);
         Weighting weighting = new ORSWeightingFactory(gh.getGraphHopperStorage(), gh.getEncodingManager())
                 .createWeighting(gh.getProfile(localProfileName), hintsMap, false);

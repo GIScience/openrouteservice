@@ -174,7 +174,7 @@ public class RoutingProfile {
             // Read header line
             String row = csvBuffer.readLine();
             String[] columnNames = Arrays.stream(row.split(",")).toArray(String[]::new);
-            // TODO: check that column names are lon, lat, value
+            // TODO: check that column names are lon, lat, value, maxSearchRadius
 
             Snapper snapper = new Snapper(this, WeightingMethod.CUSTOM);
 
