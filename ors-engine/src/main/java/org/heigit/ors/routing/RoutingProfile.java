@@ -178,21 +178,21 @@ public class RoutingProfile {
 
             Snapper snapper = new Snapper(this, WeightingMethod.CUSTOM);
 
-            double maxSearchRadius = 300; // TODO: initialize from config
             int numIgnored = 0;
             int numNotSnapped = 0;
             int numLoaded = 0;
 
             while ((row = csvBuffer.readLine()) != null) {
-                String[] fields = row.split(",", 4);
-                if (fields.length != 3) { // ignore rows with too few or too many entires
+                String[] fields = row.split(",", 5);
+                if (fields.length != 4) { // ignore rows with too few or too many entires
                     numIgnored ++;
                     continue;
                 }
 
                 float lon = Float.parseFloat(fields[0].trim());
                 float lat = Float.parseFloat(fields[1].trim());
-                double value = Float.parseFloat(fields[2].trim());
+                double value = Double.parseDouble(fields[2].trim());
+                double maxSearchRadius = Double.parseDouble(fields[3].trim());
 
                 Snap snap = snapper.snapToGraph(lon, lat);
                 if (!snap.isValid() || snap.getQueryDistance() > maxSearchRadius) {
