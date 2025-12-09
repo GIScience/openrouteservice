@@ -162,7 +162,7 @@ jobs:
         if: |
           !fromJSON(inputs.push_image_to_dockerhub) && 
           matrix.build == true && 
-          fromJSON(inputs.upload_image_as_artifact) == true
+          fromJSON(inputs.upload_image_as_artifact)
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.artifact.outputs.artifact_name }}
