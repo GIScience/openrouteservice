@@ -46,6 +46,7 @@ jobs:
       docker_tag: local/openrouteservice:test
       build_amd64: true
       build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
+      upload_image_as_artifact: true
   
   build_minimal_images:
     name: Build Docker images for both platforms - minimal
@@ -56,6 +57,7 @@ jobs:
       docker_tag: local/openrouteservice:test-minimal
       build_amd64: true
       build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
+      upload_image_as_artifact: true
 
   docker_image_tests:
     name: Test ${{ matrix.platform }} - publish image
@@ -88,6 +90,14 @@ jobs:
         with:
           with_java: false
           with_docker: true
+
+      - name: Check artifact availability
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        run: |
+          if [[ -z "${{ matrix.artifact_name }}" ]]; then
+            echo "Artifact not available for platform ${{ matrix.platform }}"
+            exit 1
+          fi
 
       - name: Download image artifact
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
@@ -169,6 +179,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check artifact availability
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        run: |
+          if [[ -z "${{ matrix.artifact_name }}" ]]; then
+            echo "Artifact not available for platform ${{ matrix.platform }}"
+            exit 1
+          fi
 
       - name: Download image artifact
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
