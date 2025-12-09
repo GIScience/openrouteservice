@@ -28,7 +28,10 @@ COPY mvnw $CONTAINER_BUILD_DIR/mvnw
 COPY .mvn $CONTAINER_BUILD_DIR/.mvn
 
 # Cache the dependencies to speed up the build process
-RUN ./mvnw dependency:go-offline -B -q
+ARG MAVEN_OPTS="-Dmaven.repo.local=/root/.m2/repository"
+ENV MAVEN_OPTS="${MAVEN_OPTS}"
+RUN ./mvnw -pl '!:ors-report-aggregation,!:ors-benchmark' -q \
+    dependency:resolve dependency:resolve-plugins -Dmaven.test.skip=true > /dev/null || true
 
 # Copy project files
 COPY ors-api "$CONTAINER_BUILD_DIR"/ors-api
@@ -90,11 +93,10 @@ COPY --from=ors-test-scenarios-builder $CONTAINER_BUILD_DIR "$CONTAINER_WORK_DIR
 COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heidelberg.test.pbf
 COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
 
+ARG MAVEN_OPTS="-Dmaven.repo.local=/root/.m2/repository"
+ENV MAVEN_OPTS="${MAVEN_OPTS}"
 RUN ./mvnw install -q -DskipTests -Dmaven.test.skip=true -PbuildJar -pl \
-    '!:ors-test-scenarios,!:ors-report-aggregation,!:ors-benchmark' && \
-    cp -r /root/.m2 $CONTAINER_WORK_DIR/.m2
-# Needed step for CI to persist cache layer
-RUN mv "$CONTAINER_WORK_DIR"/.m2 /root/.m2
+    '!:ors-test-scenarios,!:ors-report-aggregation,!:ors-benchmark'
 
 COPY ors-test-scenarios/src/test/resources/maven-entrypoint.sh $CONTAINER_WORK_DIR/maven-entrypoint.sh
 
