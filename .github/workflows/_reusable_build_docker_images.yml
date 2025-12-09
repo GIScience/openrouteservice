@@ -28,10 +28,6 @@ on:
         description: Docker tag for the built image
         type: string
         required: true
-      cache_from_type:
-        description: Cache backend type (default gha for GitHub Actions)
-        type: string
-        default: 'gha'
       java_version:
         description: Java version to use for Maven builds
         type: string
@@ -144,18 +140,14 @@ jobs:
       - name: Build Docker image
         if: matrix.build == true
         id: build-image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 #v6.18.0
+        uses: ./.github/actions/build-docker-image
         with:
-          context: .
-          file: ${{ inputs.dockerfile_path }}
-          target: ${{ inputs.image_stage }}
-          push: ${{ inputs.push_image_to_dockerhub }}
-          load: false
-          tags: ${{ inputs.docker_tag }}
-          platforms: ${{ matrix.platform }}
-          cache-from: type=${{ inputs.cache_from_type }}
-          cache-to: type=${{ inputs.cache_from_type }},mode=max
-          outputs: ${{ steps.output.outputs.output }}
+          dockerfile_path: ${{ inputs.dockerfile_path }}
+          image_stage: ${{ inputs.image_stage }}
+          docker_tag: ${{ inputs.docker_tag }}
+          platform: ${{ matrix.platform }}
+          push_image: ${{ inputs.push_image_to_dockerhub }}
+          output_type: ${{ steps.output.outputs.output }}
 
       - name: Upload image artifact
         id: upload-artifact
