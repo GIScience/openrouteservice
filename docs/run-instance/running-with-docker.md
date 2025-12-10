@@ -94,7 +94,7 @@ curl http://localhost:8080/ors/v2/health
 ```
 You can now go on and use the openrouteservice API as described in our [API reference](../api-reference.md).
 
-When you have started the container as described, a directory `ors-docker` with some sub directories and files are created by docker:
+When you have started the container as described, a directory `ors-docker` with some sub-directories and files is created by docker:
 ```shell
 .
 ├── docker-compose.yml
