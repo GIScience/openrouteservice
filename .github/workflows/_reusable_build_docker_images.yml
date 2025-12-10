@@ -4,14 +4,10 @@ description: Reusable workflow to build Docker images for multiple platforms and
 on:
   workflow_call:
     inputs:
-      push_image_to_dockerhub:
-        description: Whether to push the image to a registry
+      upload_image_as_artifact:
+        description: Upload Docker image as artifact
         type: boolean
         default: false
-      upload_image_as_artifact:
-        description: Upload Docker image as artifact (incompatible with push)
-        type: boolean
-        default: true
       build_arm64:
         description: Build both amd64 and arm64 platforms (if false, only builds specified platform)
         type: boolean
@@ -25,13 +21,9 @@ on:
         type: string
         required: true
       docker_tag:
-        description: Docker tag for the built image
+        description: Docker tag(s) for the built image (comma-separated for multiple tags)
         type: string
         required: true
-      cache_from_type:
-        description: Cache backend type (default gha for GitHub Actions)
-        type: string
-        default: 'gha'
       java_version:
         description: Java version to use for Maven builds
         type: string
@@ -90,6 +82,7 @@ jobs:
         with:
           java_version: ${{ inputs.java_version }}
           dockerfile: ${{ inputs.dockerfile_path }}
+          docker_login: false
 
       - name: Generate Dockerfile hash
         if: matrix.build == true
@@ -116,51 +109,24 @@ jobs:
           echo "artifact_path=$ARTIFACT_PATH" >> $GITHUB_OUTPUT
           ARTIFACT_FULL_PATH="${ARTIFACT_PATH}/${ARTIFACT_NAME}"
           echo "artifact_full_path=$ARTIFACT_FULL_PATH" >> $GITHUB_OUTPUT
-
-      - name: Login to Docker registry
-        if: fromJSON(inputs.push_image_to_dockerhub) && matrix.build == true
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef #3.6.0
-        with:
-          username: ${{ secrets.registry_username }}
-          password: ${{ secrets.registry_password }}
-        continue-on-error: true
-
-      - name: Determine Docker output
-        if: matrix.build == true
-        id: output
-        env:
-          PUSH: ${{ inputs.push_image_to_dockerhub }}
-          ARTIFACT_FULL_PATH: ${{ steps.artifact.outputs.artifact_full_path }}
-        run: |
-          if [ "$PUSH" = "true" ]; then
-            echo "output=type=image,push=true" >> $GITHUB_OUTPUT
-          elif [ "$LOAD" = "true" ]; then
-            # Load into Docker daemon requires specific platform syntax
-            echo "output=type=docker" >> $GITHUB_OUTPUT
-          else
-            echo "output=type=docker,dest=$ARTIFACT_FULL_PATH" >> $GITHUB_OUTPUT
-          fi
+          OUTPUT_TYPE="type=docker,dest=${ARTIFACT_FULL_PATH}"
+          echo "output_type=$OUTPUT_TYPE" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         if: matrix.build == true
         id: build-image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 #v6.18.0
+        uses: ./.github/actions/build-docker-image
         with:
-          context: .
-          file: ${{ inputs.dockerfile_path }}
-          target: ${{ inputs.image_stage }}
-          push: ${{ inputs.push_image_to_dockerhub }}
-          load: false
-          tags: ${{ inputs.docker_tag }}
-          platforms: ${{ matrix.platform }}
-          cache-from: type=${{ inputs.cache_from_type }}
-          cache-to: type=${{ inputs.cache_from_type }},mode=max
-          outputs: ${{ steps.output.outputs.output }}
+          dockerfile_path: ${{ inputs.dockerfile_path }}
+          image_stage: ${{ inputs.image_stage }}
+          docker_tag: ${{ inputs.docker_tag }}
+          platform: ${{ matrix.platform }}
+          push_image: false
+          output_type: ${{ steps.artifact.outputs.output_type }}
 
       - name: Upload image artifact
         id: upload-artifact
         if: |
-          !fromJSON(inputs.push_image_to_dockerhub) && 
           matrix.build == true && 
           fromJSON(inputs.upload_image_as_artifact)
         uses: actions/upload-artifact@v4

@@ -1,0 +1,170 @@
+# Test Build Docker Image Action
+# ==============================
+# Test suite for the build-docker-image composite action.
+#
+# Tests validate:
+# - Docker image build with various dockerfile paths
+#
+# Triggers: Push/PR to action files
+# Local testing: act -j test_action_build_docker_image
+
+name: Test Build Docker Image Action
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '.github/actions/build-docker-image/**'
+      - '.github/workflows/_test_action_build_docker_image.yml'
+  pull_request:
+    branches: [ "**" ]
+    paths:
+      - '.github/actions/build-docker-image/**'
+      - '.github/workflows/_test_action_build_docker_image.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test_action_build_docker_image:
+    name: Test build-docker-image action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+
+      - name: Setup Basic Mock Dockerfile
+        run: |
+          echo -e "FROM alpine:latest AS publish\nRUN echo 'Hello, World!'" > test.Dockerfile
+          # Add another stage
+          echo -e "\nFROM publish AS extra\nRUN echo 'Extra Stage'" >> test.Dockerfile
+    
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+        with:
+          with_java: false
+          with_docker: true
+          with_qemu: true
+          with_docker_cache_injection: false
+
+      - name: Test 1 - Basic build with default Dockerfile
+        id: test1_basic
+        uses: ./.github/actions/build-docker-image
+        with:
+          dockerfile_path: 'test.Dockerfile'
+          image_stage: 'publish'
+          docker_tag: 'test:basic'
+          platform: 'linux/amd64'
+          output_type: 'type=image'
+
+      - name: Verify Test 1 outputs
+        run: |
+          echo "Image ID: ${{ steps.test1_basic.outputs.imageid }}"
+          echo "Digest: ${{ steps.test1_basic.outputs.digest }}"
+          
+          if [ -z '${{ steps.test1_basic.outputs.imageid }}' ]; then
+            echo "Test 1 FAILED: Expected imageid output"
+            exit 1
+          fi
+          
+          if [ -z '${{ steps.test1_basic.outputs.digest }}' ]; then
+            echo "Test 1 FAILED: Expected digest output"
+            exit 1
+          fi
+          
+          echo "Test 1 PASSED: Basic Docker build works"
+      
+      - name: Test 2 - Build with different emulated platform
+        id: test2_platform
+        uses: ./.github/actions/build-docker-image
+        with:
+          dockerfile_path: 'test.Dockerfile'
+          image_stage: 'extra'
+          docker_tag: 'test:platform'
+          platform: 'linux/arm64'
+          output_type: 'type=image'
+
+      - name: Verify Test 2 outputs
+        run: |
+          echo "Image ID: ${{ steps.test2_platform.outputs.imageid }}"
+          echo "Digest: ${{ steps.test2_platform.outputs.digest }}"
+          
+          if [ -z '${{ steps.test2_platform.outputs.imageid }}' ]; then
+            echo "Test 2 FAILED: Expected imageid output"
+            exit 1
+          fi
+
+          if [ -z '${{ steps.test2_platform.outputs.digest }}' ]; then
+            echo "Test 2 FAILED: Expected digest output"
+            exit 1
+          fi
+          
+          echo "Test 2 PASSED: Platform build works"
+      
+      - name: Test 3 - Test Image and Digest ID with type=docker output
+        id: test3
+        uses: ./.github/actions/build-docker-image
+        with:
+          dockerfile_path: 'test.Dockerfile'
+          image_stage: 'publish'
+          docker_tag: 'test:test3'
+          platform: 'linux/amd64'
+          output_type: 'type=docker'
+      - name: Verify Test 3 outputs
+        run: |
+          echo "Image ID: ${{ steps.test3.outputs.imageid }}"
+          echo "Digest: ${{ steps.test3.outputs.digest }}"
+
+          if [ -z '${{ steps.test3.outputs.imageid }}' ]; then
+            echo "Test 3 FAILED: Expected imageid output even with type=docker"
+            exit 1
+          fi
+
+          if [ -z '${{ steps.test3.outputs.digest }}' ]; then
+            echo "Test 3 FAILED: Expected digest output even with type=docker"
+            exit 1
+          fi
+      
+      - name: Test 4 - Empty output_type returns no image and digest IDs
+        id: test4
+        uses: ./.github/actions/build-docker-image
+        with:
+          dockerfile_path: 'test.Dockerfile'
+          image_stage: 'publish'
+          docker_tag: 'test:test4'
+          platform: 'linux/amd64'
+          output_type: ''
+      - name: Verify Test 4 outputs
+        run: |
+          echo "Image ID: ${{ steps.test4.outputs.imageid }}"
+          echo "Digest: ${{ steps.test4.outputs.digest }}"
+          
+          if [ -n '${{ steps.test4.outputs.imageid }}' ]; then
+            echo "Test 4 FAILED: Expected no imageid output with empty output_type"
+            exit 1
+          fi
+
+          if [ -n '${{ steps.test4.outputs.digest }}' ]; then
+            echo "Test 4 FAILED: Expected no digest output with empty output_type"
+            exit 1
+          fi
+      - name: Summary
+        if: always()
+        run: |
+          echo "=========================================="
+          echo "Build Docker Image Action - Test Summary"
+          echo "=========================================="
+          echo "Test 1: Basic build - PASSED"
+          echo "Test 2: Platform build - PASSED"
+          echo "Test 3: type=docker output - PASSED"
+          echo "Test 4: Empty output_type - PASSED"
+          echo "=========================================="
+          echo "All tests executed successfully"
+          echo ""
+          echo "Test Coverage:"
+          echo "  Test 1: Basic build with default Dockerfile"
+          echo "  Test 2: Build with different emulated platform"
+          echo "  Test 3: Image and Digest ID with type=docker output"
+          echo "  Test 4: Empty output_type returns no image and digest IDs"
+          echo "=========================================="

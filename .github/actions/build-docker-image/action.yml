@@ -1,0 +1,74 @@
+name: Build Docker Image
+description: Build a Docker image using docker/build-push-action with configurable options
+
+inputs:
+  dockerfile_path:
+    description: Path to the Dockerfile
+    required: true
+    type: string
+  image_stage:
+    description: Dockerfile target stage to build
+    required: true
+    type: string
+  docker_tag:
+    description: Docker tag for the built image
+    required: true
+    type: string
+  platform:
+    description: Target platform (e.g., linux/amd64, linux/arm64)
+    required: true
+    type: string
+  push_image:
+    description: Whether to push the image to a registry
+    required: false
+    type: boolean
+    default: false
+  cache_from_type:
+    description: Cache backend type (default gha for GitHub Actions)
+    required: false
+    type: string
+    default: 'gha,mode=max'
+  cache_to_type:
+    description: Cache backend type for cache-to (default gha for GitHub Actions)
+    required: false
+    type: string
+    default: 'gha'
+  artifact_full_path:
+    description: Full path to save the artifact (for non-push builds)
+    required: false
+    type: string
+    default: ''
+  output_type:
+    description: Docker output type (docker, or docker with dest).
+    required: false
+    type: string
+    default: 'type=docker'
+
+outputs:
+  imageid:
+    description: Image ID of the built image. Only if output_type includes type=image or type=docker.
+    value: ${{ steps.build-image.outputs.imageid }}
+  digest:
+    description: Digest of the built image. Only if output_type includes type=image or type=docker.
+    value: ${{ steps.build-image.outputs.digest }}
+  metadata:
+    description: Metadata of the built image
+    value: ${{ steps.build-image.outputs.metadata }}
+
+runs:
+  using: composite
+  steps:
+    - name: Build Docker image
+      id: build-image
+      uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 #v6.18.0
+      with:
+        context: .
+        file: ${{ inputs.dockerfile_path }}
+        target: ${{ inputs.image_stage }}
+        push: ${{ inputs.push_image }}
+        load: false
+        tags: ${{ inputs.docker_tag }}
+        platforms: ${{ inputs.platform }}
+        cache-from: type=${{ inputs.cache_from_type }}
+        cache-to: type=${{ inputs.cache_from_type }}
+        outputs: ${{ inputs.output_type }}

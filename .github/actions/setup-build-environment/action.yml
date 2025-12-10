@@ -16,6 +16,26 @@ inputs:
     required: false
     type: boolean
     default: 'true'
+  with_qemu:
+    description: Set up QEMU for multi-architecture builds
+    required: false
+    type: boolean
+    default: 'false'
+  docker_login:
+    description: Login to Docker registry (requires docker_username and docker_password secrets)
+    required: false
+    type: boolean
+    default: 'false'
+  docker_username:
+    description: Docker registry username (used if docker_login is true)
+    required: false
+    type: string
+    default: ''
+  docker_password:
+    description: Docker registry password (used if docker_login is true)
+    required: false
+    type: string
+    default: ''
   with_docker_cache_injection:
     description: Inject Maven cache into Docker builds
     required: false
@@ -52,10 +72,22 @@ runs:
         ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
         ./mvnw clean -q
 
+    - name: Set up QEMU
+      if: inputs.with_docker == 'true' && inputs.with_qemu == 'true'
+      uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 #v3.7.0
+
     - name: Set up Docker Buildx
       if: inputs.with_docker == 'true'
       id: buildx
       uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 #v3.11.1
+
+    - name: Login to Docker registry
+      if: inputs.with_docker == 'true' && inputs.docker_login == 'true'
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef #3.6.0
+      with:
+        username: ${{ inputs.docker_username }}
+        password: ${{ inputs.docker_password }}
+      continue-on-error: true
 
     - name: Prepare all Dockerfiles for Maven cache mount
       if: inputs.with_docker == 'true' && inputs.with_docker_cache_injection == 'true'
