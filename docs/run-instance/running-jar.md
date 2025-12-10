@@ -44,7 +44,7 @@ curl http://localhost:8080/ors/v2/health
 {"status":"ready"}
 ```
 
-You can now go on and use the openrouteservice API as described in our [API reference](../api-reference.md).
+You can now go on and use the openrouteservice API as described in our [API reference](/api-reference.md).
 
 When you have started the JAR as described, a directory `graphs` with some sub-directories and files, among some others, is created:
 ```shell
