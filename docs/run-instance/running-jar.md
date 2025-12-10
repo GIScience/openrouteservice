@@ -69,7 +69,7 @@ When you have started the JAR as described, a directory `graphs` with some sub-d
 
 * `elevation_cache`: Directory, where openrouteservice stores downloaded elevation data to avoid repeated downloads.
 * `graphs`: Directory for the generated graphs. Initially, there is only `driving-car` because this is the only enabled
-  routing profile in the default `ors-config.yml`
+  routing profile in the default `ors-config.yml`.
 * `logs`: Here, the openrouteservice logs are stored.
 
 ## Troubleshooting
