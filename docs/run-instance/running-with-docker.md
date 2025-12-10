@@ -92,6 +92,7 @@ After some time, your openrouteservice should be running:
 curl http://localhost:8080/ors/v2/health
 {"status":"ready"}
 ```
+You can now go on and use the openrouteservice API as described in our [API reference](../api-reference.md).
 
 When you have started the container as described, a directory `ors-docker` with some sub directories and files are created by docker:
 ```shell
