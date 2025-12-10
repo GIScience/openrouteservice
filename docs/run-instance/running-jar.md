@@ -24,7 +24,9 @@ To run the openrouteservice application, use the following command:
 java -jar ors.jar
 ```
 
-## Configure
+This command will look for a file named `ors-config.yml` in the current working directory. You need at least one profile and one `source_file` configured.
+
+### Configure
 
 The recommended way to configure an openrouteservice instance run plain using the JAR file is to use a YAML configuration file. You can download an example file by using the following command: 
 
@@ -33,6 +35,42 @@ wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/ors-confi
 ```
 
 For details on how to make openrouteservice apply the settings in the configuration file (there are multiple options) see chapter [Configuration](configuration/index.md).
+
+## What you get
+
+After some time, your openrouteservice should be running:
+```shell
+curl http://localhost:8080/ors/v2/health
+{"status":"ready"}
+```
+
+You can now go on and use the openrouteservice API as described in our [API reference](../api-reference.md).
+
+When you have started the JAR as described, a directory `graphs` with some sub-directories and files, among some others, is created:
+```shell
+.
+├── elevation_cache
+│   ├── …
+│   └── srtm_38_03.zip
+├── graphs
+│   └── driving-car
+│       ├── edges
+│       ├── …
+│       ├── …
+│       └── turn_costs
+├── logs
+│   └── ors.log
+├── ors-config.yml
+└── ors.jar
+
+5 directories, 36 files
+```
+
+
+* `elevation_cache`: Directory, where openrouteservice stores downloaded elevation data to avoid repeated downloads.
+* `graphs`: Directory for the generated graphs. Initially, there is only `driving-car` because this is the only enabled
+  routing profile in the default `ors-config.yml`
+* `logs`: Here, the openrouteservice logs are stored.
 
 ## Troubleshooting
 
