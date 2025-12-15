@@ -1,39 +1,174 @@
-.idea/
-*.iml
-*.ipr
-.DS_Store
-**/.m2/
-*.code-workspace
-.vscode
-!.mvn/wrapper/maven-wrapper.jar
-graphs/
-graph-repo/
-graphs-*/
-target/
-logs/
-elevation_cache/
-cgiar_cache/
-node_modules/
+### Inverted Git ignore rules
+###
+### Start by ignoring everything, then explicitly allow only what should be tracked.
 
-# jqwik
-.jqwik-database
+# Ignore everything by default
+*
 
-# Ignore folders generated from docker
-/config/
-/files/
+# Allow Git to traverse directories (negations can't re-include files inside an ignored dir)
+!*/
 
-# Ignore all ors-config files except for the sample one, useful for development and testing
-ors-api/src/main/resources/ors-config*
-ors-config*
-ors-docker/**
+# =============================================================================
+# Root Level Files - Include essential project files
+# =============================================================================
 
-envs/
-ors-config-repo/
+# Documentation
+!/README.md
+!/CHANGELOG.md
+!/CONTRIBUTE.md
+!/RELEASE.md
+!/LICENSE
+!/LICENSE.LESSER
+!/NOTICE.md
 
-# docs stuff
-docs/.vitepress/dist
-docs/.vitepress/cache
-/.integration-scenarios/debian-12-jar-mvn/graphs_volume/
-/.integration-scenarios/debian-12-jar-mvn/tmp/
+# Build & Configuration
+!/pom.xml
+!/package.json
+!/package-lock.json
+!/docker-compose.yml
+!/Dockerfile
+!/docker-entrypoint.sh
+!/.editorconfig
+!/.gitignore
+!/.dockerignore
+!/mvnw
+!/mvnw.cmd
 
-gatling-results/**
+# Config files
+!/ors-config.yml
+!/ors-config.env
+
+# =============================================================================
+# GitHub Configuration
+# =============================================================================
+
+# Actions
+!/.github/actions/build-docker-image/action.yml
+!/.github/actions/parse-release-tag/action.yml
+!/.github/actions/setup-build-environment/action.yml
+
+# Issue Templates
+!/.github/ISSUE_TEMPLATE/api_issue.yml
+!/.github/ISSUE_TEMPLATE/config.yml
+!/.github/ISSUE_TEMPLATE/docs.yml
+!/.github/ISSUE_TEMPLATE/feature_request.yml
+!/.github/ISSUE_TEMPLATE/security.yml
+!/.github/ISSUE_TEMPLATE/simple.yml
+
+# Utils
+!/.github/utils/cors_check.sh
+!/.github/utils/url_check.sh
+!/.github/utils/yml_config_to_ors_config_conversion.sh
+!/.github/utils/yml_config_to_properties_conversion.sh
+!/.github/utils/yml_config_validation.sh
+
+# Workflows
+!/.github/workflows/_reusable_build_docker_images.yml
+!/.github/workflows/_test_action_build_docker_image.yml
+!/.github/workflows/_test_action_parse_release_tag.yml
+!/.github/workflows/_test_action_setup_build_environment.yml
+!/.github/workflows/config-conversion-automation.yml
+!/.github/workflows/conventional-commit.yml
+!/.github/workflows/conventional-label.yml
+!/.github/workflows/deploy-docs.yml
+!/.github/workflows/docker-build-and-test.yml
+!/.github/workflows/docker-nightly-image.yml
+!/.github/workflows/integration-tests.yml
+!/.github/workflows/publish-tagged-release.yml
+!/.github/workflows/release-tag-latest.yml
+!/.github/workflows/run_maven_tests.yml
+!/.github/workflows/sonarcube-scan.yml
+!/.github/workflows/vulnerability-scanning.yml
+
+# Other files
+!/.github/PULL_REQUEST_TEMPLATE.md
+!/.github/release.yml
+
+# =============================================================================
+# Documentation
+# =============================================================================
+
+# Documentation content and static assets (only tracked extensions)
+!/docs/**/*.md
+!/docs/**/*.png
+!/docs/**/*.yml
+!/docs/**/*.json
+!/docs/**/*.xml
+!/docs/**/*.vue
+!/docs/**/*.txt
+!/docs/**/*.ts
+!/docs/**/*.js
+!/docs/**/*.css
+
+# =============================================================================
+# ORS Modules - Include all source code and tests
+# =============================================================================
+
+# Allowlist module build descriptors
+!/ors-api/pom.xml
+!/ors-benchmark/pom.xml
+!/ors-engine/pom.xml
+!/ors-report-aggregation/pom.xml
+!/ors-test-scenarios/pom.xml
+
+# Allowlist Java sources
+!/ors-api/src/main/java/**/*.java
+!/ors-api/src/test/java/**/*.java
+!/ors-benchmark/src/main/java/**/*.java
+!/ors-benchmark/src/test/java/**/*.java
+!/ors-engine/src/main/java/**/*.java
+!/ors-engine/src/test/java/**/*.java
+!/ors-report-aggregation/src/main/java/**/*.java
+!/ors-report-aggregation/src/test/java/**/*.java
+!/ors-test-scenarios/src/main/java/**/*.java
+!/ors-test-scenarios/src/test/java/**/*.java
+
+# Allowlist resources
+!/ors-api/src/main/resources/**
+!/ors-api/src/test/resources/**
+!/ors-benchmark/src/main/resources/**
+!/ors-benchmark/src/test/resources/**
+!/ors-engine/src/main/resources/**
+!/ors-engine/src/test/resources/**
+!/ors-report-aggregation/src/main/resources/**
+!/ors-report-aggregation/src/test/resources/**
+!/ors-test-scenarios/src/main/resources/**
+!/ors-test-scenarios/src/test/resources/**
+
+# Allowlist test fixtures (kept under src/test/files)
+!/ors-api/src/test/files/**
+!/ors-engine/src/test/files/**
+
+# Allowlist required WebContent descriptors for WAR packaging
+!/ors-api/WebContent/META-INF/MANIFEST.MF
+!/ors-api/WebContent/WEB-INF/web.xml
+
+# =============================================================================
+# Always Ignore List - Never commit generated artifacts and local runtime data
+# =============================================================================
+
+# Build output directories (recursive)
+**/build/
+**/target/
+**/dist/
+**/node_modules/
+**/logs/
+**/cache/
+
+# Local runtime/cache data
+**/graphs/
+**/ors-api/graphs-apitests/
+**/elevation_cache/
+
+# IDE/editor files
+**/*.iml
+**/.classpath
+**/.project
+**/.settings/
+**/.jqwik-database
+**/.jqwik-database/
+
+# Logs and temporary files
+**/*.log
+**/*.tmp
+**/*.temp
