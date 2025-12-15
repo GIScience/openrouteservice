@@ -1,0 +1,107 @@
+{
+  "instructions": {
+    "numerals": {
+      "1": "1.",
+      "2": "2.",
+      "3": "3.",
+      "4": "4.",
+      "5": "5.",
+      "6": "6.",
+      "7": "7.",
+      "8": "8.",
+      "9": "9.",
+      "10": "10."
+    },
+    "directions": {
+      "north": "iparralderantz",
+      "northeast": "ipar-ekialderantz",
+      "east": "ekialderantz",
+      "southeast": "hego-ekialderantz",
+      "south": "hegoalderantz",
+      "southwest": "hego-mendebalderantz",
+      "west": "mendebalderantz",
+      "northwest": "ipar-mendebalderantz"
+    },
+    "turn_maneuvers": {
+      "left": "ezkerrera",
+      "right": "eskuinera",
+      "sharp_left": "ezkerrera, dezente,",
+      "sharp_right": "eskuinera, dezente,",
+      "slight_left": "ezkerrera, pixka bat,",
+      "slight_right": "eskuinera, pixka bat,",
+      "straight": "zuzen",
+      "uturn": "atzera"
+    },
+    "actions": {
+      "arrive": {
+        "default": {
+          "default": "Iritsi zure helmugara",
+          "name": "Iritsi hona: {way_name}"
+        },
+        "left": {
+          "default": "Iritsi zure helmugara, ezkerretara",
+          "name": "Iritsi kale honetara, ezkerretara baitago: {way_name}"
+        },
+        "right": {
+          "default": "Iritsi zure helmugara, eskuinetara",
+          "name": "Iritsi kale honetara, eskuinetara baitago: {way_name}"
+        },
+        "straight": {
+          "default": "Iritsi zuzen jarraituta zure helmugara",
+          "name": "Iritsi zuzen jarraituta hona: {way_name}"
+        }
+      },
+      "depart": {
+        "default": {
+          "default": "Joan {direction}",
+          "name": "Joan {direction} leku honetatik: {way_name}"
+        }
+      },
+      "roundabout": {
+        "default": {
+          "exit": {
+            "default": "Sartu biribilgunean eta hartu {exit_number} irteera",
+            "name": "Sartu biribilgunean eta hartu {exit_number} irteera, honantz:"
+          },
+          "default": {
+            "default": "Sartu biribilgunean",
+            "name": "Sartu biribilgunean eta irten honantz: {exit_number}"
+          }
+        }
+      },
+      "turn": {
+        "default": {
+          "default": "Egin {turn_maneuver}",
+          "name": "Egin {turn_maneuver}, honantz: {way_name}"
+        }
+      },
+      "continue": {
+        "default": {
+          "default": "Jarraitu {turn_maneuver}",
+          "name": "Jarraitu {turn_maneuver}, honantz: {way_name}"
+        },
+        "uturn": {
+          "default": "Itzuli atzera",
+          "name": "Itzuli atzera, honantz: {way_name}"
+        }
+      },
+      "keep": {
+        "default": {
+          "default": "Egin {turn_maneuver}",
+          "name": "Egin {turn_maneuver}, hona: {way_name}"
+        }
+      },
+      "pt": {
+        "start": {
+          "default": "Enter {name}",
+          "headsign": "Enter {name} headed for {headsign}"
+        },
+        "transfer": {
+          "default": "Change to {name}",
+          "headsign": "Change to {name} headed for {headsign}"
+        },
+        "end": "Exit to {name}"
+      }
+    }
+  }
+}
