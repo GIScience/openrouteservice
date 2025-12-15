@@ -57,4 +57,4 @@
     - git push origin tag vX
 7. Update version in POMs to X.Y.Z-SNAPSHOT using
    ./mvnw versions:set -DnewVersion=X.Y.Z-SNAPSHOT
-8. Check whether outreach, announcement, … is necessary and do so.
+8. Check whether outreach, announcement, etc. is necessary and do so.
