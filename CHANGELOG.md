@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- translation file basque language ([#2206](https://github.com/GIScience/openrouteservice/issue/2206))
 - documentation on the fields of JSON and GeoJSON responses of the directions endpoint ([#2084](https://github.com/GIScience/openrouteservice/issue/2084))
 - docs: comment on API key usage ([#2179](https://github.com/GIScience/openrouteservice/pull/2179))
 - type-specific filtering for mapping point features to graph edges ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
@@ -37,6 +38,7 @@ Releasing is documented in RELEASE.md
 - "What you get" section to the JAR setup documentation and API reference to the docker setup documentation ([#2203](https://github.com/GIScience/openrouteservice/pull/2203))
 
 ### Changed
+- adding basque language in APIEnum ([#2206](https://github.com/GIScience/openrouteservice/issue/2206))
 - enhanced status endpoint to expose dynamic data statistics and feature store metrics ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
 - when running in `preparation_mode`, pack the graph for upload ([#2185](https://github.com/GIScience/openrouteservice/pull/2185))
 - replace `HeavyVehicleAttributesGraphStorage` with corresponding encoded values ([#2146](https://github.com/GIScience/openrouteservice/pull/2146))
