@@ -75,7 +75,7 @@ jobs:
       build_arm64: true
       push_to_registry: true
       docker_login: true
-      docker_tag: ${{ needs.setup-build-environment.outputs.publish_image_tag }}
+      docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
@@ -93,7 +93,7 @@ jobs:
       build_arm64: true
       push_to_registry: true
       docker_login: true
-      docker_tag: ${{ needs.setup-build-environment.outputs.slim_image_tag }}
+      docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
