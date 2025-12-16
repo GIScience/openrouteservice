@@ -70,5 +70,5 @@ runs:
         tags: ${{ inputs.docker_tag }}
         platforms: ${{ inputs.platform }}
         cache-from: type=${{ inputs.cache_from_type }}
-        cache-to: type=${{ inputs.cache_from_type }}
-        outputs: ${{ inputs.output_type }}
+        cache-to: type=${{ inputs.cache_to_type }}
+        outputs: ${{ inputs.push_image && '' || inputs.output_type }}
