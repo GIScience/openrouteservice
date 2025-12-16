@@ -133,6 +133,7 @@ jobs:
           if [ "$PUSH_TO_REGISTRY" = "true" ]; then
             # Use push-by-digest for multi-arch manifest combining
             OUTPUT_TYPE="push-by-digest=true,type=image"
+            CACHE_TO_TYPE='' # no cache-to needed when pushing
             PUSH_IMAGE="true"
           else
             # Use docker output for artifact
@@ -140,6 +141,7 @@ jobs:
             PUSH_IMAGE="false"
           fi
           echo "output_type=$OUTPUT_TYPE" >> $GITHUB_OUTPUT
+          echo "cache_to_type=$CACHE_TO_TYPE" >> $GITHUB_OUTPUT
           echo "push_image=$PUSH_IMAGE" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
@@ -153,6 +155,7 @@ jobs:
           platform: ${{ matrix.platform }}
           push_image: ${{ steps.artifact.outputs.push_image == 'true' }}
           output_type: ${{ steps.artifact.outputs.output_type }}
+          cache_to_type: ${{ steps.artifact.outputs.cache_to_type || 'gha' }}
 
       - name: Upload image artifact
         id: upload-artifact
