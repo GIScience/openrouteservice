@@ -56,7 +56,7 @@ jobs:
       - name: Set Docker image tag
         id: image-tags
         run: |
-          BASE_TAG=openrouteservice/openrouteservice:"${{ inputs.tag || 'nightly' }}"
+          BASE_TAG=openrouteservice/openrouteservice-test:"${{ inputs.tag || 'nightly' }}"
           echo "publish_image_tag=${BASE_TAG}" >> $GITHUB_OUTPUT
           echo "slim_image_tag=${BASE_TAG}-slim" >> $GITHUB_OUTPUT
           echo "Docker publish stage image tag: ${BASE_TAG}"
@@ -75,7 +75,7 @@ jobs:
       build_arm64: true
       push_to_registry: true
       docker_login: true
-      docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
+      docker_tag: openrouteservice/openrouteservice-test # push by digest needs no tag suffix
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
@@ -93,7 +93,7 @@ jobs:
       build_arm64: true
       push_to_registry: true
       docker_login: true
-      docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
+      docker_tag: openrouteservice/openrouteservice-test # push by digest needs no tag suffix
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
@@ -147,18 +147,11 @@ jobs:
             exit 1
           fi
           
-          echo "Creating manifest list for $IMAGE_REPO"
+          echo "Create and push manifest list for $IMAGE_REPO"
           docker buildx imagetools create \
             -t "$IMAGE_REPO" \
             "${IMAGE_REPO%:*}@${DIGEST_AMD64}" \
             "${IMAGE_REPO%:*}@${DIGEST_ARM64}"
-          
-          echo "Pushing manifest for $IMAGE_REPO"
-          docker buildx imagetools create \
-            --push \
-            -t "$IMAGE_REPO" \
-            "${IMAGE_REPO%:*}@${DIGEST_AMD64}" \
-            "${IMAGE_REPO%:*}@${DIGEST_ARM64}"
-          
+
           echo "Successfully pushed multi-arch image: $IMAGE_REPO"
 
