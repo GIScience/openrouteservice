@@ -21,7 +21,7 @@ jobs:
         with:
           tag: ${{ github.event.release.tag_name }}
 
-  build_docker_images:
+  build_and_push_publish_images:
     name: Build and cache the Docker images with native runners
     needs: parse_tag
     if: ${{ needs.parse_tag.outputs.build_version == 'true' }}
@@ -31,45 +31,102 @@ jobs:
       build_amd64: true
       build_arm64: true
       image_stage: 'publish'
-      docker_tag: ${{ needs.parse_tag.outputs.tags_version }},${{ needs.parse_tag.outputs.tags_latest }}
+      push_by_digest: true
+      docker_login: true
+      docker_tag: 'openrouteservice/openrouteservice' # push_by_digest doesn't need a tag suffix
       dockerfile_path: 'Dockerfile'
+    secrets:
+      registry_username: ${{ secrets.DOCKER_USERNAME }}
+      registry_password: ${{ secrets.DOCKER_PASSWORD }}
   
-  publish_docker_image:
-    name: Publish Docker image to DockerHub
+  build_and_push_slim_images:
+    name: Build and cache the slim Docker images with native runners
+    needs: parse_tag
+    if: ${{ needs.parse_tag.outputs.build_version == 'true' }}
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    with:
+      upload_image_as_artifact: false
+      build_amd64: true
+      build_arm64: true
+      image_stage: 'slim'
+      push_by_digest: true
+      docker_login: true
+      docker_tag: 'openrouteservice/openrouteservice' # push_by_digest doesn't need a tag suffix
+      dockerfile_path: 'Dockerfile'
+    secrets:
+      registry_username: ${{ secrets.DOCKER_USERNAME }}
+      registry_password: ${{ secrets.DOCKER_PASSWORD }}
+  
+  combine_and_push_publish_image:
+    name: Combine multi-arch manifest and push to DockerHub
     runs-on: ubuntu-latest
     if: ${{ needs.parse_tag.outputs.build_version == 'true' }}
     needs:
       - parse_tag
-      - build_docker_images
+      - build_and_push_publish_images
+      - build_and_push_slim_images
+    strategy:
+      matrix:
+        include:
+          - name: "Release image ${{ needs.parse_tag.outputs.tags_version }}"
+            image_stage: 'publish'
+            image_tag: ${{ needs.parse_tag.outputs.tags_version }}
+            digest_amd64: ${{ needs.build_and_push_publish_images.outputs.image_digest_amd64 }}
+            digest_arm64: ${{ needs.build_and_push_publish_images.outputs.image_digest_arm64 }}
+          - name: "Release ${{ needs.parse_tag.outputs.tags_latest }}"
+            image_stage: 'publish'
+            image_tag: ${{ needs.parse_tag.outputs.tags_latest }}
+            digest_amd64: ${{ needs.build_and_push_publish_images.outputs.image_digest_amd64 }}
+            digest_arm64: ${{ needs.build_and_push_publish_images.outputs.image_digest_arm64 }}
+          - name: "Release image ${{ needs.parse_tag.outputs.tags_version }}-slim"
+            image_stage: 'slim'
+            image_tag: ${{ needs.parse_tag.outputs.tags_version }}-slim
+            digest_amd64: ${{ needs.build_and_push_slim_images.outputs.image_digest_amd64 }}
+            digest_arm64: ${{ needs.build_and_push_slim_images.outputs.image_digest_arm64 }}
+          - name: "Release image ${{ needs.parse_tag.outputs.tags_latest }}-slim"
+            image_stage: 'slim'
+            image_tag: ${{ needs.parse_tag.outputs.tags_latest }}-slim
+            digest_amd64: ${{ needs.build_and_push_slim_images.outputs.image_digest_amd64 }}
+            digest_arm64: ${{ needs.build_and_push_slim_images.outputs.image_digest_arm64 }}
     steps:
-      - name: Checkout normally
+      - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Build environment
+      - name: Set up build environment
         uses: ./.github/actions/setup-build-environment
         with:
-          with_java: true
+          with_java: false
           with_docker: true
-          with_qemu: true
-          with_docker_cache_injection: true
-          java_version: 21
+          with_qemu: false
+          with_docker_cache_injection: false
+          docker_login: true
+          docker_username: ${{ secrets.DOCKER_USERNAME }}
+          docker_password: ${{ secrets.DOCKER_PASSWORD }}
           dockerfile: 'Dockerfile'
+      - name: Create and push manifest for ${{ matrix.name }}
+        env:
+          IMAGE_REPO: openrouteservice/openrouteservice:${{ matrix.image_tag }}
+          DIGEST_AMD64: ${{ matrix.digest_amd64 }}
+          DIGEST_ARM64: ${{ matrix.digest_arm64 }}
+        run: |
+          if [ -z "$DIGEST_AMD64" ] || [ -z "$DIGEST_ARM64" ]; then
+            echo "Error: Missing digests for multi-arch manifest"
+            echo "AMD64: $DIGEST_AMD64"
+            echo "ARM64: $DIGEST_ARM64"
+            exit 1
+          fi
+          
+          echo "Create and push manifest list for ${{ matrix.image_stage }} - ${{ matrix.image_tag }}"
+          docker buildx imagetools create \
+            -t "$IMAGE_REPO" \
+            "openrouteservice/openrouteservice@${DIGEST_AMD64}" \
+            "openrouteservice/openrouteservice@${DIGEST_ARM64}"
 
-      - name: Build and publish release version
-        if: ${{ needs.parse_tag.outputs.build_version == 'true' }}
-        uses: ./.github/actions/build-docker-image
-        with:
-          dockerfile_path: 'Dockerfile'
-          image_stage: 'publish'
-          docker_tag: ${{ needs.parse_tag.outputs.tags_version }},${{ needs.parse_tag.outputs.tags_latest }}
-          platform: 'linux/amd64,linux/arm64'
-          push_image: true
-          cache_from_type: gha
-          cache_to_type: ''
+          echo "Successfully pushed multi-arch image: $IMAGE_REPO"
 
   build_and_publish_release_artifacts:
     if: ${{ needs.parse_tag.outputs.build_version == 'true' }}
     runs-on: ubuntu-latest
-    needs: [parse_tag, publish_docker_image]
+    needs: [parse_tag, combine_and_push_publish_image]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
