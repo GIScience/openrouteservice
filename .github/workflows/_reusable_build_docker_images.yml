@@ -17,7 +17,7 @@ on:
         type: boolean
         default: true
       image_stage:
-        description: Dockerfile target stage to build (e.g., 'publish' or 'minimal')
+        description: Dockerfile target stage to build (e.g., 'publish' or 'slim')
         type: string
         required: true
       docker_tag:
