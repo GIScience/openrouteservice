@@ -2,11 +2,6 @@ name: Build and publish the newest version and latest Docker image
 on:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release tag to build from dispatch (overrides github.event.release.tag_name)'
-        required: true
 
 jobs:
   parse_tag:
@@ -24,7 +19,7 @@ jobs:
         id: parse
         uses: ./.github/actions/parse-release-tag
         with:
-          tag: ${{ github.event.inputs.tag || '' }}
+          tag: ${{ github.event.release.tag_name }}
 
   build_docker_images:
     name: Build and cache the Docker images with native runners
@@ -59,19 +54,8 @@ jobs:
           java_version: 21
           dockerfile: 'Dockerfile'
 
-      - name: Build and publish manual version
-        if: ${{ github.event_name == 'workflow_dispatch' && needs.parse_tag.outputs.build_version == 'true' }}
-        uses: ./.github/actions/build-docker-image
-        with:
-          dockerfile_path: 'Dockerfile'
-          image_stage: 'publish'
-          docker_tag: ${{ needs.parse_tag.outputs.tags_version }}
-          platform: 'linux/amd64,linux/arm64'
-          push_image: true
-          cache_from_type: gha
-          cache_to_type: ''
       - name: Build and publish release version
-        if: ${{ github.event_name == 'release' && needs.parse_tag.outputs.build_version == 'true' }}
+        if: ${{ needs.parse_tag.outputs.build_version == 'true' }}
         uses: ./.github/actions/build-docker-image
         with:
           dockerfile_path: 'Dockerfile'
@@ -83,7 +67,7 @@ jobs:
           cache_to_type: ''
 
   build_and_publish_release_artifacts:
-    if: ${{ needs.parse_tag.outputs.build_version == 'true' && github.event_name == 'release' }}
+    if: ${{ needs.parse_tag.outputs.build_version == 'true' }}
     runs-on: ubuntu-latest
     needs: [parse_tag, publish_docker_image]
     steps:
