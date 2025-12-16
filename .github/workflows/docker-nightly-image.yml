@@ -73,7 +73,12 @@ jobs:
       java_version: 21
       build_amd64: true
       build_arm64: true
+      push_to_registry: true
+      docker_login: true
       docker_tag: ${{ needs.setup-build-environment.outputs.publish_image_tag }}
+    secrets:
+      registry_username: ${{ secrets.DOCKER_USERNAME }}
+      registry_password: ${{ secrets.DOCKER_PASSWORD }}
   
   build_slim_images:
     needs:
@@ -86,14 +91,19 @@ jobs:
       java_version: 21
       build_amd64: true
       build_arm64: true
+      push_to_registry: true
+      docker_login: true
       docker_tag: ${{ needs.setup-build-environment.outputs.slim_image_tag }}
+    secrets:
+      registry_username: ${{ secrets.DOCKER_USERNAME }}
+      registry_password: ${{ secrets.DOCKER_PASSWORD }}
 
-  publish_docker_images:
+  combine_multi_arch_manifests:
     needs:
       - setup-build-environment
       - build_publish_images
       - build_slim_images
-    name: Publish Docker images to DockerHub from GitHub Docker Cache
+    name: Combine multi-arch manifests and push to DockerHub
     runs-on: ubuntu-latest
     if: inputs.ignore-24h-commit-check || needs.setup-build-environment.outputs.new_commits == 'true'
     strategy:
@@ -101,8 +111,12 @@ jobs:
         include:
           - image_stage: 'publish'
             image_tag: ${{ needs.setup-build-environment.outputs.publish_image_tag }}
+            digest_amd64: ${{ needs.build_publish_images.outputs.image_digest_amd64 }}
+            digest_arm64: ${{ needs.build_publish_images.outputs.image_digest_arm64 }}
           - image_stage: 'slim'
             image_tag: ${{ needs.setup-build-environment.outputs.slim_image_tag }}
+            digest_amd64: ${{ needs.build_slim_images.outputs.image_digest_amd64 }}
+            digest_arm64: ${{ needs.build_slim_images.outputs.image_digest_arm64 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -112,23 +126,39 @@ jobs:
       - name: Set up build environment
         uses: ./.github/actions/setup-build-environment
         with:
-          java_version: 21
+          with_java: false
           with_docker: true
-          with_qemu: true
-          with_docker_cache_injection: true
+          with_qemu: false
+          with_docker_cache_injection: false
           docker_login: true
           docker_username: ${{ secrets.DOCKER_USERNAME }}
           docker_password: ${{ secrets.DOCKER_PASSWORD }}
           dockerfile: 'Dockerfile'
-      - name: Build and push ${{ matrix.image_stage }} image
-        uses: ./.github/actions/build-docker-image
-        with:
-          dockerfile_path: 'Dockerfile'
-          image_stage: ${{ matrix.image_stage }}
-          docker_tag: ${{ matrix.image_tag }}
-          platform: linux/amd64,linux/arm64/v8
-          push_image: true
-          cache_from_type: gha
-          cache_to_type: gha,mode=max
-          output_type: ''
+      - name: Create and push manifest list for ${{ matrix.image_stage }}
+        env:
+          IMAGE_REPO: ${{ matrix.image_tag }}
+          DIGEST_AMD64: ${{ matrix.digest_amd64 }}
+          DIGEST_ARM64: ${{ matrix.digest_arm64 }}
+        run: |
+          if [ -z "$DIGEST_AMD64" ] || [ -z "$DIGEST_ARM64" ]; then
+            echo "Error: Missing digests for multi-arch manifest"
+            echo "AMD64: $DIGEST_AMD64"
+            echo "ARM64: $DIGEST_ARM64"
+            exit 1
+          fi
+          
+          echo "Creating manifest list for $IMAGE_REPO"
+          docker buildx imagetools create \
+            -t "$IMAGE_REPO" \
+            "${IMAGE_REPO%:*}@${DIGEST_AMD64}" \
+            "${IMAGE_REPO%:*}@${DIGEST_ARM64}"
+          
+          echo "Pushing manifest for $IMAGE_REPO"
+          docker buildx imagetools create \
+            --push \
+            -t "$IMAGE_REPO" \
+            "${IMAGE_REPO%:*}@${DIGEST_AMD64}" \
+            "${IMAGE_REPO%:*}@${DIGEST_ARM64}"
+          
+          echo "Successfully pushed multi-arch image: $IMAGE_REPO"
 
