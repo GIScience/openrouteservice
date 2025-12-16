@@ -56,13 +56,13 @@ jobs:
       - name: Set Docker image tag
         id: image-tags
         run: |
-          BASE_TAG=openrouteservice/openrouteservice-test:"${{ inputs.tag || 'nightly' }}"
+          BASE_TAG=openrouteservice/openrouteservice:"${{ inputs.tag || 'nightly' }}"
           echo "publish_image_tag=${BASE_TAG}" >> $GITHUB_OUTPUT
           echo "slim_image_tag=${BASE_TAG}-slim" >> $GITHUB_OUTPUT
           echo "Docker publish stage image tag: ${BASE_TAG}"
           echo "Docker slim stage image tag: ${BASE_TAG}-slim"
   
-  build_publish_images:
+  build_and_push_publish_images:
     needs:
       - setup-build-environment
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -75,12 +75,12 @@ jobs:
       build_arm64: true
       push_to_registry: true
       docker_login: true
-      docker_tag: openrouteservice/openrouteservice-test # push by digest needs no tag suffix
+      docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
   
-  build_slim_images:
+  build_and_push_slim_images:
     needs:
       - setup-build-environment
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -93,16 +93,16 @@ jobs:
       build_arm64: true
       push_to_registry: true
       docker_login: true
-      docker_tag: openrouteservice/openrouteservice-test # push by digest needs no tag suffix
+      docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
 
-  combine_multi_arch_manifests:
+  combine_and_push_multi_arch_manifests:
     needs:
       - setup-build-environment
-      - build_publish_images
-      - build_slim_images
+      - build_and_push_publish_images
+      - build_and_push_slim_images
     name: Combine multi-arch manifests and push to DockerHub
     runs-on: ubuntu-latest
     if: inputs.ignore-24h-commit-check || needs.setup-build-environment.outputs.new_commits == 'true'
@@ -111,12 +111,12 @@ jobs:
         include:
           - image_stage: 'publish'
             image_tag: ${{ needs.setup-build-environment.outputs.publish_image_tag }}
-            digest_amd64: ${{ needs.build_publish_images.outputs.image_digest_amd64 }}
-            digest_arm64: ${{ needs.build_publish_images.outputs.image_digest_arm64 }}
+            digest_amd64: ${{ needs.build_and_push_publish_images.outputs.image_digest_amd64 }}
+            digest_arm64: ${{ needs.build_and_push_publish_images.outputs.image_digest_arm64 }}
           - image_stage: 'slim'
             image_tag: ${{ needs.setup-build-environment.outputs.slim_image_tag }}
-            digest_amd64: ${{ needs.build_slim_images.outputs.image_digest_amd64 }}
-            digest_arm64: ${{ needs.build_slim_images.outputs.image_digest_arm64 }}
+            digest_amd64: ${{ needs.build_and_push_slim_images.outputs.image_digest_amd64 }}
+            digest_arm64: ${{ needs.build_and_push_slim_images.outputs.image_digest_arm64 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
