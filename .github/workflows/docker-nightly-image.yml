@@ -33,7 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       new_commits: ${{ steps.check.outputs.NEW_COMMITS }}
-      tag: ${{ steps.image-tags.outputs.tag }}
+      publish_image_tag: ${{ steps.image-tags.outputs.publish_image_tag }}
+      slim_image_tag: ${{ steps.image-tags.outputs.slim_image_tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,23 +57,52 @@ jobs:
         id: image-tags
         run: |
           BASE_TAG=openrouteservice/openrouteservice:"${{ inputs.tag || 'nightly' }}"
-          if [ "${{ matrix.image_stage }}" = "slim" ]; then
-            IMAGE_TAG="${BASE_TAG}-slim"
-          else
-            IMAGE_TAG="${BASE_TAG}"
-          fi
-          echo "tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
-          echo "Docker image tag: ${IMAGE_TAG}"
+          echo "publish_image_tag=${BASE_TAG}" >> $GITHUB_OUTPUT
+          echo "slim_image_tag=${BASE_TAG}-slim" >> $GITHUB_OUTPUT
+          echo "Docker publish stage image tag: ${BASE_TAG}"
+          echo "Docker slim stage image tag: ${BASE_TAG}-slim"
+  
+  build_publish_images:
+    needs:
+      - setup-build-environment
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    if: inputs.ignore-24h-commit-check || needs.setup-build-environment.outputs.new_commits == 'true'
+    with:
+      dockerfile_path: 'Dockerfile'
+      image_stage: 'publish'
+      java_version: 21
+      build_amd64: true
+      build_arm64: true
+      docker_tag: ${{ needs.setup-build-environment.outputs.publish_image_tag }}
+  
+  build_slim_images:
+    needs:
+      - setup-build-environment
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    if: inputs.ignore-24h-commit-check || needs.setup-build-environment.outputs.new_commits == 'true'
+    with:
+      dockerfile_path: 'Dockerfile'
+      image_stage: 'slim'
+      java_version: 21
+      build_amd64: true
+      build_arm64: true
+      docker_tag: ${{ needs.setup-build-environment.outputs.slim_image_tag }}
 
   publish_docker_images:
     needs:
       - setup-build-environment
+      - build_publish_images
+      - build_slim_images
     name: Publish Docker images to DockerHub from GitHub Docker Cache
     runs-on: ubuntu-latest
     if: inputs.ignore-24h-commit-check || needs.setup-build-environment.outputs.new_commits == 'true'
     strategy:
       matrix:
-        image_stage: [ slim, publish ]
+        include:
+          - image_stage: 'publish'
+            image_tag: ${{ needs.setup-build-environment.outputs.publish_image_tag }}
+          - image_stage: 'slim'
+            image_tag: ${{ needs.setup-build-environment.outputs.slim_image_tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,7 +125,7 @@ jobs:
         with:
           dockerfile_path: 'Dockerfile'
           image_stage: ${{ matrix.image_stage }}
-          docker_tag: ${{ needs.setup-build-environment.outputs.tag }}
+          docker_tag: ${{ matrix.image_tag }}
           platform: linux/amd64,linux/arm64/v8
           push_image: true
           cache_from_type: gha
