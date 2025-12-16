@@ -8,7 +8,7 @@ on:
 
 env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
-  TEST_minimal_IMAGE_NAME: 'local/openrouteservice:test-minimal'
+  TEST_SLIM_IMAGE_NAME: 'local/openrouteservice:test-slim'
 
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       test_image_name: ${{ env.TEST_IMAGE_NAME }}
-      test_minimal_image_name: ${{ env.TEST_minimal_IMAGE_NAME }}
+      test_slim_image_name: ${{ env.TEST_SLIM_IMAGE_NAME }}
       is_draft: ${{ steps.check-draft.outputs.is_draft }}
       build_arm64: ${{ steps.check-draft.outputs.build_arm64 }}
     steps:
@@ -34,7 +34,7 @@ jobs:
       - run: |
           echo "Publish environment variables"
           echo "Test Image Name: ${{ env.TEST_IMAGE_NAME }}"
-          echo "Test Minimal Image Name: ${{ env.TEST_minimal_IMAGE_NAME }}"
+          echo "Test Slim Image Name: ${{ env.TEST_SLIM_IMAGE_NAME }}"
           echo " Is Draft: ${{ steps.check-draft.outputs.is_draft }}"
           echo " Build ARM64: ${{ steps.check-draft.outputs.build_arm64 }}"
   build_docker_images:
@@ -48,13 +48,13 @@ jobs:
       build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
       upload_image_as_artifact: true
   
-  build_minimal_images:
-    name: Build Docker images for both platforms - minimal
+  build_slim_images:
+    name: Build Docker images for both platforms - slim
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     needs: prepare_environment
     with:
-      image_stage: minimal
-      docker_tag: local/openrouteservice:test-minimal
+      image_stage: slim
+      docker_tag: local/openrouteservice:test-slim
       build_amd64: true
       build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
       upload_image_as_artifact: true
@@ -157,25 +157,25 @@ jobs:
           # It should fail with http code 403 for https://example.com since the Origin is not covered.
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 403 10
 
-  minimal_image_tests:
-    name: Test ${{ matrix.platform }} - minimal image
+  slim_image_tests:
+    name: Test ${{ matrix.platform }} - slim image
     runs-on: ${{ matrix.runner }}
     needs:
       - prepare_environment
-      - build_minimal_images
+      - build_slim_images
     strategy:
       matrix:
         include:
           - platform: linux/amd64
             runner: ubuntu-latest
-            image_stage: minimal
+            image_stage: slim
             skip_on_draft: false
-            artifact_name: ${{ needs.build_minimal_images.outputs.artifact_name_amd64 }}
+            artifact_name: ${{ needs.build_slim_images.outputs.artifact_name_amd64 }}
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
-            image_stage: minimal
+            image_stage: slim
             skip_on_draft: true
-            artifact_name: ${{ needs.build_minimal_images.outputs.artifact_name_arm64 }}
+            artifact_name: ${{ needs.build_slim_images.outputs.artifact_name_arm64 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -205,7 +205,7 @@ jobs:
         run: |
           echo "UID=$(id -u)" >> $GITHUB_ENV
 
-      - name: Test minimal image with graph build
+      - name: Test slim image with graph build
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |
           mkdir -p $(pwd)/ors-docker/elevation_cache
@@ -226,7 +226,7 @@ jobs:
             -e ors.engine.graphs_data_access=MMAP \
             -e ors.engine.elevation.cache_path=/home/ors/elevation_cache \
             -e ors.engine.profiles.driving-car.enabled=true \
-            --name ors-minimal-test \
-            ${{ env.TEST_minimal_IMAGE_NAME }}
+            --name ors-slim-test \
+            ${{ env.TEST_SLIM_IMAGE_NAME }}
           # Wait for graph build and health check (kubernetes image is non-interactive)
-          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-minimal-test && exit 1)
+          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-slim-test && exit 1)
