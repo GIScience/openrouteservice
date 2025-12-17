@@ -40,6 +40,7 @@ Releasing is documented in RELEASE.md
 - enhanced status endpoint to expose dynamic data statistics and feature store metrics ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
 - when running in `preparation_mode`, pack the graph for upload ([#2185](https://github.com/GIScience/openrouteservice/pull/2185))
 - replace `HeavyVehicleAttributesGraphStorage` with corresponding encoded values ([#2146](https://github.com/GIScience/openrouteservice/pull/2146))
+- ci: build both slim and publish images in nightly workflows ([#2213](https://github.com/GIScience/openrouteservice/pull/2213))
 
 ### Deprecated
 
