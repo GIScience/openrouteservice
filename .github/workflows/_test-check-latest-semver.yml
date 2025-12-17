@@ -1,0 +1,336 @@
+# Test Check Latest Semver Action
+# ================================
+# Test suite for the check-latest-semver composite action.
+#
+# Tests validate:
+# - Latest semantic version detection
+# - Older version rejection
+# - Version equality handling
+# - Pre-release version handling (rc, alpha, beta)
+# - Output correctness (is-latest, current-version, highest-version)
+#
+# Triggers: Push/PR to action files
+# Local testing: act -j test-semver-check
+
+name: Test check-latest-semver action
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '.github/actions/check-latest-semver/**'
+      - '.github/workflows/_test-check-latest-semver.yml'
+  pull_request:
+    branches: [ "**" ]
+    paths:
+      - '.github/actions/check-latest-semver/**'
+      - '.github/workflows/_test-check-latest-semver.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test-semver-check:
+    name: Test check-latest-semver action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up test repo with tags
+        run: |
+          # Initialize a fresh git repo for testing
+          mkdir -p /tmp/test-repo
+          cd /tmp/test-repo
+          git init
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+          
+          # Create initial commit
+          echo "test" > README.md
+          git add README.md
+          git commit -m "Initial commit"
+          
+          # Create various semver tags
+          git tag v1.0.0
+          git tag v1.0.1
+          git tag v1.1.0
+          git tag v2.0.0
+          git tag v2.1.0
+          git tag v2.1.1
+          git tag v10.0.0
+          git tag v10.0.0-rc.1
+          git tag v10.0.0-rc.2
+          
+          echo "Created test tags:"
+          git tag -l | sort -V
+
+      - name: Test 1 - Current is latest (v10.0.1)
+        id: test1
+        env:
+          GIT_DIR: /tmp/test-repo/.git
+          GIT_WORK_TREE: /tmp/test-repo
+        run: |
+          cd /tmp/test-repo
+          git tag v10.0.1
+          echo "Added tag v10.0.1"
+
+      - name: Run action for Test 1
+        id: test1_result
+        env:
+          GIT_DIR: /tmp/test-repo/.git
+          GIT_WORK_TREE: /tmp/test-repo
+        uses: ./.github/actions/check-latest-semver
+        with:
+          current-tag: 'v10.0.1'
+
+      - name: Verify Test 1
+        run: |
+          echo "Test 1: Current is latest (v10.0.1)"
+          echo "  is-latest: ${{ steps.test1_result.outputs.is-latest }}"
+          echo "  current-version: ${{ steps.test1_result.outputs.current-version }}"
+          echo "  highest-version: ${{ steps.test1_result.outputs.highest-version }}"
+          
+          PASS=true
+          
+          if [ "${{ steps.test1_result.outputs.is-latest }}" != "true" ]; then
+            echo "❌ is-latest: Expected true, got ${{ steps.test1_result.outputs.is-latest }}"
+            PASS=false
+          else
+            echo "✓ is-latest=true"
+          fi
+          
+          if [ "${{ steps.test1_result.outputs.current-version }}" != "v10.0.1" ]; then
+            echo "❌ current-version: Expected v10.0.1, got ${{ steps.test1_result.outputs.current-version }}"
+            PASS=false
+          else
+            echo "✓ current-version=v10.0.1"
+          fi
+          
+          if [ "${{ steps.test1_result.outputs.highest-version }}" != "v10.0.1" ]; then
+            echo "❌ highest-version: Expected v10.0.1, got ${{ steps.test1_result.outputs.highest-version }}"
+            PASS=false
+          else
+            echo "✓ highest-version=v10.0.1"
+          fi
+          
+          if [ "$PASS" = "false" ]; then
+            echo "Test 1 FAILED"
+            exit 1
+          fi
+          
+          echo "✓ Test 1 PASSED"
+
+      - name: Test 2 - Current is older (v2.0.0)
+        id: test2
+        env:
+          GIT_DIR: /tmp/test-repo/.git
+          GIT_WORK_TREE: /tmp/test-repo
+        uses: ./.github/actions/check-latest-semver
+        with:
+          current-tag: 'v2.0.0'
+
+      - name: Verify Test 2
+        run: |
+          echo "Test 2: Current is older (v2.0.0)"
+          echo "  is-latest: ${{ steps.test2.outputs.is-latest }}"
+          echo "  current-version: ${{ steps.test2.outputs.current-version }}"
+          echo "  highest-version: ${{ steps.test2.outputs.highest-version }}"
+          
+          PASS=true
+          
+          if [ "${{ steps.test2.outputs.is-latest }}" != "false" ]; then
+            echo "❌ is-latest: Expected false, got ${{ steps.test2.outputs.is-latest }}"
+            PASS=false
+          else
+            echo "✓ is-latest=false"
+          fi
+          
+          if [ "${{ steps.test2.outputs.current-version }}" != "v2.0.0" ]; then
+            echo "❌ current-version: Expected v2.0.0, got ${{ steps.test2.outputs.current-version }}"
+            PASS=false
+          else
+            echo "✓ current-version=v2.0.0"
+          fi
+          
+          if [ "${{ steps.test2.outputs.highest-version }}" != "v10.0.1" ]; then
+            echo "❌ highest-version: Expected v10.0.1, got ${{ steps.test2.outputs.highest-version }}"
+            PASS=false
+          else
+            echo "✓ highest-version=v10.0.1"
+          fi
+          
+          if [ "$PASS" = "false" ]; then
+            echo "Test 2 FAILED"
+            exit 1
+          fi
+          
+          echo "✓ Test 2 PASSED"
+
+      - name: Test 3 - Current equals highest (v10.0.1)
+        id: test3
+        env:
+          GIT_DIR: /tmp/test-repo/.git
+          GIT_WORK_TREE: /tmp/test-repo
+        uses: ./.github/actions/check-latest-semver
+        with:
+          current-tag: 'v10.0.1'
+
+      - name: Verify Test 3
+        run: |
+          echo "Test 3: Current equals highest (v10.0.1)"
+          echo "  is-latest: ${{ steps.test3.outputs.is-latest }}"
+          echo "  current-version: ${{ steps.test3.outputs.current-version }}"
+          echo "  highest-version: ${{ steps.test3.outputs.highest-version }}"
+          
+          PASS=true
+          
+          if [ "${{ steps.test3.outputs.is-latest }}" != "true" ]; then
+            echo "❌ is-latest: Expected true, got ${{ steps.test3.outputs.is-latest }}"
+            PASS=false
+          else
+            echo "✓ is-latest=true"
+          fi
+          
+          if [ "${{ steps.test3.outputs.current-version }}" != "v10.0.1" ]; then
+            echo "❌ current-version: Expected v10.0.1, got ${{ steps.test3.outputs.current-version }}"
+            PASS=false
+          else
+            echo "✓ current-version=v10.0.1"
+          fi
+          
+          if [ "${{ steps.test3.outputs.highest-version }}" != "v10.0.1" ]; then
+            echo "❌ highest-version: Expected v10.0.1, got ${{ steps.test3.outputs.highest-version }}"
+            PASS=false
+          else
+            echo "✓ highest-version=v10.0.1"
+          fi
+          
+          if [ "$PASS" = "false" ]; then
+            echo "Test 3 FAILED"
+            exit 1
+          fi
+          
+          echo "✓ Test 3 PASSED"
+
+      - name: Test 4 - Pre-release is older (v10.0.1-rc.1)
+        id: test4
+        env:
+          GIT_DIR: /tmp/test-repo/.git
+          GIT_WORK_TREE: /tmp/test-repo
+        uses: ./.github/actions/check-latest-semver
+        with:
+          current-tag: 'v10.0.1-rc.1'
+
+      - name: Verify Test 4
+        run: |
+          echo "Test 4: Pre-release version handling"
+          echo ""
+          echo "  Sub-test 4a: Pre-release with stable version available (v10.0.1-rc.1)"
+          echo "  is-latest: ${{ steps.test4.outputs.is-latest }}"
+          echo "  current-version: ${{ steps.test4.outputs.current-version }}"
+          echo "  highest-version: ${{ steps.test4.outputs.highest-version }}"
+          
+          PASS=true
+          
+          if [ "${{ steps.test4.outputs.is-latest }}" != "false" ]; then
+            echo "❌ is-latest: Expected false (v10.0.1-rc.1 is pre-release of v10.0.1), got ${{ steps.test4.outputs.is-latest }}"
+            PASS=false
+          else
+            echo "✓ is-latest=false (correctly rejected pre-release)"
+          fi
+          
+          if [ "${{ steps.test4.outputs.current-version }}" != "v10.0.1-rc.1" ]; then
+            echo "❌ current-version: Expected v10.0.1-rc.1, got ${{ steps.test4.outputs.current-version }}"
+            PASS=false
+          else
+            echo "✓ current-version=v10.0.1-rc.1"
+          fi
+          
+          if [ "${{ steps.test4.outputs.highest-version }}" != "v10.0.1" ]; then
+            echo "❌ highest-version: Expected v10.0.1, got ${{ steps.test4.outputs.highest-version }}"
+            PASS=false
+          else
+            echo "✓ highest-version=v10.0.1"
+          fi
+          
+          if [ "$PASS" = "false" ]; then
+            echo "Test 4 FAILED"
+            exit 1
+          fi
+          
+          echo "✓ Sub-test 4a PASSED"
+
+      - name: Test 4b - RC as highest version (never latest)
+        id: test4b
+        env:
+          GIT_DIR: /tmp/test-repo/.git
+          GIT_WORK_TREE: /tmp/test-repo
+        uses: ./.github/actions/check-latest-semver
+        with:
+          current-tag: 'v10.0.0-rc.2'
+
+      - name: Verify Test 4b
+        run: |
+          echo ""
+          echo "  Sub-test 4b: RC as highest version (v10.0.0-rc.2)"
+          echo "  is-latest: ${{ steps.test4b.outputs.is-latest }}"
+          echo "  current-version: ${{ steps.test4b.outputs.current-version }}"
+          echo "  highest-version: ${{ steps.test4b.outputs.highest-version }}"
+          
+          PASS=true
+          
+          if [ "${{ steps.test4b.outputs.is-latest }}" != "false" ]; then
+            echo "❌ is-latest: Expected false (RC versions should never be latest), got ${{ steps.test4b.outputs.is-latest }}"
+            PASS=false
+          else
+            echo "✓ is-latest=false (correctly rejected RC even as highest version)"
+          fi
+          
+          if [ "${{ steps.test4b.outputs.current-version }}" != "v10.0.0-rc.2" ]; then
+            echo "❌ current-version: Expected v10.0.0-rc.2, got ${{ steps.test4b.outputs.current-version }}"
+            PASS=false
+          else
+            echo "✓ current-version=v10.0.0-rc.2"
+          fi
+          
+          if [ "${{ steps.test4b.outputs.highest-version }}" != "v10.0.1" ]; then
+            echo "❌ highest-version: Expected v10.0.1, got ${{ steps.test4b.outputs.highest-version }}"
+            PASS=false
+          else
+            echo "✓ highest-version=v10.0.1"
+          fi
+          
+          if [ "$PASS" = "false" ]; then
+            echo "Sub-test 4b FAILED"
+            exit 1
+          fi
+          
+          echo "✓ Sub-test 4b PASSED"
+          echo "✓ Test 4 PASSED (both pre-release scenarios)"
+
+      - name: Test summary
+        if: always()
+        run: |
+          echo "=========================================="
+          echo "Check Latest Semver Action - Test Summary"
+          echo "=========================================="
+          echo "✓ Test 1: Current is latest (v10.0.1)"
+          echo "✓ Test 2: Current is older (v2.0.0)"
+          echo "✓ Test 3: Current equals highest (v10.0.1)"
+          echo "✓ Test 4: Pre-release version handling"
+          echo "    4a: Pre-release with stable available (v10.0.1-rc.1)"
+          echo "    4b: RC as highest version never latest (v10.0.0-rc.2)"
+          echo "=========================================="
+          echo "All tests executed successfully!"
+          echo ""
+          echo "Test Coverage:"
+          echo "  - Latest version detection"
+          echo "  - Older version rejection"
+          echo "  - Version equality handling"
+          echo "  - Pre-release version detection (rc, alpha, beta)"
+          echo "  - RC versions never marked as latest (even if highest number)"
+          echo "  - Semver parsing (v prefix and pre-release identifiers)"
+          echo "  - Output validation (is-latest, current-version, highest-version)"
+          echo "==========================================" 

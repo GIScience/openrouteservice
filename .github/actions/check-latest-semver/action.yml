@@ -1,0 +1,66 @@
+name: Check Latest Semver
+description: Checks if the current tag is the latest semantic version
+
+inputs:
+  current-tag:
+    description: Current tag to check (defaults to github.ref if not provided)
+    required: false
+    default: ''
+
+outputs:
+  is-latest:
+    description: Whether the current tag is the latest semantic version
+    value: ${{ steps.check.outputs.is-latest }}
+  current-version:
+    description: The extracted version from the current tag
+    value: ${{ steps.check.outputs.current-version }}
+  highest-version:
+    description: The highest version found in git tags
+    value: ${{ steps.check.outputs.highest-version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check if latest semver
+      id: check
+      shell: bash
+      run: |
+        # Get the current ref (tag name)
+        CURRENT_TAG="${{ inputs.current-tag }}"
+        if [ -z "$CURRENT_TAG" ]; then
+          CURRENT_TAG="${{ github.ref }}"
+        fi
+        CURRENT_TAG="${CURRENT_TAG#refs/tags/}"
+        
+        # Extract version number (remove 'v' prefix if present)
+        CURRENT_VERSION="${CURRENT_TAG#v}"
+        
+        # Get all version tags and find the highest
+        # Supports semver with optional pre-release identifiers (e.g., v1.0.0-rc.1, v1.0.0-beta)
+        HIGHEST_VERSION=$(git tag -l | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[0-9]+)?)?$' | sed 's/^v//' | sort -V | tail -1)
+        
+        # Add 'v' prefix to outputs for consistency with tag naming
+        echo "current-version=v$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        echo "highest-version=v$HIGHEST_VERSION" >> $GITHUB_OUTPUT
+        
+        echo "Current version: $CURRENT_VERSION"
+        echo "Highest version: $HIGHEST_VERSION"
+        
+        # Check if current version is a pre-release (contains a dash followed by alphanumeric characters)
+        IS_PRERELEASE=false
+        if [[ "$CURRENT_VERSION" =~ -[a-zA-Z0-9] ]]; then
+          IS_PRERELEASE=true
+        fi
+        
+        # Compare versions (sort -V handles semantic versioning)
+        # Pre-release versions are NEVER marked as latest, even if highest
+        if [ "$IS_PRERELEASE" = true ]; then
+          echo "is-latest=false" >> $GITHUB_OUTPUT
+          echo "This is a pre-release version, cannot be marked as latest"
+        elif [ -z "$HIGHEST_VERSION" ] || [ "$(printf '%s\n' "$CURRENT_VERSION" "$HIGHEST_VERSION" | sort -V | tail -1)" = "$CURRENT_VERSION" ]; then
+          echo "is-latest=true" >> $GITHUB_OUTPUT
+          echo "This is the latest release, will create/update 'latest' tag"
+        else
+          echo "is-latest=false" >> $GITHUB_OUTPUT
+          echo "This is not the latest release, skipping 'latest' tag"
+        fi
