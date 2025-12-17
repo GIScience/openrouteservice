@@ -130,6 +130,27 @@ jobs:
 
           echo "Successfully pushed multi-arch image: $IMAGE_REPO"
 
+  create_latest_git_tag:
+    name: Create or update latest git tag
+    runs-on: ubuntu-latest
+    needs:
+      - check_version
+      - combine_and_push_images
+    permissions:
+      contents: write
+    if: fromjson(needs.check_version.outputs.is-latest)
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create or update latest tag
+        if: fromjson(needs.check_version.outputs.is-latest)
+        uses: EndBug/latest-tag@7589411ebda7bc8f98deb2dbc37e3dc45828f7d0 # v1.6.2
+        with:
+          ref: latest
+          description: Latest release
+
   build_and_publish_release_artifacts:
     runs-on: ubuntu-latest
     needs: [check_version, combine_and_push_images]
