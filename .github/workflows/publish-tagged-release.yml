@@ -85,15 +85,15 @@ jobs:
             image_tag: latest
             digest_amd64: ${{ needs.build_and_push_publish_images.outputs.image_digest_amd64 }}
             digest_arm64: ${{ needs.build_and_push_publish_images.outputs.image_digest_arm64 }}
-            publish_image: ${{ fromjson(needs.check_version.outputs.is-latest) }}
+            publish_image: ${{ fromJSON(needs.check_version.outputs.is-latest) }}
           - name: "Release latest slim image"
             image_stage: 'slim'
             image_tag: latest-slim
             digest_amd64: ${{ needs.build_and_push_slim_images.outputs.image_digest_amd64 }}
             digest_arm64: ${{ needs.build_and_push_slim_images.outputs.image_digest_arm64 }}
-            publish_image: ${{ fromjson(needs.check_version.outputs.is-latest) }}
+            publish_image: ${{ fromJSON(needs.check_version.outputs.is-latest) }}
     steps:
-      - name: Checkouts
+      - name: Checkout
         if: matrix.publish_image
         uses: actions/checkout@v4
       - name: Set up build environment
@@ -138,14 +138,14 @@ jobs:
       - combine_and_push_images
     permissions:
       contents: write
-    if: fromjson(needs.check_version.outputs.is-latest)
+    if: fromJSON(needs.check_version.outputs.is-latest)
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Create or update latest tag
-        if: fromjson(needs.check_version.outputs.is-latest)
+        if: fromJSON(needs.check_version.outputs.is-latest)
         uses: EndBug/latest-tag@7589411ebda7bc8f98deb2dbc37e3dc45828f7d0 # v1.6.2
         with:
           ref: latest
