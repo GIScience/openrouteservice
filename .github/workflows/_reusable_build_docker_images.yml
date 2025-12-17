@@ -15,7 +15,7 @@ on:
       docker_login:
         description: Login to Docker registry (required when push_by_digest is true)
         type: boolean
-        default: false
+        default: ${{ inputs.push_by_digest }}
       build_arm64:
         description: Build both amd64 and arm64 platforms (if false, only builds specified platform)
         type: boolean
