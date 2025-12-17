@@ -10,6 +10,7 @@ on:
     branches:
       - 'main'
       - 'releases/**'
+      - 'ci/rework-publish-tagged-release-workflow'  # temp branch for testing
     paths-ignore:
       - '**'
 
