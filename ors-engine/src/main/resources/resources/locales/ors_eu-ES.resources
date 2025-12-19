@@ -61,7 +61,7 @@
         "default": {
           "exit": {
             "default": "Sartu biribilgunean eta hartu {exit_number} irteera",
-            "name": "Sartu biribilgunean eta hartu {exit_number} irteera, honantz:"
+            "name": "Sartu biribilgunean eta hartu {exit_number} irteera, honantz: {way_name}"
           },
           "default": {
             "default": "Sartu biribilgunean",
