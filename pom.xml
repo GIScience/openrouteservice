@@ -49,7 +49,7 @@
 <!--        <graphhopper.version>4.12-SNAPSHOT</graphhopper.version>-->
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
-        <log4j.version>2.22.1</log4j.version>
+        <log4j.version>2.25.3</log4j.version>
         <springdoc-openapi-starter.version>2.8.6</springdoc-openapi-starter.version>
         <swagger-core.version>2.2.27</swagger-core.version>
         <swagger-parser.version>2.1.24</swagger-parser.version>
