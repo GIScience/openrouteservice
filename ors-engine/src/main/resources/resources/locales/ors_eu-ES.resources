@@ -65,7 +65,7 @@
           },
           "default": {
             "default": "Sartu biribilgunean",
-            "name": "Sartu biribilgunean eta irten honantz: {exit_number}"
+            "name": "Sartu biribilgunean eta irten honantz: {way_name}"
           }
         }
       },
