@@ -28,7 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
-- translation file basque language ([#2206](https://github.com/GIScience/openrouteservice/issue/2206))
+- add Basque (eu-ES) locale translation file ([#2206](https://github.com/GIScience/openrouteservice/issue/2206))
 - documentation on the fields of JSON and GeoJSON responses of the directions endpoint ([#2084](https://github.com/GIScience/openrouteservice/issue/2084))
 - docs: comment on API key usage ([#2179](https://github.com/GIScience/openrouteservice/pull/2179))
 - type-specific filtering for mapping point features to graph edges ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
