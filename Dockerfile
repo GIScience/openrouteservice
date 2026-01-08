@@ -68,7 +68,7 @@ EXPOSE 8082
 
 HEALTHCHECK --interval=3s --timeout=2s CMD ["sh", "-c", "wget --quiet --tries=1 --spider http://localhost:8082/ors/v2/health || exit 1"]
 
-FROM base AS minimal
+FROM base AS slim
 # ============================================================================
 # K8s-ready image stage
 # This stage is optimized for Kubernetes deployment with:

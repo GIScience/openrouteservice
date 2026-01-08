@@ -43,15 +43,37 @@ Releasing is documented in RELEASE.md
 - when running in `preparation_mode`, pack the graph for upload ([#2185](https://github.com/GIScience/openrouteservice/pull/2185))
 - replace `HeavyVehicleAttributesGraphStorage` with corresponding encoded values ([#2146](https://github.com/GIScience/openrouteservice/pull/2146))
 
+### Changed
+
 ### Deprecated
 
 ### Removed
 
 ### Fixed
-- fix: remove outdated graph build workflow ([#2176](https://github.com/GIScience/openrouteservice/pull/2176))
-- ci: Remove outdated RocketChat Github Workflow action ([#2181](https://github.com/GIScience/openrouteservice/pull/2181))
 
 ### Security
+
+
+## [9.6.0] - 2025-12-17
+
+### Added
+- documentation on the fields of the JSON and GeoJSON responses of the directions endpoint ([#2084](https://github.com/GIScience/openrouteservice/issue/2084))
+- comment in the documentation on API key usage ([#2179](https://github.com/GIScience/openrouteservice/pull/2179))
+- type-specific filtering for mapping point features to graph edges ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
+- documentation on the matching endpoint ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
+- PostgreSQL-backed feature store with scheduled synchronization for dynamic routing data updates ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
+- enhance the Docker image and docker build workflow for Kubernetes readiness with minimal image support ([#2183](https://github.com/GIScience/openrouteservice/pull/2183))
+- "What you get" section to the JAR setup documentation and API reference to the Docker setup documentation ([#2203](https://github.com/GIScience/openrouteservice/pull/2203))
+
+### Changed
+- extended status endpoint to provide dynamic data statistics and feature store metrics ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
+- when running in `preparation_mode` pack the graph for upload ([#2185](https://github.com/GIScience/openrouteservice/pull/2185))
+- replace `HeavyVehicleAttributesGraphStorage` with corresponding encoded values ([#2146](https://github.com/GIScience/openrouteservice/pull/2146))
+- ci: build both slim and publish images in nightly workflows ([#2213](https://github.com/GIScience/openrouteservice/pull/2213))
+
+### Removed
+- ci: remove outdated graph build workflow ([#2176](https://github.com/GIScience/openrouteservice/pull/2176))
+- ci: Remove outdated RocketChat Github Workflow action ([#2181](https://github.com/GIScience/openrouteservice/pull/2181))
 
 
 ## [9.5.1] - 2025-11-14
@@ -1011,7 +1033,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.5.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.6.0...HEAD
+[9.6.0]: https://github.com/GIScience/openrouteservice/compare/v9.5.1...v9.6.0
 [9.5.1]: https://github.com/GIScience/openrouteservice/compare/v9.5.0...v9.5.1
 [9.5.0]: https://github.com/GIScience/openrouteservice/compare/v9.4.0...v9.5.0
 [9.4.0]: https://github.com/GIScience/openrouteservice/compare/v9.3.1...v9.4.0
