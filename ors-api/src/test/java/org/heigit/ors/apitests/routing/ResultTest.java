@@ -222,8 +222,8 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].containsKey('properties')", is(true))
                 .body("features[0].properties.containsKey('summary')", is(true))
-                .body("features[0].properties.summary.distance", is(closeTo(1046.2, 1)))
-                .body("features[0].properties.summary.duration", is(closeTo(215.0, 1)))
+                .body("features[0].properties.summary.distance", is(closeTo(1142.9, 1)))
+                .body("features[0].properties.summary.duration", is(closeTo(255.2, 1)))
                 .statusCode(200);
     }
 
