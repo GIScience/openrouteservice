@@ -111,6 +111,7 @@ public class BuildProperties {
                 case TOLLWAYS -> handleTollways();
                 case HILL_INDEX -> handleHillIndex();
                 case TRAIL_DIFFICULTY -> handleTrailDifficulty();
+                case WHEELCHAIR -> handleWheelchair();
                 default -> {
                     storage.initialize(extendedStorageName);
                     this.extStorages.put(key, storage);
@@ -223,6 +224,36 @@ public class BuildProperties {
         }
         if (encodedValues.getMtbScaleUphill() == null) {
             encodedValues.setMtbScaleUphill(true);
+        }
+    }
+
+    private void handleWheelchair() {
+        if (encodedValues.getWheelchairSurface() == null) {
+            encodedValues.setWheelchairSurface(true);
+        }
+        if (encodedValues.getWheelchairSmoothness() == null) {
+            encodedValues.setWheelchairSmoothness(true);
+        }
+        if (encodedValues.getWheelchairTrackType() == null) {
+            encodedValues.setWheelchairTrackType(true);
+        }
+        if (encodedValues.getWheelchairIncline() == null) {
+            encodedValues.setWheelchairIncline(true);
+        }
+        if (encodedValues.getWheelchairWidth() == null) {
+            encodedValues.setWheelchairWidth(true);
+        }
+        if (encodedValues.getWheelchairKerb() == null) {
+            encodedValues.setWheelchairKerb(true);
+        }
+        if(encodedValues.getWheelchairSuitable() == null) {
+            encodedValues.setWheelchairSuitable(true);
+        }
+        if (encodedValues.getWheelchairSide() == null) {
+            encodedValues.setWheelchairSide(true);
+        }
+        if(encodedValues.getWheelchairSurfaceQualityKnown() == null) {
+            encodedValues.setWheelchairSurfaceQualityKnown(true);
         }
     }
 

@@ -26,6 +26,7 @@ import org.locationtech.jts.geom.Coordinate;
 
 import java.util.*;
 
+@Deprecated(since = "9.7.0")
 public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
     public static final String KEY_SLOPED_CURB = "sloped_curb";
     public static final String KEY_SLOPED_KERB = "sloped_kerb";
