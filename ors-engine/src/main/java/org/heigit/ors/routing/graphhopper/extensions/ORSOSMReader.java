@@ -93,24 +93,24 @@ public class ORSOSMReader extends OSMReader {
         nodeTagsToStore = new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload"));
         osmNodeTagValues = new GHLongObjectHashMap<>(200, .5f);
 
+        if(super.encodingManager.hasEncoder("wheelchair")) {
+            this.processNodeTags = true;
+            this.processSimpleGeom = true;
+            extraTagKeys.add("kerb");
+            extraTagKeys.add("kerb:both");
+            extraTagKeys.add("kerb:left");
+            extraTagKeys.add("kerb:right");
+            extraTagKeys.add("kerb:height");
+            extraTagKeys.add("kerb:both:height");
+            extraTagKeys.add("kerb:left:height");
+            extraTagKeys.add("kerb:right:height");
+        }
+
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
             if (b instanceof HereTrafficGraphStorageBuilder) {
                 this.processGeom = true;
                 this.processWholeGeom = true;
-            }
-
-            if (b instanceof WheelchairGraphStorageBuilder) {
-                this.processNodeTags = true;
-                this.processSimpleGeom = true;
-                extraTagKeys.add("kerb");
-                extraTagKeys.add("kerb:both");
-                extraTagKeys.add("kerb:left");
-                extraTagKeys.add("kerb:right");
-                extraTagKeys.add("kerb:height");
-                extraTagKeys.add("kerb:both:height");
-                extraTagKeys.add("kerb:left:height");
-                extraTagKeys.add("kerb:right:height");
             }
         }
 
@@ -288,6 +288,10 @@ public class ORSOSMReader extends OSMReader {
                     tags.put(nodeData.getId(osmId), tagsForNode);
                 }
             }
+
+            if (!tags.isEmpty()) {
+                way.setTag("ors:node_tags", nodeTags);
+            }
         }
 
         if (processGeom || processSimpleGeom) {
@@ -396,6 +400,7 @@ public class ORSOSMReader extends OSMReader {
             LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
         }
     }
+
 
     private void storeConditionalAccess(AcceptWay acceptWay, EdgeIteratorState edge) {
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
