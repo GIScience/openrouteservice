@@ -13,47 +13,55 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.util.WheelchairAttributesEncodedValues;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
+
+import java.util.List;
 
 public class WheelchairEdgeFilter implements EdgeFilter {
     private static final Logger LOGGER = Logger.getLogger(WheelchairEdgeFilter.class.getName());
-    private final byte[] buffer;
-    private final WheelchairAttributesGraphStorage storage;
-    private final WheelchairAttributes attributes;
+    private final WheelchairAttributesEncodedValues encodedValues;
+    private WheelchairAttributes attributes;
     private WheelchairParameters params;
 
-    public WheelchairEdgeFilter(WheelchairParameters params, GraphHopperStorage graphStorage) throws Exception {
-        storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
-        if (storage == null)
-            throw new Exception("ExtendedGraphStorage for wheelchair attributes was not found.");
+    public WheelchairEdgeFilter(WheelchairParameters params, GraphHopperStorage graphStorage) {
+        encodedValues = new WheelchairAttributesEncodedValues(graphStorage.getEncodingManager());
         this.params = params;
         if (this.params == null) {
             this.params = new WheelchairParameters();
         }
         attributes = new WheelchairAttributes();
-        buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
     }
 
     @Override
     public boolean accept(EdgeIteratorState iter) {
-        storage.getEdgeValues(iter.getEdge(), attributes, buffer);
+        attributes = encodedValues.getAttributes(iter.getFlags());
         LOGGER.debug("edge: " + iter + (attributes.hasValues() ? " suitable: " + attributes.isSuitable() + " surfaceQualityKnown: " + attributes.isSurfaceQualityKnown() : " no wheelchair attributes"));
+        boolean checkSurfaceType = checkSurfaceType();
+        boolean checkSmoothnessType = checkSmoothnessType();
+        boolean checkTrackType = checkTrackType();
+        boolean checkMaximumIncline = checkMaximumIncline();
+        boolean checkMaximumSlopedKerb = checkMaximumSlopedKerb();
+        boolean checkMinimumWidth = checkMinimumWidth();
+        boolean checkSurfaceQualityKnown = checkSurfaceQualityKnown();
+        boolean checkUnsuitable = checkUnsuitable();
+
         return !attributes.hasValues() || !(
-                checkSurfaceType()
-                        || checkSmoothnessType()
-                        || checkTrackType()
-                        || checkMaximumIncline()
-                        || checkMaximumSlopedKerb()
-                        || checkMinimumWidth()
-                        || checkSurfaceQualityKnown()
-                        || checkUnsuitable()
+                checkSurfaceType
+                        || checkSmoothnessType
+                        || checkTrackType
+                        || checkMaximumIncline
+                        || checkMaximumSlopedKerb
+                        || checkMinimumWidth
+                        || checkSurfaceQualityKnown
+                        || checkUnsuitable
         );
     }
 

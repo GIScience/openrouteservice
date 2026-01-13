@@ -55,6 +55,24 @@ public class EncodedValuesProperties {
     private Boolean maxWeight;
     @JsonProperty(MaxWidth.KEY)
     private Boolean maxWidth;
+    @JsonProperty(WheelchairSurface.KEY)
+    private Boolean wheelchairSurface;
+    @JsonProperty(WheelchairSmoothness.KEY)
+    private Boolean wheelchairSmoothness;
+    @JsonProperty(WheelchairTrackType.KEY)
+    private Boolean wheelchairTrackType;
+    @JsonProperty(WheelchairSurfaceQualityKnown.KEY)
+    private Boolean wheelchairSurfaceQualityKnown;
+    @JsonProperty(WheelchairIncline.KEY)
+    private Boolean wheelchairIncline;
+    @JsonProperty(WheelchairWidth.KEY)
+    private Boolean wheelchairWidth;
+    @JsonProperty(WheelchairKerb.KEY)
+    private Boolean wheelchairKerb;
+    @JsonProperty(WheelchairSuitable.KEY)
+    private Boolean wheelchairSuitable;
+    @JsonProperty(WheelchairSide.KEY)
+    private Boolean wheelchairSide;
 
     public EncodedValuesProperties() {
     }
@@ -85,6 +103,15 @@ public class EncodedValuesProperties {
         properties.put(MaxLength.KEY, maxLength);
         properties.put(MaxWeight.KEY, maxWeight);
         properties.put(MaxWidth.KEY, maxWidth);
+        properties.put(WheelchairSurface.KEY, wheelchairSurface);
+        properties.put(WheelchairSmoothness.KEY, wheelchairSmoothness);
+        properties.put(WheelchairTrackType.KEY, wheelchairTrackType);
+        properties.put(WheelchairSurfaceQualityKnown.KEY, wheelchairSurfaceQualityKnown);
+        properties.put(WheelchairIncline.KEY, wheelchairIncline);
+        properties.put(WheelchairWidth.KEY, wheelchairWidth);
+        properties.put(WheelchairKerb.KEY, wheelchairKerb);
+        properties.put(WheelchairSuitable.KEY, wheelchairSuitable);
+        properties.put(WheelchairSide.KEY, wheelchairSide);
 
         return properties;
     }
@@ -121,5 +148,16 @@ public class EncodedValuesProperties {
         maxLength = ofNullable(this.maxLength).orElse(other.maxLength);
         maxWeight = ofNullable(this.maxWeight).orElse(other.maxWeight);
         maxWidth = ofNullable(this.maxWidth).orElse(other.maxWidth);
+        wheelchairSurface = ofNullable(this.wheelchairSurface).orElse(other.wheelchairSurface);
+        wheelchairSmoothness = ofNullable(this.wheelchairSmoothness).orElse(other.wheelchairSmoothness);
+        wheelchairTrackType = ofNullable(this.wheelchairTrackType).orElse(other.wheelchairTrackType);
+        wheelchairSurfaceQualityKnown = ofNullable(this.wheelchairSurfaceQualityKnown).orElse(other.wheelchairSurfaceQualityKnown);
+        wheelchairIncline = ofNullable(this.wheelchairIncline).orElse(other.wheelchairIncline);
+        wheelchairWidth = ofNullable(this.wheelchairWidth).orElse(other.wheelchairWidth);
+        wheelchairKerb = ofNullable(this.wheelchairKerb).orElse(other.wheelchairKerb);
+        wheelchairSuitable = ofNullable(this.wheelchairSuitable).orElse(other.wheelchairSuitable);
+        wheelchairSide = ofNullable(this.wheelchairSide).orElse(other.wheelchairSide);
     }
 }
+
+

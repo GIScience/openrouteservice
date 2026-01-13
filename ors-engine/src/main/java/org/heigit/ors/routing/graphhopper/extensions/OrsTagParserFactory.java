@@ -6,6 +6,7 @@ import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.TagParserFactory;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.parsers.*;
+import org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair.*;
 
 public class OrsTagParserFactory implements TagParserFactory {
     DefaultTagParserFactory defaultTagParserFactory = new DefaultTagParserFactory();
@@ -28,6 +29,15 @@ public class OrsTagParserFactory implements TagParserFactory {
                 case GoodsAccess.KEY -> new VehicleAccessParser(GoodsAccess.create(), HeavyVehicleAttributes.GOODS);
                 case HgvAccess.KEY -> new VehicleAccessParser(HgvAccess.create(), HeavyVehicleAttributes.HGV);
                 case HazmatAccess.KEY -> new HazmatAccessParser();
+                case WheelchairSurface.KEY -> new WheelchairSurfaceParser();
+                case WheelchairSmoothness.KEY -> new WheelchairSmoothnessParser();
+                case WheelchairTrackType.KEY -> new WheelchairTrackTypeParser();
+                case WheelchairIncline.KEY -> new WheelchairInclineParser();
+                case WheelchairSide.KEY -> new WheelchairSideParser();
+                case WheelchairWidth.KEY -> new WheelchairWidthParser();
+                case WheelchairKerb.KEY -> new WheelchairKerbHeightParser();
+                case WheelchairSuitable.KEY -> new WheelchairSuitableParser();
+                case WheelchairSurfaceQualityKnown.KEY -> new WheelchairSurfaceQualityKnownParser();
                 default -> throw e;
             };
         }
