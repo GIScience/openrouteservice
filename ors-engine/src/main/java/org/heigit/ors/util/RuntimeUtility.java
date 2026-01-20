@@ -30,10 +30,10 @@ public class RuntimeUtility {
     }
 
     public static void printRAMInfo(String hint, Logger logger) {
-        logger.info(hint + "Total - " + getMemorySize(Runtime.getRuntime().totalMemory()) + ", Free - "
-                + getMemorySize(Runtime.getRuntime().freeMemory()) + ", Max: " + getMemorySize(Runtime.getRuntime().maxMemory())
-                + ", Used - "
-                + getMemorySize(Runtime.getRuntime().totalMemory() - (Runtime.getRuntime().freeMemory())));
+        logger.info(hint + "Total: " + getMemorySize(Runtime.getRuntime().totalMemory()) +
+                ", Free: " + getMemorySize(Runtime.getRuntime().freeMemory()) +
+                ", Max: " + getMemorySize(Runtime.getRuntime().maxMemory()) +
+                ", Used: " + getMemorySize(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
     }
 
     public static String getMemorySize(long size) {
