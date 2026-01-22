@@ -201,7 +201,6 @@ public class RoutingProfile {
             return false;
         }
 
-
         // create a zip archive of all files in graphFilesPath with .ghz extension
         Path graphArchiveDst = profileProperties.getGraphPath().resolve(graphBaseFilename + ".ghz");
         try (FileOutputStream fos = new FileOutputStream(graphArchiveDst.toFile()); ZipOutputStream zos = new ZipOutputStream(fos)) {
