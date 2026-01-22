@@ -182,6 +182,8 @@ public class RoutingProfile {
      * </ul>
      *
      * @param profileProperties profile properties holding graph path and profile name; must not be null and must include a non-null graph path and profile name
+     * @param graphVersion      version identifier of the graph data, used as part of the generated archive and metadata filenames
+     * @return {@code true} if the graph was successfully prepared (archived), {@code false} if any step failed (copying graph info, creating the archive, or if no graph files were found)
      */
     public static boolean prepareGeneratedGraphForUpload(ProfileProperties profileProperties, String graphVersion) {
         LOGGER.info("Running in preparation_mode, preparing graph for upload");
