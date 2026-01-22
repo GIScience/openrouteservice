@@ -87,7 +87,7 @@ USER ors
 
 # Run Java jar directly as PID 1
 # Configuration via environment variables:
-# - JAVA_OPTS: additional JVM options
+# - JDK_JAVA_OPTIONS: additional JVM options
 # - Server settings via Spring properties (e.g., server.port, server.servlet.context-path)
 # - Logging via Spring properties (logging.level.*, logging.pattern.*)
 ENTRYPOINT ["java", "-jar", "/ors.jar"]

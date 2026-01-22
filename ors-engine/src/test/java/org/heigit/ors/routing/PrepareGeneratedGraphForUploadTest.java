@@ -66,11 +66,12 @@ class PrepareGeneratedGraphForUploadTest {
 
         ProfileProperties props = makeProfileProps(graphsRoot, "profileA", "group", "extent");
 
-        RoutingProfile.prepareGeneratedGraphForUpload(props, GRAPH_VERSION);
+        boolean result = RoutingProfile.prepareGeneratedGraphForUpload(props, GRAPH_VERSION);
 
         String graphName = String.join("_", "group", "extent", GRAPH_VERSION, props.getEncoderName().toString());
         Path archive = graphsRoot.resolve(graphName + ".ghz");
 
+        assertTrue(result, "Preparation should return true on success");
         assertTrue(Files.exists(archive), "Archive file should be created on success");
         assertFalse(Files.exists(profileDir), "Source profile directory should be deleted after successful archive");
     }
@@ -88,11 +89,12 @@ class PrepareGeneratedGraphForUploadTest {
 
         ProfileProperties props = makeProfileProps(graphsRoot, "profileB", "group", "extent");
 
-        RoutingProfile.prepareGeneratedGraphForUpload(props, GRAPH_VERSION);
+        boolean result = RoutingProfile.prepareGeneratedGraphForUpload(props, GRAPH_VERSION);
 
         String graphName = String.join("_", "group", "extent", GRAPH_VERSION, props.getEncoderName().toString());
         Path archive = graphsRoot.resolve(graphName + ".ghz");
 
+        assertFalse(result, "Preparation should return false when graph_build_info.yml is missing");
         assertFalse(Files.exists(archive), "Archive should NOT be created when graph_build_info.yml is missing");
         assertTrue(Files.exists(profileDir), "Source profile directory should remain when preparation aborted due to missing info file");
     }
@@ -115,8 +117,9 @@ class PrepareGeneratedGraphForUploadTest {
         // create DIRECTORY where archive file should be to force a failure when opening FileOutputStream
         Files.createDirectories(archiveDir);
 
-        RoutingProfile.prepareGeneratedGraphForUpload(props, GRAPH_VERSION);
+        boolean result = RoutingProfile.prepareGeneratedGraphForUpload(props, GRAPH_VERSION);
 
+        assertFalse(result, "Preparation should return false when archive creation fails");
         assertTrue(Files.exists(archiveDir) && Files.isDirectory(archiveDir), "Archive destination was a directory and should remain (archive creation failed)");
         assertTrue(Files.exists(profileDir), "Source profile directory should remain when archive creation fails");
     }
@@ -135,15 +138,17 @@ class PrepareGeneratedGraphForUploadTest {
         ProfileProperties props = makeProfileProps(graphsRoot, "profileD", "group", "extent");
 
         // mock static FileSystemUtils.deleteRecursively to throw IOException when called with profileDir
+        boolean result;
         try (MockedStatic<FileSystemUtils> mocked = Mockito.mockStatic(FileSystemUtils.class)) {
             mocked.when(() -> FileSystemUtils.deleteRecursively(profileDir)).thenThrow(new IOException("simulated delete failure"));
 
-            RoutingProfile.prepareGeneratedGraphForUpload(props, GRAPH_VERSION);
+            result = RoutingProfile.prepareGeneratedGraphForUpload(props, GRAPH_VERSION);
         }
 
         String graphName = String.join("_", "group", "extent", GRAPH_VERSION, props.getEncoderName().toString());
         Path archive = graphsRoot.resolve(graphName + ".ghz");
 
+        assertTrue(result, "Preparation should return true even if delete fails");
         assertTrue(Files.exists(archive), "Archive should still be created even if delete fails");
         assertTrue(Files.exists(profileDir), "Source directory should still exist when delete fails (method must catch and log the exception)");
     }

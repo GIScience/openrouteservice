@@ -30,6 +30,7 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
+- improve `preparation_mode` ([#2221](https://github.com/GIScience/openrouteservice/pull/2221))
 
 ### Deprecated
 

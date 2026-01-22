@@ -154,9 +154,10 @@ public class RoutingProfile {
                 Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
         }
 
-        if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
-            prepareGeneratedGraphForUpload(profileProperties, AppInfo.GRAPH_VERSION);
+        if (Boolean.TRUE.equals(engineProperties.getPreparationMode()) && !prepareGeneratedGraphForUpload(profileProperties, AppInfo.GRAPH_VERSION)) {
+            throw new IOException("Failed to prepare generated graph for upload for profile '%s'.".formatted(profileName));
         }
+
         return gh;
     }
 
@@ -181,8 +182,10 @@ public class RoutingProfile {
      * </ul>
      *
      * @param profileProperties profile properties holding graph path and profile name; must not be null and must include a non-null graph path and profile name
+     * @param graphVersion      version identifier of the graph data, used as part of the generated archive and metadata filenames
+     * @return {@code true} if the graph was successfully prepared (archived), {@code false} if any step failed (copying graph info, creating the archive, or if no graph files were found)
      */
-    public static void prepareGeneratedGraphForUpload(ProfileProperties profileProperties, String graphVersion) {
+    public static boolean prepareGeneratedGraphForUpload(ProfileProperties profileProperties, String graphVersion) {
         LOGGER.info("Running in preparation_mode, preparing graph for upload");
         String graphBaseFilename = getPreparationBaseFilename(profileProperties, graphVersion);
         Path graphFilesPath = profileProperties.getGraphPath().resolve(profileProperties.getProfileName());
@@ -195,7 +198,7 @@ public class RoutingProfile {
             LOGGER.info("Copied graph info from %s to %s".formatted(graphInfoSrc.toString(), graphInfoDst.toString()));
         } catch (IOException e) {
             LOGGER.error("Failed to copy graph build info: %s".formatted(e.toString()));
-            return;
+            return false;
         }
 
         // create a zip archive of all files in graphFilesPath with .ghz extension
@@ -204,7 +207,7 @@ public class RoutingProfile {
             File[] graphFiles = graphFilesPath.toFile().listFiles();
             if (graphFiles == null) {
                 LOGGER.error("No graph files found to archive at %s, though we found a graph_build_info file before.".formatted(graphFilesPath.toString()));
-                return;
+                return false;
             }
             for (File file : graphFiles) {
                 if (!Files.isDirectory(file.toPath())) {
@@ -222,7 +225,7 @@ public class RoutingProfile {
             LOGGER.info("Created archive %s".formatted(graphArchiveDst.toString()));
         } catch (IOException e) {
             LOGGER.error("Failed to create archive: %s".formatted(e.toString()));
-            return;
+            return false;
         }
 
         // delete original graph files
@@ -232,6 +235,7 @@ public class RoutingProfile {
         } catch (IOException e) {
             LOGGER.error("Failed to delete graph files: %s".formatted(e.toString()));
         }
+        return true;
     }
 
     public static String getPreparationBaseFilename(ProfileProperties profileProperties, String graphVersion) {
