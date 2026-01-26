@@ -63,7 +63,6 @@ public class ProgressBarLogger {
                     .withRefs(refs)
                     .withProperties(null)
                     .withConfig(config)
-                    .withtFilter(null)
                     .build();
 
             config.addAppender(consoleAppender);
