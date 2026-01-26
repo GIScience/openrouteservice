@@ -39,6 +39,7 @@ Releasing is documented in RELEASE.md
 ### Fixed
 
 ### Security
+- update org.apache.logging.log4j:log4j-core to 2.25.3 fixes [CVE-2025-68161](https://www.cve.org/CVERecord?id=CVE-2025-68161)
 
 
 ## [9.6.0] - 2025-12-17
