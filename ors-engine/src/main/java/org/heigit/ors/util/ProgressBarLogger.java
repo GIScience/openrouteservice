@@ -57,7 +57,7 @@ public class ProgressBarLogger {
             AppenderRef[] refs = new AppenderRef[]{ref};
             LoggerConfig loggerConfig = LoggerConfig.newBuilder()
                     .withAdditivity(false)
-                    .withLevel(CLASS_LOGGER.getLevel().getVersion2Level())
+                    .withLevel(CLASS_LOGGER.getEffectiveLevel().getVersion2Level())
                     .withLoggerName(LOGGER_NAME)
                     .withIncludeLocation("true")
                     .withRefs(refs)
