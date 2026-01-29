@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- Basque (eu-ES) translation ([#2207](https://github.com/GIScience/openrouteservice/pull/2207))
 
 ### Changed
 - improve `preparation_mode` ([#2221](https://github.com/GIScience/openrouteservice/pull/2221))
