@@ -42,6 +42,7 @@ Releasing is documented in RELEASE.md
 ### Security
 - update org.apache.logging.log4j:log4j-core to 2.25.3 fixes [CVE-2025-68161](https://www.cve.org/CVERecord?id=CVE-2025-68161)
 - update preact to 10.28.2 due to [CVE-2026-22028](https://www.cve.org/CVERecord?id=CVE-2026-22028)
+- update lodash to 4.17.23 due to [CVE-2025-13465](https://www.cve.org/CVERecord?id=CVE-2025-13465) and [CVE-2025-13466](https://www.cve.org/CVERecord?id=CVE-2025-13466)
 
 
 ## [9.6.0] - 2025-12-17
