@@ -44,6 +44,7 @@ Releasing is documented in RELEASE.md
 - replace `HeavyVehicleAttributesGraphStorage` with corresponding encoded values ([#2146](https://github.com/GIScience/openrouteservice/pull/2146))
 
 ### Changed
+- improve `preparation_mode` ([#2221](https://github.com/GIScience/openrouteservice/pull/2221))
 
 ### Deprecated
 
@@ -52,6 +53,7 @@ Releasing is documented in RELEASE.md
 ### Fixed
 
 ### Security
+- update org.apache.logging.log4j:log4j-core to 2.25.3 fixes [CVE-2025-68161](https://www.cve.org/CVERecord?id=CVE-2025-68161)
 
 
 ## [9.6.0] - 2025-12-17
