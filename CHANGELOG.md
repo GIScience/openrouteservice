@@ -28,20 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
-- add Basque (eu-ES) locale translation file ([#2206](https://github.com/GIScience/openrouteservice/issue/2206))
-- documentation on the fields of JSON and GeoJSON responses of the directions endpoint ([#2084](https://github.com/GIScience/openrouteservice/issue/2084))
-- docs: comment on API key usage ([#2179](https://github.com/GIScience/openrouteservice/pull/2179))
-- type-specific filtering for mapping point features to graph edges ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
-- documentation on the matching endpoint ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
-- PostgreSQL-backed feature store with scheduled synchronization for dynamic routing data updates ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
-- Enhance the docker image and docker build workflow for Kubernetes readiness with minimal image support ([#2183](https://github.com/GIScience/openrouteservice/pull/2183))
-- "What you get" section to the JAR setup documentation and API reference to the docker setup documentation ([#2203](https://github.com/GIScience/openrouteservice/pull/2203))
-
-### Changed
-- add Basque language support to APIEnums ([#2206](https://github.com/GIScience/openrouteservice/issue/2206))
-- enhanced status endpoint to expose dynamic data statistics and feature store metrics ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
-- when running in `preparation_mode`, pack the graph for upload ([#2185](https://github.com/GIScience/openrouteservice/pull/2185))
-- replace `HeavyVehicleAttributesGraphStorage` with corresponding encoded values ([#2146](https://github.com/GIScience/openrouteservice/pull/2146))
+- Basque (eu-ES) translation ([#2207](https://github.com/GIScience/openrouteservice/pull/2207))
 
 ### Changed
 - improve `preparation_mode` ([#2221](https://github.com/GIScience/openrouteservice/pull/2221))
