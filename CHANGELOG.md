@@ -25,19 +25,13 @@ RELEASING:
 Releasing is documented in RELEASE.md
 -->
 
-## [unreleased]
+## [9.7.0] - 2026-01-30
 
 ### Added
 - Basque (eu-ES) translation ([#2207](https://github.com/GIScience/openrouteservice/pull/2207))
 
 ### Changed
 - improve `preparation_mode` ([#2221](https://github.com/GIScience/openrouteservice/pull/2221))
-
-### Deprecated
-
-### Removed
-
-### Fixed
 
 ### Security
 - update org.apache.logging.log4j:log4j-core to 2.25.3 fixes [CVE-2025-68161](https://www.cve.org/CVERecord?id=CVE-2025-68161)
@@ -1024,7 +1018,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.6.0...HEAD
+[9.7.0]: https://github.com/GIScience/openrouteservice/compare/v9.6.0...v9.7.0
 [9.6.0]: https://github.com/GIScience/openrouteservice/compare/v9.5.1...v9.6.0
 [9.5.1]: https://github.com/GIScience/openrouteservice/compare/v9.5.0...v9.5.1
 [9.5.0]: https://github.com/GIScience/openrouteservice/compare/v9.4.0...v9.5.0
