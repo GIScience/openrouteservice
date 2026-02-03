@@ -270,12 +270,12 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         Coordinate startCoordinate = lineString.getCoordinateN(0);
         Coordinate endCoordinate = lineString.getCoordinateN(1);
         double distance = CoordTools.calcDistHaversine(startCoordinate.x, startCoordinate.y, endCoordinate.x, endCoordinate.y);
-        pointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
-        pointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
-        wayPointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
-        wayPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
-        startPointList.add(lineString.getCoordinateN(0).x, lineString.getCoordinateN(0).y);
-        endPointList.add(lineString.getCoordinateN(1).x, lineString.getCoordinateN(1).y);
+        pointList.add(lineString.getCoordinateN(0).y, lineString.getCoordinateN(0).x);
+        pointList.add(lineString.getCoordinateN(1).y, lineString.getCoordinateN(1).x);
+        wayPointList.add(lineString.getCoordinateN(0).y, lineString.getCoordinateN(0).x);
+        wayPointList.add(lineString.getCoordinateN(1).y, lineString.getCoordinateN(1).x);
+        startPointList.add(lineString.getCoordinateN(0).y, lineString.getCoordinateN(0).x);
+        endPointList.add(lineString.getCoordinateN(1).y, lineString.getCoordinateN(1).x);
         Translation translation = new TranslationMap.TranslationHashMap(new Locale(""));
         InstructionList instructions = new InstructionList(translation);
         Instruction startInstruction = new Instruction(Instruction.REACHED_VIA, "free hand route", startPointList);
@@ -300,10 +300,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private LineString constructFreeHandRouteGeometry(GHRequest request) {
         Coordinate start = new Coordinate();
         Coordinate end = new Coordinate();
-        start.x = request.getPoints().get(0).getLat();
-        start.y = request.getPoints().get(0).getLon();
-        end.x = request.getPoints().get(1).getLat();
-        end.y = request.getPoints().get(1).getLon();
+        start.x = request.getPoints().get(0).getLon();
+        start.y = request.getPoints().get(0).getLat();
+        end.x = request.getPoints().get(1).getLon();
+        end.y = request.getPoints().get(1).getLat();
         Coordinate[] coords = new Coordinate[]{start, end};
         return new GeometryFactory().createLineString(coords);
     }

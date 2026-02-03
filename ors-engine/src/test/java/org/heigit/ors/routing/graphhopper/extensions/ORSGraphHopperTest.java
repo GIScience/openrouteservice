@@ -37,7 +37,7 @@ class ORSGraphHopperTest {
 
         assertEquals(0, responsePath.getErrors().size());
         assertEquals(0, responsePath.getDescription().size());
-        assertEquals(309.892f, responsePath.getDistance(), 3);
+        assertEquals(302, responsePath.getDistance(), 1);
         assertEquals(0.0, responsePath.getAscend(), 0);
         assertEquals(0.0, responsePath.getDescend(), 0);
         assertEquals(0.0, responsePath.getRouteWeight(), 0);
@@ -111,7 +111,7 @@ class ORSGraphHopperTest {
                 assertEquals(1, instruction.getPoints().size());
                 assertEquals(49.41281601436809, instruction.getPoints().getLat(0), 0);
                 assertEquals(8.686215877532959, instruction.getPoints().getLon(0), 0);
-                assertEquals(309.892f, instruction.getDistance(), 3);
+                assertEquals(302, instruction.getDistance(), 1);
                 assertEquals(0, instruction.getTime());
             } else if (instruction.getName().equals("end of free hand route") && instruction.getSign() == Instruction.FINISH) {
                 assertEquals(1, instruction.getPoints().size());
