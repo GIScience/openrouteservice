@@ -534,7 +534,7 @@ public class RoutingRequest extends ServiceRequest {
             }
 
             if (directedSegment) {
-                resp = gh.constructFreeHandRoute(req);
+                resp = RouteResultBuilder.constructFreeHandRoute(req);
             } else {
                 gh.getRouterConfig().setSimplifyResponse(geometrySimplify);
                 resp = gh.route(req);

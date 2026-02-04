@@ -13,10 +13,12 @@
  */
 package org.heigit.ors.routing;
 
+import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
 import com.graphhopper.Trip;
 import com.graphhopper.util.*;
+import com.graphhopper.util.shapes.GHPoint;
 import org.heigit.ors.common.ArrivalDirection;
 import org.heigit.ors.common.CardinalDirection;
 import org.heigit.ors.common.DistanceUnit;
@@ -24,6 +26,7 @@ import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.routing.instructions.InstructionTranslator;
 import org.heigit.ors.routing.instructions.InstructionTranslatorsCache;
 import org.heigit.ors.routing.instructions.InstructionType;
+import org.heigit.ors.util.CoordTools;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 import org.locationtech.jts.geom.Coordinate;
@@ -33,6 +36,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.heigit.ors.routing.RouteResult.*;
 
@@ -46,6 +50,42 @@ public class RouteResultBuilder {
     public RouteResultBuilder() {
         angleCalc = new AngleCalc();
         distCalc = new DistanceCalcEarth();
+    }
+
+    public static GHResponse constructFreeHandRoute(GHRequest request) {
+        ResponsePath responsePath = new ResponsePath();
+        PointList pointList = new PointList(2, false);
+        PointList startPointList = new PointList(1, false);
+        PointList endPointList = new PointList(1, false);
+        GHPoint start = request.getPoints().get(0);
+        GHPoint end = request.getPoints().get(1);
+        double distance = CoordTools.calcDistHaversine(start.getLon(), start.getLat(), end.getLon(), end.getLat());
+        pointList.add(start);
+        pointList.add(end);
+        startPointList.add(start);
+        endPointList.add(end);
+        Translation translation = new TranslationMap.TranslationHashMap(new Locale(""));
+        InstructionList instructions = new InstructionList(translation);
+        Instruction startInstruction = new Instruction(Instruction.REACHED_VIA, "free hand route", startPointList);
+        Instruction endInstruction = new Instruction(Instruction.FINISH, "end of free hand route", endPointList);
+        instructions.add(0, startInstruction);
+        instructions.add(1, endInstruction);
+        responsePath.setDistance(distance);
+        responsePath.setAscend(0.0);
+        responsePath.setDescend(0.0);
+        responsePath.setTime(0);
+        responsePath.setInstructions(instructions);
+        responsePath.setWaypoints(pointList);
+        responsePath.setPoints(pointList);
+        responsePath.setRouteWeight(0.0);
+        responsePath.setDescription(new ArrayList<>());
+        responsePath.setImpossible(false);
+        startInstruction.setDistance(distance);
+        startInstruction.setTime(0);
+        GHResponse directRouteResponse = new GHResponse();
+        directRouteResponse.add(responsePath);
+        directRouteResponse.getHints().putObject("skipped_segment", true);
+        return directRouteResponse;
     }
 
     RouteResult[] createRouteResults(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo>[] extras) throws Exception {

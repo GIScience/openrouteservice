@@ -11,6 +11,7 @@ import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.routing.RouteResultBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ class ORSGraphHopperTest {
     @Test
     void directRouteTest() {
         GHRequest ghRequest = new GHRequest(49.41281601436809, 8.686215877532959, 49.410163456220076, 8.687160015106201);
-        GHResponse ghResponse = new ORSGraphHopper().constructFreeHandRoute(ghRequest);
+        GHResponse ghResponse = RouteResultBuilder.constructFreeHandRoute(ghRequest);
 
         assertTrue(ghResponse.getHints().has("skipped_segment"));
         assertTrue(ghResponse.getHints().getBool("skipped_segment", false));
