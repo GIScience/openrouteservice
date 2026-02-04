@@ -37,6 +37,7 @@ import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.*;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
+import com.graphhopper.util.shapes.GHPoint;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.config.EngineProperties;
@@ -253,29 +254,25 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     public GHResponse constructFreeHandRoute(GHRequest request) {
-        LineString directRouteGeometry = constructFreeHandRouteGeometry(request);
-        ResponsePath directRoutePathWrapper = constructFreeHandRoutePathWrapper(directRouteGeometry);
+        ResponsePath directRoutePathWrapper = constructFreeHandRoutePathWrapper(request);
         GHResponse directRouteResponse = new GHResponse();
         directRouteResponse.add(directRoutePathWrapper);
         directRouteResponse.getHints().putObject("skipped_segment", true);
         return directRouteResponse;
     }
 
-    private ResponsePath constructFreeHandRoutePathWrapper(LineString lineString) {
+    private ResponsePath constructFreeHandRoutePathWrapper(GHRequest request) {
         ResponsePath responsePath = new ResponsePath();
-        PointList pointList = new PointList();
-        PointList startPointList = new PointList();
-        PointList endPointList = new PointList();
-        PointList wayPointList = new PointList();
-        Coordinate startCoordinate = lineString.getCoordinateN(0);
-        Coordinate endCoordinate = lineString.getCoordinateN(1);
-        double distance = CoordTools.calcDistHaversine(startCoordinate.x, startCoordinate.y, endCoordinate.x, endCoordinate.y);
-        pointList.add(lineString.getCoordinateN(0).y, lineString.getCoordinateN(0).x);
-        pointList.add(lineString.getCoordinateN(1).y, lineString.getCoordinateN(1).x);
-        wayPointList.add(lineString.getCoordinateN(0).y, lineString.getCoordinateN(0).x);
-        wayPointList.add(lineString.getCoordinateN(1).y, lineString.getCoordinateN(1).x);
-        startPointList.add(lineString.getCoordinateN(0).y, lineString.getCoordinateN(0).x);
-        endPointList.add(lineString.getCoordinateN(1).y, lineString.getCoordinateN(1).x);
+        PointList pointList = new PointList(2, false);
+        PointList startPointList = new PointList(1, false);
+        PointList endPointList = new PointList(1, false);
+        GHPoint start = request.getPoints().get(0);
+        GHPoint end = request.getPoints().get(1);
+        double distance = CoordTools.calcDistHaversine(start.getLon(), start.getLat(), end.getLon(), end.getLat());
+        pointList.add(start);
+        pointList.add(end);
+        startPointList.add(start);
+        endPointList.add(end);
         Translation translation = new TranslationMap.TranslationHashMap(new Locale(""));
         InstructionList instructions = new InstructionList(translation);
         Instruction startInstruction = new Instruction(Instruction.REACHED_VIA, "free hand route", startPointList);
@@ -287,7 +284,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         responsePath.setDescend(0.0);
         responsePath.setTime(0);
         responsePath.setInstructions(instructions);
-        responsePath.setWaypoints(wayPointList);
+        responsePath.setWaypoints(pointList);
         responsePath.setPoints(pointList);
         responsePath.setRouteWeight(0.0);
         responsePath.setDescription(new ArrayList<>());
@@ -295,17 +292,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         startInstruction.setDistance(distance);
         startInstruction.setTime(0);
         return responsePath;
-    }
-
-    private LineString constructFreeHandRouteGeometry(GHRequest request) {
-        Coordinate start = new Coordinate();
-        Coordinate end = new Coordinate();
-        start.x = request.getPoints().get(0).getLon();
-        start.y = request.getPoints().get(0).getLat();
-        end.x = request.getPoints().get(1).getLon();
-        end.y = request.getPoints().get(1).getLat();
-        Coordinate[] coords = new Coordinate[]{start, end};
-        return new GeometryFactory().createLineString(coords);
     }
 
     private void matchTraffic() {
