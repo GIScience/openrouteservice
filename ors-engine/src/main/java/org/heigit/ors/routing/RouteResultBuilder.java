@@ -26,7 +26,6 @@ import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.routing.instructions.InstructionTranslator;
 import org.heigit.ors.routing.instructions.InstructionTranslatorsCache;
 import org.heigit.ors.routing.instructions.InstructionType;
-import org.heigit.ors.util.CoordTools;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 import org.locationtech.jts.geom.Coordinate;
@@ -52,18 +51,18 @@ public class RouteResultBuilder {
         distCalc = new DistanceCalcEarth();
     }
 
-    public static GHResponse constructFreeHandRoute(GHRequest request) {
+    public GHResponse constructFreeHandRoute(GHRequest request) {
         ResponsePath responsePath = new ResponsePath();
         PointList pointList = new PointList(2, false);
         PointList startPointList = new PointList(1, false);
         PointList endPointList = new PointList(1, false);
         GHPoint start = request.getPoints().get(0);
         GHPoint end = request.getPoints().get(1);
-        double distance = CoordTools.calcDistHaversine(start.getLon(), start.getLat(), end.getLon(), end.getLat());
         pointList.add(start);
         pointList.add(end);
         startPointList.add(start);
         endPointList.add(end);
+        double distance = distCalc.calcDistance(pointList);
         Translation translation = new TranslationMap.TranslationHashMap(new Locale(""));
         InstructionList instructions = new InstructionList(translation);
         Instruction startInstruction = new Instruction(Instruction.REACHED_VIA, "free hand route", startPointList);
