@@ -52,23 +52,22 @@ public class RouteResultBuilder {
     }
 
     public GHResponse constructFreeHandRoute(GHRequest request) {
-        ResponsePath responsePath = new ResponsePath();
-        PointList pointList = new PointList(2, false);
-        PointList startPointList = new PointList(1, false);
-        PointList endPointList = new PointList(1, false);
         GHPoint start = request.getPoints().get(0);
         GHPoint end = request.getPoints().get(1);
+        ResponsePath responsePath = new ResponsePath();
+        PointList pointList = new PointList(2, false);
         pointList.add(start);
         pointList.add(end);
+        PointList startPointList = new PointList(1, false);
         startPointList.add(start);
+        PointList endPointList = new PointList(1, false);
         endPointList.add(end);
-        double distance = distCalc.calcDistance(pointList);
-        Translation translation = new TranslationMap.TranslationHashMap(new Locale(""));
-        InstructionList instructions = new InstructionList(translation);
+        InstructionList instructions = new InstructionList(new TranslationMap.TranslationHashMap(Locale.ROOT));
         Instruction startInstruction = new Instruction(Instruction.REACHED_VIA, "free hand route", startPointList);
         Instruction endInstruction = new Instruction(Instruction.FINISH, "end of free hand route", endPointList);
         instructions.add(0, startInstruction);
         instructions.add(1, endInstruction);
+        double distance = distCalc.calcDistance(pointList);
         responsePath.setDistance(distance);
         responsePath.setAscend(0.0);
         responsePath.setDescend(0.0);
@@ -81,10 +80,10 @@ public class RouteResultBuilder {
         responsePath.setImpossible(false);
         startInstruction.setDistance(distance);
         startInstruction.setTime(0);
-        GHResponse directRouteResponse = new GHResponse();
-        directRouteResponse.add(responsePath);
-        directRouteResponse.getHints().putObject("skipped_segment", true);
-        return directRouteResponse;
+        GHResponse ghResponse = new GHResponse();
+        ghResponse.add(responsePath);
+        ghResponse.getHints().putObject("skipped_segment", true);
+        return ghResponse;
     }
 
     RouteResult[] createRouteResults(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo>[] extras) throws Exception {
