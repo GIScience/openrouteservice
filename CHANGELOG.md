@@ -36,7 +36,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
-- correct distance calculation of skipped segments ([#2222](https://github.com/GIScience/openrouteservice/pull/2222))
+- correct distance calculation of skipped segments ([#2230](https://github.com/GIScience/openrouteservice/pull/2230))
 
 ### Security
 
