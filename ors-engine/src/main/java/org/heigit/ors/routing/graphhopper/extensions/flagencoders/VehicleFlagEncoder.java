@@ -421,27 +421,11 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     protected int getTrackGradeLevel(String grade) {
-        if (grade == null)
+        
+        if (grade == null|| grade.equals("unknown"))
             return 0;
 
-        if (grade.contains(";")) {
-            int maxGrade = 0;
-            try {
-                String[] values = grade.split(";");
-                for (String v : values) {
-                    int iv = Integer.parseInt(v.replace("grade", "").trim());
-                    if (iv > maxGrade)
-                        maxGrade = iv;
-                }
-
-                return maxGrade;
-            } catch (Exception ex) {
-                // do nothing
-            }
-        }
-
         switch (grade) {
-            case "grade":
             case "grade1":
                 return 1;
             case "grade2":
@@ -452,11 +436,32 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
                 return 4;
             case "grade5":
                 return 5;
-            case "grade6":
-                return 6;
             default:
+                return parseMaxTrackGrade(grade);        
         }
-        return 10;
+    }
+                
+    private int parseMaxTrackGrade(String grade) {
+
+        // Split by ";" or "-"
+        String[] values = grade.split("[;-]");
+    
+        int maxGrade = 0;
+    
+        for (String v : values) {
+            int parsed = 0;
+            try {
+                //parsed = parseSingleGrade(v);
+                parsed = Integer.parseInt(v.replace("grade", "").trim());
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+            if (parsed > maxGrade) {
+                maxGrade = parsed;
+            }
+        }
+
+        return Math.min(5, maxGrade);
     }
 
     double addResedentialPenalty(double baseSpeed, ReaderWay way) {
