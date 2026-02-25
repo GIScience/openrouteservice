@@ -3090,6 +3090,43 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testIdenticalStartAndEndCoordinates() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", HelperFunctions.constructCoords("8.690915,49.430117|8.690915,49.430117"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.isEmpty()", is(false))
+                .body("routes[0].summary.distance", is(0.0))
+                .body("routes[0].summary.duration", is(0.0))
+                .statusCode(200);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.isEmpty()", is(false))
+                .body("features[0].properties.summary.isEmpty()", is(false))
+                .body("features[0].properties.summary.distance", is(0.0))
+                .body("features[0].properties.summary.duration", is(0.0))
+                .statusCode(200);
+    }
+
+    @Test
     void testIdenticalCoordinatesIndexing() { // Taki needs to look into this, see if the problem in question is addressed properly...
         JSONObject body = new JSONObject();
         body.put("coordinates", HelperFunctions.constructCoords("8.676131,49.418149|8.676142,49.457555|8.676142,49.457555|8.680733,49.417248"));
