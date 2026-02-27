@@ -27,7 +27,7 @@ import java.util.Objects;
 
 
 @Schema(description = "Route statistics such as distance and duration.")
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONSummary {
     @Schema(description = "Total route distance in specified units.", example = "12.6")
     @JsonProperty(value = "distance")
