@@ -37,6 +37,7 @@ Releasing is documented in RELEASE.md
 
 ### Fixed
 - correct distance calculation of skipped segments ([#2230](https://github.com/GIScience/openrouteservice/pull/2230))
+- non-empty route summary in (geo)JSON response for zero-length routes ([#2234](https://github.com/GIScience/openrouteservice/pull/2234))
 
 ### Security
 
