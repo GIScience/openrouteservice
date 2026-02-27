@@ -38,6 +38,8 @@ Releasing is documented in RELEASE.md
 ### Fixed
 
 ### Security
+- update lodash-es to 4.17.23 due to [CVE-2025-13465](https://www.cve.org/CVERecord?id=CVE-2025-13465)
+- update rollup to 4.59.0 due to [CVE-2026-27606](https://www.cve.org/CVERecord?id=CVE-2026-27606)
 
 
 ## [9.7.1] - 2026-02-27
