@@ -20,7 +20,7 @@ import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.util.WheelchairAttributesEncodedValues;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -49,7 +49,7 @@ public class ExportRequest extends ServiceRequest {
 
     private static final int NO_TIME = -1;
     private IntEncodedValue osmWayIdEnc;
-    private WheelchairAttributesGraphStorage wheelchairAttributesGraphStorage;
+    private WheelchairAttributesEncodedValues wheelchairAttributesEnc;
     private Weighting weighting;
 
     public void setBoundingBox(BBox bbox) {
@@ -89,7 +89,8 @@ public class ExportRequest extends ServiceRequest {
             // Ignore osm_way_id if not available
             osmWayIdEnc = null;
         }
-        wheelchairAttributesGraphStorage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), WheelchairAttributesGraphStorage.class);
+
+        wheelchairAttributesEnc = new WheelchairAttributesEncodedValues(gh.getEncodingManager());
 
         // filter graph for nodes in Bounding Box
         Set<Integer> nodesInBBox = nodesInBBox(gh.getLocationIndex(), nodeAccess, graph);
@@ -171,10 +172,9 @@ public class ExportRequest extends ServiceRequest {
                 extra.put("osm_id", osmWayIdEnc.getInt(false, iter.getFlags()));
             }
             extra.put("ors_id", iter.getEdge());
-            if (wheelchairAttributesGraphStorage != null) {
-                WheelchairAttributes attributes = new WheelchairAttributes();
-                byte[] buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
-                wheelchairAttributesGraphStorage.getEdgeValues(iter.getEdge(), attributes, buffer);
+            if (wheelchairAttributesEnc != null) {
+                WheelchairAttributes attributes = wheelchairAttributesEnc.getAttributes(iter.getFlags());
+
                 if (attributes.hasValues()) {
                     extra.put("incline", attributes.getIncline());
                     extra.put("surface_quality_known", attributes.isSurfaceQualityKnown());
