@@ -188,6 +188,54 @@ class WheelchairParserTest {
         assertEquals(wheelchairAttributesAsString(correctWheelchairAttributes), wheelchairAttributesAsString(attrs));
     }
 
+    @Test
+    void TestKerbHeightFromNode() {
+        WheelchairKerbHeightParser.kerbHeightOnlyOnCrossing = false;
+        ReaderWay way = new ReaderWay(1);
+
+        way.setTag("highway", "crossing");
+        way.setTag("ors_node:kerb:height", "0.03");
+
+        executeParsers(way);
+        WheelchairAttributesEncodedValues encValues = new WheelchairAttributesEncodedValues(em);
+        WheelchairAttributes attrs = encValues.getAttributes(intsRef);
+
+        assertEquals(3, attrs.getSlopedKerbHeight());
+    }
+
+    @Test
+    void TestAttachKerbHeightToCrossing() {
+        WheelchairKerbHeightParser.kerbHeightOnlyOnCrossing = true;
+
+        ReaderWay way = new ReaderWay(1);
+
+        way.setTag("footway", "crossing");
+        way.setTag("ors_node:kerb:height", "0.03");
+
+        executeParsers(way);
+        WheelchairAttributesEncodedValues encValues = new WheelchairAttributesEncodedValues(em);
+        WheelchairAttributes attrs = encValues.getAttributes(intsRef);
+
+        assertEquals(3, attrs.getSlopedKerbHeight());
+    }
+
+    @Test
+    void TestAttachKerbHeightOnlyToCrossing() {
+        WheelchairKerbHeightParser.kerbHeightOnlyOnCrossing = true;
+
+        ReaderWay way = new ReaderWay(1);
+
+        way.setTag("highway", "footway");
+        way.setTag("ors_node:kerb:height", "0.03");
+
+        executeParsers(way);
+        WheelchairAttributesEncodedValues encValues = new WheelchairAttributesEncodedValues(em);
+        WheelchairAttributes attrs = encValues.getAttributes(intsRef);
+
+        assertEquals(-1, attrs.getSlopedKerbHeight());
+    }
+
+
     private WheelchairAttributes parseForSide(ReaderWay way, String side){
         assert(side.equals("left") || side.equals("right") || side.equals("both"));
         if(side.equals("both")) {
