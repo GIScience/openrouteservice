@@ -62,6 +62,19 @@ public class ORSOSMReader extends OSMReader {
 
         initNodeTagsToStore(new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload")));
         extraTagKeys = new HashSet<>();
+
+        // For WheelchairAttributes we always need to process the node tags
+        this.processNodeTags = true;
+        this.processSimpleGeom = true;
+        extraTagKeys.add("kerb");
+        extraTagKeys.add("kerb:both");
+        extraTagKeys.add("kerb:left");
+        extraTagKeys.add("kerb:right");
+        extraTagKeys.add("kerb:height");
+        extraTagKeys.add("kerb:both:height");
+        extraTagKeys.add("kerb:left:height");
+        extraTagKeys.add("kerb:right:height");
+
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
             if (b instanceof BordersGraphStorageBuilder) {
@@ -72,19 +85,6 @@ public class ORSOSMReader extends OSMReader {
             if (b instanceof HereTrafficGraphStorageBuilder) {
                 this.processGeom = true;
                 this.processWholeGeom = true;
-            }
-
-            if (b instanceof WheelchairGraphStorageBuilder) {
-                this.processNodeTags = true;
-                this.processSimpleGeom = true;
-                extraTagKeys.add("kerb");
-                extraTagKeys.add("kerb:both");
-                extraTagKeys.add("kerb:left");
-                extraTagKeys.add("kerb:right");
-                extraTagKeys.add("kerb:height");
-                extraTagKeys.add("kerb:both:height");
-                extraTagKeys.add("kerb:left:height");
-                extraTagKeys.add("kerb:right:height");
             }
 
             if (b instanceof RoadAccessRestrictionsGraphStorageBuilder) {
@@ -342,6 +342,26 @@ public class ORSOSMReader extends OSMReader {
                         String key = pairs.getKey();
                         String value = pairs.getValue().toString();
                         way.setTag(key, value);
+                    }
+                }
+
+                Map<String, String> tagsForNode = nodeTags.get(nodeId);
+                if (tagsForNode != null) {
+                    for (Entry<String, String> tag : tagsForNode.entrySet()) {
+                        if(!extraTagKeys.contains(tag.getKey())) continue;
+
+                        String newValue = tag.getValue();
+                        if(way.hasTag(tag.getKey())) {
+                            try {
+                                double newValInt = Double.parseDouble(newValue);
+                                double oldValInt = Double.parseDouble(way.getTag(tag.getKey()));
+                                newValue = Math.max(newValInt, oldValInt) + "";
+                            } catch (Exception e) {
+                                // If the value is not a number, we cannot use it anyway, so it does not matter which one we use.
+                            }
+                        }
+
+                        way.setTag(tag.getKey(), newValue);
                     }
                 }
             }
