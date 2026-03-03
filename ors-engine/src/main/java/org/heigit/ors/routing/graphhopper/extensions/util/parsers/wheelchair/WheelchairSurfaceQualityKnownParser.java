@@ -47,15 +47,24 @@ public class WheelchairSurfaceQualityKnownParser extends WheelchairBaseParser {
                 right = true;
         }
 
+        center = getSidedBoolean(way, center, left, right);
+
+        ((SimpleBooleanEncodedValue) encoder).setBool(false, edgeFlags, center);
+        return edgeFlags;
+    }
+
+    boolean getSidedBoolean(ReaderWay way, boolean center, boolean left, boolean right){
         if (way.hasTag(KEY_ORS_SIDEWALK_SIDE)) {
             String side = way.getTag(KEY_ORS_SIDEWALK_SIDE);
             if (side.equals(SW_VAL_LEFT)) {
-                center = left;
+                return left;
             } else if (side.equals(SW_VAL_RIGHT)) {
-                center = right;
+                return right;
             }
+        } else if(hasRightSidewalk || hasLeftSidewalk) {
+            return left && right && center;
         }
-        ((SimpleBooleanEncodedValue) encoder).setBool(false, edgeFlags, center);
-        return edgeFlags;
+
+        return center;
     }
 }

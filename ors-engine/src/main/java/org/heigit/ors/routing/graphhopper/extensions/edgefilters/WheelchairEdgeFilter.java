@@ -44,24 +44,15 @@ public class WheelchairEdgeFilter implements EdgeFilter {
     public boolean accept(EdgeIteratorState iter) {
         attributes = encodedValues.getAttributes(iter.getFlags());
         LOGGER.debug("edge: " + iter + (attributes.hasValues() ? " suitable: " + attributes.isSuitable() + " surfaceQualityKnown: " + attributes.isSurfaceQualityKnown() : " no wheelchair attributes"));
-        boolean checkSurfaceType = checkSurfaceType();
-        boolean checkSmoothnessType = checkSmoothnessType();
-        boolean checkTrackType = checkTrackType();
-        boolean checkMaximumIncline = checkMaximumIncline();
-        boolean checkMaximumSlopedKerb = checkMaximumSlopedKerb();
-        boolean checkMinimumWidth = checkMinimumWidth();
-        boolean checkSurfaceQualityKnown = checkSurfaceQualityKnown();
-        boolean checkUnsuitable = checkUnsuitable();
-
         return !attributes.hasValues() || !(
-                checkSurfaceType
-                        || checkSmoothnessType
-                        || checkTrackType
-                        || checkMaximumIncline
-                        || checkMaximumSlopedKerb
-                        || checkMinimumWidth
-                        || checkSurfaceQualityKnown
-                        || checkUnsuitable
+                checkSurfaceType()
+                        || checkSmoothnessType()
+                        || checkTrackType()
+                        || checkMaximumIncline()
+                        || checkMaximumSlopedKerb()
+                        || checkMinimumWidth()
+                        || checkSurfaceQualityKnown()
+                        || checkUnsuitable()
         );
     }
 

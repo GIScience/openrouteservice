@@ -1,5 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.util.parsers;
 
+import com.graphhopper.coll.GHLongObjectHashMap;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
@@ -8,6 +9,9 @@ import org.heigit.ors.routing.graphhopper.extensions.util.WheelchairAttributesEn
 import org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,6 +29,8 @@ class WheelchairParserTest {
     private WheelchairSurfaceQualityKnownParser parserSurfaceQualityKnown;
     private WheelchairSideParser parserSide;
 
+    private final GHLongObjectHashMap<Map<String, String>> nodeTags = new GHLongObjectHashMap<>();
+
     public WheelchairParserTest() {
         setUp();
     }
@@ -40,6 +46,7 @@ class WheelchairParserTest {
         parserSuitable = new WheelchairSuitableParser();
         parserSurfaceQualityKnown = new WheelchairSurfaceQualityKnownParser();
         parserSide = new WheelchairSideParser();
+        nodeTags.clear();
 
         em = new EncodingManager.Builder()
                 .add(parserSurface)
@@ -66,6 +73,13 @@ class WheelchairParserTest {
         parserSuitable.handleWayTags(intsRef, way, false, relFlags);
         parserSurfaceQualityKnown.handleWayTags(intsRef, way, false, relFlags);
         parserSide.handleWayTags(intsRef, way, false, relFlags);
+    }
+
+    void addNodeTag(ReaderWay way, String key, String value, int node) {
+        Map<String, String> tags = new HashMap<>();
+        tags.put(key, value);
+        nodeTags.put(node, tags);
+        way.setTag("ors:node_tags", nodeTags);
     }
 
     @Test
@@ -170,23 +184,76 @@ class WheelchairParserTest {
         assertFalse(correctWheelchairAttributes.isSurfaceQualityKnown());
         assertFalse(correctWheelchairAttributes.isSuitable());
 
-        WheelchairAttributes left_attrs = parseForSide(way, "left");
-        assertTrue(left_attrs.isSurfaceQualityKnown());
-        assertTrue(left_attrs.isSuitable());
-        assertEquals(60, left_attrs.getWidth());
-        assertEquals(5, left_attrs.getIncline());
-        assertEquals(1, left_attrs.getSlopedKerbHeight());
+        WheelchairAttributes leftAttrs = parseForSide(way, "left");
+        assertTrue(leftAttrs.isSurfaceQualityKnown());
+        assertTrue(leftAttrs.isSuitable());
+        assertEquals(60, leftAttrs.getWidth());
+        assertEquals(5, leftAttrs.getIncline());
+        assertEquals(1, leftAttrs.getSlopedKerbHeight());
 
-        WheelchairAttributes right_attrs = parseForSide(way, "right");
-        assertTrue(right_attrs.isSurfaceQualityKnown());
-        assertTrue(right_attrs.isSuitable());
-        assertEquals(50, right_attrs.getWidth());
-        assertEquals(2, right_attrs.getIncline());
-        assertEquals(3, right_attrs.getSlopedKerbHeight());
+        WheelchairAttributes rightAttrs = parseForSide(way, "right");
+        assertTrue(rightAttrs.isSurfaceQualityKnown());
+        assertTrue(rightAttrs.isSuitable());
+        assertEquals(50, rightAttrs.getWidth());
+        assertEquals(2, rightAttrs.getIncline());
+        assertEquals(3, rightAttrs.getSlopedKerbHeight());
 
         WheelchairAttributes attrs = parseForSide(way, "both");
+        //assertFalse(attrs.isSurfaceQualityKnown());
+        //assertFalse(attrs.isSuitable());
+
         assertEquals(wheelchairAttributesAsString(correctWheelchairAttributes), wheelchairAttributesAsString(attrs));
     }
+
+    @Test
+    void TestKerbHeightFromNode() {
+        WheelchairKerbHeightParser.kerbHeightOnlyOnCrossing = false;
+        ReaderWay way = new ReaderWay(1);
+
+        way.setTag("highway", "crossing");
+        addNodeTag(way, "kerb:height", "0.03", 1);
+
+        executeParsers(way);
+
+        WheelchairAttributesEncodedValues encValues = new WheelchairAttributesEncodedValues(em);
+        WheelchairAttributes attrs = encValues.getAttributes(intsRef);
+
+        assertEquals(3, attrs.getSlopedKerbHeight());
+    }
+
+    @Test
+    void TestAttachKerbHeightToCrossing() {
+        WheelchairKerbHeightParser.kerbHeightOnlyOnCrossing = true;
+
+        ReaderWay way = new ReaderWay(1);
+
+        way.setTag("footway", "crossing");
+        addNodeTag(way, "kerb:height", "0.03", 1);
+
+        executeParsers(way);
+
+        WheelchairAttributesEncodedValues encValues = new WheelchairAttributesEncodedValues(em);
+        WheelchairAttributes attrs = encValues.getAttributes(intsRef);
+
+        assertEquals(3, attrs.getSlopedKerbHeight());
+    }
+
+    @Test
+    void TestAttachKerbHeightOnlyToCrossing() {
+        WheelchairKerbHeightParser.kerbHeightOnlyOnCrossing = true;
+
+        ReaderWay way = new ReaderWay(1);
+
+        way.setTag("highway", "footway");
+        addNodeTag(way, "kerb:height", "0.03", 1);
+
+        executeParsers(way);
+        WheelchairAttributesEncodedValues encValues = new WheelchairAttributesEncodedValues(em);
+        WheelchairAttributes attrs = encValues.getAttributes(intsRef);
+
+        assertEquals(-1, attrs.getSlopedKerbHeight());
+    }
+
 
     private WheelchairAttributes parseForSide(ReaderWay way, String side){
         assert(side.equals("left") || side.equals("right") || side.equals("both"));

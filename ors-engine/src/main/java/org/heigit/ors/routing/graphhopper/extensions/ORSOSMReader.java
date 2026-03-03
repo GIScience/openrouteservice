@@ -20,6 +20,7 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
+import com.graphhopper.routing.ev.WheelchairKerb;
 import com.graphhopper.routing.ev.HillIndex;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
@@ -36,6 +37,7 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.PedestrianWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
+import org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair.WheelchairKerbHeightParser;
 import org.heigit.ors.routing.util.HillIndexCalculator;
 import org.locationtech.jts.geom.Coordinate;
 
@@ -78,6 +80,19 @@ public class ORSOSMReader extends OSMReader {
         nodeTagsToStore = new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload"));
         osmNodeTagValues = new GHLongObjectHashMap<>(200, .5f);
 
+        if(super.encodingManager.hasEncoder("wheelchair")) {
+            this.processNodeTags = true;
+            this.processSimpleGeom = true;
+            extraTagKeys.add("kerb");
+            extraTagKeys.add("kerb:both");
+            extraTagKeys.add("kerb:left");
+            extraTagKeys.add("kerb:right");
+            extraTagKeys.add("kerb:height");
+            extraTagKeys.add("kerb:both:height");
+            extraTagKeys.add("kerb:left:height");
+            extraTagKeys.add("kerb:right:height");
+        }
+
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
             if (b instanceof BordersGraphStorageBuilder) {
@@ -89,19 +104,6 @@ public class ORSOSMReader extends OSMReader {
             if (b instanceof HereTrafficGraphStorageBuilder) {
                 this.processGeom = true;
                 this.processWholeGeom = true;
-            }
-
-            if (b instanceof WheelchairGraphStorageBuilder) {
-                this.processNodeTags = true;
-                this.processSimpleGeom = true;
-                extraTagKeys.add("kerb");
-                extraTagKeys.add("kerb:both");
-                extraTagKeys.add("kerb:left");
-                extraTagKeys.add("kerb:right");
-                extraTagKeys.add("kerb:height");
-                extraTagKeys.add("kerb:both:height");
-                extraTagKeys.add("kerb:left:height");
-                extraTagKeys.add("kerb:right:height");
             }
         }
 
@@ -190,6 +192,7 @@ public class ORSOSMReader extends OSMReader {
         }
 
         applyNodeTagsToWay(way);
+        attachNodeTagsToWay(way);
         onProcessWay(way);
         recordExactWayDistance(way);
         recordEstimatedWayDistance(way);// Required for backward compatibility of the acceleration heuristic
@@ -359,7 +362,64 @@ public class ORSOSMReader extends OSMReader {
                 if (osmNodeTagValues.containsKey(nodeId)) {
                   osmNodeTagValues.get(nodeId).forEach((key, value) -> way.setTag(key, value.toString()));
                 }
+                applyExtraNodeTagsToWay(way, nodeId);
             }
+        }
+    }
+
+    private void applyExtraNodeTagsToWay(ReaderWay way, long nodeId) {
+        Map<String, String> tagsForNode = nodeTags.get(nodeId);
+        if (tagsForNode == null) {
+            return;
+        }
+
+        for (Entry<String, String> tag : tagsForNode.entrySet()) {
+            if (!extraTagKeys.contains(tag.getKey())) {
+                continue;
+            }
+
+            String newValue = tag.getValue();
+
+            if (isKerbTag(tag.getKey())) {
+                applyTagValue(way, "ors_node:" + tag.getKey(), newValue);
+            } else {
+                applyTagValue(way, tag.getKey(), newValue);
+            }
+        }
+    }
+
+    private void applyTagValue(ReaderWay way, String key, String value) {
+        String newValue = value;
+        if (way.hasTag(key)) {
+            try {
+                double newValInt = Double.parseDouble(newValue);
+                double oldValInt = Double.parseDouble(way.getTag(key));
+                newValue = Math.max(newValInt, oldValInt) + "";
+            } catch (Exception e) {
+                // If the value is not a number, we cannot use it anyway, so it does not matter which one we use.
+            }
+        }
+
+        way.setTag(key, newValue);
+    }
+
+    private boolean isKerbTag(String key) {
+        return key.contains("kerb") || key.contains("curb");
+    }
+
+    private void attachNodeTagsToWay(ReaderWay way) {
+        LongArrayList osmNodeIds = way.getNodes();
+        int size = osmNodeIds.size();
+        if (size > 2) {
+            // If it is a crossing then we need to apply any kerb tags to the way, but we need to make sure we keep the "worse" one
+            GHLongObjectHashMap<Map<String, String>> wayNodeTagValues = new GHLongObjectHashMap<>();
+            for (int i = 1; i < size - 1; i++) {
+                long nodeId = osmNodeIds.get(i);
+                if (nodeTags.containsKey(nodeId)) {
+                    wayNodeTagValues.put(nodeId, nodeTags.get(nodeId));
+                }
+            }
+            way.setTag("ors:node_tags", wayNodeTagValues);
         }
     }
 
@@ -384,6 +444,7 @@ public class ORSOSMReader extends OSMReader {
             LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
         }
     }
+
 
     private void storeConditionalAccess(AcceptWay acceptWay, EdgeIteratorState edge) {
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {

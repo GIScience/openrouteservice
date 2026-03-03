@@ -90,7 +90,8 @@ public class ExportRequest extends ServiceRequest {
             osmWayIdEnc = null;
         }
 
-        wheelchairAttributesEnc = new WheelchairAttributesEncodedValues(gh.getEncodingManager());
+        if(gh.getEncodingManager().hasEncoder("wheelchair"))
+            wheelchairAttributesEnc = new WheelchairAttributesEncodedValues(gh.getEncodingManager());
 
         // filter graph for nodes in Bounding Box
         Set<Integer> nodesInBBox = nodesInBBox(gh.getLocationIndex(), nodeAccess, graph);
