@@ -32,6 +32,7 @@ import static org.hamcrest.Matchers.*;
 @VersionAnnotation(version = "v2")
 class ResultTest extends ServiceTest {
     public static final RestAssuredConfig JSON_CONFIG_DOUBLE_NUMBERS = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE));
+    public static final double MILE_IN_METERS = 1609.34;
 
     public ResultTest() {
 
@@ -82,6 +83,8 @@ class ResultTest extends ServiceTest {
         Integer interval_400 = 400;
         Integer interval_900 = 900;
 
+        JSONArray attributesArea = new JSONArray().put("area");
+
         JSONArray attributesReachfactorArea = new JSONArray();
         attributesReachfactorArea.put("area");
         attributesReachfactorArea.put("reachfactor");
@@ -102,6 +105,7 @@ class ResultTest extends ServiceTest {
         addParameter("interval_200", interval_200);
         addParameter("interval_200", interval_400);
         addParameter("interval_900", interval_900);
+        addParameter("attributesArea", attributesArea);
         addParameter("attributesReachfactorArea", attributesReachfactorArea);
         addParameter("attributesReachfactorAreaFaulty", attributesReachfactorAreaFaulty);
 
@@ -364,6 +368,78 @@ class ResultTest extends ServiceTest {
                 .body("features[0].properties.reachfactor", is(closeTo(0.7629, 0.0148)))
                 .statusCode(200);
 
+    }
+
+    @Test
+    void testAreaRangeUnitsMAreaUnitsM() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", new JSONArray().put(MILE_IN_METERS));
+        body.put("range_type", "distance");
+        body.put("units", "m");
+        body.put("area_units", "m");
+        body.put("attributes", getParameter("attributesArea"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("cyclingProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(5443455, 1000)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testAreaRangeUnitsKmAreaUnitsM() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", new JSONArray().put(MILE_IN_METERS / 1000));
+        body.put("range_type", "distance");
+        body.put("units", "km");
+        body.put("area_units", "m");
+        body.put("attributes", getParameter("attributesArea"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("cyclingProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(5443455, 1000)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testAreaRangeUnitsMiAreaUnitsM() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", new JSONArray().put(1));
+        body.put("range_type", "distance");
+        body.put("units", "mi");
+        body.put("area_units", "m");
+        body.put("attributes", getParameter("attributesArea"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("cyclingProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(5443455, 1000)))
+                .statusCode(200);
     }
 
     @Test
