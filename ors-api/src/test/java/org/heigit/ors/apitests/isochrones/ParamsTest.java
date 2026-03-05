@@ -454,9 +454,9 @@ class ParamsTest extends ServiceTest {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
-        body.put("range", getParameter("ranges_1800"));
+        body.put("range", new JSONArray().put(18));
         body.put("range_type", "distance");
-        body.put("interval", getParameter("interval_200"));
+        body.put("interval", 2);
         body.put("units", "km");
         body.put("location_type", "start");
 
@@ -499,9 +499,9 @@ class ParamsTest extends ServiceTest {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
-        body.put("range", getParameter("ranges_1800"));
+        body.put("range", new JSONArray().put(9));
         body.put("range_type", "distance");
-        body.put("interval", getParameter("interval_200"));
+        body.put("interval", 1);
         body.put("units", "mi");
         body.put("location_type", "start");
 
