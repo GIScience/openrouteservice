@@ -1,6 +1,7 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.APIEnums;
+import org.heigit.ors.api.APIEnums.Units;
 import org.heigit.ors.api.config.ApiEngineProperties;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.common.APIRequest;
@@ -212,15 +213,32 @@ public class IsochronesService extends ApiService {
         if (isochronesRequest.hasLocationType())
             travellerInfo.setLocationType(isochronesRequest.getLocationType().toString());
         travellerInfo.setLocation(convertSingleCoordinate(coordinate));
-        travellerInfo.getRanges();
-        //range + interval
         if (isochronesRequest.getRange() == null) {
             throw new ParameterValueException(IsochronesErrorCodes.MISSING_PARAMETER, IsochronesRequest.PARAM_RANGE);
         }
         List<Double> rangeValues = isochronesRequest.getRange();
         Double intervalValue = isochronesRequest.getInterval();
         setRangeAndIntervals(travellerInfo, rangeValues, intervalValue);
+        if (isochronesRequest.hasRangeUnits() && travellerInfo.getRangeType() == TravelRangeType.DISTANCE)
+            performRangeUnitConversion(travellerInfo, isochronesRequest.getRangeUnit());
+
         return travellerInfo;
+    }
+
+    private static void performRangeUnitConversion(TravellerInfo traveller, APIEnums.Units unit) {
+        if (unit == null || APIEnums.Units.METRES.equals(unit))
+            return;
+
+        double scale = switch (unit) {
+            case KILOMETRES -> 1000;
+            case MILES -> 1609.34;
+            default -> 1.0;
+        };
+
+        double[] ranges = traveller.getRanges();
+        for (int i = 0; i < ranges.length; i++) {
+            ranges[i] *= scale;
+        }
     }
 
     RouteSearchParameters constructRouteSearchParameters(IsochronesRequest isochronesRequest) throws Exception {
