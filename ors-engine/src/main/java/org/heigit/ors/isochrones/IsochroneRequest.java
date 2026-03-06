@@ -15,7 +15,6 @@ package org.heigit.ors.isochrones;
 
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.ServiceRequest;
-import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
