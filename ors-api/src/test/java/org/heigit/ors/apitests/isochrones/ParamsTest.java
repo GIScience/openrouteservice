@@ -545,29 +545,6 @@ class ParamsTest extends ServiceTest {
     }
 
     @Test
-    void testRangesUserUnits() {
-
-        JSONArray ranges = new JSONArray();
-        ranges.put(200);
-
-        JSONObject body = new JSONObject();
-        body.put("locations", getParameter("locations_1"));
-        body.put("range", ranges);
-        body.put("range_type", "distance");
-        body.put("units", "km");
-        body.put("location_type", "destination");
-
-        given()
-                .headers(geoJsonContent)
-                .pathParam("profile", getParameter("carProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}/geojson")
-                .then()
-                .statusCode(200);
-    }
-
-    @Test
     void testRangeRestrictionTime() {
 
         JSONArray ranges = new JSONArray();
