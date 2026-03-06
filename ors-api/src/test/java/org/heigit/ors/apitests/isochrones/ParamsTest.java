@@ -65,7 +65,6 @@ class ParamsTest extends ServiceTest {
         JSONArray ranges_2 = new JSONArray();
         ranges_2.put(1800);
         ranges_2.put(1800);
-        //ranges_3.put(1800);
 
         JSONArray ranges_1800 = new JSONArray();
         ranges_1800.put(1800);
@@ -211,7 +210,6 @@ class ParamsTest extends ServiceTest {
                 .statusCode(400);
     }
 
-    // too many locations
     @Test
     void testTooManyLocations() {
 
@@ -232,7 +230,6 @@ class ParamsTest extends ServiceTest {
                 .statusCode(400);
     }
 
-    // unknown units
     @Test
     void testUnknownUnits() {
 
@@ -450,7 +447,7 @@ class ParamsTest extends ServiceTest {
     }
 
     @Test
-    void testRangetypeUnitsKm() {
+    void testRangeTypeUnitsKm() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -470,9 +467,8 @@ class ParamsTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    // m
     @Test
-    void testRangetypeUnitsM() {
+    void testRangeTypeUnitsM() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -493,9 +489,8 @@ class ParamsTest extends ServiceTest {
 
     }
 
-    // mi
     @Test
-    void testRangetypeUnitsMi() {
+    void testRangeTypeUnitsMi() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
