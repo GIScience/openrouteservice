@@ -65,7 +65,6 @@ class ParamsTest extends ServiceTest {
         JSONArray ranges_2 = new JSONArray();
         ranges_2.put(1800);
         ranges_2.put(1800);
-        //ranges_3.put(1800);
 
         JSONArray ranges_1800 = new JSONArray();
         ranges_1800.put(1800);
@@ -211,7 +210,6 @@ class ParamsTest extends ServiceTest {
                 .statusCode(400);
     }
 
-    // too many locations
     @Test
     void testTooManyLocations() {
 
@@ -232,7 +230,6 @@ class ParamsTest extends ServiceTest {
                 .statusCode(400);
     }
 
-    // unknown units
     @Test
     void testUnknownUnits() {
 
@@ -450,13 +447,13 @@ class ParamsTest extends ServiceTest {
     }
 
     @Test
-    void testRangetypeUnitsKm() {
+    void testRangeTypeUnitsKm() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
-        body.put("range", getParameter("ranges_1800"));
+        body.put("range", new JSONArray().put(18));
         body.put("range_type", "distance");
-        body.put("interval", getParameter("interval_200"));
+        body.put("interval", 2);
         body.put("units", "km");
         body.put("location_type", "start");
 
@@ -470,9 +467,8 @@ class ParamsTest extends ServiceTest {
                 .statusCode(200);
     }
 
-    // m
     @Test
-    void testRangetypeUnitsM() {
+    void testRangeTypeUnitsM() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
@@ -493,15 +489,14 @@ class ParamsTest extends ServiceTest {
 
     }
 
-    // mi
     @Test
-    void testRangetypeUnitsMi() {
+    void testRangeTypeUnitsMi() {
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
-        body.put("range", getParameter("ranges_1800"));
+        body.put("range", new JSONArray().put(9));
         body.put("range_type", "distance");
-        body.put("interval", getParameter("interval_200"));
+        body.put("interval", 1);
         body.put("units", "mi");
         body.put("location_type", "start");
 
@@ -545,29 +540,6 @@ class ParamsTest extends ServiceTest {
     }
 
     @Test
-    void testRangesUserUnits() {
-
-        JSONArray ranges = new JSONArray();
-        ranges.put(200);
-
-        JSONObject body = new JSONObject();
-        body.put("locations", getParameter("locations_1"));
-        body.put("range", ranges);
-        body.put("range_type", "distance");
-        body.put("units", "km");
-        body.put("location_type", "destination");
-
-        given()
-                .headers(geoJsonContent)
-                .pathParam("profile", getParameter("carProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}/geojson")
-                .then()
-                .statusCode(200);
-    }
-
-    @Test
     void testRangeRestrictionTime() {
 
         JSONArray ranges = new JSONArray();
@@ -592,15 +564,76 @@ class ParamsTest extends ServiceTest {
 
     @Test
     void testRangeRestrictionDistance() {
-
         JSONArray ranges = new JSONArray();
-        ranges.put(1100000);
+        ranges.put(100000);
 
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", ranges);
         body.put("range_type", "distance");
 
+        given()
+                .headers(geoJsonContent)
+                .pathParam("profile", getParameter("cyclingProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .statusCode(400)
+                .body("error.code", Matchers.is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM));
+
+        given()
+                .headers(geoJsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .statusCode(200);
+
+        ranges.put(200000);
+        given()
+                .headers(geoJsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .statusCode(400)
+                .body("error.code", Matchers.is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM));
+    }
+
+    @Test
+    void testRangeRestrictionDistanceUnitsKm() {
+        JSONArray ranges = new JSONArray();
+        ranges.put(100);
+
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", ranges);
+        body.put("range_type", "distance");
+        body.put("units", "km");
+
+        given()
+                .headers(geoJsonContent)
+                .pathParam("profile", getParameter("cyclingProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .statusCode(400)
+                .body("error.code", Matchers.is(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM));
+
+        given()
+                .headers(geoJsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .statusCode(200);
+
+        ranges.put(200);
         given()
                 .headers(geoJsonContent)
                 .pathParam("profile", getParameter("carProfile"))
