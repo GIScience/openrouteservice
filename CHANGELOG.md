@@ -36,6 +36,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- scale the isochrone ranges and intervals according to the specified distance units such that they align with the range limits defined in meters ([#2240](https://github.com/GIScience/openrouteservice/pull/2240))
 
 ### Security
 - update lodash-es to 4.17.23 due to [CVE-2025-13465](https://www.cve.org/CVERecord?id=CVE-2025-13465)
