@@ -14,12 +14,14 @@
 package org.heigit.ors.apitests.isochrones.fast;
 
 import io.restassured.RestAssured;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
 import org.hamcrest.Matchers;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.apitests.utils.CommonHeaders;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -32,7 +34,9 @@ import static org.heigit.ors.apitests.utils.CommonHeaders.geoJsonContent;
 @EndPointAnnotation(name = "isochrones")
 @VersionAnnotation(version = "v2")
 class ResultTest extends ServiceTest {
+    public static final RestAssuredConfig JSON_CONFIG_DOUBLE_NUMBERS = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE));
     private static final float REACHFACTOR_REFERENCE_VALUE = 0.0544f;
+    private static final double MILE_IN_METERS = 1609.34;
 
     public ResultTest() {
 
@@ -80,6 +84,8 @@ class ResultTest extends ServiceTest {
         Integer interval_400 = 400;
         Integer interval_900 = 900;
 
+        JSONArray attributesArea = new JSONArray().put("area");
+
         JSONArray attributesReachfactorArea = new JSONArray();
         attributesReachfactorArea.put("area");
         attributesReachfactorArea.put("reachfactor");
@@ -100,6 +106,7 @@ class ResultTest extends ServiceTest {
         addParameter("interval_200", interval_200);
         addParameter("interval_200", interval_400);
         addParameter("interval_900", interval_900);
+        addParameter("attributesArea", attributesArea);
         addParameter("attributesReachfactorArea", attributesReachfactorArea);
         addParameter("attributesReachfactorAreaFaulty", attributesReachfactorAreaFaulty);
 
@@ -319,6 +326,78 @@ class ResultTest extends ServiceTest {
                 .body("features[0].properties.reachfactor", is(closeTo(REACHFACTOR_REFERENCE_VALUE, 0.01)))
                 .statusCode(200);
 
+    }
+
+    @Test
+    void testAreaRangeUnitsMAreaUnitsM() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", new JSONArray().put(MILE_IN_METERS));
+        body.put("range_type", "distance");
+        body.put("units", "m");
+        body.put("area_units", "m");
+        body.put("attributes", getParameter("attributesArea"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("hgvProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(4433000, 1000)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testAreaRangeUnitsKmAreaUnitsM() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", new JSONArray().put(MILE_IN_METERS / 1000));
+        body.put("range_type", "distance");
+        body.put("units", "km");
+        body.put("area_units", "m");
+        body.put("attributes", getParameter("attributesArea"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("hgvProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(4433000, 1000)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testAreaRangeUnitsMiAreaUnitsM() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", new JSONArray().put(1));
+        body.put("range_type", "distance");
+        body.put("units", "mi");
+        body.put("area_units", "m");
+        body.put("attributes", getParameter("attributesArea"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("hgvProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(4433000, 1000)))
+                .statusCode(200);
     }
 
     @Test
