@@ -53,9 +53,8 @@ mkdir -p ors-docker/config ors-docker/elevation_cache ors-docker/graphs ors-dock
 
 Only use nightly (main branch) if you know what you do. 
 We recommend running docker compose with the latest release version. 
-Get the docker compose file for a release, e.g. v8.0.0: 
 ```shell
-wget https://github.com/GIScience/openrouteservice/releases/download/v8.0.0/docker-compose.yml
+wget https://github.com/GIScience/openrouteservice/releases/latest/download/docker-compose.yml
 ```
 
 Start openrouteservice in the background:
