@@ -15,7 +15,6 @@ package org.heigit.ors.isochrones;
 
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.ServiceRequest;
-import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
@@ -129,32 +128,7 @@ public class IsochroneRequest extends ServiceRequest {
 
     public IsochroneSearchParameters getSearchParameters(int travellerIndex) {
         TravellerInfo traveller = travellers.get(travellerIndex);
-        double[] ranges = traveller.getRanges();
-
-        // convert ranges in units to meters or seconds
-        if (!(units == null || "m".equalsIgnoreCase(units))) {
-            double scale = 1.0;
-            if (traveller.getRangeType() == TravelRangeType.DISTANCE) {
-                switch (units) {
-                    default:
-                    case "m":
-                        break;
-                    case "km":
-                        scale = 1000;
-                        break;
-                    case "mi":
-                        scale = 1609.34;
-                        break;
-                }
-            }
-
-            if (scale != 1.0) {
-                for (int i = 0; i < ranges.length; i++)
-                    ranges[i] = ranges[i] * scale;
-            }
-        }
-
-        IsochroneSearchParameters parameters = new IsochroneSearchParameters(travellerIndex, traveller.getLocation(), ranges);
+        IsochroneSearchParameters parameters = new IsochroneSearchParameters(travellerIndex, traveller.getLocation(), traveller.getRanges());
         parameters.setLocation(traveller.getLocation());
         parameters.setRangeType(traveller.getRangeType());
         parameters.setCalcMethod(calcMethod);

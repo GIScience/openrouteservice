@@ -69,8 +69,8 @@ public class IsochronesRequest extends APIRequest {
     private boolean hasLocationType = false;
 
     @Schema(name = PARAM_RANGE, description = """
-            Maximum range value of the analysis in **seconds** for time and **metres** for distance.\
-            Alternatively a comma separated list of specific range values. Ranges will be the same for all locations.\
+            Maximum range value of the analysis in **seconds** when `range_type` is set to `time`, or in the given `units` when it is set to `distance`.\
+            Alternatively, a comma-separated list of specific range values. The same ranges will apply to all locations.\
             """,
             example = "[ 300, 200 ]",
             requiredMode = Schema.RequiredMode.REQUIRED)
@@ -152,7 +152,7 @@ public class IsochronesRequest extends APIRequest {
 
     @Schema(name = PARAM_INTERVAL, description = """
             Interval of isochrones or equidistants. This is only used if a single range value is given. \
-            Value in **seconds** for time and **meters** for distance.\
+            Value in **seconds** when `range_type = time`, or in the given `units` when `range_type = distance`.\
             """,
             example = "30"
     )
