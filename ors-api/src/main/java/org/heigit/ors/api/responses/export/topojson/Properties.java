@@ -21,6 +21,8 @@ public class Properties implements Serializable {
     private Long nodeFrom;
     @JsonProperty("node_to")
     private Long nodeTo;
+    @JsonProperty("ors_id")
+    private Integer orsId;
     @JsonProperty("osm_id")
     private Long osmId;
     @JsonProperty("both_directions")
