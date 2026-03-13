@@ -23,7 +23,6 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNam
 
 import java.util.TreeMap;
 
-import static com.graphhopper.routing.ev.RouteNetwork.LOCAL;
 import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
@@ -35,6 +34,7 @@ import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
  */
 public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     private static final int MEAN_SPEED = 25;
+    protected static final int PAVED_WAY_SPEED = 20;
     public static final String VAL_SECONDARY = "secondary";
     public static final String VAL_SECONDARY_LINK = "secondary_link";
     public static final String VAL_TERTIARY = "tertiary";
@@ -45,6 +45,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     public static final String VAL_SERVICE = "service";
     public static final String VAL_UNCLASSIFIED = "unclassified";
     public static final String VAL_HIGHWAY = "highway";
+    public static final String VAL_ROAD = "road";
 
     public RoadBikeFlagEncoder() {
         // MARQ24 MOD START
@@ -75,29 +76,30 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     public RoadBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
         // MARQ24 MOD END
-        preferHighwayTags.add("road");
+        preferHighwayTags.add(VAL_ROAD);
         preferHighwayTags.add(VAL_SECONDARY);
         preferHighwayTags.add(VAL_SECONDARY_LINK);
         preferHighwayTags.add(VAL_TERTIARY);
         preferHighwayTags.add(VAL_TERTIARY_LINK);
-        preferHighwayTags.add(VAL_RESIDENTIAL);
+        preferHighwayTags.add(VAL_UNCLASSIFIED);
 
-        setTrackTypeSpeed(VAL_GRADE_1, 20); // paved
+        setTrackTypeSpeed(VAL_GRADE_1, PAVED_WAY_SPEED); // paved
         setTrackTypeSpeed("grade2", 10); // now unpaved ...
         setTrackTypeSpeed("grade3", PUSHING_SECTION_SPEED);
         setTrackTypeSpeed("grade4", PUSHING_SECTION_SPEED);
         setTrackTypeSpeed("grade5", PUSHING_SECTION_SPEED);
 
-        setSurfaceSpeed("paved", 20);
-        setSurfaceSpeed("asphalt", 20);
-        setSurfaceSpeed("cobblestone", 10);
-        setSurfaceSpeed("cobblestone:flattened", 10);
-        setSurfaceSpeed("sett", 10);
-        setSurfaceSpeed("concrete", 20);
-        setSurfaceSpeed("concrete:lanes", 16);
-        setSurfaceSpeed("concrete:plates", 16);
-        setSurfaceSpeed("paving_stones", 10);
-        setSurfaceSpeed("paving_stones:30", 10);
+        setSurfaceSpeed("paved", PAVED_WAY_SPEED, UpdateType.UPGRADE_ONLY);
+        setSurfaceSpeed("asphalt", PAVED_WAY_SPEED, UpdateType.UPGRADE_ONLY);
+        setSurfaceSpeed("concrete", PAVED_WAY_SPEED, UpdateType.UPGRADE_ONLY);
+
+        setSurfaceSpeed("cobblestone", 10, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("cobblestone:flattened", 10, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("sett", 10, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("concrete:lanes", 16, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("concrete:plates", 16, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("paving_stones", 12, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("paving_stones:30", 12, UpdateType.DOWNGRADE_ONLY);
         setSurfaceSpeed("unpaved", PUSHING_SECTION_SPEED / 2);
         setSurfaceSpeed("compacted", PUSHING_SECTION_SPEED / 2);
         setSurfaceSpeed("dirt", PUSHING_SECTION_SPEED / 2);
@@ -115,47 +117,17 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         setSurfaceSpeed("sand", PUSHING_SECTION_SPEED / 2);
         setSurfaceSpeed("wood", PUSHING_SECTION_SPEED / 2);
 
-        setHighwaySpeed("cycleway", 18);
+        setHighwaySpeed(KEY_CYCLEWAY, new SpeedValue(18, UpdateType.DOWNGRADE_ONLY));
+        setHighwaySpeed("living_street", 10);
         setHighwaySpeed("path", 8);
         setHighwaySpeed("footway", 6);
         setHighwaySpeed("pedestrian", 6);
-        setHighwaySpeed("road", 12);
+        setHighwaySpeed(VAL_ROAD, PAVED_WAY_SPEED);
         setHighwaySpeed(VAL_TRACK, PUSHING_SECTION_SPEED / 2); // assume unpaved
         setHighwaySpeed(VAL_SERVICE, 12);
-        setHighwaySpeed(VAL_UNCLASSIFIED, 16);
-        setHighwaySpeed(VAL_RESIDENTIAL, 16);
+        setHighwaySpeed(VAL_UNCLASSIFIED, PAVED_WAY_SPEED);
+        setHighwaySpeed(VAL_RESIDENTIAL, new SpeedValue(18, UpdateType.DOWNGRADE_ONLY));
 
-        setHighwaySpeed("trunk", 20);
-        setHighwaySpeed("trunk_link", 20);
-        setHighwaySpeed("primary", 20);
-        setHighwaySpeed("primary_link", 20);
-        setHighwaySpeed(VAL_SECONDARY, 20);
-        setHighwaySpeed(VAL_SECONDARY_LINK, 20);
-        setHighwaySpeed(VAL_TERTIARY, 20);
-        setHighwaySpeed(VAL_TERTIARY_LINK, 20);
-
-        addPushingSection("path");
-        addPushingSection("footway");
-        addPushingSection("pedestrian");
-        addPushingSection("steps");
-        addPushingSection(KEY_BRIDLEWAY);
-
-        routeMap.put(LOCAL, UNCHANGED.getValue());
-
-        blockByDefaultBarriers.add("kissing_gate");
-
-        setAvoidSpeedLimit(81);
-        setSpecificClassBicycle("roadcycling");
-
-        // MARQ24 MOD START
-        //**********************************************************************
-        // REQUIRED ADDON OR OVERWRITE OF Default GH-RoadBikeProfile
-        // created by MARQ24
-        //**********************************************************************
-        preferHighwayTags.remove(VAL_RESIDENTIAL);
-        preferHighwayTags.add(VAL_UNCLASSIFIED);
-
-        // adjusted speeds...
         setHighwaySpeed("trunk", 20);
         setHighwaySpeed("trunk_link", 20);
         setHighwaySpeed("primary", 22);
@@ -164,39 +136,17 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         setHighwaySpeed(VAL_SECONDARY_LINK, 24);
         setHighwaySpeed(VAL_TERTIARY, 26);
         setHighwaySpeed(VAL_TERTIARY_LINK, 26);
-        setHighwaySpeed("road", 20);
-        setHighwaySpeed(VAL_UNCLASSIFIED, 20);
-        setHighwaySpeed(VAL_RESIDENTIAL, new SpeedValue(18, UpdateType.DOWNGRADE_ONLY));
 
-        // make sure that we will avoid 'cycleway' & 'service' ways where ever
-        // it is possible...
-        setHighwaySpeed("cycleway", new SpeedValue(8, UpdateType.DOWNGRADE_ONLY));
-        setHighwaySpeed(VAL_SERVICE, new SpeedValue(8, UpdateType.DOWNGRADE_ONLY));
+        addPushingSection("path");
+        addPushingSection("footway");
+        addPushingSection("pedestrian");
+        addPushingSection("steps");
+        addPushingSection(KEY_BRIDLEWAY);
 
-        // overwriting also the SurfaceSpeeds... to the "max" of the residential speed
-        setSurfaceSpeed("paved", new SpeedValue(18, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("asphalt", new SpeedValue(18, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("concrete", new SpeedValue(18, UpdateType.UPGRADE_ONLY));
+        blockByDefaultBarriers.add("kissing_gate");
 
-        setSurfaceSpeed("concrete:lanes", new SpeedValue(16, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("concrete:plates", new SpeedValue(16, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("paving_stones", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("paving_stones:30", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("cobblestone", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("cobblestone:flattened", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("sett", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-
-        // overwriting also the trackTypeSpeeds... to the "max" of the residential speed
-        setTrackTypeSpeed(VAL_GRADE_1, new SpeedValue(18, UpdateType.UPGRADE_ONLY));
-        setTrackTypeSpeed("grade2", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-
-        // HSW - asphalt cycleway vs asphalt roundabout
-        // http://localhost:3035/directions?n1=51.965101&n2=8.24595&n3=18&a=51.965555,8.243968,51.964878,8.245057&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
-
-        // Aschloh roundabout vs cycleway (cycle relation) & service shortcut
-        // http://localhost:3035/directions?n1=52.064701&n2=8.386386&n3=19&a=52.065407,8.386171,52.064821,8.386833&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
-        LOGGER.info("NextGen RoadBike FlagEncoder is active...");
-        // MARQ24 MOD END
+        setAvoidSpeedLimit(81);
+        setSpecificClassBicycle("roadcycling");
     }
 
     public double getMeanSpeed() {
@@ -217,6 +167,8 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
             } else if (trackType == null || trackType.startsWith("grade")) {
                 weightToPrioMap.put(110d, AVOID_AT_ALL_COSTS.getValue());
             }
+        } else if (way.hasTag("foot", intendedValues)) {
+            weightToPrioMap.put(110d, AVOID_IF_POSSIBLE.getValue());
         }
     }
 
@@ -245,4 +197,24 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     protected double getDownhillMaxSpeed() {
         return 60;
     }
+
+    @Override
+    protected void handlePushingSectionPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
+        int pushingSectionPrio = AVOID_IF_POSSIBLE.getValue();
+        if (way.hasTag("foot", "yes")) {
+            pushingSectionPrio = Math.max(pushingSectionPrio - 1, WORST.getValue());
+        }
+        weightToPrioMap.put(100d, pushingSectionPrio);
+    }
+
+    @Override
+    protected void handleDesignatedCyclingPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap, String highway) {
+        // do nothing
+    }
+
+    @Override
+    protected boolean isPartOfCycleRelation(int priorityFromRelation) {
+        return false;
+    }
+
 }
