@@ -30,7 +30,7 @@ Note that although the dataset was published in 2023, the most recent data it co
 Results including GHSL Data are only obtained when the `"attributes"` parameter includes `"total_pop"` in an isochrone request.
 The returned population information is licensed as described on the linked page.
 
-Configuration: [`ors.endpoints.isochrones.statistics_providers`](configuration/endpoints/isochrones#statistics-providers)
+Configuration: [`ors.endpoints.isochrones.statistics_providers`](configuration/endpoints/isochrones.md#statistics-providers)
 ### Borders
 Data relating to the avoid borders feature is derived from administrative boundaries in OpenStreetMap. Information about open borders is obtained from [Wikipedia](https://en.wikipedia.org/wiki/Open_border).
 
@@ -67,7 +67,7 @@ The data used to identify green and quiet routes were derived from research proj
 More information about these can be found on the GIScience news blog [here](https://giscienceblog.uni-heidelberg.de/2017/07/03/healthy-routing-prefering-green-areas-added-to-openrouteserviceorg/) and [here](http://giscienceblog.uni-heidelberg.de/2017/07/10/reducing-stress-by-avoiding-noise-with-quiet-routing-in-openrouteservice/)
 
 Configuration parameters: [
-`ors.engine.profiles.<PROFILE-NAME>.ext_storages`](configuration/engine/profiles/build.md#ext_storages)
+`ors.engine.profiles.<PROFILE-NAME>.ext_storages`](configuration/engine/profiles/build.md#ext-storages)
 
 
 ## Output Files
