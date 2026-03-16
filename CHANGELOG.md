@@ -29,6 +29,8 @@ Releasing is documented in RELEASE.md
 
 ### Added
 
+* backend documentation about elevation and population data licenses ([#2247](https://github.com/GIScience/openrouteservice/pull/2247))
+
 ### Changed
 
 ### Deprecated
