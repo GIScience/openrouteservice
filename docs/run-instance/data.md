@@ -31,6 +31,7 @@ Results including GHSL Data are only obtained when the `"attributes"` parameter 
 The returned population information is licensed as described on the linked page.
 
 Configuration: [`ors.endpoints.isochrones.statistics_providers`](configuration/endpoints/isochrones.md#statistics-providers)
+
 ### Borders
 Data relating to the avoid borders feature is derived from administrative boundaries in OpenStreetMap. Information about open borders is obtained from [Wikipedia](https://en.wikipedia.org/wiki/Open_border).
 
@@ -68,7 +69,6 @@ More information about these can be found on the GIScience news blog [here](http
 
 Configuration parameters: [
 `ors.engine.profiles.<PROFILE-NAME>.ext_storages`](configuration/engine/profiles/build.md#ext-storages)
-
 
 ## Output Files
 
