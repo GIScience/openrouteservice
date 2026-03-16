@@ -18,16 +18,16 @@ The OSM file to be used needs be configured with the property [
 ### Elevation
 The data used for elevation are [SRTM](http://srtm.csi.cgiar.org/) and [GMTED](https://www.usgs.gov/coastal-changes-and-impacts/gmted2010).
 
-Results including elevation data are only obtained when the `"elevation"` parameter is set to `"true"` on a routing request.
+Results including elevation data are only obtained when the `"elevation"` parameter is set to `"true"` in a routing request.
 The returned elevation information is licensed as described on the linked pages.
 
 Configuration: [`ors.engine.elevation`](configuration/engine/elevation.md)
 
 ### Population
 When requesting isochrones, you can also request to get population data for the isochrone areas. The data used for this is the [Global Human Settlement Layer (GHSL)](https://ghsl.jrc.ec.europa.eu/ghs_pop2023.php) from the European Commission.
-Note, that while the dataset was published in 2023, the most recent data contained is from 2020. This is used by openrouteservice at a resolution of 100m.
+Note that although the dataset was published in 2023, the most recent data it contains is from 2020. This is used by openrouteservice at a resolution of 100m.
 
-Results including GHSL Data are only obtained when the `"attributes"` parameter includes `"total_pop"` on an isochrone request.
+Results including GHSL Data are only obtained when the `"attributes"` parameter includes `"total_pop"` in an isochrone request.
 The returned population information is licensed as described on the linked page.
 
 Configuration: [`ors.endpoints.isochrones.statistics_providers`](configuration/endpoints/isochrones#statistics-providers)
