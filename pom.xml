@@ -47,7 +47,7 @@
         <!-- switch graphhopper versions to enable debugging -->
         <graphhopper.version>v4.12.0</graphhopper.version>
 <!--        <graphhopper.version>4.12-SNAPSHOT</graphhopper.version>-->
-        <lombok.version>1.18.34</lombok.version>
+        <lombok.version>1.18.44</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
         <log4j.version>2.25.3</log4j.version>
         <springdoc-openapi-starter.version>2.8.6</springdoc-openapi-starter.version>
@@ -573,11 +573,23 @@
         </dependencies>
     </dependencyManagement>
 
+    
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
 
             <plugin>

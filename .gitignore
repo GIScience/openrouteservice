@@ -14,6 +14,7 @@ logs/
 elevation_cache/
 cgiar_cache/
 node_modules/
+bin/
 
 # jqwik
 .jqwik-database
