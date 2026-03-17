@@ -44,9 +44,12 @@
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
 
+        <!-- GraphHopper modules to build when using local-graphhopper profile -->
+        <localGraphhopperModules>core,web-api,reader-gtfs,map-matching</localGraphhopperModules>
+
         <!-- switch graphhopper versions to enable debugging -->
         <graphhopper.version>v4.12.0</graphhopper.version>
-<!--        <graphhopper.version>4.12-SNAPSHOT</graphhopper.version>-->
+        <!--        <graphhopper.version>4.12-SNAPSHOT</graphhopper.version>-->
         <lombok.version>1.18.44</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
         <log4j.version>2.25.3</log4j.version>
@@ -147,6 +150,55 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+        </profile>
+        <profile>
+            <id>local-graphhopper</id>
+            <activation>
+                <property>
+                    <name>localGraphhopper</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>build-local-graphhopper</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>mvn</executable>
+                                    <workingDirectory>${basedir}/../graphhopper</workingDirectory>
+                                    <arguments>
+                                        <argument>-DskipTests</argument>
+                                        <argument>install</argument>
+                                        <argument>-pl</argument>
+                                        <argument>${localGraphhopperModules}</argument>
+                                        <argument>-am</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>local-graphhopper-only</id>
+            <activation>
+                <property>
+                    <name>localGraphhopperOnly</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <!-- Uses pre-built local GraphHopper artifacts without rebuilding. Activate if you
+            manually built GraphHopper. -->
         </profile>
     </profiles>
 
