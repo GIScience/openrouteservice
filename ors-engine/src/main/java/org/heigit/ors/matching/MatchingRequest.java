@@ -32,7 +32,9 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 
 import java.util.*;
 
@@ -189,14 +191,28 @@ public class MatchingRequest extends ServiceRequest {
         matchedIds.add(edgeId);
     }
 
-    private void matchArea(Geometry geom, LocationIndex locIndex, Set<Integer> matchedIds) {
-        var envelope = geom.getEnvelopeInternal();
-        var bbox = new BBox(envelope.getMinX(), envelope.getMinY(), envelope.getMaxX(), envelope.getMaxY());
+    void matchArea(Geometry geom, LocationIndex locIndex, Set<Integer> matchedIds) {
+        var polyEnvelope = geom.getEnvelopeInternal();
+        var bbox = new BBox(polyEnvelope.getMinX(), polyEnvelope.getMinY(),
+                polyEnvelope.getMaxX(), polyEnvelope.getMaxY());
+        var preparedGeom = PreparedGeometryFactory.prepare(geom);
 
         locIndex.query(bbox, edgeId -> {
             EdgeIteratorState edge = ghStorage.getEdgeIteratorState(edgeId, Integer.MIN_VALUE);
+
+            // Phase 1: cheap two-node envelope rejection
+            var towers = edge.fetchWayGeometry(FetchMode.TOWER_ONLY);
+            if (towers.size() >= 2) {
+                Envelope segEnv = new Envelope(
+                        towers.getLon(0), towers.getLon(1),
+                        towers.getLat(0), towers.getLat(1));
+                if (!polyEnvelope.intersects(segEnv))
+                    return; // fast-exit: no intersection possible
+            }
+
+            // Phase 2: full decode + prepared intersection
             var lineString = edge.fetchWayGeometry(FetchMode.ALL).toLineString(false);
-            if (geom.intersects(lineString)) {
+            if (preparedGeom.intersects(lineString)) {
                 matchedIds.add(edgeId);
             }
         });
