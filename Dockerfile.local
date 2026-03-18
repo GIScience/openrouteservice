@@ -1,0 +1,59 @@
+FROM docker.io/golang:1.25.4-alpine3.22 AS build-go
+RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.48.1
+
+FROM docker.io/amazoncorretto:21.0.9-alpine3.22 AS base
+ARG UID=1000
+ARG GID=1000
+ARG ORS_HOME=/home/ors
+
+RUN addgroup ors -g ${GID} && \
+    adduser -D -u ${UID} --system -G ors ors && \
+    mkdir -p ${ORS_HOME}/logs ${ORS_HOME}/files ${ORS_HOME}/graphs ${ORS_HOME}/elevation_cache ${ORS_HOME}/app && \
+    chown -R ors:ors ${ORS_HOME} && \
+    chmod -R u+rwX,g+rwX ${ORS_HOME}
+
+ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US' ORS_HOME=${ORS_HOME}
+WORKDIR ${ORS_HOME}
+EXPOSE 8082
+HEALTHCHECK --interval=3s --timeout=2s CMD ["sh", "-c", "wget --quiet --tries=1 --spider http://localhost:8082/ors/v2/health || exit 1"]
+
+FROM base AS slim
+
+USER root
+COPY --chown=ors:ors ./ors-api/target/ors.jar /ors.jar
+RUN chmod 750 /ors.jar
+USER ors
+
+ENTRYPOINT ["java", "-jar", "/ors.jar"]
+
+FROM base AS publish
+ARG OSM_FILE=./ors-api/src/test/files/heidelberg.test.pbf
+
+USER root
+COPY --chown=ors:ors ./$OSM_FILE /heidelberg.test.pbf
+COPY --chown=ors:ors ./docker-entrypoint.sh /entrypoint.sh
+COPY --chown=ors:ors --from=build-go /go/bin/yq /bin/yq
+COPY --chown=ors:ors ./ors-api/target/ors.jar /ors.jar
+
+RUN chmod 755 /heidelberg.test.pbf /entrypoint.sh /ors.jar
+
+RUN apk add --no-cache bash=~5 jq=~1 openssl=~3 && \
+    chmod -R o-rwx ${ORS_HOME}
+
+COPY --chown=ors:ors ./ors-config.yml /example-ors-config.yml
+COPY --chown=ors:ors ./ors-config.env /example-ors-config.env
+RUN chmod 755 /example-ors-config.yml /example-ors-config.env
+
+USER ors
+RUN yq -i -p=props -o=props \
+    '.ors.engine.profile_default.build.source_file="/home/ors/files/example-heidelberg.test.pbf"' \
+    /example-ors-config.env && \
+    yq -i e '.ors.engine.profile_default.build.source_file = "/home/ors/files/example-heidelberg.test.pbf"' \
+    /example-ors-config.yml
+
+ENV BUILD_GRAPHS="False"
+ENV REBUILD_GRAPHS="False"
+ENV ORS_HOME=${ORS_HOME}
+
+WORKDIR ${ORS_HOME}
+ENTRYPOINT ["/entrypoint.sh"]

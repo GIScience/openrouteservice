@@ -34,6 +34,8 @@ import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 
 import java.util.*;
@@ -81,7 +83,7 @@ public class MatchingRequest extends ServiceRequest {
             Geometry geom = geometry.getGeometryN(i);
             matchedEdgeIDs.add(new HashSet<>());
 
-            LOGGER.debug("Matching geometry at index " + i + ": " + geom);
+            LOGGER.trace("Matching geometry at index " + i + ": " + geom);
             if (geom.isEmpty()) {
                 throw new IllegalArgumentException("Geometry at index " + i + " is empty.");
             }
@@ -193,9 +195,10 @@ public class MatchingRequest extends ServiceRequest {
 
     void matchArea(Geometry geom, LocationIndex locIndex, Set<Integer> matchedIds) {
         var polyEnvelope = geom.getEnvelopeInternal();
-        var bbox = new BBox(polyEnvelope.getMinX(), polyEnvelope.getMinY(),
-                polyEnvelope.getMaxX(), polyEnvelope.getMaxY());
         var preparedGeom = PreparedGeometryFactory.prepare(geom);
+        var bbox = new PolygonBBox(preparedGeom,
+                polyEnvelope.getMinX(), polyEnvelope.getMaxX(),
+                polyEnvelope.getMinY(), polyEnvelope.getMaxY());
 
         locIndex.query(bbox, edgeId -> {
             EdgeIteratorState edge = ghStorage.getEdgeIteratorState(edgeId, Integer.MIN_VALUE);
@@ -219,5 +222,66 @@ public class MatchingRequest extends ServiceRequest {
     }
 
     public record MatchingResult(String graphTimestamp, List<Set<Integer>> matched) {
+    }
+
+    /**
+     * A {@link BBox} subclass that intercepts {@code intersects} and {@code contains} calls
+     * to add polygon-level precision during GraphHopper's quad-tree traversal in
+     * {@link com.graphhopper.storage.index.LineIntIndex}.
+     *
+     * <p>The super class provides cheap axis-aligned envelope fast-fails; if the envelope
+     * check passes, a JTS {@link PreparedGeometry} check prunes quadtree cells that lie
+     * inside the polygon's bounding box but outside (or only partially inside) the true
+     * polygon — which is the dominant source of over-fetching for concave or irregular
+     * polygons.
+     *
+     * <p>Thread safety: {@code GEOMETRY_FACTORY} is static and thread-safe; {@code preparedGeom}
+     * is effectively immutable after construction.
+     */
+    public static final class PolygonBBox extends BBox {
+
+        private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
+
+        private final PreparedGeometry preparedGeom;
+
+        PolygonBBox(PreparedGeometry preparedGeom,
+                    double minLon, double maxLon, double minLat, double maxLat) {
+            super(minLon, maxLon, minLat, maxLat);
+            this.preparedGeom = preparedGeom;
+        }
+
+        @Override
+        public boolean intersects(double minLon, double maxLon, double minLat, double maxLat) {
+            if (!super.intersects(minLon, maxLon, minLat, maxLat)) return false;
+            Geometry cellGeom = GEOMETRY_FACTORY.toGeometry(new Envelope(minLon, maxLon, minLat, maxLat));
+            return preparedGeom.intersects(cellGeom);
+        }
+
+        @Override
+        public boolean intersects(BBox o) {
+            if (!super.intersects(o)) return false;
+            Geometry cellGeom = GEOMETRY_FACTORY.toGeometry(new Envelope(o.minLon, o.maxLon, o.minLat, o.maxLat));
+            return preparedGeom.intersects(cellGeom);
+        }
+
+        @Override
+        public boolean contains(BBox b) {
+            if (!super.contains(b)) return false;
+            Geometry cellGeom = GEOMETRY_FACTORY.toGeometry(new Envelope(b.minLon, b.maxLon, b.minLat, b.maxLat));
+            return preparedGeom.covers(cellGeom);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (!(obj instanceof PolygonBBox other)) return false;
+            if (!super.equals(obj)) return false;
+            return preparedGeom.equals(other.preparedGeom);
+        }
+
+        @Override
+        public int hashCode() {
+            return java.util.Objects.hash(super.hashCode(), preparedGeom);
+        }
     }
 }

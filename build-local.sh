@@ -48,6 +48,8 @@ ${YELLOW}COMMANDS:${NC}
   compile          Compile ORS (fast, no package/test)
   test             Run tests against pre-built GraphHopper
   verify           Full verification build (compile + test + package)
+  docker           Build local ORS Docker image (tag: dynamic-routing-optimizations)
+  docker-push      Build Docker image, login to registry, and push to openrouteservice/openrouteservice:dr-optimizations
   help             Show this help message
 
 ${YELLOW}OPTIONS:${NC}
@@ -67,6 +69,12 @@ ${YELLOW}EXAMPLES:${NC}
 
   # Run tests
   ./build-local.sh test
+
+  # Build Docker image locally
+  ./build-local.sh docker
+
+  # Build and push Docker image to registry
+  ./build-local.sh docker-push
 
   # Build only GraphHopper core and web-api
   ./build-local.sh --modules=core,web-api gh-only
@@ -150,6 +158,41 @@ case "$COMMAND" in
         mvn $SKIP_TESTS $VERBOSE clean install -pl "$MODULES" -am
         cd - > /dev/null
         print_success "GraphHopper build completed!"
+        ;;
+    docker)
+        print_header "Building Docker image with local optimizations"
+        print_info "Using Dockerfile.local with pre-built ORS JAR"
+        if [ ! -f "ors-api/target/ors.jar" ]; then
+            print_error "ors.jar not found! Building ORS first..."
+            mvn -DlocalGraphhopperOnly=true -DskipTests $VERBOSE clean package
+        fi
+        docker build -f Dockerfile.local -t openrouteservice/openrouteservice:dr-optimizations .
+        print_success "Docker image built successfully: openrouteservice/openrouteservice:dr-optimizations"
+        ;;
+    docker-push)
+        print_header "Building Docker image and pushing to registry"
+        print_info "Target: openrouteservice/openrouteservice:dr-optimizations"
+        
+        # Build ORS if JAR doesn't exist
+        if [ ! -f "ors-api/target/ors.jar" ]; then
+            print_info "Building ORS JAR..."
+            mvn -DlocalGraphhopperOnly=true -DskipTests $VERBOSE clean package
+        fi
+        
+        # Build Docker image with correct registry tag
+        print_info "Building Docker image..."
+        docker build -f Dockerfile.local -t openrouteservice/openrouteservice:dr-optimizations .
+        print_success "Docker image built locally"
+        
+        # Docker login
+        print_info "Logging into Docker registry..."
+        docker login
+        
+        # Push to registry
+        print_info "Pushing image to openrouteservice/openrouteservice:dr-optimizations..."
+        docker push openrouteservice/openrouteservice:dr-optimizations
+        
+        print_success "Image successfully pushed to registry!"
         ;;
     *)
         print_error "Unknown command: $COMMAND"

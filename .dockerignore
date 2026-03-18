@@ -20,3 +20,4 @@
 !ors-api/src/main/resources/ors-config-sample.json
 !mvnw
 !.mvn/wrapper/maven-wrapper.properties
+!ors-api/target/ors.jar
