@@ -7,13 +7,17 @@ import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.util.StringUtility;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.sql.*;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,28 +29,24 @@ public class DynamicDataService {
 
     private static final Logger LOGGER = Logger.getLogger(DynamicDataService.class.getName());
 
-    private final String storeURL;
-    private final String storeUser;
-    private final String storePassword;
+    @Value("${featurestore.api.url:http://localhost:8080/api/v1}")
+    private String featureStoreApiUrl;
+
     private Boolean enabled;
-    private final List<RoutingProfile> enabledProfiles = new ArrayList<>();
+
+    private final Set<RoutingProfile> enabledProfiles = ConcurrentHashMap.newKeySet();
     private final Map<String, Instant> lastUpdateTimestamps = new ConcurrentHashMap<>();
+
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Autowired
     public DynamicDataService(EngineService engineService, EngineProperties engineProperties) {
         this.engineService = engineService;
-        enabled = engineProperties.getDynamicData().getEnabled();
-        storeURL = engineProperties.getDynamicData().getStoreUrl();
-        storeUser = engineProperties.getDynamicData().getStoreUser();
-        storePassword = engineProperties.getDynamicData().getStorePass();
-        if (StringUtility.isNullOrEmpty(storeURL)) {
-            enabled = false;
+        this.enabled = engineProperties.getDynamicData().getEnabled();
+
+        if (Boolean.TRUE.equals(this.enabled)) {
+            new Thread(this::initialize).start();
         }
-        if (!Boolean.TRUE.equals(enabled)) {
-            LOGGER.debug("Dynamic data service is disabled in configuration.");
-            return;
-        }
-        this.initialize();
     }
 
     private void initialize() {
@@ -55,13 +55,19 @@ public class DynamicDataService {
             return;
         }
         LOGGER.info("Initializing dynamic data service.");
+        
         try {
-            testDatabaseConnection();
-        } catch (SQLException e) {
-            LOGGER.error("Dynamic data service initialization failed due to FeatureStore database connection error. " + e.getMessage());
+            // Test connection to FeatureStore API
+            if (!StringUtility.isNullOrEmpty(featureStoreApiUrl)) {
+                restTemplate.getForObject(featureStoreApiUrl + "/datasets/stats", String.class);
+                LOGGER.info("Successfully connected to FeatureStore API.");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Dynamic data service initialization failed due to FeatureStore API connection error. " + e.getMessage());
             enabled = false;
             return;
         }
+
         routingProfileManager.getUniqueProfiles().forEach(profile -> {
             LOGGER.debug("Checking profile: " + profile.name());
             if (Boolean.TRUE.equals(profile.getProfileConfiguration().getBuild().getEncoderOptions().getEnableCustomModels()))
@@ -78,13 +84,6 @@ public class DynamicDataService {
             fetchDynamicData(profile);
         }
         LOGGER.info("Dynamic data service initialized for profiles: " + enabledProfiles.stream().map(RoutingProfile::name).toList());
-    }
-
-    private void testDatabaseConnection() throws SQLException {
-        try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
-            LOGGER.info("Successfully connected to dynamic data store database.");
-            LOGGER.debug(con.getClientInfo());
-        }
     }
 
     public void reinitialize() {
@@ -105,47 +104,82 @@ public class DynamicDataService {
     }
 
     private void fetchDynamicData(RoutingProfile profile) {
-        if (StringUtility.isNullOrEmpty(storeURL)) return;
-        String graphDate = getGraphDate(profile);
-        try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
-            try (PreparedStatement stmt = con.prepareStatement("""
-                    SELECT *
-                        FROM feature_map
-                        WHERE dataset_key = ?
-                        AND profile = ?
-                        AND graph_timestamp = ?
-                        AND timestamp > ?
-                    """)) {
-                stmt.setTimestamp(3, Timestamp.from(Instant.parse(graphDate)), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-                for (String key : profile.getDynamicDatasets()) {
-                    String lastUpdateKey = profile.name() + "." + key;
-                    Instant lastUpdateTimestamp = lastUpdateTimestamps.getOrDefault(lastUpdateKey, Instant.EPOCH);
-                    int fetchedCount = 0;
-                    stmt.setString(1, key);
-                    stmt.setString(2, profile.name());
-                    stmt.setTimestamp(4, Timestamp.from(lastUpdateTimestamp), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-                    ResultSet result = stmt.executeQuery();
-                    while (result.next()) {
-                        int edgeID = result.getInt("edge_id");
-                        String value = result.getString("value");
-                        Instant ts = result.getTimestamp("timestamp", Calendar.getInstance(TimeZone.getTimeZone("UTC"))).toInstant();
-                        LOGGER.trace("Update dynamic data in dataset '" + key + "' for profile '" + profile.name() + "': edge ID " + edgeID + " -> value '" + value + "'");
-                        if (result.getBoolean("deleted")) {
-                            profile.unsetDynamicData(key, edgeID);
-                        } else {
-                            profile.updateDynamicData(key, edgeID, value);
-                        }
-                        fetchedCount++;
-                        if (lastUpdateTimestamp.isBefore(ts)) {
-                            lastUpdateTimestamp = ts;
-                            lastUpdateTimestamps.put(lastUpdateKey, ts);
-                        }
-                    }
-                    LOGGER.debug("Fetched " + fetchedCount + " rows for profile '" + profile.name() + "', dataset '" + key + "', graph date '" + graphDate + "', lastUpdateTimestamp '" + lastUpdateTimestamp + "'.");
+        if (StringUtility.isNullOrEmpty(featureStoreApiUrl)) return;
+        
+        for (String key : profile.getDynamicDatasets()) {
+            String lastUpdateKey = profile.name() + "." + key;
+            Instant lastUpdateTimestamp = lastUpdateTimestamps.getOrDefault(lastUpdateKey, Instant.EPOCH);
+            
+            try {
+                UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(featureStoreApiUrl + "/matching/edges")
+                        .queryParam("datasetKey", key)
+                        .queryParam("profile", profile.name())
+                        .queryParam("includeDeleted", true);
+                
+                if (lastUpdateTimestamp.isAfter(Instant.EPOCH)) {
+                    builder.queryParam("updated_after", ISO_INSTANT.format(lastUpdateTimestamp));
                 }
+                
+                // Pagination handling
+                int page = 0;
+                int fetchedCount = 0;
+                boolean hasMore = true;
+                
+                while (hasMore) {
+                    UriComponentsBuilder pageBuilder = builder.cloneBuilder()
+                            .queryParam("page", page)
+                            .queryParam("size", 500)
+                            .queryParam("sort", "timestamp,asc"); // Ensure we get oldest first for correct timestamp tracking
+                            
+                    ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                            pageBuilder.build().encode().toUri(),
+                            HttpMethod.GET,
+                            null,
+                            new ParameterizedTypeReference<Map<String, Object>>() {}
+                    );
+                    
+                    if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                        Map<String, Object> pageResult = response.getBody();
+                        List<Map<String, Object>> matches = (List<Map<String, Object>>) pageResult.get("content");
+                        if (matches == null) matches = Collections.emptyList();
+                        
+                        for (Map<String, Object> match : matches) {
+                            int edgeID = ((Number) match.get("edgeId")).intValue();
+                            String value = (String) match.get("value");
+                            String tsStr = (String) match.get("timestamp");
+                            Instant ts = tsStr != null ? Instant.parse(tsStr) : Instant.now();
+                            boolean deleted = Boolean.TRUE.equals(match.get("deleted"));
+                            
+                            LOGGER.trace("Update dynamic data in dataset '" + key + "' for profile '" + profile.name() + "': edge ID " + edgeID + " -> value '" + value + "'");
+                            if (deleted) {
+                                profile.unsetDynamicData(key, edgeID);
+                            } else {
+                                profile.updateDynamicData(key, edgeID, value);
+                            }
+                            fetchedCount++;
+                            
+                            if (lastUpdateTimestamp.isBefore(ts)) {
+                                lastUpdateTimestamp = ts;
+                                lastUpdateTimestamps.put(lastUpdateKey, ts);
+                            }
+                        }
+                        
+                        Number numberObj = (Number) pageResult.get("number");
+                        Number totalPagesObj = (Number) pageResult.get("totalPages");
+                        int pageNum = numberObj != null ? numberObj.intValue() : 0;
+                        int totalPages = totalPagesObj != null ? totalPagesObj.intValue() : 0;
+                        
+                        hasMore = pageNum < totalPages - 1;
+                        page++;
+                    } else {
+                        hasMore = false;
+                        LOGGER.error("Failed to fetch dynamic data. Status: " + response.getStatusCode());
+                    }
+                }
+                LOGGER.debug("Fetched " + fetchedCount + " rows for profile '" + profile.name() + "', dataset '" + key + "', lastUpdateTimestamp '" + lastUpdateTimestamp + "'.");
+            } catch (Exception e) {
+                LOGGER.error("Error during dynamic data update for dataset " + key + ": " + e.getMessage());
             }
-        } catch (SQLException e) {
-            LOGGER.error("Error during dynamic data update: " + e.getMessage());
         }
     }
 
@@ -154,41 +188,26 @@ public class DynamicDataService {
     }
 
     public JSONObject getFeatureStoreStats(String profileName) {
-        Map<String, JSONObject> stats = new HashMap<>();
-        try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
-            try (Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery("SELECT dataset_key, last_import, next_import, count_imported, count_features, count_unmatched FROM stats_import")) {
-                while (rs.next()) {
-                    JSONObject ts = new JSONObject();
-                    ts.put("last_import", dbTimestampToString(rs.getTimestamp("last_import")));
-                    ts.put("next_import", dbTimestampToString(rs.getTimestamp("next_import")));
-                    ts.put("count_imported", rs.getInt("count_imported"));
-                    ts.put("count_features", rs.getInt("count_features"));
-                    ts.put("count_unmatched", rs.getInt("count_unmatched"));
-                    stats.put(rs.getString("dataset_key"), ts);
-                }
+        if (StringUtility.isNullOrEmpty(featureStoreApiUrl)) {
+            return new JSONObject();
+        }
+        
+        try {
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(featureStoreApiUrl + "/datasets/stats")
+                    .queryParam("profile", profileName);
+                    
+            ResponseEntity<Map> response = restTemplate.getForEntity(builder.build().encode().toUri(), Map.class);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                return new JSONObject(response.getBody());
             }
-            try (PreparedStatement statement = con.prepareStatement("SELECT dataset_key, profile, last_match, next_match FROM stats_match WHERE profile = ?")) {
-                statement.setString(1, profileName);
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        String key = rs.getString("dataset_key");
-                        if (stats.containsKey(key)) {
-                            stats.get(key).put("last_match", dbTimestampToString(rs.getTimestamp("last_match")));
-                            stats.get(key).put("next_match", dbTimestampToString(rs.getTimestamp("next_match")));
-                        }
-                    }
-                }
-            }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             JSONObject error = new JSONObject();
             error.put("message", "Error FeatureStore stats retrieval: " + e.getMessage());
-            stats.put("error", error);
+            JSONObject result = new JSONObject();
+            result.put("error", error);
+            return result;
         }
-        return new JSONObject(stats);
-    }
-
-    private String dbTimestampToString(Timestamp timestamp) {
-        return ISO_INSTANT.format(timestamp.toLocalDateTime().toInstant(ZoneOffset.UTC));
+        return new JSONObject();
     }
 
     public boolean isEnabled() {
