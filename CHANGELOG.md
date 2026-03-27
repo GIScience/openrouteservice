@@ -25,27 +25,21 @@ RELEASING:
 Releasing is documented in RELEASE.md
 -->
 
-## [unreleased]
+## [9.8.0] - 2026-03-30
 
 ### Added
-
-* backend documentation about elevation and population data licenses ([#2247](https://github.com/GIScience/openrouteservice/pull/2247))
-
-### Changed
-
-### Deprecated
-
-### Removed
+- backend documentation about elevation and population data licenses ([#2247](https://github.com/GIScience/openrouteservice/pull/2247))
+- include `ors_id` in the TopoJSON response of the export endpoint whenever `additional_info` flag is set ([#2244](https://github.com/GIScience/openrouteservice/pull/2244))
 
 ### Fixed
 - scale the isochrone ranges and intervals according to the specified distance units such that they align with the range limits defined in meters ([#2240](https://github.com/GIScience/openrouteservice/pull/2240))
 - adapt docs to always download latest version ([#2243](https://github.com/GIScience/openrouteservice/pull/2243))
-- output ors_id in export endpoint topojson result with `additional_info` flag ([#2244](https://github.com/GIScience/openrouteservice/pull/2244))
 - avoid duplicate fields in the route geometry of the GeoJSON response ([#2249](https://github.com/GIScience/openrouteservice/pull/2249))
 
 ### Security
 - update lodash-es to 4.17.23 due to [CVE-2025-13465](https://www.cve.org/CVERecord?id=CVE-2025-13465)
 - update rollup to 4.59.0 due to [CVE-2026-27606](https://www.cve.org/CVERecord?id=CVE-2026-27606)
+- update dompurify to 3.3.3 due to [CVE-2025-15599](https://www.cve.org/CVERecord?id=CVE-2025-15599) and [CVE-2025-48050](https://www.cve.org/CVERecord?id=CVE-2025-48050)
 
 
 ## [9.7.1] - 2026-02-27
@@ -67,7 +61,6 @@ Releasing is documented in RELEASE.md
 - update org.apache.logging.log4j:log4j-core to 2.25.3 fixes [CVE-2025-68161](https://www.cve.org/CVERecord?id=CVE-2025-68161)
 - update preact to 10.28.2 due to [CVE-2026-22028](https://www.cve.org/CVERecord?id=CVE-2026-22028)
 - update lodash to 4.17.23 due to [CVE-2025-13465](https://www.cve.org/CVERecord?id=CVE-2025-13465) and [CVE-2025-13466](https://www.cve.org/CVERecord?id=CVE-2025-13466)
-- update dompurify to 3.3.3 due to [CVE-2025-15599](https://www.cve.org/CVERecord?id=CVE-2025-15599) and [CVE-2025-48050](https://www.cve.org/CVERecord?id=CVE-2025-48050)
 
 
 ## [9.6.0] - 2025-12-17
@@ -1049,7 +1042,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.7.1...HEAD
+[9.8.0]: https://github.com/GIScience/openrouteservice/compare/v9.7.1...v9.8.0
 [9.7.1]: https://github.com/GIScience/openrouteservice/compare/v9.7.0...v9.7.1
 [9.7.0]: https://github.com/GIScience/openrouteservice/compare/v9.6.0...v9.7.0
 [9.6.0]: https://github.com/GIScience/openrouteservice/compare/v9.5.1...v9.6.0
