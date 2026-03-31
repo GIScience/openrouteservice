@@ -156,7 +156,7 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
     @Override
     boolean isSacScaleAllowed(String sacScale) {
         // other scales are too dangerous even for MTB, see http://wiki.openstreetmap.org/wiki/Key:sac_scale
-        return "hiking".equals(sacScale) || "mountain_hiking".equals(sacScale)
+        return "strolling".equals(sacScale) || "hiking".equals(sacScale) || "mountain_hiking".equals(sacScale)
                 || "demanding_mountain_hiking".equals(sacScale) || "alpine_hiking".equals(sacScale);
     }
 

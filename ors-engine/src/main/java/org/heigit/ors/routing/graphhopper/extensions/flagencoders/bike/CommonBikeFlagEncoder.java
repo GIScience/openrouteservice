@@ -334,7 +334,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
 
         String sacScale = way.getTag("sac_scale");
         if (sacScale != null) {
-            if ((way.hasTag(KEY_HIGHWAY, KEY_CYCLEWAY)) && (way.hasTag("sac_scale", "hiking"))) {
+            if (way.hasTag(KEY_HIGHWAY, KEY_CYCLEWAY) && (way.hasTag("sac_scale", "strolling") || way.hasTag("sac_scale", "hiking"))) {
                 return EncodingManager.Access.WAY;
             }
             if (!isSacScaleAllowed(sacScale)) {
@@ -380,7 +380,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
 
     boolean isSacScaleAllowed(String sacScale) {
         // other scales are nearly impossible by an ordinary bike, see http://wiki.openstreetmap.org/wiki/Key:sac_scale
-        return "hiking".equals(sacScale);
+        return "strolling".equals(sacScale) || "hiking".equals(sacScale);
     }
 
     /**
