@@ -14,14 +14,26 @@
 package org.heigit.ors.plugins;
 
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.profile.ExtendedStorageName;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import static java.util.stream.Stream.of;
+
+import static org.heigit.ors.config.profile.ExtendedStorageName.*;
 
 public class PluginManager<T extends Plugin> {
     private static final Logger LOGGER = Logger.getLogger(PluginManager.class.getName());
+    private static final Set<ExtendedStorageName> STORAGES_MIGRATED_TO_ENCODED_VALUES = Set.of(
+            HEAVY_VEHICLE,
+            OSM_ID,
+            TOLLWAYS,
+            WAY_CATEGORY,
+            WAY_SURFACE_TYPE,
+            ROAD_ACCESS_RESTRICTIONS,
+            HILL_INDEX,
+            TRAIL_DIFFICULTY
+    );
 
     private final ServiceLoader<T> loader;
     private final Object lockObj;
@@ -51,7 +63,8 @@ public class PluginManager<T extends Plugin> {
         if (!parameters.isEmpty()) {
             for (Map.Entry<String, ExtendedStorageProperties> storageEntry : parameters.entrySet()) {
                 String storageName = storageEntry.getKey();
-                if (storageTransferredToEncodedValues(storageName))
+                ExtendedStorageName storage = ExtendedStorageName.getEnum(storageName);
+                if (STORAGES_MIGRATED_TO_ENCODED_VALUES.contains(storage))
                     continue;
 
                 T instance = createInstance(storageName, storageEntry.getValue());
@@ -63,10 +76,6 @@ public class PluginManager<T extends Plugin> {
             }
         }
         return result;
-    }
-    private boolean storageTransferredToEncodedValues(String storageName) {
-        return of("HeavyVehicle", "OsmId", "WayCategory", "WaySurfaceType", "RoadAccessRestrictions", "HillIndex", "TrailDifficulty")
-                .anyMatch(s -> s.equalsIgnoreCase(storageName));
     }
 
     @SuppressWarnings("unchecked")

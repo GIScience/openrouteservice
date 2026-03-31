@@ -13,61 +13,39 @@
  */
 package org.heigit.ors.routing.pathprocessors;
 
+import com.graphhopper.routing.ev.EnumEncodedValue;
+import com.graphhopper.routing.ev.Toll;
+import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import org.heigit.ors.routing.graphhopper.extensions.TollwayType;
-import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
-import org.heigit.ors.routing.parameters.ProfileParameters;
-import org.heigit.ors.routing.parameters.VehicleParameters;
 
 public class TollwayExtractor {
-    private VehicleParameters vehicleParams;
     private final int profileType;
-    private final TollwaysGraphStorage storage;
+    private final EnumEncodedValue<Toll> tollEnc;
 
-    public TollwayExtractor(TollwaysGraphStorage storage, int profileType, ProfileParameters vehicleParams) {
-        this.storage = storage;
+    public TollwayExtractor(EnumEncodedValue<Toll> tollEnc, int profileType) {
+        this.tollEnc = tollEnc;
         this.profileType = profileType;
-        if (vehicleParams instanceof VehicleParameters parameters)
-            this.vehicleParams = parameters;
     }
 
     /**
      * return whether a way is a tollway for the configured vehicle.
      *
-     * @param edgeId The edgeId for which toll should be checked
+     * @param edge the edge to check
      * @see HeavyVehicleAttributes
      */
-    public boolean isProfileSpecificTollway(int edgeId) {
-        int value = storage.getEdgeValue(edgeId);
+    public boolean isProfileSpecificTollway(EdgeIteratorState edge) {
+        Toll value = edge.get(tollEnc);
 
         switch (value) {
-            // toll=no
-            case TollwayType.NONE:
+            case NO:
                 return false;
-            // toll=yes
-            case TollwayType.GENERAL:
+            case ALL:
                 return true;
+            case HGV:
+                return profileType == RoutingProfileType.DRIVING_HGV;
             default:
-                switch (profileType) {
-                    // toll:motorcar
-                    case RoutingProfileType.DRIVING_CAR:
-                        return TollwayType.isSet(TollwayType.MOTORCAR, value);
-
-                    case RoutingProfileType.DRIVING_HGV:
-                        // toll:hgv
-                        if (TollwayType.isSet(TollwayType.HGV, value))
-                            return true;
-
-                        // check for weight specific toll tags even when weight is unset
-                        double weight = vehicleParams == null ? 0 : vehicleParams.getWeight();
-                        return ((weight == 0 && TollwayType.isNType(value))
-                                || (weight < 3.5 && TollwayType.isSet(TollwayType.N1, value))
-                                || (weight >= 3.5 && weight < 12 && TollwayType.isSet(TollwayType.N2, value))
-                                || (weight >= 12 && TollwayType.isSet(TollwayType.N3, value)));
-                    default:
-                        return false;
-                }
+                return false;
         }
 
     }

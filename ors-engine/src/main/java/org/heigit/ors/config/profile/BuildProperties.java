@@ -108,6 +108,7 @@ public class BuildProperties {
                 case WAY_CATEGORY -> handleWayCategory();
                 case WAY_SURFACE_TYPE -> handleWaySurfaceType();
                 case ROAD_ACCESS_RESTRICTIONS -> handleAccessRestrictions();
+                case TOLLWAYS -> handleTollways();
                 case HILL_INDEX -> handleHillIndex();
                 case TRAIL_DIFFICULTY -> handleTrailDifficulty();
                 default -> {
@@ -198,6 +199,12 @@ public class BuildProperties {
     private void handleAccessRestrictions() {
         if (encodedValues.getAccessRestriction() == null) {
             encodedValues.setAccessRestriction(true);
+        }
+    }
+
+    private void handleTollways() {
+        if (encodedValues.getToll() == null) {
+            encodedValues.setToll(true);
         }
     }
 
