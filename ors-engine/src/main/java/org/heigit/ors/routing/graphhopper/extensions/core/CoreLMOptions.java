@@ -28,7 +28,6 @@ import java.util.List;
 
 public class CoreLMOptions {
     List<String> coreLMSets = new ArrayList<>();
-    List<LMEdgeFilterSequence> filters = new ArrayList<>();
 
     /**
      * Set the filters that are used while calculating landmarks and their distance
@@ -44,8 +43,9 @@ public class CoreLMOptions {
      * The filter is an LMEdgeFilterSequence, consisting of at most ONE AvoidFeaturesFilter and ONE AvoidCountriesFilter
      * These can contain multiple avoidfeatures and avoidcountries
      */
-    public void createRestrictionFilters(GraphHopperStorage ghStorage) {
+    public List<LMEdgeFilterSequence> createRestrictionFilters(GraphHopperStorage ghStorage, int profileType) {
         //Create one edgefiltersequence for each lmset
+        List<LMEdgeFilterSequence> filters = new ArrayList<>();
         for (String set : coreLMSets) {
             //Now iterate over all comma separated values in one lm set
             String[] tmpFilters = set.split(",");
@@ -90,7 +90,7 @@ public class CoreLMOptions {
             }
 
             if (avoidFeatures != 0)
-                edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(ghStorage, -1, avoidFeatures));
+                edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(ghStorage, profileType, avoidFeatures));
 
             if (!countries.isEmpty()) {
                 int[] avoidCountries = new int[countries.size()];
@@ -101,11 +101,8 @@ public class CoreLMOptions {
                 edgeFilterSequence.add(new AvoidBordersCoreEdgeFilter(ghStorage, avoidCountries));
             }
 
-            this.filters.add(edgeFilterSequence);
+            filters.add(edgeFilterSequence);
         }
-    }
-
-    public List<LMEdgeFilterSequence> getFilters() {
         return filters;
     }
 }
