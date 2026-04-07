@@ -14,7 +14,8 @@ import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -24,15 +25,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 
 @Service
-public class EngineService implements ServletContextListener {
+public class EngineService implements ServletContextListener, ApplicationListener<ContextRefreshedEvent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(EngineService.class);
     public static final String SHUTDOWN_IMMEDIATELY = "ors.engine_service.shutdown";
     private final EngineProperties engineProperties;
     private final GraphService graphService;
     @Getter
     private final RoutingProfileManager routingProfileManager;
+    private boolean initialized = false;
 
-    @Autowired
     public EngineService(EngineProperties engineProperties, GraphService graphService) {
         this.engineProperties = engineProperties;
         this.graphService = graphService;
@@ -58,7 +59,14 @@ public class EngineService implements ServletContextListener {
     }
 
     @Override
-    public void contextInitialized(ServletContextEvent contextEvent) {
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        // Only initialize with onApplicationEvent once when the application context is
+        // fully refreshed
+        if (initialized) {
+            return;
+        }
+        initialized = true;
+
         String outputTarget = configurationOutputTarget(engineProperties);
         if (!StringUtility.isNullOrEmpty(outputTarget)) {
             copyDefaultConfigurationToFile(outputTarget);
@@ -66,7 +74,7 @@ public class EngineService implements ServletContextListener {
             return;
         }
         LOGGER.info("Initializing ORS...");
-        new Thread(this::initializeORS, "ORS-Init").start();
+        new Thread(this::initializeORS, "ORS-Init-Thread").start();
     }
 
     public void reloadGraphs() {
@@ -75,7 +83,7 @@ public class EngineService implements ServletContextListener {
             return;
         }
         LOGGER.info("Reloading ORS graphs...");
-        new Thread(this::initializeORS, "ORS-Reload").start();
+        new Thread(this::initializeORS, "ORS-Reload-Thread").start();
     }
 
     private void initializeORS() {
@@ -83,8 +91,13 @@ public class EngineService implements ServletContextListener {
             graphService.setIsActivatingGraphs(true);
             routingProfileManager.initialize();
             routingProfileManager.awaitReady();
-            if (routingProfileManager.isShutdown() || routingProfileManager.hasFailed()) {
-                System.exit(routingProfileManager.hasFailed() ? 1 : 0);
+            if (routingProfileManager.hasFailed()) {
+                LOGGER.error("RoutingProfileManager failed, terminating application.");
+                throw new IllegalStateException("ORS Initialization failed.");
+            } else if (routingProfileManager.isShutdown()) {
+                LOGGER.info("RoutingProfileManager is shutdown, aborting initializtion execution.");
+                System.exit(0);
+                return;
             }
             for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
                 ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
@@ -95,6 +108,9 @@ public class EngineService implements ServletContextListener {
                     graphService.addGraphManagerInstance(orsGraphManager);
                 }
             }
+        } catch (IllegalStateException e) {
+            LOGGER.error("ORS initialization fatal error.");
+            throw e;
         } catch (InterruptedException e) {
             LOGGER.error("Thread interrupted during ORS initialization.");
             Thread.currentThread().interrupt();
