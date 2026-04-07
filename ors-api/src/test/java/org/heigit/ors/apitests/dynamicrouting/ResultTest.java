@@ -16,7 +16,7 @@ package org.heigit.ors.apitests.dynamicrouting;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
-import org.heigit.ors.apitests.common.AbstractContainerBaseTest;
+import org.heigit.ors.apitests.common.MockRestBaseTest;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.utils.CommonHeaders;
@@ -48,7 +48,7 @@ import static org.hamcrest.Matchers.is;
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ResultTest extends AbstractContainerBaseTest {
+class ResultTest extends MockRestBaseTest {
 
     public static final RestAssuredConfig JSON_CONFIG_DOUBLE_NUMBERS = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE));
 

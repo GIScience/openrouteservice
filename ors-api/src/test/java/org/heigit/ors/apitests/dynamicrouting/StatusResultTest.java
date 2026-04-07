@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.apitests.dynamicrouting;
 
-import org.heigit.ors.apitests.common.AbstractContainerBaseTest;
+import org.heigit.ors.apitests.common.MockRestBaseTest;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.junit.jupiter.api.Order;
@@ -34,7 +34,7 @@ import static org.hamcrest.Matchers.is;
 @VersionAnnotation(version = "v2")
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
-class StatusResultTest extends AbstractContainerBaseTest {
+class StatusResultTest extends MockRestBaseTest {
 
     @Test
     void testGetStatus() {

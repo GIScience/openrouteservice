@@ -24,9 +24,9 @@ import io.restassured.RestAssured;
 import org.heigit.ors.api.Application;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.lang.annotation.Annotation;
@@ -40,16 +40,18 @@ public abstract class ServiceTest extends InitializeGraphsOnce {
     private String endPointName;
     private String version;
 
-    @Autowired
+    @Autowired(required = false)
     private TestRestTemplate testRestTemplate;
 
-    @LocalServerPort
+    @Value(value = "${local.server.port:0}")
     private Integer port;
 
     @BeforeEach
     void setupRestAssured() {
-        RestAssured.port = port;
-        RestAssured.baseURI = testRestTemplate.getRootUri();
+        if (testRestTemplate != null && port != null && port > 0) {
+            RestAssured.port = port;
+            RestAssured.baseURI = testRestTemplate.getRootUri();
+        }
     }
 
     public ServiceTest() {
