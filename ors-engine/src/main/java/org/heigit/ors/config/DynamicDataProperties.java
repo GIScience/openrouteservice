@@ -31,6 +31,11 @@ public class DynamicDataProperties {
         enabled = ofNullable(this.enabled).orElse(other.enabled);
         featureStoreApiUrl = ofNullable(this.featureStoreApiUrl).orElse(other.featureStoreApiUrl);
     }
+
+    // Explicit getter to ensure it's available at runtime (Lombok may not process it in some configurations)
+    public String getFeatureStoreApiUrl() {
+        return featureStoreApiUrl;
+    }
 }
 
 
