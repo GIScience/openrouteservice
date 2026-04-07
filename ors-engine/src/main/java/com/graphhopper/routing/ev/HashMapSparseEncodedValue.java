@@ -1,13 +1,13 @@
 package com.graphhopper.routing.ev;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class HashMapSparseEncodedValue<E> implements SparseEncodedValue<E> {
     private final String name;
-    private final Map<Integer, E> edgeValues = new HashMap<>();
-    private Instant lastUpdated = Instant.now();
+    private final Map<Integer, E> edgeValues = new ConcurrentHashMap<>();
+    private volatile Instant lastUpdated = Instant.now();
 
     public HashMapSparseEncodedValue(String name) {
         this.name = name;
