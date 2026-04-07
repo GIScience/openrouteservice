@@ -17,15 +17,15 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
  * or shaded JAR is needed. Use {@code -Dforks=1} system property to enable
  * forked execution for production-quality measurements.
  *
- * <p>Suppress in regular CI with: {@code -Dgroups=!benchmark} (maven-surefire)
- * or {@code -Dexclude.benchmark.tests=true} if a profile is configured.
+ * <p>Suppress in regular CI with: {@code -Dgroups=!performance} (maven-surefire)
+ * or {@code -Dexclude.performance.tests=true} if a profile is configured.
  *
  * <p>Run manually:
  * <pre>
  *   ./mvnw test -pl ors-engine -Dtest=JmhRunnerTest
  * </pre>
  */
-@Tag("benchmark")
+@Tag("performance")
 @DisplayName("JMH benchmark runner for PolygonBBox optimizations")
 class JmhRunnerTest {
 

@@ -656,7 +656,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!--don't run API tests by default only through profile "apitests" -->
+                    <!--don't run API or performance tests by default -->
+                    <excludedGroups>performance</excludedGroups>
                     <excludes>
                         <exclude>**/apitests/**</exclude>
                         <exclude>**/integrationtests/**</exclude>
