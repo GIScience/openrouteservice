@@ -6,18 +6,13 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.util.StringUtility;
 import org.json.simple.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.sql.*;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
 @Service
 public class DynamicDataService {
@@ -74,7 +69,7 @@ public class DynamicDataService {
         this.initialize();
     }
 
-    @Async
+    @Async("backgroundTaskExecutor")
     @Scheduled(cron = "${ors.engine.dynamic_data.update_schedule:0 * * * * *}") //Default is every minute
     public void update() {
         if (!Boolean.TRUE.equals(enabled)) {
@@ -107,10 +102,6 @@ public class DynamicDataService {
         // Currently returning empty stats to maintain API contract
         LOGGER.debug("Fetching FeatureStore stats for profile '" + profileName + "' from: " + featureStoreApiUrl);
         return new JSONObject(stats);
-    }
-
-    private String dbTimestampToString(Timestamp timestamp) {
-        return ISO_INSTANT.format(timestamp.toLocalDateTime().toInstant(ZoneOffset.UTC));
     }
 
     public boolean isEnabled() {
