@@ -22,9 +22,9 @@ public abstract class AbstractContainerBaseTest extends ServiceTest {
                 );
         POSTGIS.start();
 
-        System.setProperty("ors.engine.dynamic_data.store_url", POSTGIS.getJdbcUrl());
-        System.setProperty("ors.engine.dynamic_data.store_user", POSTGIS.getUsername());
-        System.setProperty("ors.engine.dynamic_data.store_pass", POSTGIS.getPassword());
+        // Configure FeatureStore API endpoint (REST-based, replacing JDBC-based
+        // configuration)
+        System.setProperty("ors.engine.dynamic_data.feature_store_api_url", "http://localhost:8080/api/v1");
         // We also need the DynamicDataService's static method getGraphDate to return a fixed date for testing
         System.setProperty("GRAPH_DATE_OVERRIDE", "2024-09-08T20:21:00Z");
 
