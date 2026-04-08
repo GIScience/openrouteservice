@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  *   [8.677530805,49.411205303],[8.6761038698,49.411205303],
  *   [8.6761038698,49.4099139015]]]
  *
- * <p>Run via JUnit: {@code ./mvnw test -pl ors-engine -Dtest=JmhRunnerTest}
+ * <p>Run via JUnit: {@code ./mvnw test -pl ors-benchmark -Dtest=JmhRunnerTest}
  */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)

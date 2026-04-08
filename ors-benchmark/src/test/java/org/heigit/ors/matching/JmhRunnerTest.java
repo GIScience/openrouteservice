@@ -22,16 +22,16 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
  *
  * <p>Run manually:
  * <pre>
- *   ./mvnw test -pl ors-engine -Dtest=JmhRunnerTest
+ *   ./mvnw test -pl ors-benchmark -Dtest=JmhRunnerTest
  * </pre>
  */
 @Tag("performance")
 @DisplayName("JMH benchmark runner for PolygonBBox optimizations")
-class JmhRunnerTest {
+public class JmhRunnerTest {
 
     @Test
     @DisplayName("Given PolygonBBoxBenchmark, when run via JMH Runner, then completes without error")
-    void runPolygonBBoxBenchmarks() {
+    public void runPolygonBBoxBenchmarks() {
         int forks = Integer.getInteger("forks", 0);  // default: in-process
 
         Options opts = new OptionsBuilder()
@@ -50,7 +50,7 @@ class JmhRunnerTest {
 
     @Test
     @DisplayName("Given MatchAreaE2EBenchmark, when run via JMH Runner, then completes without error")
-    void runMatchAreaE2EBenchmarks() {
+    public void runMatchAreaE2EBenchmarks() {
         int forks = Integer.getInteger("forks", 0);
 
         Options opts = new OptionsBuilder()

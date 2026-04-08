@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
  *   <li>No mock frameworks in benchmark (synthetic stubs only)</li>
  * </ul>
  */
-class MatchAreaE2EBenchmarkValidationTest {
+public class MatchAreaE2EBenchmarkValidationTest {
 
     @Test
     @DisplayName("Given MatchAreaE2EBenchmark.java, should not contain javax.* imports")
-    void shouldNotContainJavaxImports() {
+    public void shouldNotContainJavaxImports() {
         // This test verifies via static analysis.
         // In a real scenario, we'd use AST parsing to check imports.
         // For now, this serves as a reminder that javax.* is forbidden.
@@ -29,7 +29,7 @@ class MatchAreaE2EBenchmarkValidationTest {
 
     @Test
     @DisplayName("Given benchmark setup, should compile without errors")
-    void shouldCompileWithoutErrors() {
+    public void shouldCompileWithoutErrors() {
         // Verify the benchmark class can be instantiated.
         assertDoesNotThrow(() -> {
             MatchAreaE2EBenchmark benchmark = new MatchAreaE2EBenchmark();
@@ -39,7 +39,7 @@ class MatchAreaE2EBenchmarkValidationTest {
 
     @Test
     @DisplayName("Given synthetic edges, should use GraphHopper LocationIndex contract")
-    void shouldUseGraphHopperLocationIndexContract() {
+    public void shouldUseGraphHopperLocationIndexContract() {
         // The SyntheticLocationIndex implements com.graphhopper.storage.index.LocationIndex.
         // This test verifies the benchmark respects GraphHopper's abstraction.
         assertDoesNotThrow(() ->
@@ -50,7 +50,7 @@ class MatchAreaE2EBenchmarkValidationTest {
 
     @Test
     @DisplayName("When benchmark runs originalMatchArea, should not throw exception")
-    void benchmarkOriginalMatchAreaShouldRun() {
+    public void benchmarkOriginalMatchAreaShouldRun() {
         MatchAreaE2EBenchmark benchmark = new MatchAreaE2EBenchmark();
         assertDoesNotThrow(() -> {
             benchmark.setUp();
@@ -61,7 +61,7 @@ class MatchAreaE2EBenchmarkValidationTest {
 
     @Test
     @DisplayName("When benchmark runs optimizedMatchArea, should not throw exception")
-    void benchmarkOptimizedMatchAreaShouldRun() {
+    public void benchmarkOptimizedMatchAreaShouldRun() {
         MatchAreaE2EBenchmark benchmark = new MatchAreaE2EBenchmark();
         assertDoesNotThrow(() -> {
             benchmark.setUp();
