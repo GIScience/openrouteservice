@@ -57,23 +57,29 @@ public abstract class MockRestBaseTest extends ServiceTest {
                 .andRespond(MockRestResponseCreators.withSuccess(ndjsonMatches, MediaType.TEXT_PLAIN));
 
         String statsResponse = """
-                {
-                  "logie_borders": {
-                    "count_features": 1,
-                    "count_mapped": 1,
-                    "last_updated": "2024-09-08T20:21:00Z"
+            [
+              {
+                "datasetId": "logie_borders",
+                "totalFeatures": 1000,
+                "matchedFeatures": 1000,
+                "unmatchedFeatures": 0,
+                "deletedFeatures": 0
                   },
-                  "logie_bridges": {
-                    "count_features": 1,
-                    "count_mapped": 1,
-                    "last_updated": "2024-09-08T20:21:00Z"
+              {
+                "datasetId": "logie_bridges",
+                "totalFeatures": 100,
+                "matchedFeatures": 100,
+                "unmatchedFeatures": 0,
+                "deletedFeatures": 0
                   },
-                  "logie_roads": {
-                    "count_features": 1,
-                    "count_mapped": 2,
-                    "last_updated": "2024-09-08T20:21:00Z"
+              {
+                "datasetId": "logie_roads",
+                "totalFeatures": 500,
+                "matchedFeatures": 450,
+                "unmatchedFeatures": 50,
+                "deletedFeatures": 0
                   }
-                }
+            ]
                 """;
 
         mockServer.expect(ExpectedCount.manyTimes(), 

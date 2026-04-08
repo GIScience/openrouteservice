@@ -10,7 +10,6 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.StringUtility;
-import org.json.simple.JSONObject;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -105,6 +104,17 @@ public class DynamicDataService {
         
         String profileName = profile.name();
         
+        try {
+            if (!areEnabledDatasetsPresent(profile)) {
+                LOGGER.warn("No enabled datasets found in FeatureStore for profile '" + profileName
+                        + "', skipping polling");
+                return;
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error validating dataset presence for profile '" + profileName + "'", e);
+            return;
+        }
+
         // Build query parameters using UriComponentsBuilder for proper URL encoding
         String ghGraphDate = null;
         if (profile.getGraphhopper() != null && profile.getGraphhopper().getGraphHopperStorage() != null) {
@@ -152,6 +162,53 @@ public class DynamicDataService {
             LOGGER.info("Successfully fetched dynamic data for profile '" + profileName + "'");
         } catch (Exception e) {
             LOGGER.error("Error fetching dynamic data for profile '" + profileName + "'", e);
+        }
+    }
+
+    /**
+     * Check if any of the enabled datasets for the profile are present
+     * in FeatureStore.
+     * Returns true if at least one enabled dataset is present in stats.
+     */
+    private boolean areEnabledDatasetsPresent(RoutingProfile profile) {
+        String profileName = profile.name();
+        List<String> enabledDatasets = profile.getProfileConfiguration().getService().getDynamicData()
+                .getEnabledDynamicDatasets();
+
+        if (enabledDatasets == null || enabledDatasets.isEmpty()) {
+            LOGGER.debug("No enabled datasets configured for profile '" + profileName + "'");
+            return false;
+        }
+
+        try {
+            JsonNode statsResponse = getFeatureStoreStats(profileName);
+
+            // Extract dataset IDs from the stats array
+            Set<String> availableDatasets = new HashSet<>();
+            if (statsResponse.isArray()) {
+                for (JsonNode dataset : statsResponse) {
+                    String datasetId = dataset.get("datasetId").asText();
+                    availableDatasets.add(datasetId);
+                }
+            }
+
+            // Check if at least one enabled dataset is present
+            for (String enabledDataset : enabledDatasets) {
+                if (availableDatasets.contains(enabledDataset)) {
+                    LOGGER.info("Dataset '" + enabledDataset + "' is present in FeatureStore for profile '"
+                            + profileName + "'");
+                    return true;
+                } else {
+                    LOGGER.warn("Dataset '" + enabledDataset + "' missing in FeatureStore for profile '" + profileName
+                            + "'");
+                }
+            }
+
+            LOGGER.warn("None of the enabled datasets found in FeatureStore for profile '" + profileName + "'");
+            return false;
+        } catch (Exception e) {
+            LOGGER.error("Error checking dataset presence in FeatureStore for profile '" + profileName + "'", e);
+            return false;
         }
     }
 
@@ -222,13 +279,32 @@ public class DynamicDataService {
         }
     }
 
-    public JSONObject getFeatureStoreStats(String profileName) {
-        Map<String, JSONObject> stats = new HashMap<>();
-        // TODO: Phase 6.3 - Implement REST API call to fetch stats from FeatureStore
-        // using featureStoreApiUrl
-        // Currently returning empty stats to maintain API contract
+    /**
+     * Fetch dataset statistics from FeatureStore API.
+     * Returns a JsonNode array containing dataset information.
+     * Format: [{"datasetId": "logie_borders", "totalFeatures": 1000,
+     * "matchedFeatures": 1000, ...}]
+     */
+    public JsonNode getFeatureStoreStats(String profileName) {
         LOGGER.debug("Fetching FeatureStore stats for profile '" + profileName + "' from: " + featureStoreApiUrl);
-        return new JSONObject(stats);
+
+        try {
+            JsonNode response = restClient.get()
+                    .uri("/datasets/stats")
+                    .retrieve()
+                    .body(JsonNode.class);
+
+            if (response == null) {
+                LOGGER.warn("Null response from FeatureStore stats endpoint");
+                return new ObjectMapper().createArrayNode();
+            }
+
+            LOGGER.debug("Successfully retrieved FeatureStore stats: " + response);
+            return response;
+        } catch (Exception e) {
+            LOGGER.error("Error fetching FeatureStore stats", e);
+            return new ObjectMapper().createArrayNode();
+        }
     }
 
     public boolean isEnabled() {

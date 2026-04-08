@@ -1,39 +1,44 @@
 package org.heigit.ors.api.services;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.routing.RoutingProfileManager;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestClient;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for DynamicDataService focusing on configuration and service state.
+ * Tests mocked RestClient behavior and configuration validation. 
+ */
 @ExtendWith(MockitoExtension.class)
+@DisplayName("DynamicDataService Unit Tests")
 class DynamicDataServiceTest {
 
     @Mock
     private EngineService engineService;
 
     @Mock
-    private RestClient restClient;
+    private RoutingProfileManager routingProfileManager;
 
     @Mock
     private RestClient.Builder restClientBuilder;
 
+    @Mock
+    private RestClient restClient;
+
     private EngineProperties engineProperties;
-    private ObjectMapper objectMapper;
-    private JsonFactory jsonFactory;
+    private DynamicDataService dynamicDataService;
 
     @BeforeEach
     void setUp() {
@@ -41,63 +46,68 @@ class DynamicDataServiceTest {
         engineProperties.getDynamicData().setEnabled(true);
         engineProperties.getDynamicData().setFeatureStoreApiUrl("http://localhost:8080/api/v1");
 
-        objectMapper = new ObjectMapper();
-        jsonFactory = new JsonFactory();
+        // Mock RestClient.Builder chain
+        when(restClientBuilder.baseUrl(any(String.class))).thenReturn(restClientBuilder);
+        when(restClientBuilder.build()).thenReturn(restClient);
+
+        // Mock EngineService and RoutingProfileManager for successful initialization
+        when(engineService.waitForInitializedRoutingProfileManager()).thenReturn(routingProfileManager);
+        when(routingProfileManager.isShutdown()).thenReturn(false);
+        when(routingProfileManager.hasFailed()).thenReturn(false);
+        when(routingProfileManager.getUniqueProfiles()).thenReturn(new ArrayList<>());
+
+        dynamicDataService = new DynamicDataService(engineService, engineProperties, restClientBuilder);
     }
 
     @Test
-    void testParseNdjsonLine() throws IOException {
-        // RED: Test that demonstrates NDJSON line parsing with JsonParser
-        String ndjsonLine = """
-                {"feature_id":1,"dataset_key":"logie_borders","edge_id":3239,"timestamp":"2024-09-08T20:21:00Z"}
-                """.trim();
-
-        JsonParser parser = jsonFactory.createParser(ndjsonLine);
-        JsonNode nodeTree = objectMapper.readTree(parser);
-
-        assertEquals(1, nodeTree.get("feature_id").asInt());
-        assertEquals("logie_borders", nodeTree.get("dataset_key").asText());
-        assertEquals(3239, nodeTree.get("edge_id").asInt());
-        assertEquals("2024-09-08T20:21:00Z", nodeTree.get("timestamp").asText());
+    @DisplayName("Should indicate service is enabled when configured")
+    void testIsEnabledReturnsTrue() {
+        assertTrue(dynamicDataService.isEnabled(), "Service should be enabled in this test setup");
     }
 
     @Test
-    void testParseNdjsonStream() throws IOException {
-        // RED: Test that demonstrates parsing multiple NDJSON lines
-        String ndjsonStream = """
-                {"feature_id":1,"dataset_key":"logie_borders","edge_id":3239,"timestamp":"2024-09-08T20:21:00Z"}
-                {"feature_id":2,"dataset_key":"logie_bridges","edge_id":3240,"timestamp":"2024-09-08T20:21:00Z"}
-                {"feature_id":3,"dataset_key":"logie_roads","edge_id":14409,"timestamp":"2024-09-08T20:21:00Z"}
-                """.trim();
+    @DisplayName("Should indicate service is disabled when not configured")
+    void testIsEnabledReturnsFalseWhenDisabled() {
+        EngineProperties disabledProperties = new EngineProperties();
+        disabledProperties.getDynamicData().setEnabled(false);
+        disabledProperties.getDynamicData().setFeatureStoreApiUrl("http://localhost:8080/api/v1");
 
-        Map<String, Instant> timestamps = new ConcurrentHashMap<>();
-        JsonParser parser = jsonFactory.createParser(ndjsonStream);
+        RestClient.Builder stubBuilder = mock(RestClient.Builder.class);
+        when(stubBuilder.baseUrl(any(String.class))).thenReturn(stubBuilder);
+        when(stubBuilder.build()).thenReturn(mock(RestClient.class));
 
-        while (parser.nextToken() != null) {
-            if (parser.currentToken().isStructStart()) {
-                JsonNode node = objectMapper.readTree(parser);
-                String datasetKey = node.get("dataset_key").asText();
-                String timestamp = node.get("timestamp").asText();
-                timestamps.put(datasetKey, Instant.parse(timestamp));
-            }
-        }
+        DynamicDataService disabledService = new DynamicDataService(engineService, disabledProperties, stubBuilder);
 
-        assertEquals(3, timestamps.size());
-        assertEquals(Instant.parse("2024-09-08T20:21:00Z"), timestamps.get("logie_borders"));
-        assertEquals(Instant.parse("2024-09-08T20:21:00Z"), timestamps.get("logie_bridges"));
-        assertEquals(Instant.parse("2024-09-08T20:21:00Z"), timestamps.get("logie_roads"));
+        assertFalse(disabledService.isEnabled(), "Service should be disabled when configured to be disabled");
     }
 
     @Test
-    void testTimestampTracking() {
-        // RED: Test that timestamps are properly tracked in lastUpdateTimestamps
-        Map<String, Instant> timestamps = new ConcurrentHashMap<>();
-        Instant now = Instant.now();
+    @DisplayName("Should handle null feature store URL by disabling service")
+    void testNullFeatureStoreUrlDisablesService() {
+        EngineProperties properties = new EngineProperties();
+        properties.getDynamicData().setEnabled(true);
+        properties.getDynamicData().setFeatureStoreApiUrl(null);
 
-        timestamps.put("logie_borders", now);
-        timestamps.put("logie_bridges", now.minusSeconds(60));
+        RestClient.Builder stubBuilder = mock(RestClient.Builder.class);
+        when(stubBuilder.build()).thenReturn(mock(RestClient.class));
 
-        assertEquals(now, timestamps.get("logie_borders"));
-        assertEquals(now.minusSeconds(60), timestamps.get("logie_bridges"));
+        DynamicDataService service = new DynamicDataService(engineService, properties, stubBuilder);
+
+        assertFalse(service.isEnabled(), "Service should be disabled when feature store URL is null");
+    }
+
+    @Test
+    @DisplayName("Should handle empty feature store URL by disabling service")
+    void testEmptyFeatureStoreUrlDisablesService() {
+        EngineProperties properties = new EngineProperties();
+        properties.getDynamicData().setEnabled(true);
+        properties.getDynamicData().setFeatureStoreApiUrl("");
+
+        RestClient.Builder stubBuilder = mock(RestClient.Builder.class);
+        when(stubBuilder.build()).thenReturn(mock(RestClient.class));
+
+        DynamicDataService service = new DynamicDataService(engineService, properties, stubBuilder);
+
+        assertFalse(service.isEnabled(), "Service should be disabled when feature store URL is empty");
     }
 }
