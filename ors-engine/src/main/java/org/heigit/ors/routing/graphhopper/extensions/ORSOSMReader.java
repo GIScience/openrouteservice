@@ -277,6 +277,7 @@ public class ORSOSMReader extends OSMReader {
             return getNodeAccess().getLat(id);
         } else if (isPillarNode(id)) {
             // pillar node
+            id = id -3;
             // Do we want to return it if it is not a tower node?
             if (onlyTower) {
                 return Double.NaN;
@@ -305,6 +306,7 @@ public class ORSOSMReader extends OSMReader {
             return getNodeAccess().getLon(id);
         } else if (isPillarNode(id)) {
             // pillar node
+            id = id - 3;
             // Do we want to return it if it is not a tower node?
             if (onlyTower) {
                 return Double.NaN;
