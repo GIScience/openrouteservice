@@ -160,7 +160,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     @Override
     protected OSMReader createOSMReader() {
-        return new ORSOSMReader(getGraphHopperStorage(), processContext);
+        return new ORSOSMReader(getGraphHopperStorage(), getReaderConfig(), processContext);
     }
 
     @Override
