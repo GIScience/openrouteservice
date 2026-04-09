@@ -185,9 +185,9 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix) {
         // first two bits are reserved for route handling in superclass
-        super.createEncodedValues(registerNewEncodedValue, prefix, index);
+        super.createEncodedValues(registerNewEncodedValue, prefix);
         avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections);
         registerNewEncodedValue.add(avgSpeedEnc);
         if (hasConditionalAccess)

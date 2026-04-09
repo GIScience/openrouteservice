@@ -113,8 +113,8 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     }
 
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
-        super.createEncodedValues(registerNewEncodedValue, prefix, index);
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix) {
+        super.createEncodedValues(registerNewEncodedValue, prefix);
         priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
     }

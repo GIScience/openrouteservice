@@ -538,13 +538,13 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
      * method is called in the second parsing step.
      */
     @Override
-    public long handleNodeTags(ReaderNode node) {
-        long encoded = super.handleNodeTags(node);
+    public boolean isBarrier(ReaderNode node) {
+        boolean isBarrier = super.isBarrier(node);
         // We want to be more strict with fords, as only if it is declared as wheelchair accessible do we want to cross it
         if (isBlockFords() && (node.hasTag(KEY_HIGHWAY, "ford") || node.hasTag("ford")) && !node.hasTag(KEY_WHEELCHAIR, intendedValues)) {
-            encoded = getEncoderBit();
+            isBarrier = true;
         }
-        return encoded;
+        return isBarrier;
     }
 
     @Override

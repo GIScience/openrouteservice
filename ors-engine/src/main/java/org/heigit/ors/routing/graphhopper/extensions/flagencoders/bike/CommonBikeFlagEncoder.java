@@ -280,8 +280,8 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     @Override
-    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
-        super.createEncodedValues(registerNewEncodedValue, prefix, index);
+    public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix) {
+        super.createEncodedValues(registerNewEncodedValue, prefix);
         registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
         unpavedEncoder = new SimpleBooleanEncodedValue(getKey(prefix, "paved"), false);
         registerNewEncodedValue.add(unpavedEncoder);
