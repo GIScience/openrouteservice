@@ -18,6 +18,7 @@ import com.graphhopper.coll.GHLongObjectHashMap;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
+import com.graphhopper.routing.OSMReaderConfig;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.GHPoint;
@@ -52,8 +53,8 @@ public class ORSOSMReader extends OSMReader {
 
     private final HashSet<String> extraTagKeys;
 
-    public ORSOSMReader(GraphHopperStorage storage, GraphProcessContext procCntx) {
-        super(storage);
+    public ORSOSMReader(GraphHopperStorage storage, OSMReaderConfig osmReaderConfig, GraphProcessContext procCntx) {
+        super(storage, osmReaderConfig);
 
         enforce2D();
         this.procCntx = procCntx;
