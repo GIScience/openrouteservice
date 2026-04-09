@@ -46,9 +46,6 @@ public class ORSOSMReader extends OSMReader {
     private boolean processWholeGeom = false;
     private boolean detachSidewalksFromRoad = false;
 
-    private final boolean getElevationFromPreprocessedData;
-    private boolean getElevationFromPreprocessedDataErrorLogged = false;
-
     private final List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
     private final HashSet<String> extraTagKeys;
@@ -59,7 +56,6 @@ public class ORSOSMReader extends OSMReader {
         enforce2D();
         this.procCntx = procCntx;
         this.procCntx.initArrays();
-        getElevationFromPreprocessedData = procCntx.getElevationFromPreprocessedData();
 
         initNodeTagsToStore(new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload")));
         extraTagKeys = new HashSet<>();
@@ -273,13 +269,13 @@ public class ORSOSMReader extends OSMReader {
      */
     private double getLatitudeOfNode(int id, boolean onlyTower) {
         // for speed, we only want to handle the geometry of tower nodes (those at junctions)
-        if (id == EMPTY_NODE)
+        if (isEmptyNode(id))
             return Double.NaN;
-        if (id < TOWER_NODE) {
+        if (isTowerNode(id)) {
             // tower node
             id = -id - 3;
             return getNodeAccess().getLat(id);
-        } else if (id > -TOWER_NODE) {
+        } else if (isPillarNode(id)) {
             // pillar node
             // Do we want to return it if it is not a tower node?
             if (onlyTower) {
@@ -301,13 +297,13 @@ public class ORSOSMReader extends OSMReader {
      * @return Return the longitude as double
      */
     private double getLongitudeOfNode(int id, boolean onlyTower) {
-        if (id == EMPTY_NODE)
+        if (isEmptyNode(id))
             return Double.NaN;
-        if (id < TOWER_NODE) {
+        if (isTowerNode(id)) {
             // tower node
             id = -id - 3;
             return getNodeAccess().getLon(id);
-        } else if (id > -TOWER_NODE) {
+        } else if (isPillarNode(id)) {
             // pillar node
             // Do we want to return it if it is not a tower node?
             if (onlyTower) {
