@@ -30,6 +30,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
@@ -101,7 +102,7 @@ public class MatchingRequest extends ServiceRequest {
                     throw new IllegalArgumentException("Unsupported geometry type: " + geom.getGeometryType());
             }
         }
-        return new MatchingResult(ghStorage.getProperties().get("datareader.import.date"), matchedEdgeIDs);
+        return new MatchingResult(ghStorage.getProperties().get("datareader.import.date"), AppInfo.VERSION, matchedEdgeIDs);
     }
 
     private void matchPoint(Geometry geom, LocationIndex locIndex, EdgeFilter snapFilter, int maxDistance, Set<Integer> matchedIds) {
@@ -221,7 +222,7 @@ public class MatchingRequest extends ServiceRequest {
         });
     }
 
-    public record MatchingResult(String graphTimestamp, List<Set<Integer>> matched) {
+    public record MatchingResult(String graphTimestamp, String orsVersion, List<Set<Integer>> matched) {
     }
 
     /**

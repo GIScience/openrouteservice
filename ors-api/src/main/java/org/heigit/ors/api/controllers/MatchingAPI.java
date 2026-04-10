@@ -131,6 +131,7 @@ public class MatchingAPI {
         headers.setContentType(MediaType.APPLICATION_JSON);
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("graph_timestamp", result.graphTimestamp());
+        jsonResponse.put("ors_version", result.orsVersion());
         jsonResponse.put("edge_ids", result.matched());
 
         return new ResponseEntity<>(jsonResponse.toJSONString(), headers, HttpStatus.OK);
