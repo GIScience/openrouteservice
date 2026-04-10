@@ -10,6 +10,8 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.StringUtility;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -36,14 +38,24 @@ public class DynamicDataService {
     private Boolean enabled;
     private final List<RoutingProfile> enabledProfiles = new ArrayList<>();
     private final Map<String, Instant> lastUpdateTimestamps = new ConcurrentHashMap<>();
+    private boolean deferredInitializationPending = false;
 
     public DynamicDataService(EngineService engineService, EngineProperties engineProperties, RestClient.Builder restClientBuilder) {
         this.engineService = engineService;
+
+        // Log the configuration for debugging
+        engineProperties.getDynamicData().logConfiguration();
+
         enabled = engineProperties.getDynamicData().getEnabled();
         featureStoreApiUrl = engineProperties.getDynamicData().getFeatureStoreApiUrl();
         
-        // Build RestClient with featureStoreApiUrl as baseUrl
+        // DEBUG: Log what we received from configuration
+        LOGGER.info("DynamicDataService constructor: enabled=" + enabled);
+        LOGGER.info("DynamicDataService constructor: featureStoreApiUrl=" + featureStoreApiUrl);
+
+        // Dynamic data now only supports FeatureStore API (REST endpoint)
         if (StringUtility.isNullOrEmpty(featureStoreApiUrl)) {
+            // No FSS API configured
             enabled = false;
             this.restClient = restClientBuilder.build();
         } else {
@@ -54,12 +66,38 @@ public class DynamicDataService {
             LOGGER.debug("Dynamic data service is disabled in configuration.");
             return;
         }
+
+        LOGGER.info("Dynamic data service will use FeatureStore API (api_url configured).");
+        LOGGER.info("Dynamic data service will be initialized after context refresh.");
+        deferredInitializationPending = true;
+    }
+
+    /**
+     * Deferred initialization hook - called after Spring context is fully
+     * initialized
+     * and the EngineService has completed its initialization of routing profiles.
+     * This ensures that the DynamicDataService adds datasets to the final profile
+     * instances,
+     * not temporary ones that might be recreated during EngineService
+     * initialization.
+     */
+    @EventListener(ContextRefreshedEvent.class)
+    public void onContextRefreshed() {
+        if (!deferredInitializationPending) {
+            return;
+        }
+        deferredInitializationPending = false;
+        LOGGER.info("Context refresh complete, initializing DynamicDataService.");
         this.initialize();
     }
 
     private void initialize() {
         RoutingProfileManager routingProfileManager = engineService.waitForInitializedRoutingProfileManager();
+        LOGGER.info("=== DynamicDataService.initialize() called ===");
+        LOGGER.info("RoutingProfileManager status: shutdown=" + routingProfileManager.isShutdown() + ", failed="
+                + routingProfileManager.hasFailed());
         if (routingProfileManager.isShutdown() || routingProfileManager.hasFailed()) {
+            LOGGER.warn("RoutingProfileManager is shutdown or failed, skipping dynamic data initialization");
             return;
         }
         LOGGER.info("Initializing dynamic data service with FeatureStore API URL: " + featureStoreApiUrl);
@@ -98,11 +136,35 @@ public class DynamicDataService {
         LOGGER.info("Dynamic data update completed successfully.");
     }
 
-    private void fetchDynamicData(RoutingProfile profile) {
-        if (StringUtility.isNullOrEmpty(featureStoreApiUrl))
+    /**
+     * Synchronous version of update() for manual refresh/admin operations.
+     * This method performs the same work as update() but blocks until completion,
+     * making it suitable for admin endpoints that need immediate results.
+     */
+    public void refreshNow() {
+        if (!Boolean.TRUE.equals(enabled)) {
+            LOGGER.debug("Dynamic data service is disabled, skipping refresh.");
             return;
-        
+        }
+        LOGGER.info("================== MANUALLY TRIGGERED DYNAMIC DATA REFRESH ==================");
+        LOGGER.info("enabledProfiles count: " + enabledProfiles.size());
+        for (RoutingProfile profile : enabledProfiles) {
+            LOGGER.info("  - Profile: " + profile.name());
+        }
+        enabledProfiles.forEach(this::fetchDynamicData);
+        LOGGER.info("================== DYNAMIC DATA REFRESH COMPLETED ==================");
+    }
+
+    private void fetchDynamicData(RoutingProfile profile) {
+        if (StringUtility.isNullOrEmpty(featureStoreApiUrl)) {
+            LOGGER.warn(">>> featureStoreApiUrl is null or empty, cannot fetch dynamic data!");
+            return;
+        }
+
+        LOGGER.debug(">>> Using FSS API URL: " + featureStoreApiUrl);
+
         String profileName = profile.name();
+        LOGGER.info(">>> fetchDynamicData started for profile: " + profileName);
         
         try {
             if (!areEnabledDatasetsPresent(profile)) {
@@ -180,6 +242,9 @@ public class DynamicDataService {
             return false;
         }
 
+        LOGGER.info(
+                "Checking enabled datasets for profile '" + profileName + "': " + enabledDatasets.size() + " datasets");
+
         try {
             JsonNode statsResponse = getFeatureStoreStats(profileName);
 
@@ -226,6 +291,8 @@ public class DynamicDataService {
      * Format: {"feature_id":1,"dataset_key":"logie_borders","edge_id":3239,"value":"CLOSED","timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
      */
     private void parseNdjsonMatches(String ndjsonContent, RoutingProfile profile, String profileName) {
+        LOGGER.info(
+                "Starting NDJSON parsing for profile '" + profileName + "', content length: " + ndjsonContent.length());
         ObjectMapper objectMapper = new ObjectMapper();
         JsonFactory jsonFactory = new JsonFactory();
         
@@ -254,27 +321,60 @@ public class DynamicDataService {
         try {
             JsonNode node = objectMapper.readTree(parser);
             
-            // Extract mandatory fields
-            String datasetKey = node.get("dataset_key").asText();
-            int edgeId = node.get("edge_id").asInt();
-            String timestamp = node.get("timestamp").asText();
+            // Extract mandatory fields safely using path() instead of get() to handle
+            // missing fields
+            // Due to @JsonInclude(NON_NULL) in MatchDto, optional fields may be omitted
+            // from JSON
+            String datasetKey = node.path("dataset_key").asText();
+            int edgeId = node.path("edge_id").asInt();
+
+            // FSS uses either 'timestamp' or 'updated_at' depending on API version
+            String timestamp = node.has("updated_at") ? node.path("updated_at").asText()
+                    : (node.has("timestamp") ? node.path("timestamp").asText() : Instant.now().toString());
+
             boolean isDeleted = node.has("is_deleted") && node.get("is_deleted").asBoolean();
             
             // Track timestamp for incremental updates (from Phase 6.3.3)
-            Instant matchTimestamp = Instant.parse(timestamp);
-            lastUpdateTimestamps.put(profileName, matchTimestamp);
+            try {
+                Instant matchTimestamp = Instant.parse(timestamp);
+                lastUpdateTimestamps.put(profileName, matchTimestamp);
+            } catch (Exception timeEx) {
+                // If FSS sends just a local time without Z, append Z or parse differently
+                try {
+                    if (!timestamp.endsWith("Z") && !timestamp.contains("+")) {
+                        timestamp = timestamp + "Z";
+                    }
+                    Instant matchTimestamp = Instant.parse(timestamp);
+                    lastUpdateTimestamps.put(profileName, matchTimestamp);
+                } catch (Exception timeEx2) {
+                    LOGGER.warn("Could not parse timestamp '" + timestamp + "' for dataset=" + datasetKey + ", edgeId="
+                            + edgeId);
+                }
+            }
             
             // Update or unset the dynamic data in the profile
             if (isDeleted) {
                 profile.unsetDynamicData(datasetKey, edgeId);
             } else {
-                String value = node.get("value").asText();
+                // Safe extraction of optional value field
+                String value = null;
+                if (node.has("value")) {
+                    JsonNode valueNode = node.path("value");
+                    if (!valueNode.isNull()) {
+                        value = valueNode.asText();
+                    }
+                }
+                if (value == null) {
+                    LOGGER.warn("Skipping match with null value: dataset=" + datasetKey + ", edgeId=" + edgeId);
+                    return 0; // Skip invalid match
+                }
+                LOGGER.info("Processing match: dataset=" + datasetKey + ", edgeId=" + edgeId + ", value=" + value);
                 profile.updateDynamicData(datasetKey, edgeId, value);
             }
             
             return 1;
         } catch (Exception e) {
-            LOGGER.warn("Error parsing NDJSON match entry for profile '" + profileName + "'", e);
+            LOGGER.error("Error parsing NDJSON match entry for profile '" + profileName + "': " + e.getMessage(), e);
             return 0;
         }
     }

@@ -319,10 +319,17 @@ public class RoutingProfile {
         }
         SparseEncodedValue<String> sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
         if (sev == null) {
-            LOGGER.error("SparseEncodedValue for key %s not found, cannot update dynamic data.".formatted(key));
+            LOGGER.error("SparseEncodedValue for key '" + key + "' not found in profile '" + profileName
+                    + "', cannot update dynamic data. Available datasets: " + dynamicDatasets);
             return;
         }
-        sev.set(edgeID, stateFromString.apply(value));
+        try {
+            sev.set(edgeID, stateFromString.apply(value));
+            LOGGER.debug("Updated dynamic data: profile=" + profileName + ", key=" + key + ", edgeID=" + edgeID
+                    + ", value=" + value);
+        } catch (Exception e) {
+            LOGGER.error("Error updating dynamic data for key '" + key + "', edgeID=" + edgeID + ": " + e.getMessage());
+        }
     }
 
     public void unsetDynamicData(String key, int edgeID) {
@@ -336,6 +343,28 @@ public class RoutingProfile {
 
     public JSONObject getDynamicDataStats() {
         JSONObject result = new JSONObject();
+
+        // Ensure all enabled datasets from profile configuration are registered
+        if (profileProperties != null) {
+            try {
+                List<String> enabledDatasets = profileProperties.getService().getDynamicData()
+                        .getEnabledDynamicDatasets();
+                for (String datasetName : enabledDatasets) {
+                    if (!dynamicDatasets.contains(datasetName)) {
+                        LOGGER.debug("Lazy-registering dynamic dataset '" + datasetName + "' for profile '"
+                                + profileName + "'");
+                        try {
+                            addDynamicData(datasetName);
+                        } catch (Exception e) {
+                            LOGGER.warn("Failed to lazy-register dataset '" + datasetName + "': " + e.getMessage());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Error checking enabled datasets for profile '" + profileName + "': " + e.getMessage());
+            }
+        }
+
         for (String key : dynamicDatasets) {
             HashMapSparseEncodedValue<String> ev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
             if (ev == null) {
