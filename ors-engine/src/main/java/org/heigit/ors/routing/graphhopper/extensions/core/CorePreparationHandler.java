@@ -23,6 +23,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.GraphProcessContext;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
@@ -58,7 +59,14 @@ public class CorePreparationHandler extends CHPreparationHandler {
     public void createPreparations(GraphHopperStorage ghStorage) {
         if (processContext == null)
             throw new IllegalStateException("Set processContext first!");
-        super.createPreparations(ghStorage);
+        if (ghStorage instanceof ORSGraphHopperStorage orsGraphHopperStorage) {
+            for (CHConfig chConfig : orsGraphHopperStorage.getCoreConfigs()) {
+                getPreparations().add(createCHPreparation(ghStorage, chConfig));
+            }
+        }
+        else {
+            throw new IllegalStateException("Expected ORSGraphHopperStorage");
+        }
     }
 
     @Override
