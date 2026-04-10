@@ -13,7 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import com.graphhopper.*;
+import com.graphhopper.GraphHopper;
+import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
@@ -22,10 +23,8 @@ import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
-import com.graphhopper.routing.ch.CHPreparationHandler;
 import com.graphhopper.routing.ev.HashMapSparseEncodedValue;
 import com.graphhopper.routing.lm.LMConfig;
-import com.graphhopper.routing.lm.LMPreparationHandler;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -35,7 +34,8 @@ import com.graphhopper.storage.CHConfig;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.*;
+import com.graphhopper.util.PMap;
+import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.TravelRangeType;
@@ -68,8 +68,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
-
-import static java.util.Collections.emptyList;
 
 
 public class ORSGraphHopper extends GraphHopperGtfs {
@@ -264,9 +262,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
     }
 
-    private void addTrafficSpeedCalculator(LMPreparationHandler lmPreparationHandler) {
+    @Override
+    protected void adjustLMWeighting(Weighting weighting) {
         if (isTrafficEnabled())
-            ORSWeightingFactory.addTrafficSpeedCalculator(lmPreparationHandler.getWeightings(), getGraphHopperStorage());
+            ORSWeightingFactory.addTrafficSpeedCalculator(weighting, getGraphHopperStorage());
     }
 
     /**
@@ -294,11 +293,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
         //Create the landmarks in the core
         if (coreLMPreparationHandler.isEnabled()) {
-            initCoreLMPreparationHandler();
-            coreLMPreparationHandler.createPreparations(gs, super.getLocationIndex());
-            addTrafficSpeedCalculator(coreLMPreparationHandler);
+            loadOrPrepareCoreLM();
         }
-        loadOrPrepareCoreLM();
 
         if (fastIsochroneFactory.isEnabled()) {
             EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
@@ -334,9 +330,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     @Override
     protected void postProcessingHook() {
         matchTraffic();
-
-        if (getLMPreparationHandler().isEnabled())
-            addTrafficSpeedCalculator(getLMPreparationHandler());
     }
 
     //TODO Refactoring : This is a duplication with code in RoutingProfile and should probably be moved to a status keeping class.
@@ -353,7 +346,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     private boolean hasLMProfile(String profileName) {
-        List<String> profiles = getLMPreparationHandler().getLMConfigs().stream().map(LMConfig::getName).toList();
+        List<String> profiles = getLMPreparationHandler().getLMProfiles().stream().map(LMProfile::getProfile).toList();
         return contains(profiles, profileName);
     }
 
@@ -374,42 +367,34 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     @Override
-    protected void initCHPreparationHandler() {
-        CHPreparationHandler chPreparationHandler = getCHPreparationHandler();
-        if (chPreparationHandler.hasCHConfigs()) {
-            return;
-        }
-
-        for (CHProfile chProfile : chPreparationHandler.getCHProfiles()) {
+    protected List<CHConfig> createCHConfigs(List<CHProfile> chProfiles) {
+        List<CHConfig> chConfigs = new ArrayList<>();
+        for (CHProfile chProfile : chProfiles) {
             Profile profile = profilesByName.get(chProfile.getProfile());
-            Weighting weighting = createWeighting(profile, new PMap());
 
+            Weighting weighting = createWeighting(profile, new PMap());
             if (profile.getVehicle().equals(FlagEncoderNames.HEAVYVEHICLE)) {
                 EdgeFilter hgvEdgeFilter = new HeavyVehicleEdgeFilter(HeavyVehicleAttributes.HGV, null, getGraphHopperStorage());
                 weighting = new HgvAccessWeighting(weighting, hgvEdgeFilter);
             }
 
             if (profile.isTurnCosts()) {
-                chPreparationHandler.addCHConfig(CHConfig.edgeBased(profile.getName(), weighting));
+                chConfigs.add(CHConfig.edgeBased(profile.getName(), weighting));
             } else {
-                chPreparationHandler.addCHConfig(CHConfig.nodeBased(profile.getName(), weighting));
+                chConfigs.add(CHConfig.nodeBased(profile.getName(), weighting));
             }
         }
+        return chConfigs;
     }
 
     protected void loadORS() {
-        List<CHConfig> chConfigs;
         if (corePreparationHandler.isEnabled()) {
-            initCorePreparationHandler();
-            chConfigs = corePreparationHandler.getCHConfigs();
-        } else {
-            chConfigs = emptyList();
+            List<CHConfig> chConfigs = createCoreConfigs(corePreparationHandler.getCHProfiles());
+            if (getGraphHopperStorage() instanceof ORSGraphHopperStorage orsGraphHopperStorage)
+                orsGraphHopperStorage.addCoreGraphs(chConfigs);
+            else
+                throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
         }
-
-        if (getGraphHopperStorage() instanceof ORSGraphHopperStorage)
-            ((ORSGraphHopperStorage) getGraphHopperStorage()).addCoreGraphs(chConfigs);
-        else
-            throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
     }
 
     public void addSparseEncodedValue(String key) {
@@ -417,36 +402,36 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         getEncodingManager().addEncodedValue(newEV, false);
     }
 
-    private void initCorePreparationHandler() {
-        if (corePreparationHandler.hasCHConfigs()) {
-            return;
-        }
-
-        for (com.graphhopper.config.CHProfile chProfile : corePreparationHandler.getCHProfiles()) {
+    private List<CHConfig> createCoreConfigs(List<CHProfile> chProfiles) {
+        List<CHConfig> chConfigs = new ArrayList<>();
+        for (CHProfile chProfile : chProfiles) {
             Profile profile = profilesByName.get(chProfile.getProfile());
-            corePreparationHandler.addCHConfig(new CHConfig(profile.getName(), createWeighting(profile, new PMap()), profile.isTurnCosts(), CHConfig.TYPE_CORE));
+            chConfigs.add(new CHConfig(profile.getName(), createWeighting(profile, new PMap()), profile.isTurnCosts(), CHConfig.TYPE_CORE));
         }
+        return chConfigs;
     }
 
-    private void initCoreLMPreparationHandler() {
-        if (coreLMPreparationHandler.hasLMProfiles())
-            return;
-
+    private List<LMConfig> createCoreLMConfigs(List<LMProfile> lmProfiles) {
         CoreLMOptions coreLMOptions = coreLMPreparationHandler.getCoreLMOptions();
         coreLMOptions.createRestrictionFilters(getGraphHopperStorage());
 
-        for (LMProfile lmProfile : coreLMPreparationHandler.getLMProfiles()) {
+        List<LMConfig> lmConfigs = new ArrayList<>();
+        for (LMProfile lmProfile : lmProfiles) {
             if (lmProfile.usesOtherPreparation())
                 continue;
             Profile profile = profilesByName.get(lmProfile.getProfile());
             Weighting weighting = createWeighting(profile, new PMap(), true);
+            if (isTrafficEnabled()) {
+                ORSWeightingFactory.addTrafficSpeedCalculator(weighting, getGraphHopperStorage());
+            }
             for (LMEdgeFilterSequence edgeFilter : coreLMOptions.getFilters()) {
-                CoreLMConfig coreLMConfig = new CoreLMConfig(profile.getName(), weighting);
-                coreLMConfig.setEdgeFilter(edgeFilter);
-                coreLMPreparationHandler.addLMConfig(coreLMConfig);
+                lmConfigs.add(new CoreLMConfig(profile.getName(), weighting).setEdgeFilter(edgeFilter));
             }
         }
+        return lmConfigs;
     }
+
+
 
     protected void prepareCore(boolean closeEarly) {
         for (CHProfile profile : corePreparationHandler.getCHProfiles()) {
@@ -481,12 +466,12 @@ public class ORSGraphHopper extends GraphHopperGtfs {
      * For landmarks it is required to always call this method: either it creates the landmark data or it loads it.
      */
     protected void loadOrPrepareCoreLM() {
-        boolean tmpPrepare = coreLMPreparationHandler.isEnabled();
-        if (tmpPrepare) {
-            ensureWriteAccess();
-            getGraphHopperStorage().freeze();
-            if (coreLMPreparationHandler.loadOrDoWork(getGraphHopperStorage().getProperties(), false))
-                getGraphHopperStorage().getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
+        ensureWriteAccess();
+        GraphHopperStorage ghStorage = getGraphHopperStorage();
+        ghStorage.freeze();
+        List<LMConfig> lmConfigs = createCoreLMConfigs(coreLMPreparationHandler.getLMProfiles());
+        if (coreLMPreparationHandler.loadOrDoWork(lmConfigs, ghStorage, getLocationIndex(), false)) {
+            ghStorage.getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
         }
     }
 

@@ -35,7 +35,6 @@ import static com.graphhopper.routing.weighting.TurnCostProvider.NO_TURN_COST_PR
 import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
 import static com.graphhopper.util.Helper.toLowerCase;
 import static org.heigit.ors.util.ProfileTools.VAL_CUSTOM;
-import static org.heigit.ors.util.ProfileTools.VAL_RECOMMENDED;
 
 /**
  * This class is a preliminary adaptation of ORSWeightingFactory to the new
@@ -245,6 +244,10 @@ public class ORSWeightingFactory implements WeightingFactory {
     public static void addTrafficSpeedCalculator(List<Weighting> weightings, GraphHopperStorage ghStorage) {
         for (Weighting weighting : weightings)
             addTrafficSpeedCalculator(weighting, ghStorage, null);
+    }
+
+    public static void addTrafficSpeedCalculator(Weighting weighting, GraphHopperStorage ghStorage) {
+        addTrafficSpeedCalculator(weighting, ghStorage, null);
     }
 
     private static void addTrafficSpeedCalculator(Weighting weighting, GraphHopperStorage ghStorage, Instant time) {

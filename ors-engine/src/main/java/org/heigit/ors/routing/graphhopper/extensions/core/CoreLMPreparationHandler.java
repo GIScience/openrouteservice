@@ -60,8 +60,8 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
     }
 
     @Override
-    protected void createPreparationsInternal(GraphHopperStorage ghStorage, List<LandmarkSuggestion> lmSuggestions) {
-        for (LMConfig lmConfig : getLMConfigs()) {
+    protected void createPreparationsInternal(GraphHopperStorage ghStorage, List<LMConfig> lmConfigs, List<LandmarkSuggestion> lmSuggestions) {
+        for (LMConfig lmConfig : lmConfigs) {
             if (!(lmConfig instanceof CoreLMConfig coreLMConfig))
                 throw (new IllegalStateException("Expected instance of CoreLMConfig"));
             if (!(ghStorage instanceof ORSGraphHopperStorage))
@@ -76,14 +76,14 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
                         Couldn't find \
                         """ + lmConfigName + " in " + getMaximumWeights());
 
-            PrepareLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage,
+            PrepareLandmarks prepareLandmarks = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage,
                     coreLMConfig, getLandmarks()).
                     setLandmarkSuggestions(lmSuggestions).
                     setMaximumWeight(maximumWeight).
                     setLogDetails(getLogDetails());
             if (getMinNodes() > 1)
-                tmpPrepareLM.setMinimumNodes(getMinNodes());
-            addPreparation(tmpPrepareLM);
+                prepareLandmarks.setMinimumNodes(getMinNodes());
+            getPreparations().add(prepareLandmarks);
         }
     }
 
