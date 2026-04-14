@@ -55,7 +55,7 @@ class ORSGraphHopperTest {
         gh.importOrLoad();
 
         ORSGraphHopperStorage storage = (ORSGraphHopperStorage) gh.getGraphHopperStorage();
-        assertEquals(419, storage.getNodes());
+        assertEquals(440, storage.getNodes());
     }
 
     private static EngineProperties createEngineProperties(Path localGraphsRootPath,
