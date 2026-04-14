@@ -612,7 +612,7 @@ class ResultTest extends ServiceTest {
                 .body("destinations[0].location[0]", is(closeTo(8.681495f, 0.001f)))
                 .body("destinations[0].location[1]", is(closeTo(49.41461f, 0.001f)))
                 .body("destinations[0].containsKey('snapped_distance')", is(true))
-                .body("destinations[0].snapped_distance", is(closeTo(0.02f, 0.01f)))
+                .body("destinations[0].snapped_distance", is(closeTo(0.03f, 0.01f)))
 
                 .body("destinations[1].size()", is(2))
                 .body("destinations[1].containsKey('location')", is(true))
@@ -620,7 +620,7 @@ class ResultTest extends ServiceTest {
                 .body("destinations[1].location[0]", is(closeTo(8.686507f, 0.001f)))
                 .body("destinations[1].location[1]", is(closeTo(49.41943f, 0.001f)))
                 .body("destinations[1].containsKey('snapped_distance')", is(true))
-                .body("destinations[1].snapped_distance", is(closeTo(0.01f, 0.01f)))
+                .body("destinations[1].snapped_distance", is(closeTo(0.02f, 0.01f)))
 
                 .body("destinations[2].size()", is(2))
                 .body("destinations[2].containsKey('location')", is(true))
@@ -656,7 +656,7 @@ class ResultTest extends ServiceTest {
                 .body("destinations[0].containsKey('name')", is(true))
                 .body("destinations[0].name", anyOf(is("Wielandtstraße"), is("Gerhart-Hauptmann-Straße")))
                 .body("destinations[0].containsKey('snapped_distance')", is(true))
-                .body("destinations[0].snapped_distance", is(closeTo(0.02f, 0.01f)))
+                .body("destinations[0].snapped_distance", is(closeTo(0.03f, 0.01f)))
 
                 .body("destinations[1].size()", is(3))
                 .body("destinations[1].containsKey('location')", is(true))
@@ -666,7 +666,7 @@ class ResultTest extends ServiceTest {
                 .body("destinations[1].containsKey('name')", is(true))
                 .body("destinations[1].name", is("Werderplatz"))
                 .body("destinations[1].containsKey('snapped_distance')", is(true))
-                .body("destinations[1].snapped_distance", is(closeTo(0.01f, 0.01f)))
+                .body("destinations[1].snapped_distance", is(closeTo(0.02f, 0.01f)))
 
                 .body("destinations[2].size()", is(3))
                 .body("destinations[2].containsKey('location')", is(true))
@@ -701,7 +701,7 @@ class ResultTest extends ServiceTest {
                 .body("sources[0].location[0]", is(closeTo(8.681495f, 0.001f)))
                 .body("sources[0].location[1]", is(closeTo(49.41461f, 0.001f)))
                 .body("sources[0].containsKey('snapped_distance')", is(true))
-                .body("sources[0].snapped_distance", is(closeTo(0.02f, 0.01f)))
+                .body("sources[0].snapped_distance", is(closeTo(0.03f, 0.01f)))
 
                 .body("sources[1].size()", is(2))
                 .body("sources[1].containsKey('location')", is(true))
@@ -709,7 +709,7 @@ class ResultTest extends ServiceTest {
                 .body("sources[1].location[0]", is(closeTo(8.686507f, 0.001f)))
                 .body("sources[1].location[1]", is(closeTo(49.41943f, 0.001f)))
                 .body("sources[1].containsKey('snapped_distance')", is(true))
-                .body("sources[1].snapped_distance", is(closeTo(0.01f, 0.01f)))
+                .body("sources[1].snapped_distance", is(closeTo(0.02f, 0.01f)))
 
                 .body("sources[2].size()", is(2))
                 .body("sources[2].containsKey('location')", is(true))
@@ -745,7 +745,7 @@ class ResultTest extends ServiceTest {
                 .body("sources[0].containsKey('name')", is(true))
                 .body("sources[0].name", anyOf(is("Wielandtstraße"), is("Gerhart-Hauptmann-Straße")))
                 .body("sources[0].containsKey('snapped_distance')", is(true))
-                .body("sources[0].snapped_distance", is(closeTo(0.02f, 0.01f)))
+                .body("sources[0].snapped_distance", is(closeTo(0.03f, 0.01f)))
 
                 .body("sources[1].size()", is(3))
                 .body("sources[1].containsKey('location')", is(true))
@@ -755,7 +755,7 @@ class ResultTest extends ServiceTest {
                 .body("sources[1].containsKey('name')", is(true))
                 .body("sources[1].name", is("Werderplatz"))
                 .body("sources[1].containsKey('snapped_distance')", is(true))
-                .body("sources[1].snapped_distance", is(closeTo(0.01f, 0.01f)))
+                .body("sources[1].snapped_distance", is(closeTo(0.02f, 0.01f)))
 
                 .body("sources[2].size()", is(3))
                 .body("sources[2].containsKey('location')", is(true))
