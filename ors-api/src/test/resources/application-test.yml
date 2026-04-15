@@ -45,9 +45,10 @@ ors:
               maxcellnodes: 5000
       service:
         dynamic_data:
-          logie_borders: true
-          logie_bridges: true
-          logie_roads: true
+          datasets:
+            - logie_borders
+            - logie_bridges
+            - logie_roads
     profiles:
       driving-car:
         enabled: true
@@ -115,7 +116,7 @@ ors:
             turn_costs: true
             block_fords: false
             use_acceleration: true
-            enable_custom_models: false
+            enable_custom_models: true
           preparation:
             min_network_size: 200
             methods:
@@ -171,7 +172,7 @@ ors:
             consider_elevation: false
             turn_costs: true
             block_fords: false
-            enable_custom_models: false
+            enable_custom_models: true
           preparation:
             min_network_size: 200
             methods:
@@ -198,7 +199,7 @@ ors:
             consider_elevation: false
             turn_costs: true
             block_fords: false
-            enable_custom_models: false
+            enable_custom_models: true
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -214,7 +215,7 @@ ors:
             consider_elevation: false
             turn_costs: false
             block_fords: false
-            enable_custom_models: false
+            enable_custom_models: true
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -228,7 +229,7 @@ ors:
             consider_elevation: false
             turn_costs: true
             block_fords: false
-            enable_custom_models: false
+            enable_custom_models: true
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -281,7 +282,7 @@ ors:
         build:
           encoder_options:
             block_fords: false
-            enable_custom_models: false
+            enable_custom_models: true
           ext_storages:
             Wheelchair:
               kerbs_on_crossings: true
@@ -296,7 +297,7 @@ ors:
         build:
           encoder_options:
             block_fords: false
-            enable_custom_models: false
+            enable_custom_models: true
           gtfs_file: ./src/test/files/vrn_gtfs_cut.zip
         service:
           maximum_visited_nodes: 15000
@@ -311,7 +312,7 @@ ors:
             maximum_grade_level: 1
             conditional_access: false
             conditional_speed: false
-            enable_custom_models: false
+            enable_custom_models: true
           preparation:
             min_network_size: 200
 
