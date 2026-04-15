@@ -69,7 +69,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
         Function<HttpPost, String> requestExecutor = request -> {
             try {
-                return httpClient.execute(request, this::processResponse);
+                return getHttpClient().execute(request, this::processResponse);
             } catch (IOException e) {
                 LOGGER.error("Error executing request: {}", e.getMessage());
                 return null;
@@ -100,6 +100,10 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
                 .setConnectionManager(cm)
                 .setDefaultRequestConfig(requestConfig)
                 .build();
+    }
+
+    protected CloseableHttpClient getHttpClient() {
+        return httpClient;
     }
 
     private void validateInputs(int numRoutes, int numThreads) {

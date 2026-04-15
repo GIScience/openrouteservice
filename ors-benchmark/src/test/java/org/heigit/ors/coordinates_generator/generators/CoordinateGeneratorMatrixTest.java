@@ -356,5 +356,10 @@ class CoordinateGeneratorMatrixTest {
         protected CloseableHttpClient createHttpClient() {
             return testClient != null ? testClient : super.createHttpClient();
         }
+
+        @Override
+        protected CloseableHttpClient getHttpClient() {
+            return testClient != null ? testClient : super.getHttpClient();
+        }
     }
 }
