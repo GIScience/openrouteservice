@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 /**
  * Unit tests for DynamicDataService focusing on configuration and service state.
@@ -47,14 +47,15 @@ class DynamicDataServiceTest {
         engineProperties.getDynamicData().setFeatureStoreApiUrl("http://localhost:8080/api/v1");
 
         // Mock RestClient.Builder chain
-        when(restClientBuilder.baseUrl(any(String.class))).thenReturn(restClientBuilder);
-        when(restClientBuilder.build()).thenReturn(restClient);
+        lenient().when(restClientBuilder.baseUrl(any(String.class))).thenReturn(restClientBuilder);
+        lenient().when(restClientBuilder.build()).thenReturn(restClient);
 
         // Mock EngineService and RoutingProfileManager for successful initialization
-        when(engineService.waitForInitializedRoutingProfileManager()).thenReturn(routingProfileManager);
-        when(routingProfileManager.isShutdown()).thenReturn(false);
-        when(routingProfileManager.hasFailed()).thenReturn(false);
-        when(routingProfileManager.getUniqueProfiles()).thenReturn(new ArrayList<>());
+        lenient().when(engineService.waitForInitializedRoutingProfileManager())
+                .thenReturn(routingProfileManager);
+        lenient().when(routingProfileManager.isShutdown()).thenReturn(false);
+        lenient().when(routingProfileManager.hasFailed()).thenReturn(false);
+        lenient().when(routingProfileManager.getUniqueProfiles()).thenReturn(new ArrayList<>());
 
         dynamicDataService = new DynamicDataService(engineService, engineProperties, restClientBuilder);
     }
@@ -73,8 +74,8 @@ class DynamicDataServiceTest {
         disabledProperties.getDynamicData().setFeatureStoreApiUrl("http://localhost:8080/api/v1");
 
         RestClient.Builder stubBuilder = mock(RestClient.Builder.class);
-        when(stubBuilder.baseUrl(any(String.class))).thenReturn(stubBuilder);
-        when(stubBuilder.build()).thenReturn(mock(RestClient.class));
+        lenient().when(stubBuilder.baseUrl(any(String.class))).thenReturn(stubBuilder);
+        lenient().when(stubBuilder.build()).thenReturn(mock(RestClient.class));
 
         DynamicDataService disabledService = new DynamicDataService(engineService, disabledProperties, stubBuilder);
 
@@ -89,7 +90,7 @@ class DynamicDataServiceTest {
         properties.getDynamicData().setFeatureStoreApiUrl(null);
 
         RestClient.Builder stubBuilder = mock(RestClient.Builder.class);
-        when(stubBuilder.build()).thenReturn(mock(RestClient.class));
+        lenient().when(stubBuilder.build()).thenReturn(mock(RestClient.class));
 
         DynamicDataService service = new DynamicDataService(engineService, properties, stubBuilder);
 
@@ -104,7 +105,7 @@ class DynamicDataServiceTest {
         properties.getDynamicData().setFeatureStoreApiUrl("");
 
         RestClient.Builder stubBuilder = mock(RestClient.Builder.class);
-        when(stubBuilder.build()).thenReturn(mock(RestClient.class));
+        lenient().when(stubBuilder.build()).thenReturn(mock(RestClient.class));
 
         DynamicDataService service = new DynamicDataService(engineService, properties, stubBuilder);
 

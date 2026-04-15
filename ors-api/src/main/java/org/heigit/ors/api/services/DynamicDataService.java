@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
+import java.io.InputStream;
 
 @Service
 public class DynamicDataService {
@@ -210,17 +210,19 @@ public class DynamicDataService {
                 + featureStoreApiUrl + endpoint);
         
         try {
-            String response = restClient.get()
+            restClient.get()
                     .uri(endpoint)
-                    .retrieve()
-                    .body(String.class);
-            
-            if (response == null || response.isEmpty()) {
-                LOGGER.warn("Empty response from FeatureStore API for profile '" + profileName + "'");
-                return;
-            }
-            
-            parseNdjsonMatches(response, profile, profileName);
+                    .exchange((request, response) -> {
+                        if (response.getStatusCode().is2xxSuccessful()) {
+                            try (InputStream is = response.getBody()) {
+                                parseNdjsonMatches(is, profile, profileName);
+                            }
+                        } else {
+                            LOGGER.warn("Failed to fetch dynamic data for profile '" + profileName + "': "
+                                    + response.getStatusCode());
+                        }
+                        return null;
+                    });
             LOGGER.info("Successfully fetched dynamic data for profile '" + profileName + "'");
         } catch (Exception e) {
             LOGGER.error("Error fetching dynamic data for profile '" + profileName + "'", e);
@@ -290,14 +292,13 @@ public class DynamicDataService {
      * Each line is a JSON object representing a match.
      * Format: {"feature_id":1,"dataset_key":"logie_borders","edge_id":3239,"value":"CLOSED","timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
      */
-    private void parseNdjsonMatches(String ndjsonContent, RoutingProfile profile, String profileName) {
-        LOGGER.info(
-                "Starting NDJSON parsing for profile '" + profileName + "', content length: " + ndjsonContent.length());
+    private void parseNdjsonMatches(InputStream stream, RoutingProfile profile, String profileName) {
+        LOGGER.info("Starting NDJSON parsing for profile '" + profileName + "' from stream");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonFactory jsonFactory = new JsonFactory();
         
         try {
-            JsonParser parser = jsonFactory.createParser(ndjsonContent);
+            JsonParser parser = jsonFactory.createParser(stream);
             int matchCount = 0;
             
             while (parser.nextToken() != null) {
