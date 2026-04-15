@@ -1,28 +1,20 @@
 package org.heigit.ors.config.profile;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.graphhopper.routing.ev.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Optional.ofNullable;
-
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DynamicDataProfileProperties {
-    @JsonProperty("logie_borders")
-    private Boolean logieBorders;
-    @JsonProperty("logie_bridges")
-    private Boolean logieBridges;
-    @JsonProperty("logie_roads")
-    private Boolean logieRoads;
+    @JsonProperty("datasets")
+    private List<String> datasets = new ArrayList<>();
 
     public DynamicDataProfileProperties() {
     }
@@ -33,24 +25,24 @@ public class DynamicDataProfileProperties {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return logieBorders == null && logieBridges == null && logieRoads == null;
+        return datasets == null || datasets.isEmpty();
     }
 
     public void merge(DynamicDataProfileProperties other) {
-        logieBorders = ofNullable(this.logieBorders).orElse(other.logieBorders);
-        logieBridges = ofNullable(this.logieBridges).orElse(other.logieBridges);
-        logieRoads = ofNullable(this.logieRoads).orElse(other.logieRoads);
+        if (other != null && other.getDatasets() != null && !other.getDatasets().isEmpty()) {
+            if (this.datasets == null) {
+                this.datasets = new ArrayList<>();
+            }
+            for (String ds : other.getDatasets()) {
+                if (!this.datasets.contains(ds)) {
+                    this.datasets.add(ds);
+                }
+            }
+        }
     }
 
     public List<String> getEnabledDynamicDatasets() {
-        List<String> res = new ArrayList<>();
-        if (Boolean.TRUE.equals(logieBorders))
-            res.add(LogieBorders.KEY);
-        if (Boolean.TRUE.equals(logieBridges))
-            res.add(LogieBridges.KEY);
-        if (Boolean.TRUE.equals(logieRoads))
-            res.add(LogieRoads.KEY);
-        return res;
+        return datasets != null ? new ArrayList<>(datasets) : new ArrayList<>();
     }
 }
 
