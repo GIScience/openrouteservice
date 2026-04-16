@@ -344,28 +344,49 @@ public class ORSOSMReader extends OSMReader {
                         way.setTag(key, value);
                     }
                 }
-
-                Map<String, String> tagsForNode = nodeTags.get(nodeId);
-                if (tagsForNode != null) {
-                    for (Entry<String, String> tag : tagsForNode.entrySet()) {
-                        if(!extraTagKeys.contains(tag.getKey())) continue;
-
-                        String newValue = tag.getValue();
-                        if(way.hasTag(tag.getKey())) {
-                            try {
-                                double newValInt = Double.parseDouble(newValue);
-                                double oldValInt = Double.parseDouble(way.getTag(tag.getKey()));
-                                newValue = Math.max(newValInt, oldValInt) + "";
-                            } catch (Exception e) {
-                                // If the value is not a number, we cannot use it anyway, so it does not matter which one we use.
-                            }
-                        }
-
-                        way.setTag(tag.getKey(), newValue);
-                    }
-                }
+                applyExtraNodeTagsToWay(way, nodeId);
             }
         }
+    }
+
+    private void applyExtraNodeTagsToWay(ReaderWay way, long nodeId) {
+        Map<String, String> tagsForNode = nodeTags.get(nodeId);
+        if (tagsForNode == null) {
+            return;
+        }
+
+        for (Entry<String, String> tag : tagsForNode.entrySet()) {
+            if (!extraTagKeys.contains(tag.getKey())) {
+                continue;
+            }
+
+            String newValue = tag.getValue();
+
+            if (isKerbTag(tag.getKey())) {
+                applyTagValue(way, "ors_node:" + tag.getKey(), newValue);
+            } else {
+                applyTagValue(way, tag.getKey(), newValue);
+            }
+        }
+    }
+
+    private void applyTagValue(ReaderWay way, String key, String value) {
+        String newValue = value;
+        if (way.hasTag(key)) {
+            try {
+                double newValInt = Double.parseDouble(newValue);
+                double oldValInt = Double.parseDouble(way.getTag(key));
+                newValue = Math.max(newValInt, oldValInt) + "";
+            } catch (Exception e) {
+                // If the value is not a number, we cannot use it anyway, so it does not matter which one we use.
+            }
+        }
+
+        way.setTag(key, newValue);
+    }
+
+    private boolean isKerbTag(String key) {
+        return key.contains("kerb") || key.contains("curb");
     }
 
 
