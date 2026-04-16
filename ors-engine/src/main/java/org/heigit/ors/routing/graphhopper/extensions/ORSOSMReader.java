@@ -19,18 +19,28 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
+import com.graphhopper.routing.util.AbstractFlagEncoder;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.EncodingManager.AcceptWay;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.GHPoint;
+import com.graphhopper.util.shapes.GHPoint3D;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.PedestrianWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
 import org.locationtech.jts.geom.Coordinate;
 
+import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.util.*;
 import java.util.Map.Entry;
+
+import static com.graphhopper.reader.osm.OSMNodeData.isPillarNode;
+import static com.graphhopper.reader.osm.OSMNodeData.isTowerNode;
 
 public class ORSOSMReader extends OSMReader {
 
@@ -50,15 +60,24 @@ public class ORSOSMReader extends OSMReader {
 
     private final HashSet<String> extraTagKeys;
 
+    // ORS-GH MOD - Add variable for identifying which tags from nodes should be stored on their containing ways
+    private Set<String> nodeTagsToStore;
+    // ORS-GH MOD - Add variable for storing tags obtained from nodes
+    private GHLongObjectHashMap<Map<String, Object>> osmNodeTagValues;
+
     public ORSOSMReader(GraphHopperStorage storage, OSMReaderConfig osmReaderConfig, GraphProcessContext procCntx) {
         super(storage, osmReaderConfig);
 
-        enforce2D();
+        distCalc.enforce2D();
         this.procCntx = procCntx;
         this.procCntx.initArrays();
 
-        initNodeTagsToStore(new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload")));
         extraTagKeys = new HashSet<>();
+        nodeTagsToStore = new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload"));
+        // ORS-GH MOD START init
+        osmNodeTagValues = new GHLongObjectHashMap<>(200, .5f);
+        // ORS-GH MOD END
+
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
             if (b instanceof BordersGraphStorageBuilder) {
@@ -102,9 +121,27 @@ public class ORSOSMReader extends OSMReader {
         }
     }
 
+    // ORS-GH MOD START - Store tags from the node so that they can be accessed later
+    private void storeNodeTags(ReaderNode node) {
+        Iterator<Map.Entry<String, Object>> it = node.getTags().entrySet().iterator();
+        Map<String, Object> temp = new HashMap<>();
+        while (it.hasNext()) {
+            Map.Entry<String, Object> pairs = it.next();
+            String key = pairs.getKey();
+            if (!nodeTagsToStore.contains(key)) {
+                continue;
+            }
+            temp.put(key, pairs.getValue());
+        }
+        if (!temp.isEmpty()) {
+            osmNodeTagValues.put(node.getId(), temp);
+        }
+    }
+    // ORS-GH MOD END
+
     @Override
-    public ReaderNode onProcessNode(ReaderNode node) {
-        // On OSM, nodes are seperate entities which are used to make up ways. So basically, a node is read before a
+    protected void processNode(ReaderNode node) {
+        // On OSM, nodes are separate entities which are used to make up ways. So basically, a node is read before a
         // way and if it has some properties that could affect routing, these properties need to be stored so that they
         // can be accessed when it comes to using ways
         if (processNodeTags && node.hasTags()) {
@@ -118,7 +155,7 @@ public class ORSOSMReader extends OSMReader {
             }
 
             // Now if we have tag data, we need to store it
-            if (tagValues.size() > 0) {
+            if (!tagValues.isEmpty()) {
                 nodeTags.put(node.getId(), tagValues);
             }
         }
@@ -127,11 +164,13 @@ public class ORSOSMReader extends OSMReader {
             countries.put(node.getId(), node.getTag(KEY_COUNTRY));
         }
 
-        return node;
+        if (isPillarNode(waySegmentParser.getNodeId(node.getId()))) {
+            storeNodeTags(node);
+        }
     }
 
     @Override
-    protected void processWay(ReaderWay way) {
+    protected void preprocessWay(GHPoint first, GHPoint last, ReaderWay way) {
         // As a first step we need to check to see if we should try to split the way
         if (detachSidewalksFromRoad) {
             // If we are requesting to split sidewalks, then we need to create multiple ways from a single road
@@ -150,7 +189,7 @@ public class ORSOSMReader extends OSMReader {
                     // We can only perform the processing of the ways here and so we cannot delegate it to another object.
                     while (!filter.isWayProcessingComplete()) {
                         filter.prepareForProcessing();
-                        super.processWay(way);
+                        super.preprocessWay(first, last, way);
                     }
                 }
             }
@@ -160,7 +199,13 @@ public class ORSOSMReader extends OSMReader {
         }
 
         // Normal processing
-        super.processWay(way);
+        super.preprocessWay(first, last, way);
+    }
+
+    @Override
+    protected void postprocessWay(ReaderWay readerWay) {
+        applyNodeTagsToWay(readerWay);
+        onProcessWay(readerWay);
     }
 
     /**
@@ -171,7 +216,6 @@ public class ORSOSMReader extends OSMReader {
      *
      * @param way The way object read from the OSM data (not including geometry)
      */
-    @Override
     public void onProcessWay(ReaderWay way) {
         Map<Integer, Map<String, String>> tags = new HashMap<>();
         ArrayList<Coordinate> coords = new ArrayList<>();
@@ -187,15 +231,15 @@ public class ORSOSMReader extends OSMReader {
 
             for (int i = 0; i < size; i++) {
                 // find the node
-                long id = osmNodeIds.get(i);
+                long osmId = osmNodeIds.get(i);
                 // replace the osm id with the internal id
-                int internalId = getNodeMap().get(id);
-                Map<String, String> tagsForNode = nodeTags.get(id);
+                int internalId = waySegmentParser.getNodeId(osmId);
+                Map<String, String> tagsForNode = nodeTags.get(osmId);
 
-                if (countries != null && countries.containsKey(id)) {
+                if (countries != null && countries.containsKey(osmId)) {
                     if (tagsForNode == null)
                         tagsForNode = new HashMap<>();
-                    tagsForNode.put(KEY_COUNTRY, countries.get(id));
+                    tagsForNode.put(KEY_COUNTRY, countries.get(osmId));
                 }
 
                 if (tagsForNode != null) {
@@ -226,20 +270,25 @@ public class ORSOSMReader extends OSMReader {
             if (osmNodeIds.size() > 1) {
 
                 for (int i = 0; i < osmNodeIds.size(); i++) {
-                    int id = getNodeMap().get(osmNodeIds.get(i));
+                    long osmId = osmNodeIds.get(i);
                     try {
-                        double lat = getLatitudeOfNode(id, false);
-                        double lon = getLongitudeOfNode(id, false);
-                        boolean validGeometry = !(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon));
-                        if (processWholeGeom && validGeometry) {
-                            allCoordinates.add(new Coordinate(getTmpLongitude(id), getTmpLatitude(id)));
+                        GHPoint3D ghPoint = waySegmentParser.getNodeCoordinates(osmId);
+                        double lat = ghPoint.getLat();
+                        double lon = ghPoint.getLon();
+                        boolean validPoint = !(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon));
+                        if (!validPoint) {
+                            LOGGER.warn("Invalid geometry for node " + osmNodeIds.get(i) + " on way " + way.getId());
+                            continue;
                         }
-                        // Add the point to the line
-                        // Check that we have a tower node
-                        lat = getLatitudeOfNode(id, true);
-                        lon = getLongitudeOfNode(id, true);
-                        if (validGeometry) {
-                            coords.add(new Coordinate(lon, lat));
+                        Coordinate coordinate = new Coordinate(lon, lat);
+                        if (processWholeGeom) {
+                            allCoordinates.add(coordinate);
+                        }
+                        if (isTowerNode(waySegmentParser.getNodeId(osmId))) {
+                            coords.add(coordinate);
+                        }
+                        else {// TODO: check if we actually need to add  "empty" points
+                            coords.add(new Coordinate(Double.NaN, Double.NaN));
                         }
                     } catch (Exception e) {
                         LOGGER.error("Could not process node " + osmNodeIds.get(i));
@@ -260,64 +309,6 @@ public class ORSOSMReader extends OSMReader {
     /* The following two methods are not ideal, but due to a preprocessing stage of GH they are required if you want
      * the geometry of the whole way. */
 
-    /**
-     * Find the latitude of the node with the given ID. It checks to see what type of node it is and then finds the
-     * latitude from the correct storage location.
-     *
-     * @param id Internal ID of the OSM node.
-     * @return Return the latitude as double.
-     */
-    private double getLatitudeOfNode(int id, boolean onlyTower) {
-        // for speed, we only want to handle the geometry of tower nodes (those at junctions)
-        if (isEmptyNode(id))
-            return Double.NaN;
-        if (isTowerNode(id)) {
-            // tower node
-            id = -id - 3;
-            return getNodeAccess().getLat(id);
-        } else if (isPillarNode(id)) {
-            // pillar node
-            id = id -3;
-            // Do we want to return it if it is not a tower node?
-            if (onlyTower) {
-                return Double.NaN;
-            } else {
-                return pillarInfo.getLat(id);
-            }
-        } else {
-            // e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
-            return Double.NaN;
-        }
-    }
-
-    /**
-     * Find the longitude of the node with the given ID. It checks to see what type of node it is and then finds the
-     * longitude from the correct storage location.
-     *
-     * @param id Internal ID of the OSM node
-     * @return Return the longitude as double
-     */
-    private double getLongitudeOfNode(int id, boolean onlyTower) {
-        if (isEmptyNode(id))
-            return Double.NaN;
-        if (isTowerNode(id)) {
-            // tower node
-            id = -id - 3;
-            return getNodeAccess().getLon(id);
-        } else if (isPillarNode(id)) {
-            // pillar node
-            id = id - 3;
-            // Do we want to return it if it is not a tower node?
-            if (onlyTower) {
-                return Double.NaN;
-            } else {
-                return pillarInfo.getLat(id);
-            }
-        } else {
-            // e.g. if id is not handled from preparse (e.g. was ignored via isInBounds)
-            return Double.NaN;
-        }
-    }
 
     /**
      * Applies tags of nodes that lie on a way onto the way itself so that they are
@@ -326,7 +317,6 @@ public class ORSOSMReader extends OSMReader {
      *
      * @param way the way to process
      */
-    @Override
     public void applyNodeTagsToWay(ReaderWay way) {
         LongArrayList osmNodeIds = way.getNodes();
         int size = osmNodeIds.size();
@@ -347,37 +337,66 @@ public class ORSOSMReader extends OSMReader {
         }
     }
 
+    // ORS-GH MOD START - Method for getting the recorded tags for a node
+    public Map<String, Object> getStoredTagsForNode(long nodeId) {
+        if (osmNodeTagValues.containsKey(nodeId)) {
+            return osmNodeTagValues.get(nodeId);
+        } else {
+            return new HashMap<>();
+        }
+    }
+    // ORS-GH MOD END
+
+    // ORS-GH MOD START - Method for identifying if a node has tas stored for it
+    public boolean nodeHasTagsStored(long nodeId) {
+        return osmNodeTagValues.containsKey(nodeId);
+    }
+    // ORS-GH MOD END
+
 
     @Override
     protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
         try {
-            // Pass through the coordinates of the graph nodes
-            Coordinate baseCoord = new Coordinate(
-                    getLongitudeOfNode(edge.getBaseNode(), false),
-                    getLatitudeOfNode(edge.getBaseNode(), false)
-            );
-            Coordinate adjCoordinate = new Coordinate(
-                    getLongitudeOfNode(edge.getAdjNode(), false),
-                    getLatitudeOfNode(edge.getAdjNode(), false)
-            );
+            int baseNode = edge.getBaseNode();
+            int adjNode = edge.getAdjNode();
+            Coordinate [] coordinates = {
+                    new Coordinate(nodeAccess.getLon(baseNode), nodeAccess.getLat(baseNode)),
+                    new Coordinate(nodeAccess.getLon(adjNode), nodeAccess.getLat(adjNode))
+            };
 
-            procCntx.processEdge(way, edge, new Coordinate[]{baseCoord, adjCoordinate});
+            procCntx.processEdge(way, edge, coordinates);
+
+            AcceptWay acceptWay = (AcceptWay) way.getTags().get("ors:accept");
+            if (acceptWay.hasConditional()) {
+                storeConditionalAccess(acceptWay, edge);
+            }
+            // TODO: storeConditionalSpeed
         } catch (Exception ex) {
             LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
         }
     }
 
-    @Override
-    protected void recordExactWayDistance(ReaderWay way, LongArrayList osmNodeIds) {
-        super.recordExactWayDistance(way, osmNodeIds);
 
+    protected void storeConditionalAccess(AcceptWay acceptWay, EdgeIteratorState edge) {
+        for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
+            String encoderName = encoder.toString();
+            if (acceptWay.getAccess(encoderName).isConditional() && encodingManager.hasEncodedValue(EncodingManager.getKey(encoderName, ConditionalEdges.ACCESS))) {
+                String value = ((AbstractFlagEncoder) encoder).getConditionalTagInspector().getTagValue();
+                ghStorage.getConditionalAccess(encoderName).addEdges(Collections.singletonList(edge), value);
+            }
+        }
+    }
+
+    @Override
+    protected void recordExactWayDistance(ReaderWay way) {
         // compute exact way distance for ferries in order to improve travel time estimate, see #1037
         if (way.hasTag("route", "ferry", "shuttle_train")) {
+            var osmNodeIds = way.getNodes();
             double totalDist = 0d;
             long nodeId = osmNodeIds.get(0);
-            int first = getNodeMap().get(nodeId);
-            double firstLat = getTmpLatitude(first);
-            double firstLon = getTmpLongitude(first);
+            GHPoint3D ghPoint = waySegmentParser.getNodeCoordinates(nodeId);
+            double firstLat = ghPoint.getLat();
+            double firstLon = ghPoint.getLon();
             double currLat = firstLat;
             double currLon = firstLon;
             double latSum = currLat;
@@ -386,14 +405,14 @@ public class ORSOSMReader extends OSMReader {
             int len = osmNodeIds.size();
             for (int i = 1; i < len; i++) {
                 long nextNodeId = osmNodeIds.get(i);
-                int next = getNodeMap().get(nextNodeId);
-                double nextLat = getTmpLatitude(next);
-                double nextLon = getTmpLongitude(next);
+                ghPoint = waySegmentParser.getNodeCoordinates(nextNodeId);
+                double nextLat = ghPoint.getLat();
+                double nextLon = ghPoint.getLon();
                 if (!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
                     latSum = latSum + nextLat;
                     lonSum = lonSum + nextLon;
                     sumCount++;
-                    totalDist = totalDist + getDistanceCalc().calcDist(currLat, currLon, nextLat, nextLon);
+                    totalDist = totalDist + distCalc.calcDist(currLat, currLon, nextLat, nextLon);
 
                     currLat = nextLat;
                     currLon = nextLon;
@@ -407,8 +426,8 @@ public class ORSOSMReader extends OSMReader {
     }
 
     @Override
-    protected void finishedReading() {
-        super.finishedReading();
+    public void readGraph() throws IOException {
+        super.readGraph();
         procCntx.finish();
     }
 
