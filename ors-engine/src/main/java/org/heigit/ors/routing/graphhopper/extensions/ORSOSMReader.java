@@ -20,7 +20,6 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
-import com.graphhopper.routing.ev.WheelchairKerb;
 import com.graphhopper.routing.ev.HillIndex;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
@@ -37,7 +36,6 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.PedestrianWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
-import org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair.WheelchairKerbHeightParser;
 import org.heigit.ors.routing.util.HillIndexCalculator;
 import org.locationtech.jts.geom.Coordinate;
 
@@ -373,7 +371,7 @@ public class ORSOSMReader extends OSMReader {
             return;
         }
 
-        for (Entry<String, String> tag : tagsForNode.entrySet()) {
+        for (Map.Entry<String, String> tag : tagsForNode.entrySet()) {
             if (!extraTagKeys.contains(tag.getKey())) {
                 continue;
             }
