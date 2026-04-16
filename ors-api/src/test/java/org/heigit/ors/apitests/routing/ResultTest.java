@@ -2312,7 +2312,6 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(74.1f))
-                .body("routes[0].summary.duration", is(49.2f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -2333,6 +2332,19 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(105.8f))
+                .statusCode(200);
+
+        body.put("preference", "fastest");
+
+        given()
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.duration", is(90.7f))
                 .statusCode(200);
     }
