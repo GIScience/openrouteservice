@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.carrotsearch.hppc.LongArrayList;
 import com.graphhopper.coll.GHLongObjectHashMap;
+import com.graphhopper.reader.ConditionalSpeedInspector;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
@@ -25,6 +26,7 @@ import com.graphhopper.routing.util.EncodingManager.AcceptWay;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint3D;
@@ -199,7 +201,7 @@ public class ORSOSMReader extends OSMReader {
         super.setArtificialWayTags(first, last, way);
     }
 
-    protected void recordExactWayDistance(ReaderWay way) {
+    private void recordExactWayDistance(ReaderWay way) {
         // compute exact way distance for ferries in order to improve travel time estimate, see #1037
         if (way.hasTag("route", "ferry", "shuttle_train")) {
             var osmNodeIds = way.getNodes();
@@ -244,7 +246,7 @@ public class ORSOSMReader extends OSMReader {
      *
      * @param way The way object read from the OSM data (not including geometry)
      */
-    public void onProcessWay(ReaderWay way) {
+    private void onProcessWay(ReaderWay way) {
         Map<Integer, Map<String, String>> tags = new HashMap<>();
         ArrayList<Coordinate> coords = new ArrayList<>();
         ArrayList<Coordinate> allCoordinates = new ArrayList<>();
@@ -341,7 +343,7 @@ public class ORSOSMReader extends OSMReader {
      *
      * @param way the way to process
      */
-    public void applyNodeTagsToWay(ReaderWay way) {
+    private void applyNodeTagsToWay(ReaderWay way) {
         LongArrayList osmNodeIds = way.getNodes();
         int size = osmNodeIds.size();
         if (size > 2) {
@@ -371,18 +373,35 @@ public class ORSOSMReader extends OSMReader {
             if (acceptWay.hasConditional()) {
                 storeConditionalAccess(acceptWay, edge);
             }
-            // TODO: storeConditionalSpeed
+
+            IntsRef edgeFlags = (IntsRef) way.getTags().get("gh:flags");
+            storeConditionalSpeed(edgeFlags, edge);
         } catch (Exception ex) {
             LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
         }
     }
 
-    protected void storeConditionalAccess(AcceptWay acceptWay, EdgeIteratorState edge) {
+    private void storeConditionalAccess(AcceptWay acceptWay, EdgeIteratorState edge) {
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
             String encoderName = encoder.toString();
             if (acceptWay.getAccess(encoderName).isConditional() && encodingManager.hasEncodedValue(EncodingManager.getKey(encoderName, ConditionalEdges.ACCESS))) {
                 String value = ((AbstractFlagEncoder) encoder).getConditionalTagInspector().getTagValue();
                 ghStorage.getConditionalAccess(encoderName).addEdges(Collections.singletonList(edge), value);
+            }
+        }
+    }
+
+    private void storeConditionalSpeed(IntsRef edgeFlags, EdgeIteratorState edge) {
+        for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
+            String encoderName = EncodingManager.getKey(encoder, ConditionalEdges.SPEED);
+
+            if (encodingManager.hasEncodedValue(encoderName) && encodingManager.getBooleanEncodedValue(encoderName).getBool(false, edgeFlags)) {
+                ConditionalSpeedInspector conditionalSpeedInspector = ((AbstractFlagEncoder) encoder).getConditionalSpeedInspector();
+
+                if (conditionalSpeedInspector.hasLazyEvaluatedConditions()) {
+                    String value = conditionalSpeedInspector.getTagValue();
+                    ghStorage.getConditionalSpeed(encoder).addEdges(Collections.singletonList(edge), value);
+                }
             }
         }
     }
