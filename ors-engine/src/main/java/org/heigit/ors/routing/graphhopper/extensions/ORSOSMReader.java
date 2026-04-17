@@ -17,6 +17,7 @@ import com.carrotsearch.hppc.LongArrayList;
 import com.graphhopper.coll.GHLongObjectHashMap;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.reader.osm.OSMNodeData;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
@@ -164,7 +165,7 @@ public class ORSOSMReader extends OSMReader {
             countries.put(node.getId(), node.getTag(KEY_COUNTRY));
         }
 
-        if (isPillarNode(waySegmentParser.getNodeId(node.getId()))) {
+        if (isPillarNode(nodeData.getId(node.getId()))) {
             storeNodeTags(node);
         }
     }
@@ -177,14 +178,12 @@ public class ORSOSMReader extends OSMReader {
             // For example, if a road way has been tagged as having sidewalks on both sides (sidewalk=both), then we
             // need to create two ways - one for the left sidewalk and one for the right. The Graph Builder would then
             // process these ways separately so that additional edges are created in the graph.
-
             for (OSMFeatureFilter filter : filtersToApply) {
                 try {
                     filter.assignFeatureForFiltering(way);
                 } catch (InvalidObjectException ioe) {
                     LOGGER.error("Invalid object for filtering - " + ioe.getMessage());
                 }
-
                 if (filter.accept()) {
                     // We can only perform the processing of the ways here and so we cannot delegate it to another object.
                     while (!filter.isWayProcessingComplete()) {
@@ -193,19 +192,20 @@ public class ORSOSMReader extends OSMReader {
                     }
                 }
             }
-
-            return;
-
+        }
+        else {
+            // Normal processing
+            super.preprocessWay(first, last, way);
         }
 
-        // Normal processing
-        super.preprocessWay(first, last, way);
+        applyNodeTagsToWay(way);
+        onProcessWay(way);
     }
 
     @Override
-    protected void postprocessWay(ReaderWay readerWay) {
-        applyNodeTagsToWay(readerWay);
-        onProcessWay(readerWay);
+    protected void setArtificialWayTags(GHPoint first, GHPoint last, ReaderWay way) {
+        recordExactWayDistance(way);
+        super.setArtificialWayTags(first, last, way);
     }
 
     /**
@@ -233,7 +233,7 @@ public class ORSOSMReader extends OSMReader {
                 // find the node
                 long osmId = osmNodeIds.get(i);
                 // replace the osm id with the internal id
-                int internalId = waySegmentParser.getNodeId(osmId);
+                int internalId = nodeData.getId(osmId);
                 Map<String, String> tagsForNode = nodeTags.get(osmId);
 
                 if (countries != null && countries.containsKey(osmId)) {
@@ -272,7 +272,7 @@ public class ORSOSMReader extends OSMReader {
                 for (int i = 0; i < osmNodeIds.size(); i++) {
                     long osmId = osmNodeIds.get(i);
                     try {
-                        GHPoint3D ghPoint = waySegmentParser.getNodeCoordinates(osmId);
+                        GHPoint3D ghPoint = nodeData.getCoordinates(osmId);
                         double lat = ghPoint.getLat();
                         double lon = ghPoint.getLon();
                         boolean validPoint = !(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon));
@@ -284,7 +284,7 @@ public class ORSOSMReader extends OSMReader {
                         if (processWholeGeom) {
                             allCoordinates.add(coordinate);
                         }
-                        if (isTowerNode(waySegmentParser.getNodeId(osmId))) {
+                        if (isTowerNode(nodeData.getId(osmId))) {
                             coords.add(coordinate);
                         }
                         else {// TODO: check if we actually need to add  "empty" points
@@ -387,14 +387,13 @@ public class ORSOSMReader extends OSMReader {
         }
     }
 
-    @Override
     protected void recordExactWayDistance(ReaderWay way) {
         // compute exact way distance for ferries in order to improve travel time estimate, see #1037
         if (way.hasTag("route", "ferry", "shuttle_train")) {
             var osmNodeIds = way.getNodes();
             double totalDist = 0d;
             long nodeId = osmNodeIds.get(0);
-            GHPoint3D ghPoint = waySegmentParser.getNodeCoordinates(nodeId);
+            GHPoint3D ghPoint = nodeData.getCoordinates(nodeId);
             double firstLat = ghPoint.getLat();
             double firstLon = ghPoint.getLon();
             double currLat = firstLat;
@@ -405,7 +404,7 @@ public class ORSOSMReader extends OSMReader {
             int len = osmNodeIds.size();
             for (int i = 1; i < len; i++) {
                 long nextNodeId = osmNodeIds.get(i);
-                ghPoint = waySegmentParser.getNodeCoordinates(nextNodeId);
+                ghPoint = nodeData.getCoordinates(nextNodeId);
                 double nextLat = ghPoint.getLat();
                 double nextLon = ghPoint.getLon();
                 if (!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
