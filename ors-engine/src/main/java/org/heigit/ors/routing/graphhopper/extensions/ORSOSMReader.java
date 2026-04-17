@@ -17,7 +17,6 @@ import com.carrotsearch.hppc.LongArrayList;
 import com.graphhopper.coll.GHLongObjectHashMap;
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.reader.osm.OSMNodeData;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
@@ -38,7 +37,6 @@ import org.locationtech.jts.geom.Coordinate;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.util.*;
-import java.util.Map.Entry;
 
 import static com.graphhopper.reader.osm.OSMNodeData.isPillarNode;
 import static com.graphhopper.reader.osm.OSMNodeData.isTowerNode;
@@ -60,11 +58,8 @@ public class ORSOSMReader extends OSMReader {
     private final List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
     private final HashSet<String> extraTagKeys;
-
-    // ORS-GH MOD - Add variable for identifying which tags from nodes should be stored on their containing ways
-    private Set<String> nodeTagsToStore;
-    // ORS-GH MOD - Add variable for storing tags obtained from nodes
-    private GHLongObjectHashMap<Map<String, Object>> osmNodeTagValues;
+    private final Set<String> nodeTagsToStore;
+    private final GHLongObjectHashMap<Map<String, Object>> osmNodeTagValues;
 
     public ORSOSMReader(GraphHopperStorage storage, OSMReaderConfig osmReaderConfig, GraphProcessContext procCntx) {
         super(storage, osmReaderConfig);
@@ -75,9 +70,7 @@ public class ORSOSMReader extends OSMReader {
 
         extraTagKeys = new HashSet<>();
         nodeTagsToStore = new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload"));
-        // ORS-GH MOD START init
         osmNodeTagValues = new GHLongObjectHashMap<>(200, .5f);
-        // ORS-GH MOD END
 
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
@@ -122,7 +115,6 @@ public class ORSOSMReader extends OSMReader {
         }
     }
 
-    // ORS-GH MOD START - Store tags from the node so that they can be accessed later
     private void storeNodeTags(ReaderNode node) {
         Iterator<Map.Entry<String, Object>> it = node.getTags().entrySet().iterator();
         Map<String, Object> temp = new HashMap<>();
@@ -138,7 +130,6 @@ public class ORSOSMReader extends OSMReader {
             osmNodeTagValues.put(node.getId(), temp);
         }
     }
-    // ORS-GH MOD END
 
     @Override
     protected void processNode(ReaderNode node) {
@@ -206,6 +197,43 @@ public class ORSOSMReader extends OSMReader {
     protected void setArtificialWayTags(GHPoint first, GHPoint last, ReaderWay way) {
         recordExactWayDistance(way);
         super.setArtificialWayTags(first, last, way);
+    }
+
+    protected void recordExactWayDistance(ReaderWay way) {
+        // compute exact way distance for ferries in order to improve travel time estimate, see #1037
+        if (way.hasTag("route", "ferry", "shuttle_train")) {
+            var osmNodeIds = way.getNodes();
+            double totalDist = 0d;
+            long nodeId = osmNodeIds.get(0);
+            GHPoint3D ghPoint = nodeData.getCoordinates(nodeId);
+            double firstLat = ghPoint.getLat();
+            double firstLon = ghPoint.getLon();
+            double currLat = firstLat;
+            double currLon = firstLon;
+            double latSum = currLat;
+            double lonSum = currLon;
+            int sumCount = 1;
+            int len = osmNodeIds.size();
+            for (int i = 1; i < len; i++) {
+                long nextNodeId = osmNodeIds.get(i);
+                ghPoint = nodeData.getCoordinates(nextNodeId);
+                double nextLat = ghPoint.getLat();
+                double nextLon = ghPoint.getLon();
+                if (!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
+                    latSum = latSum + nextLat;
+                    lonSum = lonSum + nextLon;
+                    sumCount++;
+                    totalDist = totalDist + distCalc.calcDist(currLat, currLon, nextLat, nextLon);
+
+                    currLat = nextLat;
+                    currLon = nextLon;
+                }
+            }
+            if (totalDist > 0) {
+                way.setTag("exact_distance", totalDist);
+                way.setTag("exact_center", new GHPoint(latSum / sumCount, lonSum / sumCount));
+            }
+        }
     }
 
     /**
@@ -306,10 +334,6 @@ public class ORSOSMReader extends OSMReader {
         }
     }
 
-    /* The following two methods are not ideal, but due to a preprocessing stage of GH they are required if you want
-     * the geometry of the whole way. */
-
-
     /**
      * Applies tags of nodes that lie on a way onto the way itself so that they are
      * regarded in the following storage building process. E.g. a maxheight tag on a node will
@@ -324,35 +348,12 @@ public class ORSOSMReader extends OSMReader {
             // If it is a crossing then we need to apply any kerb tags to the way, but we need to make sure we keep the "worse" one
             for (int i = 1; i < size - 1; i++) {
                 long nodeId = osmNodeIds.get(i);
-                if (nodeHasTagsStored(nodeId)) {
-                    java.util.Iterator<Entry<String, Object>> it = getStoredTagsForNode(nodeId).entrySet().iterator();
-                    while (it.hasNext()) {
-                        Map.Entry<String, Object> pairs = it.next();
-                        String key = pairs.getKey();
-                        String value = pairs.getValue().toString();
-                        way.setTag(key, value);
-                    }
+                if (osmNodeTagValues.containsKey(nodeId)) {
+                  osmNodeTagValues.get(nodeId).forEach((key, value) -> way.setTag(key, value.toString()));
                 }
             }
         }
     }
-
-    // ORS-GH MOD START - Method for getting the recorded tags for a node
-    public Map<String, Object> getStoredTagsForNode(long nodeId) {
-        if (osmNodeTagValues.containsKey(nodeId)) {
-            return osmNodeTagValues.get(nodeId);
-        } else {
-            return new HashMap<>();
-        }
-    }
-    // ORS-GH MOD END
-
-    // ORS-GH MOD START - Method for identifying if a node has tas stored for it
-    public boolean nodeHasTagsStored(long nodeId) {
-        return osmNodeTagValues.containsKey(nodeId);
-    }
-    // ORS-GH MOD END
-
 
     @Override
     protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
@@ -376,50 +377,12 @@ public class ORSOSMReader extends OSMReader {
         }
     }
 
-
     protected void storeConditionalAccess(AcceptWay acceptWay, EdgeIteratorState edge) {
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
             String encoderName = encoder.toString();
             if (acceptWay.getAccess(encoderName).isConditional() && encodingManager.hasEncodedValue(EncodingManager.getKey(encoderName, ConditionalEdges.ACCESS))) {
                 String value = ((AbstractFlagEncoder) encoder).getConditionalTagInspector().getTagValue();
                 ghStorage.getConditionalAccess(encoderName).addEdges(Collections.singletonList(edge), value);
-            }
-        }
-    }
-
-    protected void recordExactWayDistance(ReaderWay way) {
-        // compute exact way distance for ferries in order to improve travel time estimate, see #1037
-        if (way.hasTag("route", "ferry", "shuttle_train")) {
-            var osmNodeIds = way.getNodes();
-            double totalDist = 0d;
-            long nodeId = osmNodeIds.get(0);
-            GHPoint3D ghPoint = nodeData.getCoordinates(nodeId);
-            double firstLat = ghPoint.getLat();
-            double firstLon = ghPoint.getLon();
-            double currLat = firstLat;
-            double currLon = firstLon;
-            double latSum = currLat;
-            double lonSum = currLon;
-            int sumCount = 1;
-            int len = osmNodeIds.size();
-            for (int i = 1; i < len; i++) {
-                long nextNodeId = osmNodeIds.get(i);
-                ghPoint = nodeData.getCoordinates(nextNodeId);
-                double nextLat = ghPoint.getLat();
-                double nextLon = ghPoint.getLon();
-                if (!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
-                    latSum = latSum + nextLat;
-                    lonSum = lonSum + nextLon;
-                    sumCount++;
-                    totalDist = totalDist + distCalc.calcDist(currLat, currLon, nextLat, nextLon);
-
-                    currLat = nextLat;
-                    currLon = nextLon;
-                }
-            }
-            if (totalDist > 0) {
-                way.setTag("exact_distance", totalDist);
-                way.setTag("exact_center", new GHPoint(latSum / sumCount, lonSum / sumCount));
             }
         }
     }
