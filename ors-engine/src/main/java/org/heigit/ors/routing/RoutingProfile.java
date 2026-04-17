@@ -44,7 +44,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -298,42 +297,62 @@ public class RoutingProfile {
     }
 
     public void updateDynamicData(String key, int edgeID, String value) {
-        Function<String, Object> stateFromString = null;
-        switch (key) {
-            case LogieBorders.KEY:
-                stateFromString = s -> LogieBorders.valueOf(s.replace(" ", "_").toUpperCase());
-                break;
-            case LogieBridges.KEY:
-                stateFromString = s -> LogieBridges.valueOf(s.replace(" ", "_").toUpperCase());
-                break;
-            case LogieRoads.KEY:
-                stateFromString = s -> LogieRoads.valueOf(s.replace(" ", "_").toUpperCase());
-                break;
-            default:
-                // do nothing
-                break;
-        }
-        if (stateFromString == null) {
-            LOGGER.error("No stateFromString function defined for key '" + key + "', cannot update dynamic data.");
+        if (!dynamicDatasets.contains(key)) {
+            LOGGER.error("Dataset '" + key + "' not registered in profile '" + profileName
+                    + "', cannot update dynamic data. Available datasets: " + dynamicDatasets);
             return;
         }
-        SparseEncodedValue<String> sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+        SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
         if (sev == null) {
             LOGGER.error("SparseEncodedValue for key '" + key + "' not found in profile '" + profileName
                     + "', cannot update dynamic data. Available datasets: " + dynamicDatasets);
             return;
         }
         try {
-            sev.set(edgeID, stateFromString.apply(value));
+            double floatValue = parseValueAsDouble(value);
+            sev.set(edgeID, floatValue);
             LOGGER.debug("Updated dynamic data: profile=" + profileName + ", key=" + key + ", edgeID=" + edgeID
-                    + ", value=" + value);
-        } catch (Exception e) {
-            LOGGER.error("Error updating dynamic data for key '" + key + "', edgeID=" + edgeID + ": " + e.getMessage());
+                    + ", value=" + floatValue);
+        } catch (NumberFormatException e) {
+            LOGGER.error("Error updating dynamic data for key '" + key + "', edgeID=" + edgeID
+                    + ": invalid value '" + value + "': " + e.getMessage());
+        }
+    }
+
+    /**
+     * Parses various value types into a Double. Supports:
+     * - Boolean strings: "true" -> 1.0, "false" -> 0.0
+     * - Numeric strings: "1", "-2.3", "1.5", etc.
+     *
+     * @param value the string value to parse
+     * @return the parsed double value
+     * @throws NumberFormatException if the value cannot be parsed
+     */
+    private double parseValueAsDouble(String value) throws NumberFormatException {
+        if (value == null) {
+            throw new NumberFormatException("Value cannot be null");
+        }
+
+        String trimmed = value.trim().toLowerCase();
+
+        // Handle boolean strings
+        if ("true".equals(trimmed)) {
+            return 1.0;
+        }
+        if ("false".equals(trimmed)) {
+            return 0.0;
+        }
+
+        // Parse as numeric value (handles integers, floats, negative numbers, etc.)
+        try {
+            return Double.parseDouble(trimmed);
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("Cannot parse '" + value + "' as a numeric or boolean value: " + e.getMessage());
         }
     }
 
     public void unsetDynamicData(String key, int edgeID) {
-        SparseEncodedValue<String> sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+        SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
         if (sev == null) {
             LOGGER.error("SparseEncodedValue for key %s not found, cannot unset dynamic data.".formatted(key));
             return;
@@ -366,7 +385,7 @@ public class RoutingProfile {
         }
 
         for (String key : dynamicDatasets) {
-            HashMapSparseEncodedValue<String> ev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+            HashMapSparseEncodedValue<?> ev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
             if (ev == null) {
                 LOGGER.warn("SparseEncodedValue for key %s not found, this should not happen.".formatted(key));
                 continue;

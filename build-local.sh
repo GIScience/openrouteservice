@@ -16,6 +16,25 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+GRAPHOPPER_DIR="../graphhopper"
+
+resolve_local_graphhopper_version() {
+    if [[ ! -f "$GRAPHOPPER_DIR/pom.xml" ]]; then
+        print_error "GraphHopper pom.xml not found at $GRAPHOPPER_DIR/pom.xml"
+        exit 1
+    fi
+
+    local graphhopper_version
+    graphhopper_version="$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' "$GRAPHOPPER_DIR/pom.xml" | head -1)"
+
+    if [[ -z "$graphhopper_version" ]]; then
+        print_error "Unable to detect GraphHopper version from $GRAPHOPPER_DIR/pom.xml"
+        exit 1
+    fi
+
+    echo "$graphhopper_version"
+}
+
 print_header() {
     echo -e "${BLUE}===================================================${NC}"
     echo -e "${BLUE}$1${NC}"
@@ -83,8 +102,9 @@ ${YELLOW}EXAMPLES:${NC}
   ./build-local.sh --verbose
 
 ${YELLOW}VERIFICATION:${NC}
-  After building, verify GraphHopper artifacts:
-    ls -la ~/.m2/repository/com/github/GIScience/graphhopper/graphhopper-core/v4.12.0/
+  After building, verify GraphHopper artifacts using the version from ../graphhopper/pom.xml:
+    graphhopper_version=$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' ../graphhopper/pom.xml | head -1)
+    ls -la ~/.m2/repository/com/github/GIScience/graphhopper/graphhopper-core/$graphhopper_version/
 
   Check dependency tree:
     mvn dependency:tree -Dincludes=com.github.GIScience.graphhopper
@@ -125,58 +145,74 @@ case "$COMMAND" in
         show_help
         ;;
     default)
+        GRAPHOPPER_VERSION="$(resolve_local_graphhopper_version)"
         print_header "Building ORS with auto-rebuild of local GraphHopper"
         print_info "Building GraphHopper modules: $MODULES"
-        mvn -DlocalGraphhopper=true -DlocalGraphhopperModules="$MODULES" $SKIP_TESTS $VERBOSE clean package
+        print_info "Using local GraphHopper version: $GRAPHOPPER_VERSION"
+        mvn -Dgraphhopper.version="$GRAPHOPPER_VERSION" -DlocalGraphhopper=true -DlocalGraphhopperModules="$MODULES" $SKIP_TESTS $VERBOSE clean package
         print_success "Build completed!"
         ;;
     fast)
+        GRAPHOPPER_VERSION="$(resolve_local_graphhopper_version)"
         print_header "Fast ORS rebuild (using pre-built GraphHopper)"
         print_info "Skipping GraphHopper rebuild - using artifacts from ~/.m2/repository"
-        mvn -DlocalGraphhopperOnly=true $SKIP_TESTS $VERBOSE clean package
+        print_info "Using local GraphHopper version: $GRAPHOPPER_VERSION"
+        mvn -Dgraphhopper.version="$GRAPHOPPER_VERSION" -DlocalGraphhopperOnly=true $SKIP_TESTS $VERBOSE clean package
         print_success "Fast build completed!"
         ;;
     compile)
+        GRAPHOPPER_VERSION="$(resolve_local_graphhopper_version)"
         print_header "Compiling ORS (no tests, no package)"
-        mvn -DlocalGraphhopperOnly=true -DskipTests $VERBOSE clean compile
+        print_info "Using local GraphHopper version: $GRAPHOPPER_VERSION"
+        mvn -Dgraphhopper.version="$GRAPHOPPER_VERSION" -DlocalGraphhopperOnly=true -DskipTests $VERBOSE clean compile
         print_success "Compile completed!"
         ;;
     test)
+        GRAPHOPPER_VERSION="$(resolve_local_graphhopper_version)"
         print_header "Running ORS tests"
-        mvn -DlocalGraphhopperOnly=true $VERBOSE clean test
+        print_info "Using local GraphHopper version: $GRAPHOPPER_VERSION"
+        mvn -Dgraphhopper.version="$GRAPHOPPER_VERSION" -DlocalGraphhopperOnly=true $VERBOSE clean test
         print_success "Tests completed!"
         ;;
     verify)
+        GRAPHOPPER_VERSION="$(resolve_local_graphhopper_version)"
         print_header "Full verification build (compile + test + package)"
-        mvn -DlocalGraphhopperOnly=true $VERBOSE clean verify
+        print_info "Using local GraphHopper version: $GRAPHOPPER_VERSION"
+        mvn -Dgraphhopper.version="$GRAPHOPPER_VERSION" -DlocalGraphhopperOnly=true $VERBOSE clean verify
         print_success "Verification completed!"
         ;;
     gh-only)
+        GRAPHOPPER_VERSION="$(resolve_local_graphhopper_version)"
         print_header "Building only GraphHopper modules"
         print_info "Building GraphHopper modules: $MODULES"
-        cd ../graphhopper
+        print_info "Using local GraphHopper version: $GRAPHOPPER_VERSION"
+        cd "$GRAPHOPPER_DIR"
         mvn $SKIP_TESTS $VERBOSE clean install -pl "$MODULES" -am
         cd - > /dev/null
         print_success "GraphHopper build completed!"
         ;;
     docker)
+        GRAPHOPPER_VERSION="$(resolve_local_graphhopper_version)"
         print_header "Building Docker image with local optimizations"
         print_info "Using Dockerfile.local with pre-built ORS JAR"
+        print_info "Using local GraphHopper version: $GRAPHOPPER_VERSION"
         if [ ! -f "ors-api/target/ors.jar" ]; then
             print_error "ors.jar not found! Building ORS first..."
-            mvn -DlocalGraphhopperOnly=true -DskipTests $VERBOSE clean package
+            mvn -Dgraphhopper.version="$GRAPHOPPER_VERSION" -DlocalGraphhopperOnly=true -DskipTests $VERBOSE clean package
         fi
         docker build -f Dockerfile.local -t openrouteservice/openrouteservice:dr-optimizations .
         print_success "Docker image built successfully: openrouteservice/openrouteservice:dr-optimizations"
         ;;
     docker-push)
+        GRAPHOPPER_VERSION="$(resolve_local_graphhopper_version)"
         print_header "Building Docker image and pushing to registry"
         print_info "Target: openrouteservice/openrouteservice:dr-optimizations"
+        print_info "Using local GraphHopper version: $GRAPHOPPER_VERSION"
         
         # Build ORS if JAR doesn't exist
         if [ ! -f "ors-api/target/ors.jar" ]; then
             print_info "Building ORS JAR..."
-            mvn -DlocalGraphhopperOnly=true -DskipTests $VERBOSE clean package
+            mvn -Dgraphhopper.version="$GRAPHOPPER_VERSION" -DlocalGraphhopperOnly=true -DskipTests $VERBOSE clean package
         fi
         
         # Build Docker image with correct registry tag
