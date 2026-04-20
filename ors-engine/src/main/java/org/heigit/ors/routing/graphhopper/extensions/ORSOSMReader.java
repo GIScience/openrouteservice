@@ -207,7 +207,7 @@ public class ORSOSMReader extends OSMReader {
             var osmNodeIds = way.getNodes();
             double totalDist = 0d;
             long nodeId = osmNodeIds.get(0);
-            GHPoint3D ghPoint = nodeData.getCoordinates(nodeId);
+            GHPoint3D ghPoint = nodeData.getCoordinates(nodeData.getId(nodeId));
             double firstLat = ghPoint.getLat();
             double firstLon = ghPoint.getLon();
             double currLat = firstLat;
@@ -218,7 +218,7 @@ public class ORSOSMReader extends OSMReader {
             int len = osmNodeIds.size();
             for (int i = 1; i < len; i++) {
                 long nextNodeId = osmNodeIds.get(i);
-                ghPoint = nodeData.getCoordinates(nextNodeId);
+                ghPoint = nodeData.getCoordinates(nodeData.getId(nextNodeId));
                 double nextLat = ghPoint.getLat();
                 double nextLon = ghPoint.getLon();
                 if (!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
@@ -301,8 +301,9 @@ public class ORSOSMReader extends OSMReader {
 
                 for (int i = 0; i < osmNodeIds.size(); i++) {
                     long osmId = osmNodeIds.get(i);
+                    int nodeId = nodeData.getId(osmId);
                     try {
-                        GHPoint3D ghPoint = nodeData.getCoordinates(osmId);
+                        GHPoint3D ghPoint = nodeData.getCoordinates(nodeId);
                         double lat = ghPoint.getLat();
                         double lon = ghPoint.getLon();
                         boolean validPoint = !(lat == 0 || lon == 0 || Double.isNaN(lat) || Double.isNaN(lon));
@@ -314,7 +315,7 @@ public class ORSOSMReader extends OSMReader {
                         if (processWholeGeom) {
                             allCoordinates.add(coordinate);
                         }
-                        if (isTowerNode(nodeData.getId(osmId))) {
+                        if (isTowerNode(nodeId)) {
                             coords.add(coordinate);
                         }
                         else {// TODO: check if we actually need to add  "empty" points
