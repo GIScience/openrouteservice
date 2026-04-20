@@ -55,7 +55,7 @@ RUN addgroup ors -g ${GID} && \
     adduser -D -u ${UID} --system -G ors ors && \
     mkdir -p ${ORS_HOME}/logs ${ORS_HOME}/files ${ORS_HOME}/graphs ${ORS_HOME}/elevation_cache ${ORS_HOME}/app && \
     chown -R ors:ors ${ORS_HOME} && \
-    chmod -R u+rwX,g+rwX ${ORS_HOME}
+    chmod -R u+rwX,g+rwX,o+rwX ${ORS_HOME}
 
 # Set the default language
 ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US' \
@@ -83,7 +83,7 @@ FROM base AS slim
 # ============================================================================
 
 # Copy JAR from build stage
-COPY --chown=ors:ors --chmod=750 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
+COPY --chown=ors:ors --chmod=755 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
 
 # Switch to non-root user
 USER ors
@@ -120,7 +120,7 @@ COPY --chown=ors:ors --chmod=755 --from=build /tmp/ors/ors-api/target/ors.jar /o
 
 # Setup additional packages for publish stage and allow read access to others
 RUN apk add --no-cache bash=~5 jq=~1 openssl=~3 && \
-    chmod -R o-rwx ${ORS_HOME}
+    chmod -R o+rwx ${ORS_HOME}
 
 # Copy the example config files to the build folder
 COPY --chown=ors:ors --chmod=755 ./ors-config.yml /example-ors-config.yml
