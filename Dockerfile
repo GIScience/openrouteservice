@@ -65,8 +65,8 @@ ARG ORS_HOME=/home/ors
 RUN addgroup ors -g ${GID} && \
     adduser -D -u ${UID} --system -G ors ors && \
     mkdir -p ${ORS_HOME}/logs ${ORS_HOME}/files ${ORS_HOME}/graphs ${ORS_HOME}/elevation_cache ${ORS_HOME}/app && \
-    chown -R ors:0 ${ORS_HOME} && \
-    chmod -R u+rwX,g=u ${ORS_HOME}
+    chown -R ors:ors ${ORS_HOME} && \
+    chmod -R u+rwX,g+rwX,o+rwX ${ORS_HOME}
 
 # Set the default language
 ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US' \
@@ -99,6 +99,7 @@ FROM gcr.io/distroless/cc-debian13:nonroot@sha256:c31ff9abcb1910f3ab25c7957bdaf0
 # ============================================================================
 
 ARG ORS_HOME=/home/ors
+COPY --chown=ors:ors --chmod=755 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
 
 COPY --from=build --chown=1001:0 /javaruntime /opt/java
 # HEALTHCHECK probe. Preferred over copying curl or busybox in, which drag a general
@@ -173,7 +174,7 @@ COPY --chown=ors:0 --chmod=644 --from=build /tmp/ors/ors-api/target/ors.jar /ors
 
 # Setup additional packages for publish stage and allow read access to others
 RUN apk add --no-cache bash=~5 jq=~1 openssl=~3 && \
-    chmod -R o-rwx ${ORS_HOME}
+    chmod -R o+rwx ${ORS_HOME}
 
 # Copy the example config files to the build folder
 COPY --chown=ors:ors --chmod=755 ./ors-config.yml /example-ors-config.yml
