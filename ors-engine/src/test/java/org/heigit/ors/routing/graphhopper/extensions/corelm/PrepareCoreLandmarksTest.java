@@ -20,6 +20,7 @@ import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.Subnetwork;
+import com.graphhopper.routing.lm.LMRoutingAlgorithmFactory;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.*;
@@ -162,8 +163,8 @@ class PrepareCoreLandmarksTest
         PMap hints = new PMap().putObject(Parameters.Landmark.ACTIVE_COUNT, 2);
 
         // landmarks with A*
-        RoutingAlgorithm oneDirAlgoWithLandmarks = prepare.getRoutingAlgorithmFactory().createAlgo(graph, weighting,
-                new AlgorithmOptions().setAlgorithm(ASTAR).setTraversalMode(tm).setHints(hints));
+        RoutingAlgorithm oneDirAlgoWithLandmarks = new LMRoutingAlgorithmFactory(prepare.getLandmarkStorage())
+                .createAlgo(graph, weighting, new AlgorithmOptions().setAlgorithm(ASTAR).setTraversalMode(tm).setHints(hints));
 
         Path path = oneDirAlgoWithLandmarks.calcPath(41, 183);
 
@@ -172,8 +173,8 @@ class PrepareCoreLandmarksTest
         assertEquals(expectedAlgo.getVisitedNodes(), oneDirAlgoWithLandmarks.getVisitedNodes() + 133);
 
         // landmarks with bidir A*
-        RoutingAlgorithm biDirAlgoWithLandmarks = prepare.getRoutingAlgorithmFactory().createAlgo(graph, weighting,
-                new AlgorithmOptions().setAlgorithm(ASTAR_BI).setTraversalMode(tm).setHints(hints));
+        RoutingAlgorithm biDirAlgoWithLandmarks = new LMRoutingAlgorithmFactory(prepare.getLandmarkStorage())
+                .createAlgo(graph, weighting, new AlgorithmOptions().setAlgorithm(ASTAR_BI).setTraversalMode(tm).setHints(hints));
         path = biDirAlgoWithLandmarks.calcPath(41, 183);
         assertEquals(expectedPath.getWeight(), path.getWeight(), .1);
         assertEquals(expectedPath.calcNodes(), path.calcNodes());
@@ -184,8 +185,8 @@ class PrepareCoreLandmarksTest
         Snap fromSnap = index.findClosest(-0.0401, 0.2201, EdgeFilter.ALL_EDGES);
         Snap toSnap = index.findClosest(-0.2401, 0.0601, EdgeFilter.ALL_EDGES);
         QueryGraph qGraph = QueryGraph.create(graph, fromSnap, toSnap);
-        RoutingAlgorithm qGraphOneDirAlgo = prepare.getRoutingAlgorithmFactory().createAlgo(qGraph, weighting,
-                new AlgorithmOptions().setAlgorithm(ASTAR).setTraversalMode(tm).setHints(hints));
+        RoutingAlgorithm qGraphOneDirAlgo = new LMRoutingAlgorithmFactory(prepare.getLandmarkStorage())
+                .createAlgo(qGraph, weighting, new AlgorithmOptions().setAlgorithm(ASTAR).setTraversalMode(tm).setHints(hints));
         path = qGraphOneDirAlgo.calcPath(fromSnap.getClosestNode(), toSnap.getClosestNode());
 
         expectedAlgo = new AStar(qGraph, weighting, tm);
