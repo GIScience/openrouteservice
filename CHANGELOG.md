@@ -38,7 +38,11 @@ Releasing is documented in RELEASE.md
 ### Fixed
 
 ### Security
+- update jackson-core to 2.18.6
+- update log4j-core to 2.25.4 due to [CVE-2026-34477](https://www.cve.org/CVERecord?id=CVE-2026-34477), [CVE-2026-34478](https://www.cve.org/CVERecord?id=CVE-2026-34478) and [CVE-2026-34480](https://www.cve.org/CVERecord?id=CVE-2026-34480)
+- update lodash to 4.18.1 due to [CVE-2026-4800](https://www.cve.org/CVERecord?id=CVE-2026-4800), [CVE-2025-13465](https://www.cve.org/CVERecord?id=CVE-2025-13465) and [CVE-2026-2950](https://www.cve.org/CVERecord?id=CVE-2026-2950)
 - update npm dependencies for docs ([#2265](https://github.com/GIScience/openrouteservice/pull/2265))
+
 
 ## [9.8.0] - 2026-03-30
 
