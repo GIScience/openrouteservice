@@ -28,6 +28,7 @@ import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint3D;
 import org.apache.log4j.Logger;
@@ -193,12 +194,8 @@ public class ORSOSMReader extends OSMReader {
 
         applyNodeTagsToWay(way);
         onProcessWay(way);
-    }
-
-    @Override
-    protected void setArtificialWayTags(GHPoint first, GHPoint last, ReaderWay way) {
         recordExactWayDistance(way);
-        super.setArtificialWayTags(first, last, way);
+        recordEstimatedWayDistance(way);// Required for backward compatibility of the acceleration heuristic
     }
 
     private void recordExactWayDistance(ReaderWay way) {
@@ -235,6 +232,17 @@ public class ORSOSMReader extends OSMReader {
                 way.setTag("exact_distance", totalDist);
                 way.setTag("exact_center", new GHPoint(latSum / sumCount, lonSum / sumCount));
             }
+        }
+    }
+
+    private void recordEstimatedWayDistance(ReaderWay way) {
+        var osmNodeIds = way.getNodes();
+        GHPoint3D firstPoint = nodeData.getCoordinates(nodeData.getId(osmNodeIds.get(0)));
+        GHPoint3D lastPoint = nodeData.getCoordinates(nodeData.getId(osmNodeIds.get(osmNodeIds.size() - 1)));
+        double firstLat = firstPoint.getLat(), firstLon = firstPoint.getLon();
+        double lastLat = lastPoint.getLat(), lastLon = lastPoint.getLon();
+        if (!Double.isNaN(firstLat) && !Double.isNaN(firstLon) && !Double.isNaN(lastLat) && !Double.isNaN(lastLon)) {
+            way.setTag("estimated_way_distance", distCalc.calcDist(firstLat, firstLon, lastLat, lastLon));
         }
     }
 
@@ -359,7 +367,7 @@ public class ORSOSMReader extends OSMReader {
     }
 
     @Override
-    protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge) {
+    protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge, IntsRef edgeFlags, EncodingManager.AcceptWay acceptWay) {
         try {
             int baseNode = edge.getBaseNode();
             int adjNode = edge.getAdjNode();
@@ -370,12 +378,10 @@ public class ORSOSMReader extends OSMReader {
 
             procCntx.processEdge(way, edge, coordinates);
 
-            AcceptWay acceptWay = (AcceptWay) way.getTags().get("ors:accept");
             if (acceptWay.hasConditional()) {
                 storeConditionalAccess(acceptWay, edge);
             }
 
-            IntsRef edgeFlags = (IntsRef) way.getTags().get("gh:flags");
             storeConditionalSpeed(edgeFlags, edge);
         } catch (Exception ex) {
             LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
