@@ -38,6 +38,7 @@ Releasing is documented in RELEASE.md
 ### Fixed
 
 ### Security
+- update lodash to 4.18.1 due to [CVE-2026-4800](https://www.cve.org/CVERecord?id=CVE-2026-4800), [CVE-2025-13465](https://www.cve.org/CVERecord?id=CVE-2025-13465) and [CCVE-2026-2950](https://www.cve.org/CVERecord?id=CVE-2026-2950)
 
 
 ## [9.8.0] - 2026-03-30
