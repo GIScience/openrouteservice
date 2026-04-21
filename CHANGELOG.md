@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- add opencontainers metadata annotations to image ([#2264](https://github.com/GIScience/openrouteservice/pull/2264))
 
 ### Changed
 
