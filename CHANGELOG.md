@@ -38,7 +38,7 @@ Releasing is documented in RELEASE.md
 ### Fixed
 
 ### Security
-
+- update npm dependencies for docs ([#2265](https://github.com/GIScience/openrouteservice/pull/2265))
 
 ## [9.8.0] - 2026-03-30
 
