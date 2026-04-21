@@ -34,7 +34,22 @@ inputs:
   docker_password:
     description: Docker registry password (used if docker_login is true)
     required: false
-    type: string
+    default: ''
+  docker_login_additional:
+    description: Login to an additional Docker registry
+    required: false
+    default: 'false'
+  docker_additional_registry:
+    description: Additional Docker registry URL
+    required: false
+    default: ''
+  docker_additional_username:
+    description: Additional Docker registry username
+    required: false
+    default: ''
+  docker_additional_password:
+    description: Additional Docker registry password
+    required: false
     default: ''
   with_docker_cache_injection:
     description: Inject Maven cache into Docker builds
@@ -87,6 +102,15 @@ runs:
       with:
         username: ${{ inputs.docker_username }}
         password: ${{ inputs.docker_password }}
+      continue-on-error: true
+
+    - name: Login to additional Docker registry
+      if: inputs.with_docker == 'true' && inputs.docker_login_additional == 'true'
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef #3.6.0
+      with:
+        registry: ${{ inputs.docker_additional_registry }}
+        username: ${{ inputs.docker_additional_username }}
+        password: ${{ inputs.docker_additional_password }}
       continue-on-error: true
 
     - name: Prepare all Dockerfiles for Maven cache mount
