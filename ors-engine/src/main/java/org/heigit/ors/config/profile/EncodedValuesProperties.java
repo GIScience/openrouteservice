@@ -57,6 +57,8 @@ public class EncodedValuesProperties {
     private Boolean maxWidth;
     @JsonProperty(AccessRestriction.KEY)
     private Boolean accessRestriction;
+    @JsonProperty(HillIndex.KEY)
+    private Boolean hillIndex;
 
     public EncodedValuesProperties() {
     }
@@ -88,6 +90,7 @@ public class EncodedValuesProperties {
         properties.put(MaxWeight.KEY, maxWeight);
         properties.put(MaxWidth.KEY, maxWidth);
         properties.put(AccessRestriction.KEY, accessRestriction);
+        properties.put(HillIndex.KEY, hillIndex);
 
         return properties;
     }
@@ -125,5 +128,6 @@ public class EncodedValuesProperties {
         maxWeight = ofNullable(this.maxWeight).orElse(other.maxWeight);
         maxWidth = ofNullable(this.maxWidth).orElse(other.maxWidth);
         accessRestriction = ofNullable(this.accessRestriction).orElse(other.accessRestriction);
+        hillIndex = ofNullable(this.hillIndex).orElse(other.hillIndex);
     }
 }

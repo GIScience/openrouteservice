@@ -28,12 +28,14 @@ import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint3D;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.PedestrianWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
+import org.heigit.ors.routing.util.HillIndexCalculator;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.io.IOException;
@@ -56,6 +58,7 @@ public class ORSOSMReader extends OSMReader {
     private boolean processSimpleGeom = false;
     private boolean processWholeGeom = false;
     private boolean detachSidewalksFromRoad = false;
+    private final HillIndexCalculator hillIndexCalculator = new HillIndexCalculator();
 
     private final List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
@@ -400,6 +403,21 @@ public class ORSOSMReader extends OSMReader {
                 }
             }
         }
+    }
+
+    @Override
+    protected void setArtificialWayTags(PointList pointList, ReaderWay way) {
+        super.setArtificialWayTags(pointList, way);
+
+        calculateHillIndex(pointList, way);
+    }
+
+    private void calculateHillIndex(PointList pointList, ReaderWay way) {
+        byte hillIndexFwd = hillIndexCalculator.getHillIndex(pointList, false);
+        byte hillIndexBwd = hillIndexCalculator.getHillIndex(pointList, true);
+
+        way.setTag("ors:hill_index_fwd", hillIndexFwd);
+        way.setTag("ors:hill_index_bwd", hillIndexBwd);
     }
 
     @Override

@@ -108,6 +108,7 @@ public class BuildProperties {
                 case WAY_CATEGORY -> handleWayCategory();
                 case WAY_SURFACE_TYPE -> handleWaySurfaceType();
                 case ROAD_ACCESS_RESTRICTIONS -> handleAccessRestrictions();
+                case HILL_INDEX -> handleHillIndex();
                 default -> {
                     storage.initialize(extendedStorageName);
                     this.extStorages.put(key, storage);
@@ -196,6 +197,12 @@ public class BuildProperties {
     private void handleAccessRestrictions() {
         if (encodedValues.getAccessRestriction() == null) {
             encodedValues.setAccessRestriction(true);
+        }
+    }
+
+    private void handleHillIndex() {
+        if (encodedValues.getHillIndex() == null) {
+            encodedValues.setHillIndex(true);
         }
     }
 
