@@ -1179,7 +1179,7 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].extras.traildifficulty.values[0][2]", is(2))
                 .body("routes[0].extras.traildifficulty.values[1][0]", is(2))
                 .body("routes[0].extras.traildifficulty.values[1][1]", is(4))
-                .body("routes[0].extras.traildifficulty.values[1][2]", is(1))
+                .body("routes[0].extras.traildifficulty.values[1][2]", is(3))
                 .statusCode(200);
 
         checkExtraConsistency(response);
