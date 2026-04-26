@@ -72,6 +72,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     public static final String KEY_ONEWAY_BICYCLE = "oneway:bicycle";
     public static final String KEY_BRIDLEWAY = "bridleway";
     public static final String KEY_CONSTRUCTION = "construction";
+    public static final String KEY_SAC_SCALE = "sac_scale";
 
     // Pushing section highways are parts where you need to get off your bike and push it (German: Schiebestrecke)
     protected final HashSet<String> pushingSectionsHighways = new HashSet<>();
@@ -332,9 +333,9 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
             return EncodingManager.Access.CAN_SKIP;
         }
 
-        String sacScale = way.getTag("sac_scale");
+        String sacScale = way.getTag(KEY_SAC_SCALE);
         if (sacScale != null) {
-            if (way.hasTag(KEY_HIGHWAY, KEY_CYCLEWAY) && (way.hasTag("sac_scale", "strolling") || way.hasTag("sac_scale", "hiking"))) {
+            if (way.hasTag(KEY_HIGHWAY, KEY_CYCLEWAY) && (way.hasTag(KEY_SAC_SCALE, "strolling") || way.hasTag(KEY_SAC_SCALE, "hiking"))) {
                 return EncodingManager.Access.WAY;
             }
             if (!isSacScaleAllowed(sacScale)) {
