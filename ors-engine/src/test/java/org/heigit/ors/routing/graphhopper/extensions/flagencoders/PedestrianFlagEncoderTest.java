@@ -356,4 +356,10 @@ class PedestrianFlagEncoderTest {
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
+    @Test
+    void acceptHighwayCorridor() {
+        way.setTag("highway", "corridor");
+
+        assertTrue(flagEncoder.getAccess(way).isWay());
+    }
 }
