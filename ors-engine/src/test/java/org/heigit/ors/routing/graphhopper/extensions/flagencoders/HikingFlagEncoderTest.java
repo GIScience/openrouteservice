@@ -22,6 +22,8 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactor
 import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.TreeMap;
 
@@ -60,10 +62,11 @@ class HikingFlagEncoderTest {
         assertTrue(flagEncoder.getAccess(way).isWay());
     }
 
-    @Test
-    void acceptSimpleSacScale() {
+    @ParameterizedTest
+    @ValueSource(strings = {"strolling", "hiking"})
+    void acceptSimpleSacScale(String value) {
         way = generateHikeWay();
-        way.setTag("sac_scale", "strolling");
+        way.setTag("sac_scale", value);
         assertTrue(flagEncoder.getAccess(way).isWay());
     }
 

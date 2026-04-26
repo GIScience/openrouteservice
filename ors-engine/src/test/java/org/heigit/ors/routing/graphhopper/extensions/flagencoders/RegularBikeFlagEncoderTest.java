@@ -21,6 +21,8 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactor
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RegularBikeFlagEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -48,5 +50,13 @@ class RegularBikeFlagEncoderTest {
 
         way.setTag("bicycle", "no");
         assertTrue(flagEncoder.getAccess(way).canSkip());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"strolling", "hiking"})
+    void acceptSimpleSacScale(String value) {
+        way.setTag("highway", "path");
+        way.setTag("sac_scale", value);
+        assertTrue(flagEncoder.getAccess(way).isWay());
     }
 }
