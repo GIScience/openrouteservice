@@ -31,6 +31,7 @@ Releasing is documented in RELEASE.md
 - add opencontainers metadata annotations to image ([#2264](https://github.com/GIScience/openrouteservice/pull/2264))
 - accept bikes on [`sac_scale=strolling`](https://wiki.openstreetmap.org/wiki/Key:sac_scale) ([#2253](https://github.com/GIScience/openrouteservice/pull/2253))
 - allow pedestrians on `highway=corridor` ([#2252](https://github.com/GIScience/openrouteservice/pull/2252))
+- improve track grade parsing ([#2232](https://github.com/GIScience/openrouteservice/pull/2232))
 
 ### Changed
 
