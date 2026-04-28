@@ -298,6 +298,7 @@ public class ExtraInfoProcessor implements PathProcessor {
      * @param graphHopperStorage the storage containing the warnings
      */
     private void applyWarningExtensions(GraphHopperStorage graphHopperStorage) {
+        // TODO: find a way to identify which encoded values should be used for warnings
         GraphExtension[] extensions = graphHopperStorage.getExtensions().getExtensions();
         for (GraphExtension ge : extensions) {
             if (ge instanceof WarningGraphExtension extension && extension.isUsedForWarning()) {
