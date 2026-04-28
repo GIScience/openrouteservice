@@ -1,19 +1,14 @@
 package org.heigit.ors.routing.graphhopper.extensions.util.parsers;
 
-import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.*;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.ev.AccessRestriction;
+import com.graphhopper.routing.ev.EncodedValue;
+import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.util.parsers.TagParser;
-import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.IntsRef;
-import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
-import org.heigit.ors.routing.graphhopper.extensions.storages.RoadAccessRestrictionsGraphStorage;
-import org.locationtech.jts.geom.Coordinate;
 
 import java.util.*;
 

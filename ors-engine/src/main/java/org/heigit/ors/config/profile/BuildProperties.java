@@ -52,8 +52,6 @@ public class BuildProperties {
     private EncodedValuesProperties encodedValues = new EncodedValuesProperties();
     @JsonProperty("maximum_speed_lower_bound")
     private Double maximumSpeedLowerBound;
-    @JsonIgnore
-    private Boolean useForWarnings;
 
     public BuildProperties() {
     }
@@ -85,7 +83,6 @@ public class BuildProperties {
             }
         }
         encodedValues.merge(other.encodedValues);
-        useForWarnings = ofNullable(useForWarnings).orElse(other.useForWarnings);
         // Fix paths
         sourceFile = ofNullable(sourceFile).orElse(other.sourceFile);
         gtfsFile = ofNullable(gtfsFile).orElse(other.gtfsFile);
@@ -125,9 +122,7 @@ public class BuildProperties {
                         if (encodedValues.getAccessRestriction() == null) {
                             encodedValues.setAccessRestriction(true);
                         }
-                        if (getUseForWarnings() == null) {
-                            setUseForWarnings(true);
-                        }
+                        break;
                     default:
                         storage.initialize(extendedStorageName);
                         this.extStorages.put(key, storage);

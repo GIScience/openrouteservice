@@ -50,7 +50,6 @@ public class ExtraInfoProcessor implements PathProcessor {
     private NoiseIndexGraphStorage extNoiseIndex;
     private TrailDifficultyScaleGraphStorage extTrailDifficulty;
     private HillIndexGraphStorage extHillIndex;
-    private RoadAccessRestrictionsGraphStorage extRoadAccessRestrictions;
     private BordersGraphStorage extCountryTraversalInfo;
     private CsvGraphStorage extCsvData;
     private ShadowIndexGraphStorage extShadowIndex;
@@ -102,8 +101,6 @@ public class ExtraInfoProcessor implements PathProcessor {
     private RouteExtraInfo shadowInfo;
     private RouteExtraInfoBuilder shadowInfoBuilder;
 
-    private List<Integer> warningExtensions;
-
     private int profileType = RoutingProfileType.UNKNOWN;
     private final FlagEncoder encoder;
     private final boolean encoderWithPriority;
@@ -138,10 +135,9 @@ public class ExtraInfoProcessor implements PathProcessor {
             ProfileParameters profileParameters = params.getObject("routing_profile_params", new ProfileParameters());
             boolean suppressWarnings = params.getBool("routing_suppress_warnings", false);
 
-            warningExtensions = new ArrayList<>();
-
-            if (!suppressWarnings)
-                applyWarningExtensions(graphHopperStorage);
+            if (!suppressWarnings) {
+                extraInfo |= RouteExtraInfoFlag.ROAD_ACCESS_RESTRICTIONS;
+            }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE)) {
                 surfaceInfo = new RouteExtraInfo("surface");
@@ -250,8 +246,7 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.ROAD_ACCESS_RESTRICTIONS)) {
-                extRoadAccessRestrictions = GraphStorageUtils.getGraphExtension(graphHopperStorage, RoadAccessRestrictionsGraphStorage.class);
-                if (extRoadAccessRestrictions != null) {
+                if (encoder.hasEncodedValue(AccessRestriction.KEY)) {
                     roadAccessRestrictionsInfo = new RouteExtraInfo("roadaccessrestrictions", true);
                     roadAccessRestrictionsInfoBuilder = new AppendableRouteExtraInfoBuilder(roadAccessRestrictionsInfo);
                 } else {
@@ -292,22 +287,6 @@ public class ExtraInfoProcessor implements PathProcessor {
     }
 
     /**
-     * Loop through the GraphExtensions of the storage and store in the warningExtensions object those that implement
-     * the WarningGraphExtension interface and are set to be used for generating warnings.
-     *
-     * @param graphHopperStorage the storage containing the warnings
-     */
-    private void applyWarningExtensions(GraphHopperStorage graphHopperStorage) {
-        // TODO: find a way to identify which encoded values should be used for warnings
-        GraphExtension[] extensions = graphHopperStorage.getExtensions().getExtensions();
-        for (GraphExtension ge : extensions) {
-            if (ge instanceof WarningGraphExtension extension && extension.isUsedForWarning()) {
-                warningExtensions.add(RouteExtraInfoFlag.getFromString(extension.getName()));
-            }
-        }
-    }
-
-    /**
      * Check if the extra info should be included in the generation or not by looking at the encoded extras value and
      * the list of warning extras.
      *
@@ -315,7 +294,7 @@ public class ExtraInfoProcessor implements PathProcessor {
      * @param infoFlag      The id of the extra info whose inclusion needs to be decided
      */
     private boolean includeExtraInfo(int encodedExtras, int infoFlag) {
-        return RouteExtraInfoFlag.isSet(encodedExtras, infoFlag) || warningExtensions.contains(infoFlag);
+        return RouteExtraInfoFlag.isSet(encodedExtras, infoFlag);
     }
 
     public List<RouteExtraInfo> getExtras() {
@@ -535,12 +514,12 @@ public class ExtraInfoProcessor implements PathProcessor {
         }
 
         if (osmIdInfoBuilder != null) {
-            long osmId = encoder.getIntEncodedValue(OsmWayId.KEY).getInt(false,edge.getFlags());
+            long osmId = encoder.getIntEncodedValue(OsmWayId.KEY).getInt(false, edge.getFlags());
             osmIdInfoBuilder.addSegment((double) osmId, osmId, geom, dist);
         }
 
         if (roadAccessRestrictionsInfoBuilder != null) {
-            int value = extRoadAccessRestrictions.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
+            int value = encoder.getEnumEncodedValue(AccessRestriction.KEY, AccessRestriction.class).getEnum(false, edge.getFlags()).value();
             roadAccessRestrictionsInfoBuilder.addSegment(value, value, geom, dist);
         }
 

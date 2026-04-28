@@ -20,6 +20,7 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
+import com.graphhopper.routing.ev.AccessRestriction;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.EncodingManager.AcceptWay;
@@ -99,18 +100,19 @@ public class ORSOSMReader extends OSMReader {
                 extraTagKeys.add("kerb:left:height");
                 extraTagKeys.add("kerb:right:height");
             }
-
-            if (b instanceof RoadAccessRestrictionsGraphStorageBuilder) {
-                this.processNodeTags = true;
-                extraTagKeys.add("access");
-                extraTagKeys.add("bicycle");
-                extraTagKeys.add("foot");
-                extraTagKeys.add("horse");
-                extraTagKeys.add("motor_vehicle");
-                extraTagKeys.add("motorcar");
-                extraTagKeys.add("motorcycle");
-            }
         }
+
+        if(storage.getEncodingManager().hasEncodedValue(AccessRestriction.KEY)) {
+            this.processNodeTags = true;
+            extraTagKeys.add("access");
+            extraTagKeys.add("bicycle");
+            extraTagKeys.add("foot");
+            extraTagKeys.add("horse");
+            extraTagKeys.add("motor_vehicle");
+            extraTagKeys.add("motorcar");
+            extraTagKeys.add("motorcycle");
+        }
+
 
         if (procCntx.isUseSidewalks()) {
             detachSidewalksFromRoad = true;
