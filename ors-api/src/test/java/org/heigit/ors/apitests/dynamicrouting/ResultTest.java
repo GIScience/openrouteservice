@@ -22,6 +22,7 @@ import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.utils.CommonHeaders;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,6 +66,9 @@ class ResultTest extends AbstractContainerBaseTest {
         );
     }
 
+    @Disabled("The hard-coded edge IDs in AbstractContainerBaseTest are wrong as soon as" +
+            " the test graph changes. As this way of interacting with dynamic data will" +
+            " be removed, we ignore this test for now until we have a better solution.")
     @ParameterizedTest
     @MethodSource("dynamicDataTestProvider")
     void testCustomProfileDynamicData(String condition) {

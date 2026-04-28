@@ -316,6 +316,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
             return;
 
         try {
+
             Geometry concaveHull = concaveHullByLength(points, smoothingDistance);
             if (concaveHull instanceof Polygon && concaveHull.isValid() && !concaveHull.isEmpty())
                 isochroneGeometries.add(concaveHull);
@@ -367,6 +368,9 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 }
             }
         }
+
+        points = points.stream().filter(Coordinate::isValid).toList();// TODO: figure out why invalid points are created in the first place and fix that
+
         Geometry[] geometries = new Geometry[points.size()];
 
         for (int i = 0; i < points.size(); ++i) {
