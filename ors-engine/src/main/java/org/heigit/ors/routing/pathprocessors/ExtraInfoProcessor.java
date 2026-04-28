@@ -252,7 +252,7 @@ public class ExtraInfoProcessor implements PathProcessor {
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.ROAD_ACCESS_RESTRICTIONS)) {
                 extRoadAccessRestrictions = GraphStorageUtils.getGraphExtension(graphHopperStorage, RoadAccessRestrictionsGraphStorage.class);
                 if (extRoadAccessRestrictions != null) {
-                    roadAccessRestrictionsInfo = new RouteExtraInfo("roadaccessrestrictions", extRoadAccessRestrictions);
+                    roadAccessRestrictionsInfo = new RouteExtraInfo("roadaccessrestrictions", true);
                     roadAccessRestrictionsInfoBuilder = new AppendableRouteExtraInfoBuilder(roadAccessRestrictionsInfo);
                 } else {
                     skippedExtras.add("roadaccessrestrictions");

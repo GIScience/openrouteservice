@@ -16,11 +16,14 @@ package org.heigit.ors.routing;
 import com.graphhopper.storage.GraphExtension;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WarningGraphExtension;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 
 import java.util.*;
+
+import static org.heigit.ors.routing.graphhopper.extensions.storages.RoadAccessRestrictionsGraphStorage.NO_ENTRY;
 
 public class RouteExtraInfo {
     private final String name;
@@ -47,6 +50,12 @@ public class RouteExtraInfo {
             warningGraphExtension = graphExtension;
             usedForWarnings = true;
         }
+    }
+
+    public RouteExtraInfo(String name, boolean usedForWarnings) {
+        this.name = name;
+        this.usedForWarnings = usedForWarnings;
+        segments = new ArrayList<>();
     }
 
     public String getName() {
@@ -127,5 +136,13 @@ public class RouteExtraInfo {
 
     public WarningGraphExtension getWarningGraphExtension() {
         return warningGraphExtension;
+    }
+
+    public boolean generatesWarning(int referenceValue) {
+        for (RouteSegmentItem item : segments) {
+            if (item.getValue() != NO_ENTRY && item.getValue() != referenceValue)
+                return true;
+        }
+        return false;
     }
 }

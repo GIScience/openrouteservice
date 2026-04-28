@@ -16,6 +16,7 @@ package org.heigit.ors.routing;
 import com.graphhopper.ResponsePath;
 import com.graphhopper.util.PointList;
 import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.GeomUtility;
 import org.locationtech.jts.geom.Coordinate;
@@ -142,8 +143,9 @@ public class RouteResult {
             return;
         // add the extras if they generate a "warning" or they were requested
         for (RouteExtraInfo extra : extras) {
-            if (extra.isUsedForWarnings() && extra.getWarningGraphExtension().generatesWarning(extra)) {
-                addWarning(extra.getWarningGraphExtension().getWarning());
+            // TODO: have a more general implementation facilitating other warnings than just access restrictions
+            if (extra.isUsedForWarnings() && extra.generatesWarning(AccessRestrictionType.NONE)) {
+                addWarning(new RouteWarning(RouteWarning.ACCESS_RESTRICTION));
                 addExtraInfo(extra);
             } else if (RouteExtraInfoFlag.isSet(request.getExtraInfo(), RouteExtraInfoFlag.getFromString(extra.getName()))) {
                 addExtraInfo(extra);
