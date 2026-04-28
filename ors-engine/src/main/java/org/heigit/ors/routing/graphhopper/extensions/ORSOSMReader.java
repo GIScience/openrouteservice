@@ -75,17 +75,18 @@ public class ORSOSMReader extends OSMReader {
         nodeTagsToStore = new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload"));
         osmNodeTagValues = new GHLongObjectHashMap<>(200, .5f);
 
-        // For WheelchairAttributes we always need to process the node tags
-        this.processNodeTags = true;
-        this.processSimpleGeom = true;
-        extraTagKeys.add("kerb");
-        extraTagKeys.add("kerb:both");
-        extraTagKeys.add("kerb:left");
-        extraTagKeys.add("kerb:right");
-        extraTagKeys.add("kerb:height");
-        extraTagKeys.add("kerb:both:height");
-        extraTagKeys.add("kerb:left:height");
-        extraTagKeys.add("kerb:right:height");
+        if(super.encodingManager.hasEncoder("wheelchair")) {
+            this.processNodeTags = true;
+            this.processSimpleGeom = true;
+            extraTagKeys.add("kerb");
+            extraTagKeys.add("kerb:both");
+            extraTagKeys.add("kerb:left");
+            extraTagKeys.add("kerb:right");
+            extraTagKeys.add("kerb:height");
+            extraTagKeys.add("kerb:both:height");
+            extraTagKeys.add("kerb:left:height");
+            extraTagKeys.add("kerb:right:height");
+        }
 
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
