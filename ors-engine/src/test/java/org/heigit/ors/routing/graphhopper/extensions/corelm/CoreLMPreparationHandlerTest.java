@@ -3,6 +3,7 @@ package org.heigit.ors.routing.graphhopper.extensions.corelm;
 import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
+import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -47,23 +48,23 @@ class CoreLMPreparationHandlerTest {
         ORSGraphHopperStorage g = new ORSGraphHopperStorage(new RAMDirectory(), em, false, false, -1);
         g.addCoreGraph(chShortest).addCoreGraph(chFastest);
 
-        CoreLMPreparationHandler coreLMhandler = new CoreLMPreparationHandler();
-        coreLMhandler.setLMProfiles(
+        CoreLMPreparationHandler coreLMPreparationHandler = new CoreLMPreparationHandler();
+        coreLMPreparationHandler.setLMProfiles(
                 new LMProfile(CONF_1).setMaximumLMWeight(65_000),
                 new LMProfile(CONF_2).setMaximumLMWeight(20_000)
         );
-        coreLMhandler
-                .addLMConfig(new CoreLMConfig(CONF_1, fastest).setEdgeFilter(new LMEdgeFilterSequence()))
-                .addLMConfig(new CoreLMConfig(CONF_2, shortest).setEdgeFilter(new LMEdgeFilterSequence()));
-
+        List<LMConfig> lmConfigs = Arrays.asList(
+                new CoreLMConfig(CONF_1, fastest).setEdgeFilter(new LMEdgeFilterSequence()),
+                new CoreLMConfig(CONF_2, shortest).setEdgeFilter(new LMEdgeFilterSequence())
+        );
         String coreLMSets = "allow_all";
         List<String> tmpCoreLMSets = Arrays.asList(coreLMSets.split(";"));
-        CoreLMOptions coreLMOptions = coreLMhandler.getCoreLMOptions();
+        CoreLMOptions coreLMOptions = coreLMPreparationHandler.getCoreLMOptions();
         coreLMOptions.setRestrictionFilters(tmpCoreLMSets);
         coreLMOptions.createRestrictionFilters(g);
-        coreLMhandler.createPreparations(g, null);
-        assertEquals(1, coreLMhandler.getPreparations().get(0).getLandmarkStorage().getFactor(), .1);
-        assertEquals(0.3, coreLMhandler.getPreparations().get(1).getLandmarkStorage().getFactor(), .1);
+        coreLMPreparationHandler.createPreparations(lmConfigs, g);
+        assertEquals(1, coreLMPreparationHandler.getPreparations().get(0).getLandmarkStorage().getFactor(), .1);
+        assertEquals(0.3, coreLMPreparationHandler.getPreparations().get(1).getLandmarkStorage().getFactor(), .1);
     }
 
     @Test

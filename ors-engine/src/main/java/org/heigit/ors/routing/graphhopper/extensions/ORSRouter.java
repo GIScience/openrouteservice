@@ -117,7 +117,7 @@ public class ORSRouter extends Router {
         }
 
         @Override
-        protected EdgeFilter getSnapFilter() {
+        protected EdgeFilter createSnapFilter() {
             EdgeFilter defaultSnapFilter = new DefaultSnapFilter(weighting, lookup.getBooleanEncodedValue(Subnetwork.key(profile.getName())));
             if (edgeFilterFactory != null)
                 return edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), weighting.getFlagEncoder(), ghStorage, defaultSnapFilter);

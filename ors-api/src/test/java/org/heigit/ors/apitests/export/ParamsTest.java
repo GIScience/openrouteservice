@@ -177,7 +177,7 @@ class ParamsTest extends ServiceTest {
                 .body("bbox[1]", is(49.414877F))
                 .body("bbox[2]", is(8.686507F))
                 .body("bbox[3]", is(49.41943F))
-                .body("arcs.size()", is(69))
+                .body("arcs.size()", is(66))
                 .body("objects.network.geometries.size()", is(35))
                 .body("objects.network.geometries[0].properties.osm_id", is(4084860))
                 .body("objects.network.geometries[0].properties.both_directions", is(true))
@@ -205,7 +205,7 @@ class ParamsTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("type", is("Topology"))
-                .body("arcs.size()", is(69))
+                .body("arcs.size()", is(66))
                 .body("objects.network.geometries.size()", is(35))
                 .body("arcs[4].size()", is(2)) // Arc 4 now has only 2 coordinates
                 .statusCode(200);
@@ -291,7 +291,7 @@ class ParamsTest extends ServiceTest {
                 .body("edges_extra.find { it.edgeId == '11560->4802' }.extra", hasEntry("surface_quality_known", false))
                 .body("edges_extra.find { it.edgeId == '11560->4802' }.extra", hasEntry("suitable", false))
                 .body("edges_extra.find { it.edgeId == '11560->4802' }.extra", hasEntry("incline", -1))
-                .body("edges_extra.find { it.edgeId == '11560->4802' }.extra", hasEntry("ors_id", 33294));
+                .body("edges_extra.find { it.edgeId == '11560->4802' }.extra", hasEntry("ors_id", 34346));
     }
 
     @Test

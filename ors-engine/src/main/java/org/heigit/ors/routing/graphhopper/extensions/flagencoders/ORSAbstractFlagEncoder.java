@@ -35,8 +35,7 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
     }
 
     @Override
-    public long handleNodeTags(ReaderNode node) {
-        long encoderBit = getEncoderBit();
+    public boolean isBarrier(ReaderNode node) {
         boolean blockFords = isBlockFords();
 
         boolean blockByDefault = node.hasTag("barrier", blockByDefaultBarriers);
@@ -45,23 +44,23 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
             for (String res : restrictions) {
                 if (!locked && node.hasTag(res, intendedValues))
-                    return 0;
+                    return false;
 
                 if (node.hasTag(res, restrictedValues))
-                    return encoderBit;
+                    return true;
             }
 
             if (blockByDefault || blockBarriers)
-                return encoderBit;
-            return 0;
+                return true;
+            return false;
         }
 
         if ((node.hasTag("highway", "ford") || node.hasTag("ford", "yes"))
                 && (blockFords && !node.hasTag(restrictions, intendedValues) || node.hasTag(restrictions, restrictedValues))) {
-            return encoderBit;
+            return true;
         }
 
-        return 0;
+        return false;
     }
 
 }
