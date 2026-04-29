@@ -38,6 +38,7 @@ Releasing is documented in RELEASE.md
 ### Fixed
 
 ### Security
+- update postcss to 8.5.12
 
 
 ## [9.9.0] - 2026-04-29
