@@ -25,6 +25,21 @@ RELEASING:
 Releasing is documented in RELEASE.md
 -->
 
+## [unreleased]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+
 ## [9.9.0] - 2026-04-29
 
 ### Added
@@ -1057,6 +1072,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.9.0...HEAD
 [9.9.0]: https://github.com/GIScience/openrouteservice/compare/v9.8.0...v9.9.0
 [9.8.0]: https://github.com/GIScience/openrouteservice/compare/v9.7.1...v9.8.0
 [9.7.1]: https://github.com/GIScience/openrouteservice/compare/v9.7.0...v9.7.1
