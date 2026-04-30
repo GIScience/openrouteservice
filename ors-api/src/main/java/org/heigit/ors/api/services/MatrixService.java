@@ -6,6 +6,7 @@ import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.UnknownParameterValueException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -16,6 +17,7 @@ import org.heigit.ors.matrix.MatrixSearchParameters;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.WeightingMethod;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,6 +69,9 @@ public class MatrixService extends ApiService {
 
         coreRequest.setProfileType(convertToMatrixProfileType(matrixRequest.getProfile()));
 
+        APIEnums.RoutePreference preference = matrixRequest.hasRoutePreference() ? matrixRequest.getRoutePreference() : APIEnums.RoutePreference.RECOMMENDED;
+        coreRequest.setWeightingMethod(convertWeightingMethod(matrixRequest, preference));
+
         if (matrixRequest.hasMetrics())
             coreRequest.setMetrics(convertMetrics(matrixRequest.getMetrics()));
 
@@ -110,6 +115,17 @@ public class MatrixService extends ApiService {
         }
 
         return isFlexibleMode(matrixRequest.getMatrixOptions());
+    }
+
+    private int convertWeightingMethod(MatrixRequest request, APIEnums.RoutePreference preferenceIn) throws UnknownParameterValueException {
+        if (request.getProfile().equals(APIEnums.Profile.DRIVING_CAR) && preferenceIn.equals(APIEnums.RoutePreference.RECOMMENDED)) {
+            return WeightingMethod.FASTEST;
+        }
+        int weightingMethod = WeightingMethod.getFromString(preferenceIn.toString());
+        if (weightingMethod == WeightingMethod.UNKNOWN)
+            throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PREFERENCE, preferenceIn.toString());
+
+        return weightingMethod;
     }
 
     public int convertMetrics(MatrixRequestEnums.Metrics[] metrics) throws ParameterValueException {
