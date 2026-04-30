@@ -296,7 +296,7 @@ public class RoutingProfile {
         return !dynamicDatasets.isEmpty();
     }
 
-    public void updateDynamicData(String key, int edgeID, String value) {
+    public void updateDynamicData(String key, int edgeID, Double value) {
         if (!dynamicDatasets.contains(key)) {
             LOGGER.error("Dataset '" + key + "' not registered in profile '" + profileName
                     + "', cannot update dynamic data. Available datasets: " + dynamicDatasets);
@@ -308,48 +308,12 @@ public class RoutingProfile {
                     + "', cannot update dynamic data. Available datasets: " + dynamicDatasets);
             return;
         }
-        try {
-            double floatValue = parseValueAsDouble(value);
-            sev.set(edgeID, floatValue);
-            LOGGER.debug("Updated dynamic data: profile=" + profileName + ", key=" + key + ", edgeID=" + edgeID
-                    + ", value=" + floatValue);
-        } catch (NumberFormatException e) {
-            LOGGER.error("Error updating dynamic data for key '" + key + "', edgeID=" + edgeID
-                    + ": invalid value '" + value + "': " + e.getMessage());
-        }
+        sev.set(edgeID, value);
+        LOGGER.debug("Updated dynamic data: profile=" + profileName + ", key=" + key + ", edgeID=" + edgeID
+                + ", value=" + value);
     }
 
-    /**
-     * Parses various value types into a Double. Supports:
-     * - Boolean strings: "true" -> 1.0, "false" -> 0.0
-     * - Numeric strings: "1", "-2.3", "1.5", etc.
-     *
-     * @param value the string value to parse
-     * @return the parsed double value
-     * @throws NumberFormatException if the value cannot be parsed
-     */
-    private double parseValueAsDouble(String value) throws NumberFormatException {
-        if (value == null) {
-            throw new NumberFormatException("Value cannot be null");
-        }
 
-        String trimmed = value.trim().toLowerCase();
-
-        // Handle boolean strings
-        if ("true".equals(trimmed)) {
-            return 1.0;
-        }
-        if ("false".equals(trimmed)) {
-            return 0.0;
-        }
-
-        // Parse as numeric value (handles integers, floats, negative numbers, etc.)
-        try {
-            return Double.parseDouble(trimmed);
-        } catch (NumberFormatException e) {
-            throw new NumberFormatException("Cannot parse '" + value + "' as a numeric or boolean value: " + e.getMessage());
-        }
-    }
 
     public void unsetDynamicData(String key, int edgeID) {
         SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);

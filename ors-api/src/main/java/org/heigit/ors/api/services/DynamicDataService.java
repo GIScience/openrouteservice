@@ -360,14 +360,27 @@ public class DynamicDataService {
             } else {
                 // Safe extraction of optional value field
                 // Prefer numeric read to avoid String intermediate for float JSON values
-                String value = Optional.of(node.path("value"))
-                        .filter(n -> !n.isMissingNode() && !n.isNull())
-                        .map(n -> n.isNumber()
-                                ? String.valueOf(n.doubleValue())
-                                : n.asText())
-                        .orElse(null);
+                Double value = null;
+                JsonNode valueNode = node.path("value");
+                if (!valueNode.isMissingNode() && !valueNode.isNull()) {
+                    if (valueNode.isNumber()) {
+                        value = valueNode.asDouble();
+                    } else {
+                        String strVal = valueNode.asText().trim().toLowerCase();
+                        if ("true".equals(strVal)) value = 1.0;
+                        else if ("false".equals(strVal)) value = 0.0;
+                        else {
+                            try {
+                                value = Double.parseDouble(strVal);
+                            } catch (NumberFormatException e) {
+                                LOGGER.warn("Cannot parse '" + strVal + "' as a numeric or boolean value");
+                            }
+                        }
+                    }
+                }
+                
                 if (value == null) {
-                    LOGGER.warn("Skipping match with null value: dataset=" + datasetKey + ", edgeId=" + edgeId);
+                    LOGGER.warn("Skipping match with null or invalid value: dataset=" + datasetKey + ", edgeId=" + edgeId);
                     return 0; // Skip invalid match
                 }
                 LOGGER.info("Processing match: dataset=" + datasetKey + ", edgeId=" + edgeId + ", value=" + value);

@@ -934,7 +934,7 @@ class ResultTest extends ServiceTest {
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
-                .pathParam("profile", getParameter("carCustomProfile"))
+                .pathParam("profile", "driving-car-no-preparations")
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
@@ -4057,6 +4057,7 @@ class ResultTest extends ServiceTest {
     @ParameterizedTest
     @CsvSource({"coordinatesPT,PT1M,2013,0", "coordinatesPTFlipped,PT1M,2014,1", "coordinatesPTFlipped,PT10S,2015,2", "coordinatesPTFlipped,PT10M,2016,3", "coordinatesPT2,PT4H,2017,4"})
     void testPTFail(String coords, String walkingTime, int errorCode, int messageIndex) {
+        System.out.println(">>> testPTFail coords=" + coords + " ptProfile=" + getParameter("ptProfile"));
         String[] messages = {
                 "PT entry point cannot be reached within given street time.",
                 "PT exit point cannot be reached within given street time.",
@@ -4076,7 +4077,7 @@ class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then().log().ifValidationFails()
+                .then().log().all()
                 .assertThat()
                 .body("any { it.key == 'error' }", is(true))
                 .body("error.code", is(errorCode))
