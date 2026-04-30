@@ -40,6 +40,7 @@ public class MatrixRequest extends APIRequest {
     public static final String PARAM_SOURCES = "sources";
     public static final String PARAM_DESTINATIONS = "destinations";
     public static final String PARAM_METRICS = "metrics";
+    public static final String PARAM_PREFERENCE = "preference";
     public static final String PARAM_RESOLVE_LOCATIONS = "resolve_locations";
     public static final String PARAM_UNITS = "units";
     public static final String PARAM_OPTIMIZED = "optimized";
@@ -75,6 +76,14 @@ public class MatrixRequest extends APIRequest {
     private MatrixRequestEnums.Metrics[] metrics;
     @JsonIgnore
     private boolean hasMetrics = false;
+
+        @Schema(name = PARAM_PREFERENCE,
+            description = "Specifies the route preference used to compute matrix costs.",
+            defaultValue = "recommended")
+        @JsonProperty(value = PARAM_PREFERENCE)
+        private APIEnums.RoutePreference routePreference;
+        @JsonIgnore
+        private boolean hasRoutePreference = false;
 
     @Schema(name = PARAM_RESOLVE_LOCATIONS, description = """
             Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in \
@@ -194,6 +203,19 @@ public class MatrixRequest extends APIRequest {
 
     public boolean hasMetrics() {
         return hasMetrics;
+    }
+
+    public APIEnums.RoutePreference getRoutePreference() {
+        return routePreference;
+    }
+
+    public void setRoutePreference(APIEnums.RoutePreference routePreference) {
+        this.routePreference = routePreference;
+        hasRoutePreference = true;
+    }
+
+    public boolean hasRoutePreference() {
+        return hasRoutePreference;
     }
 
     public boolean getResolveLocations() {
