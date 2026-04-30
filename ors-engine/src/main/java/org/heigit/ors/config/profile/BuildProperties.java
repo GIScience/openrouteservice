@@ -98,37 +98,28 @@ public class BuildProperties {
         for (Map.Entry<String, ExtendedStorageProperties> entry : extStorages.entrySet()) {
             String key = entry.getKey();
             ExtendedStorageProperties storage = entry.getValue();
-            if (storage != null) {
-                ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
-                switch (extendedStorageName) {
-                    case HEAVY_VEHICLE:
-                        handleVehicleAccess();
-                        if (Boolean.TRUE.equals(storage.getRestrictions())) {
-                            handleVehicleRestrictions();
-                        }
-                        break;
-                    case OSM_ID:
-                        if (encodedValues.getOsmWayId() == null) {
-                            encodedValues.setOsmWayId(true);
-                        }
-                        break;
-                    case WAY_CATEGORY:
-                        handleWayCategory();
-                        break;
-                    case WAY_SURFACE_TYPE:
-                        handleWaySurfaceType();
-                        break;
-                    case ROAD_ACCESS_RESTRICTIONS:
-                        if (encodedValues.getAccessRestriction() == null) {
-                            encodedValues.setAccessRestriction(true);
-                        }
-                        break;
-                    default:
-                        storage.initialize(extendedStorageName);
-                        this.extStorages.put(key, storage);
-                        break;
+            if (storage == null) {
+                continue;
+            }
+            ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
+            switch (extendedStorageName) {
+                case HEAVY_VEHICLE -> handleHeavyVehicle(storage);
+                case OSM_ID -> handleOsmId();
+                case WAY_CATEGORY -> handleWayCategory();
+                case WAY_SURFACE_TYPE -> handleWaySurfaceType();
+                case ROAD_ACCESS_RESTRICTIONS -> handleAccessRestrictions();
+                default -> {
+                    storage.initialize(extendedStorageName);
+                    this.extStorages.put(key, storage);
                 }
             }
+        }
+    }
+
+    private void handleHeavyVehicle(ExtendedStorageProperties storage) {
+        handleVehicleAccess();
+        if (Boolean.TRUE.equals(storage.getRestrictions())) {
+            handleVehicleRestrictions();
         }
     }
 
@@ -174,6 +165,12 @@ public class BuildProperties {
         }
     }
 
+    private void handleOsmId() {
+        if (encodedValues.getOsmWayId() == null) {
+            encodedValues.setOsmWayId(true);
+        }
+    }
+
     private void handleWayCategory() {
         if (encodedValues.getHighway() == null) {
             encodedValues.setHighway(true);
@@ -193,6 +190,12 @@ public class BuildProperties {
         }
         if (encodedValues.getWayType() == null) {
             encodedValues.setWayType(true);
+        }
+    }
+
+    private void handleAccessRestrictions() {
+        if (encodedValues.getAccessRestriction() == null) {
+            encodedValues.setAccessRestriction(true);
         }
     }
 
