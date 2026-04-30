@@ -14,7 +14,7 @@
 package com.graphhopper.routing.ev;
 
 public enum AccessRestriction {
-    // Keep in sync with documentation: surface.md
+    // Keep in sync with documentation: road-access-restrictions.md
     NONE(0),
     NO(1),
     CUSTOMERS(2),

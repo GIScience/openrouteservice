@@ -20,7 +20,6 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
-import com.graphhopper.routing.ev.AccessRestriction;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.EncodingManager.AcceptWay;
