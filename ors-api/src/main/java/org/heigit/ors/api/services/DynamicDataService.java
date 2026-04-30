@@ -290,7 +290,8 @@ public class DynamicDataService {
     /**
      * Parse NDJSON response from FeatureStore API using streaming JSON parser.
      * Each line is a JSON object representing a match.
-     * Format: {"feature_id":1,"dataset_key":"logie_borders","edge_id":3239,"value":"CLOSED","timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
+     * Format:
+     * {"feature_id":1,"dataset_key":"logie_borders","edge_id":3239,"value":1.0,"timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
      */
     private void parseNdjsonMatches(InputStream stream, RoutingProfile profile, String profileName) {
         LOGGER.info("Starting NDJSON parsing for profile '" + profileName + "' from stream");
@@ -358,13 +359,13 @@ public class DynamicDataService {
                 profile.unsetDynamicData(datasetKey, edgeId);
             } else {
                 // Safe extraction of optional value field
-                String value = null;
-                if (node.has("value")) {
-                    JsonNode valueNode = node.path("value");
-                    if (!valueNode.isNull()) {
-                        value = valueNode.asText();
-                    }
-                }
+                // Prefer numeric read to avoid String intermediate for float JSON values
+                String value = Optional.of(node.path("value"))
+                        .filter(n -> !n.isMissingNode() && !n.isNull())
+                        .map(n -> n.isNumber()
+                                ? String.valueOf(n.doubleValue())
+                                : n.asText())
+                        .orElse(null);
                 if (value == null) {
                     LOGGER.warn("Skipping match with null value: dataset=" + datasetKey + ", edgeId=" + edgeId);
                     return 0; // Skip invalid match

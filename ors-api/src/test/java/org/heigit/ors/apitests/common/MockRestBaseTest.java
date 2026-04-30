@@ -45,10 +45,10 @@ public abstract class MockRestBaseTest extends ServiceTest {
 
     private void setupMocks() {
         String ndjsonMatches = """
-                {"feature_id":1,"dataset_key":"logie_borders","edge_id":3239,"value":"CLOSED","timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
-                {"feature_id":2,"dataset_key":"logie_bridges","edge_id":3239,"value":"RESTRICTED","timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
-                {"feature_id":3,"dataset_key":"logie_roads","edge_id":3239,"value":"RESTRICTED","timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
-                {"feature_id":3,"dataset_key":"logie_roads","edge_id":14409,"value":"RESTRICTED","timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
+                {"feature_id":1,"dataset_key":"logie_borders","edge_id":3239,"value":1.0,"timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
+                {"feature_id":2,"dataset_key":"logie_bridges","edge_id":3239,"value":1.0,"timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
+                {"feature_id":3,"dataset_key":"logie_roads","edge_id":3239,"value":1.0,"timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
+                {"feature_id":3,"dataset_key":"logie_roads","edge_id":14409,"value":1.0,"timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
                 """.trim();
 
         // Support pagination via updated_after and profile parameters

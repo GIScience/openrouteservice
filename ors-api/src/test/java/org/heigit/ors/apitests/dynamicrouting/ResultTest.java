@@ -59,9 +59,9 @@ class ResultTest extends MockRestBaseTest {
 
     public static Stream<Arguments> dynamicDataTestProvider() {
         return Stream.of(
-                Arguments.of("logie_borders == CLOSED"),
-                Arguments.of("logie_bridges == RESTRICTED"),
-                Arguments.of("logie_roads == RESTRICTED")
+                Arguments.of("logie_borders == 1.0"),
+                Arguments.of("logie_bridges == 1.0"),
+                Arguments.of("logie_roads == 1.0")
         );
     }
 
