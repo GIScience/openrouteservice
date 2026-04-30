@@ -19,7 +19,6 @@ public class AccessRestrictionsParser implements TagParser {
     private static final String VAL_BICYCLE = "bicycle";
     private static final String VAL_ACCESS = "access";
     private static final String VAL_MOTOR_VEHICLE = "motor_vehicle";
-    private boolean hasRestrictions = false;
     private final List<String> accessRestrictedTags = new ArrayList<>(5);
     private final List<String> motorCarTags = new ArrayList<>(5);
     private final List<String> motorCycleTags = new ArrayList<>(5);
@@ -67,19 +66,13 @@ public class AccessRestrictionsParser implements TagParser {
 
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay readerWay, boolean b, IntsRef relationFlags) {
-        //TODO check if node tags need to be applied
         int accessRestrictionValue = processWay(readerWay);
         accessRestrictionEnc.setEnum(false, edgeFlags, AccessRestriction.fromValue(accessRestrictionValue));
         return edgeFlags;
     }
 
     public int processWay(ReaderWay way) {
-        if (hasRestrictions) {
-            hasRestrictions = false;
-        }
-
         if (way.hasTag(accessRestrictedTags, restrictedValues)) {
-            hasRestrictions = true;
             if (RoutingProfileType.isDriving(profileType))
                 return isAccessAllowed(way, motorCarTags) ? 0 : getRestrictionType(way, motorCarTags);
             if (profileType == RoutingProfileType.DRIVING_MOTORCYCLE)
@@ -91,6 +84,7 @@ public class AccessRestrictionsParser implements TagParser {
             if (profileType == RoutingProfileType.UNKNOWN)
                 return getRestrictionType(way, VAL_ACCESS);
         }
+
         return 0;
     }
 

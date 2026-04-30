@@ -78,6 +78,7 @@ public class ORSOSMReader extends OSMReader {
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
             if (b instanceof BordersGraphStorageBuilder) {
+                this.processNodeTags = true;
                 this.countries = new HashMap<>();
                 this.processGeom = true;
             }
@@ -100,18 +101,6 @@ public class ORSOSMReader extends OSMReader {
                 extraTagKeys.add("kerb:right:height");
             }
         }
-
-        if(storage.getEncodingManager().hasEncodedValue(AccessRestriction.KEY)) {
-            this.processNodeTags = true;
-            extraTagKeys.add("access");
-            extraTagKeys.add("bicycle");
-            extraTagKeys.add("foot");
-            extraTagKeys.add("horse");
-            extraTagKeys.add("motor_vehicle");
-            extraTagKeys.add("motorcar");
-            extraTagKeys.add("motorcycle");
-        }
-
 
         if (procCntx.isUseSidewalks()) {
             detachSidewalksFromRoad = true;
