@@ -28,4 +28,23 @@ public abstract class AccessRestrictionType {
 
     private AccessRestrictionType() {
     }
+
+    public static int getFromString(String tagValue) {
+        int restriction = AccessRestrictionType.NONE;
+
+        for (String value : tagValue.toLowerCase().split(";")) {
+            restriction |= switch (value.trim()) {
+                case "no" -> AccessRestrictionType.NO;
+                case "customers" -> AccessRestrictionType.CUSTOMERS;
+                case "destination" -> AccessRestrictionType.DESTINATION;
+                case "delivery" -> AccessRestrictionType.DELIVERY;
+                case "private" -> AccessRestrictionType.PRIVATE;
+                case "permissive" -> AccessRestrictionType.PERMISSIVE;
+                case "permit" -> AccessRestrictionType.PERMIT;
+                default -> AccessRestrictionType.NONE;
+            };
+        }
+
+        return restriction;
+    }
 }
