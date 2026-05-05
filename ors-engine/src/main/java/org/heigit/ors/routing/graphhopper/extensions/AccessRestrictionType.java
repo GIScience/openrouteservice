@@ -30,21 +30,21 @@ public abstract class AccessRestrictionType {
     }
 
     public static int getFromString(String tagValue) {
-        int restriction = AccessRestrictionType.NONE;
-
-        for (String value : tagValue.toLowerCase().split(";")) {
-            restriction |= switch (value.trim()) {
-                case "no" -> AccessRestrictionType.NO;
-                case "customers" -> AccessRestrictionType.CUSTOMERS;
-                case "destination" -> AccessRestrictionType.DESTINATION;
-                case "delivery" -> AccessRestrictionType.DELIVERY;
-                case "private" -> AccessRestrictionType.PRIVATE;
-                case "permissive" -> AccessRestrictionType.PERMISSIVE;
-                case "permit" -> AccessRestrictionType.PERMIT;
-                default -> AccessRestrictionType.NONE;
-            };
+        //TODO: account for multiple values separated by ';' (e.g. "private;customers")
+        //      see https://github.com/GIScience/openrouteservice/issues/2275
+        if (tagValue == null) {
+            return NONE;
         }
 
-        return restriction;
+        return switch (tagValue) {
+            case "no" -> NO;
+            case "destination" -> DESTINATION;
+            case "private" -> PRIVATE;
+            case "permissive" -> PERMISSIVE;
+            case "delivery" -> DELIVERY;
+            case "customers" -> CUSTOMERS;
+            case "permit" -> PERMIT;
+            default -> NONE;
+        };
     }
 }

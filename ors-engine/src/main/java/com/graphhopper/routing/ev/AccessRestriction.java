@@ -13,35 +13,14 @@
  */
 package com.graphhopper.routing.ev;
 
-public enum AccessRestriction {
-    // Keep in sync with documentation: road-access-restrictions.md
-    NONE(0),
-    NO(1),
-    CUSTOMERS(2),
-    DESTINATION(4),
-    DELIVERY(8),
-    PRIVATE(16),
-    PERMISSIVE(32),
-    PERMIT(64);
-
-    private final byte value;
-
-    private AccessRestriction(int value) {
-        this.value = (byte) value;
-    }
-
-    public byte value() {
-        return value;
-    }
-
-    public static AccessRestriction fromValue(int value) {
-        for (AccessRestriction restriction : AccessRestriction.values()) {
-            if (restriction.value == (byte) value) {
-                return restriction;
-            }
-        }
-        throw new IllegalArgumentException("Unknown value: " + value);
-    }
-
+public class AccessRestriction {
     public static final String KEY = "access_restriction";
+
+    private AccessRestriction() {
+        // prevent instantiation
+    }
+
+    public static IntEncodedValue create() {
+        return new UnsignedIntEncodedValue(KEY, 7, false);
+    }
 }

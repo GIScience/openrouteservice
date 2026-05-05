@@ -518,7 +518,7 @@ public class ExtraInfoProcessor implements PathProcessor {
         }
 
         if (roadAccessRestrictionsInfoBuilder != null) {
-            int value = encoder.getEnumEncodedValue(AccessRestriction.KEY, AccessRestriction.class).getEnum(false, edge.getFlags()).value();
+            int value = encoder.getIntEncodedValue(AccessRestriction.KEY).getInt(false, edge.getFlags());
             roadAccessRestrictionsInfoBuilder.addSegment(value, value, geom, dist);
         }
 

@@ -4,7 +4,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.AccessRestriction;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.EncodedValueLookup;
-import com.graphhopper.routing.ev.EnumEncodedValue;
+import com.graphhopper.routing.ev.IntEncodedValue;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.storage.IntsRef;
 import org.heigit.ors.routing.RoutingProfileType;
@@ -14,7 +14,7 @@ import java.util.*;
 
 
 public class AccessRestrictionsParser implements TagParser {
-    private final EnumEncodedValue<AccessRestriction> accessRestrictionEnc;
+    private final IntEncodedValue accessRestrictionEnc;
 
     private static final String VAL_ACCESS = "access";
     private static final String VAL_MOTOR_VEHICLE = "motor_vehicle";
@@ -54,10 +54,10 @@ public class AccessRestrictionsParser implements TagParser {
 
 
     public AccessRestrictionsParser(int profileType) {
-        this(new EnumEncodedValue<>(AccessRestriction.KEY, AccessRestriction.class), profileType);
+        this(AccessRestriction.create(), profileType);
     }
 
-    public AccessRestrictionsParser(EnumEncodedValue<AccessRestriction> accessRestrictionEnc, int profileType) {
+    public AccessRestrictionsParser(IntEncodedValue accessRestrictionEnc, int profileType) {
         this.accessRestrictionEnc = accessRestrictionEnc;
         this.profileType = profileType;
         initTags();
@@ -71,13 +71,14 @@ public class AccessRestrictionsParser implements TagParser {
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay readerWay, boolean b, IntsRef relationFlags) {
         int accessRestrictionValue = processWay(readerWay);
-        accessRestrictionEnc.setEnum(false, edgeFlags, AccessRestriction.fromValue(accessRestrictionValue));
+        accessRestrictionEnc.setInt(false, edgeFlags, accessRestrictionValue);
         return edgeFlags;
     }
 
     public int processWay(ReaderWay way) {
         //TODO: modify the following logic to process access restriction tags from the most specific to the least
         //      specific, e.g. motorcar > motor_vehicle > vehicle > access via a call to way.getFirstPriorityTag
+        //      see https://github.com/GIScience/openrouteservice/issues/2275
 
         if (!way.hasTag(accessRestrictedTags, restrictedValues)) {
             return 0;
@@ -142,12 +143,7 @@ public class AccessRestrictionsParser implements TagParser {
      * @return An integer encoded representation of all restrictions that have been set
      */
     private int updateRestriction(int encodedRestrictions, String restrictionValue) {
-        int res = encodedRestrictions;
-        if (restrictionValue != null && !restrictionValue.isEmpty()) {
-            res = AccessRestrictionType.getFromString(restrictionValue);
-        }
-
-        return res;
+        return encodedRestrictions | AccessRestrictionType.getFromString(restrictionValue);
     }
 
     /**
