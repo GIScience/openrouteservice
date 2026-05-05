@@ -30,6 +30,7 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
+- migrate hill index storage to a dedicated encoded value ([#2267](https://github.com/GIScience/openrouteservice/pull/2267))
 - migrate road access restrictions storage to a dedicated encoded value ([#2270](https://github.com/GIScience/openrouteservice/pull/2270))
 
 ### Deprecated
