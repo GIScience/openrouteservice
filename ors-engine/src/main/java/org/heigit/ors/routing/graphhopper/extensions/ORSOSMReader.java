@@ -195,6 +195,7 @@ public class ORSOSMReader extends OSMReader {
         }
 
         applyNodeTagsToWay(way);
+        attachNodeTagsToWay(way);
         onProcessWay(way);
         recordExactWayDistance(way);
         recordEstimatedWayDistance(way);// Required for backward compatibility of the acceleration heuristic
@@ -368,8 +369,24 @@ public class ORSOSMReader extends OSMReader {
         }
     }
 
+    private void attachNodeTagsToWay(ReaderWay way) {
+        LongArrayList osmNodeIds = way.getNodes();
+        int size = osmNodeIds.size();
+        if (size > 2) {
+            // If it is a crossing then we need to apply any kerb tags to the way, but we need to make sure we keep the "worse" one
+            GHLongObjectHashMap<Map<String, String>> wayNodeTagValues = new GHLongObjectHashMap<>();
+            for (int i = 1; i < size - 1; i++) {
+                long nodeId = osmNodeIds.get(i);
+                if (nodeTags.containsKey(nodeId)) {
+                    wayNodeTagValues.put(nodeId, nodeTags.get(nodeId));
+                }
+            }
+            way.setTag("ors:node_tags", wayNodeTagValues);
+        }
+    }
+
     @Override
-    protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge, IntsRef edgeFlags, EncodingManager.AcceptWay acceptWay, Map<String, Object> nodeTags) {
+    protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge, IntsRef edgeFlags, EncodingManager.AcceptWay acceptWay) {
         try {
             int baseNode = edge.getBaseNode();
             int adjNode = edge.getAdjNode();
@@ -384,23 +401,12 @@ public class ORSOSMReader extends OSMReader {
                 storeConditionalAccess(acceptWay, edge);
             }
 
-            applyKerbHeightNodeTagsToEdges(way, edgeFlags, nodeTags);
-
             storeConditionalSpeed(edgeFlags, edge);
         } catch (Exception ex) {
             LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
         }
     }
 
-    private void applyKerbHeightNodeTagsToEdges(ReaderWay way, IntsRef edgeFlags, Map<String, Object> nodeTags) {
-        if(!encodingManager.hasEncoder("wheelchair"))
-            return;
-
-        final WheelchairKerbHeightParser parser = new WheelchairKerbHeightParser(
-                super.encodingManager.getEncoder("wheelchair").getIntEncodedValue(WheelchairKerb.KEY));
-
-        parser.handleEdge(edgeFlags, way, nodeTags);
-    }
 
     private void storeConditionalAccess(AcceptWay acceptWay, EdgeIteratorState edge) {
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
