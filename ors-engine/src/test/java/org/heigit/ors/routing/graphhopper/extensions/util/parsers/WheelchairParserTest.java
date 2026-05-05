@@ -9,6 +9,9 @@ import org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class WheelchairParserTest {
@@ -24,6 +27,8 @@ class WheelchairParserTest {
     private WheelchairSuitableParser parserSuitable;
     private WheelchairSurfaceQualityKnownParser parserSurfaceQualityKnown;
     private WheelchairSideParser parserSide;
+
+    private final Map<String, Object> nodeTags  = new HashMap<String, Object>();
 
     public WheelchairParserTest() {
         setUp();
@@ -62,6 +67,7 @@ class WheelchairParserTest {
         parserTrackType.handleWayTags(intsRef, way, false, relFlags);
         parserIncline.handleWayTags(intsRef, way, false, relFlags);
         parserKerbHeight.handleWayTags(intsRef, way, false, relFlags);
+        parserKerbHeight.handleEdge(intsRef, way, nodeTags);
         parserWidth.handleWayTags(intsRef, way, false, relFlags);
         parserSuitable.handleWayTags(intsRef, way, false, relFlags);
         parserSurfaceQualityKnown.handleWayTags(intsRef, way, false, relFlags);
@@ -194,7 +200,9 @@ class WheelchairParserTest {
         ReaderWay way = new ReaderWay(1);
 
         way.setTag("highway", "crossing");
-        way.setTag("ors_node:kerb:height", "0.03");
+        nodeTags.put("kerb:height", "0.03");
+
+        executeParsers(way);
 
         executeParsers(way);
         WheelchairAttributesEncodedValues encValues = new WheelchairAttributesEncodedValues(em);
@@ -210,9 +218,10 @@ class WheelchairParserTest {
         ReaderWay way = new ReaderWay(1);
 
         way.setTag("footway", "crossing");
-        way.setTag("ors_node:kerb:height", "0.03");
+        nodeTags.put("kerb:height", "0.03");
 
         executeParsers(way);
+
         WheelchairAttributesEncodedValues encValues = new WheelchairAttributesEncodedValues(em);
         WheelchairAttributes attrs = encValues.getAttributes(intsRef);
 
@@ -226,7 +235,7 @@ class WheelchairParserTest {
         ReaderWay way = new ReaderWay(1);
 
         way.setTag("highway", "footway");
-        way.setTag("ors_node:kerb:height", "0.03");
+        nodeTags.put("kerb:height", "0.03");
 
         executeParsers(way);
         WheelchairAttributesEncodedValues encValues = new WheelchairAttributesEncodedValues(em);
