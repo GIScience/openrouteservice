@@ -28,7 +28,6 @@ import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint3D;
 import org.apache.log4j.Logger;
@@ -78,6 +77,7 @@ public class ORSOSMReader extends OSMReader {
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
             if (b instanceof BordersGraphStorageBuilder) {
+                this.processNodeTags = true;
                 this.countries = new HashMap<>();
                 this.processGeom = true;
             }
@@ -98,17 +98,6 @@ public class ORSOSMReader extends OSMReader {
                 extraTagKeys.add("kerb:both:height");
                 extraTagKeys.add("kerb:left:height");
                 extraTagKeys.add("kerb:right:height");
-            }
-
-            if (b instanceof RoadAccessRestrictionsGraphStorageBuilder) {
-                this.processNodeTags = true;
-                extraTagKeys.add("access");
-                extraTagKeys.add("bicycle");
-                extraTagKeys.add("foot");
-                extraTagKeys.add("horse");
-                extraTagKeys.add("motor_vehicle");
-                extraTagKeys.add("motorcar");
-                extraTagKeys.add("motorcycle");
             }
         }
 

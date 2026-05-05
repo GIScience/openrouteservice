@@ -28,4 +28,23 @@ public abstract class AccessRestrictionType {
 
     private AccessRestrictionType() {
     }
+
+    public static int getFromString(String tagValue) {
+        //TODO: account for multiple values separated by ';' (e.g. "private;customers")
+        //      see https://github.com/GIScience/openrouteservice/issues/2275
+        if (tagValue == null) {
+            return NONE;
+        }
+
+        return switch (tagValue) {
+            case "no" -> NO;
+            case "destination" -> DESTINATION;
+            case "private" -> PRIVATE;
+            case "permissive" -> PERMISSIVE;
+            case "delivery" -> DELIVERY;
+            case "customers" -> CUSTOMERS;
+            case "permit" -> PERMIT;
+            default -> NONE;
+        };
+    }
 }

@@ -8,7 +8,12 @@ import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.parsers.*;
 
 public class OrsTagParserFactory implements TagParserFactory {
+    private final int profileType;
     DefaultTagParserFactory defaultTagParserFactory = new DefaultTagParserFactory();
+
+    public OrsTagParserFactory(int profileType) {
+        this.profileType = profileType;
+    }
 
     @Override
     public TagParser create(String name, PMap configuration) {
@@ -28,6 +33,7 @@ public class OrsTagParserFactory implements TagParserFactory {
                 case GoodsAccess.KEY -> new VehicleAccessParser(GoodsAccess.create(), HeavyVehicleAttributes.GOODS);
                 case HgvAccess.KEY -> new VehicleAccessParser(HgvAccess.create(), HeavyVehicleAttributes.HGV);
                 case HazmatAccess.KEY -> new HazmatAccessParser();
+                case AccessRestriction.KEY -> new AccessRestrictionsParser(profileType);
                 default -> throw e;
             };
         }
