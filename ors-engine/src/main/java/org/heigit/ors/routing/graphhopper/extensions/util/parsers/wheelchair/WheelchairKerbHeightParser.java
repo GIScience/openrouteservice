@@ -5,92 +5,178 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.IntEncodedValue;
 import com.graphhopper.routing.ev.WheelchairKerb;
 import com.graphhopper.storage.IntsRef;
+import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder.*;
+
 public class WheelchairKerbHeightParser extends WheelchairBaseParser {
     public static final String TAG_NAME = "kerb_height";
     public static boolean kerbHeightOnlyOnCrossing = true; // TODO: expose this as a configuration option
 
-    private final Map<String, String> nodeTagsOnWay = Maps.newHashMap();
 
     public WheelchairKerbHeightParser(){
         this.encoder = WheelchairKerb.create();
     }
+    public WheelchairKerbHeightParser(IntEncodedValue encoder){ this.encoder = encoder; }
 
-     @Override
+    @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, boolean ferry, IntsRef relationFlags) {
         beforeHandleWayTags(way);
 
-        for (var entry : way.getTags().entrySet()) {
-            if(!entry.getKey().startsWith("ors_node:")) continue;
+        String[] assumedKerbTags = new String[]{
+                "curb",
+                "kerb",
+                KEY_SLOPED_CURB,
+                KEY_SLOPED_KERB
+        };
+        String[] explicitKerbTags = new String[]{
+                KEY_KERB_HEIGHT,
+                KEY_CURB_HEIGHT
+        };
 
-            final String key = entry.getKey().replace("ors_node:", "");
-            nodeTagsOnWay.put(key, entry.getValue().toString());
+        int height = calcSingleKerbHeightFromTagList(assumedKerbTags, -1);
+        // Explicit heights overwrite assumed
+        height = calcSingleKerbHeightFromTagList(explicitKerbTags, height);
+
+        int heightC = -1;
+        int heightL = -1;
+        int heightR = -1;
+
+        if (height > -1) {
+            heightC = height;
+        }
+
+        // Now for if the values are attached to sides of the way
+        int[] heights = calcSingleKerbHeightFromSidedTagList(assumedKerbTags, new int[]{-1, -1});
+        heights = calcSingleKerbHeightFromSidedTagList(explicitKerbTags, heights);
+
+        if (heights[0] > -1) {
+            hasLeftSidewalk = true;
+            heightL = heights[0];
+        }
+
+        if (heights[1] > -1) {
+            hasLeftSidewalk = true;
+            heightR = heights[1];
+        }
+
+        if (way.hasTag("ors-sidewalk-side")) {
+            String side = way.getTag("ors-sidewalk-side");
+            if (side.equals(SW_VAL_LEFT)) {
+                height = heightL;
+            }
+            if (side.equals(SW_VAL_RIGHT)) {
+                height = heightR;
+            }
+        } else {
+            // if we have sidewalks attached, then we should also look at those. We should only hit this point if
+            // the preprocessing hasn't detected that there are sidewalks even though there are...
+            if (hasRightSidewalk || hasLeftSidewalk) {
+                height = Math.max(heightC, Math.max(heightL, heightR));
+            }
         }
 
 
-         int height = calcSingleKerbHeightFromTagList(assumedKerbTags, -1);
-         height = calcSingleKerbHeightFromTagList(explicitKerbTags, height);
-
-         int left =  -1;
-         int right = -1;
-
-         // Now for if the values are attached to sides of the way
-         int[] heights = calcSingleKerbHeightFromSidedTagList(assumedKerbTags, new int[]{-1, -1});
-         heights = calcSingleKerbHeightFromSidedTagList(explicitKerbTags, heights);
-
-         if (heights[0] > -1) {
-             left = heights[0];
-         }
-
-         if (heights[1] > -1) {
-             right = heights[1];
-         }
-
-         int nodeBasedKerbHeight = getKerbHeightForEdge(way);
-         if (nodeBasedKerbHeight > -1) {
-             height = nodeBasedKerbHeight;
-         }
-
-         height = selectIntValueForSidewalkSide(way, height, left, right);
-
-         if(height > -1)
+        if(height > -1)
             ((IntEncodedValue) encoder).setInt(false, edgeFlags, height);
+
+        return edgeFlags;
+    }
+
+
+    public IntsRef handleEdge(IntsRef edgeFlags, ReaderWay way, Map<String, Object> nodeTags) {
+        beforeHandleWayTags(way);
+        int height = -1;
+        int heightL = -1;
+        int heightR = -1;
+
+        height = ((IntEncodedValue) encoder).getInt(false, edgeFlags);
+        if (way.hasTag("ors-sidewalk-side")) {
+            String side = way.getTag("ors-sidewalk-side");
+            if (side.equals(SW_VAL_LEFT)) {
+                heightL = height;
+            }
+            if (side.equals(SW_VAL_RIGHT)) {
+                heightR = height;
+            }
+        }
+
+         // START EDGE PROCESSING
+
+         int kerbHeight = getKerbHeightForEdge(way, nodeTags);
+         if (kerbHeight > -1) {
+             height = kerbHeight;
+         }
+
+         // Check for if we have specified which side the processing is for
+         if (way.hasTag("ors-sidewalk-side")) {
+             String side = way.getTag("ors-sidewalk-side");
+             if (side.equals(SW_VAL_LEFT)) {
+                 height = heightL;
+             }
+             if (side.equals(SW_VAL_RIGHT)) {
+                 height = heightR;
+             }
+         } else {
+             // if we have sidewalks attached, then we should also look at those. We should only hit this point if
+             // the preprocessing hasn't detected that there are sidewalks even though there are...
+             if (hasRightSidewalk || hasLeftSidewalk) {
+                 height = Math.max(height, Math.max(heightL, heightR));
+             }
+         }
+
+         ((IntEncodedValue) encoder).setInt(false, edgeFlags, height);
 
          return edgeFlags;
      }
 
-    int getKerbHeightForEdge(ReaderWay way) {
+    /**
+     * Get an overriding kerb height if needed from the nodes that are on the way rather than the data stored on the way itself.
+     * This should be the case if we are specifying to only store kerb heights on crossings as these features do not normally
+     * have kerb heights attached to them
+     *
+     * @param way The way that is being investigated
+     * @return A kerb height from the tags of the nodes on the way, or -1 if no kerb heights are found/required
+     */
+    int getKerbHeightForEdge(ReaderWay way, Map<String, Object> nodeTags) {
         int kerbHeight = -1;
 
         if (!kerbHeightOnlyOnCrossing || (way.hasTag("footway") && way.getTag("footway").equals("crossing"))) {
             // Look for kerb information
-            kerbHeight = getKerbHeightFromNodeTags();
+            kerbHeight = getKerbHeightFromNodeTags(nodeTags);
         }
 
         return kerbHeight;
     }
 
-    int getKerbHeightFromNodeTags() {
+    /**
+     * Look at the information stored against the nodes of the way and extract the kerb height to use for the whole way
+     * from those data.
+     *
+     * @return The derived kerb height in centimetres from teh nodes that are on the way
+     */
+    int getKerbHeightFromNodeTags(Map<String, Object> nodeTags) {
         // Assumed kerb heights are those obtained from a tag without the explicit :height attribute
         List<Integer> assumedKerbHeights = new ArrayList<>();
         // Explicit heights are those provided by the :height tag - these should take precidence
         List<Integer> explicitKerbHeights = new ArrayList<>();
 
 
-        for (Map.Entry<String, String> tag : nodeTagsOnWay.entrySet()) {
+        for (Map.Entry<String, Object> tag : nodeTags.entrySet()) {
             switch (tag.getKey()) {
-                case "sloped_curb", "curb", "kerb", "sloped_kerb" ->
-                        assumedKerbHeights.add(convertKerbTagValueToCentimetres(tag.getValue()));
-                case "kerb:height", "curb:height" -> explicitKerbHeights.add(convertKerbTagValueToCentimetres(tag.getValue()));
-                default -> {}
+                case KEY_SLOPED_CURB, "curb", "kerb", KEY_SLOPED_KERB ->
+                        assumedKerbHeights.add(convertKerbTagValueToCentimetres(tag.getValue().toString()));
+                case KEY_KERB_HEIGHT -> explicitKerbHeights.add(convertKerbTagValueToCentimetres(tag.getValue().toString()));
+                default -> {
+                }
             }
-        }
 
+        }
         if (!explicitKerbHeights.isEmpty()) {
             return Collections.max(explicitKerbHeights);
         } else if (!assumedKerbHeights.isEmpty()) {

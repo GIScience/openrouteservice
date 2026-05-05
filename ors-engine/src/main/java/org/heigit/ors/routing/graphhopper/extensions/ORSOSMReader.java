@@ -20,6 +20,7 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
+import com.graphhopper.routing.ev.WheelchairKerb;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.EncodingManager.AcceptWay;
@@ -34,6 +35,7 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.PedestrianWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
+import org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair.WheelchairKerbHeightParser;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.io.IOException;
@@ -409,7 +411,7 @@ public class ORSOSMReader extends OSMReader {
 
 
     @Override
-    protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge, IntsRef edgeFlags, EncodingManager.AcceptWay acceptWay) {
+    protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge, IntsRef edgeFlags, EncodingManager.AcceptWay acceptWay, Map<String, Object> nodeTags) {
         try {
             int baseNode = edge.getBaseNode();
             int adjNode = edge.getAdjNode();
@@ -424,10 +426,22 @@ public class ORSOSMReader extends OSMReader {
                 storeConditionalAccess(acceptWay, edge);
             }
 
+            applyKerbHeightNodeTagsToEdges(way, edgeFlags, nodeTags);
+
             storeConditionalSpeed(edgeFlags, edge);
         } catch (Exception ex) {
             LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
         }
+    }
+
+    private void applyKerbHeightNodeTagsToEdges(ReaderWay way, IntsRef edgeFlags, Map<String, Object> nodeTags) {
+        if(!encodingManager.hasEncoder("wheelchair"))
+            return;
+
+        final WheelchairKerbHeightParser parser = new WheelchairKerbHeightParser(
+                super.encodingManager.getEncoder("wheelchair").getIntEncodedValue(WheelchairKerb.KEY));
+
+        parser.handleEdge(edgeFlags, way, nodeTags);
     }
 
     private void storeConditionalAccess(AcceptWay acceptWay, EdgeIteratorState edge) {
