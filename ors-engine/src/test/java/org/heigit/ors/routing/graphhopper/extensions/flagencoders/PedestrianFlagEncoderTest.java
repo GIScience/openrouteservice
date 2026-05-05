@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.TreeMap;
 
@@ -76,10 +77,11 @@ class PedestrianFlagEncoderTest {
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
-    @Test
-    void acceptSimpleSacScale() {
+    @ParameterizedTest
+    @ValueSource(strings = {"strolling", "hiking"})
+    void acceptSimpleSacScale(String value) {
         way = generatePedestrianWay();
-        way.setTag("sac_scale", "strolling");
+        way.setTag("sac_scale", value);
         assertTrue(flagEncoder.getAccess(way).isWay());
     }
 
@@ -354,4 +356,10 @@ class PedestrianFlagEncoderTest {
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
 
+    @Test
+    void acceptHighwayCorridor() {
+        way.setTag("highway", "corridor");
+
+        assertTrue(flagEncoder.getAccess(way).isWay());
+    }
 }

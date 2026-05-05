@@ -35,6 +35,8 @@ jobs:
       new_commits: ${{ steps.check.outputs.NEW_COMMITS }}
       publish_image_tag: ${{ steps.image-tags.outputs.publish_image_tag }}
       slim_image_tag: ${{ steps.image-tags.outputs.slim_image_tag }}
+      heigit_publish_image_tag: ${{ steps.image-tags.outputs.heigit_publish_image_tag }}
+      heigit_slim_image_tag: ${{ steps.image-tags.outputs.heigit_slim_image_tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,10 +59,15 @@ jobs:
         id: image-tags
         run: |
           BASE_TAG=openrouteservice/openrouteservice:"${{ inputs.tag || 'nightly' }}"
+          HEIGIT_BASE_TAG=heigit/openrouteservice:"${{ inputs.tag || 'nightly' }}"
           echo "publish_image_tag=${BASE_TAG}" >> $GITHUB_OUTPUT
           echo "slim_image_tag=${BASE_TAG}-slim" >> $GITHUB_OUTPUT
+          echo "heigit_publish_image_tag=${HEIGIT_BASE_TAG}" >> $GITHUB_OUTPUT
+          echo "heigit_slim_image_tag=${HEIGIT_BASE_TAG}-slim" >> $GITHUB_OUTPUT
           echo "Docker publish stage image tag: ${BASE_TAG}"
           echo "Docker slim stage image tag: ${BASE_TAG}-slim"
+          echo "HeiGIT publish stage image tag: ${HEIGIT_BASE_TAG}"
+          echo "HeiGIT slim stage image tag: ${HEIGIT_BASE_TAG}-slim"
   
   build_and_push_publish_images:
     needs:
@@ -111,10 +118,12 @@ jobs:
         include:
           - image_stage: 'publish'
             image_tag: ${{ needs.setup-build-environment.outputs.publish_image_tag }}
+            heigit_image_tag: ${{ needs.setup-build-environment.outputs.heigit_publish_image_tag }}
             digest_amd64: ${{ needs.build_and_push_publish_images.outputs.image_digest_amd64 }}
             digest_arm64: ${{ needs.build_and_push_publish_images.outputs.image_digest_arm64 }}
           - image_stage: 'slim'
             image_tag: ${{ needs.setup-build-environment.outputs.slim_image_tag }}
+            heigit_image_tag: ${{ needs.setup-build-environment.outputs.heigit_slim_image_tag }}
             digest_amd64: ${{ needs.build_and_push_slim_images.outputs.image_digest_amd64 }}
             digest_arm64: ${{ needs.build_and_push_slim_images.outputs.image_digest_arm64 }}
     steps:
@@ -133,12 +142,16 @@ jobs:
           docker_login: true
           docker_username: ${{ secrets.DOCKER_USERNAME }}
           docker_password: ${{ secrets.DOCKER_PASSWORD }}
-          dockerfile: 'Dockerfile'
-      - name: Create and push manifest list for ${{ matrix.image_stage }}
+          docker_login_additional: true
+          docker_additional_registry: registry-1.docker.io
+          docker_additional_username: ${{ secrets.DOCKER_HEIGIT_USERNAME }}
+          docker_additional_password: ${{ secrets.DOCKER_HEIGIT_TOKEN }}
+      - name: Create and push manifest list for ${{ matrix.image_stage }} to heigit
         env:
           IMAGE_REPO: ${{ matrix.image_tag }}
           DIGEST_AMD64: ${{ matrix.digest_amd64 }}
           DIGEST_ARM64: ${{ matrix.digest_arm64 }}
+          HEIGIT_IMAGE_REPO: ${{ matrix.heigit_image_tag }}
         run: |
           if [ -z "$DIGEST_AMD64" ] || [ -z "$DIGEST_ARM64" ]; then
             echo "Error: Missing digests for multi-arch manifest"
@@ -154,4 +167,10 @@ jobs:
             "${IMAGE_REPO%:*}@${DIGEST_ARM64}"
 
           echo "Successfully pushed multi-arch image: $IMAGE_REPO"
+          
+          echo "Create and push manifest list for $HEIGIT_IMAGE_REPO"
+          docker buildx imagetools create \
+            -t "registry-1.docker.io/$HEIGIT_IMAGE_REPO" \
+            "$IMAGE_REPO"
 
+          echo "Successfully pushed multi-arch image: $HEIGIT_IMAGE_REPO"

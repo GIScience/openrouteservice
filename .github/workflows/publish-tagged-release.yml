@@ -109,11 +109,16 @@ jobs:
           docker_login: true
           docker_username: ${{ secrets.DOCKER_USERNAME }}
           docker_password: ${{ secrets.DOCKER_PASSWORD }}
+          docker_login_additional: true
+          docker_additional_registry: registry-1.docker.io
+          docker_additional_username: ${{ secrets.DOCKER_HEIGIT_USERNAME }}
+          docker_additional_password: ${{ secrets.DOCKER_HEIGIT_TOKEN }}
           dockerfile: 'Dockerfile'
       - name: Create and push manifest for ${{ matrix.name }}
         if: matrix.publish_image
         env:
           IMAGE_REPO: openrouteservice/openrouteservice:${{ matrix.image_tag }}
+          HEIGIT_IMAGE_REPO: heigit/openrouteservice:${{ matrix.image_tag }}
           DIGEST_AMD64: ${{ matrix.digest_amd64 }}
           DIGEST_ARM64: ${{ matrix.digest_arm64 }}
         run: |
@@ -131,6 +136,13 @@ jobs:
             "openrouteservice/openrouteservice@${DIGEST_ARM64}"
 
           echo "Successfully pushed multi-arch image: $IMAGE_REPO"
+
+          echo "Create and push manifest list for heigit/openrouteservice"
+          docker buildx imagetools create \
+            -t "registry-1.docker.io/$HEIGIT_IMAGE_REPO" \
+            "$IMAGE_REPO"
+
+          echo "Successfully pushed multi-arch image: $HEIGIT_IMAGE_REPO"
 
   create_latest_git_tag:
     name: Create or update latest git tag

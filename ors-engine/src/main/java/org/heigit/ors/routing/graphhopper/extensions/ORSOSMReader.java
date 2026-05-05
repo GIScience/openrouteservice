@@ -20,12 +20,12 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
-import com.graphhopper.routing.ev.WheelchairKerb;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.EncodingManager.AcceptWay;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.ConditionalEdges;
+import com.graphhopper.routing.ev.WheelchairKerb;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
@@ -41,10 +41,10 @@ import org.locationtech.jts.geom.Coordinate;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.util.*;
-import java.util.Map.Entry;
 
 import static com.graphhopper.reader.osm.OSMNodeData.isPillarNode;
 import static com.graphhopper.reader.osm.OSMNodeData.isTowerNode;
+
 
 public class ORSOSMReader extends OSMReader {
 
@@ -364,51 +364,9 @@ public class ORSOSMReader extends OSMReader {
                 if (osmNodeTagValues.containsKey(nodeId)) {
                   osmNodeTagValues.get(nodeId).forEach((key, value) -> way.setTag(key, value.toString()));
                 }
-                applyExtraNodeTagsToWay(way, nodeId);
             }
         }
     }
-
-    private void applyExtraNodeTagsToWay(ReaderWay way, long nodeId) {
-        Map<String, String> tagsForNode = nodeTags.get(nodeId);
-        if (tagsForNode == null) {
-            return;
-        }
-
-        for (Entry<String, String> tag : tagsForNode.entrySet()) {
-            if (!extraTagKeys.contains(tag.getKey())) {
-                continue;
-            }
-
-            String newValue = tag.getValue();
-
-            if (isKerbTag(tag.getKey())) {
-                applyTagValue(way, "ors_node:" + tag.getKey(), newValue);
-            } else {
-                applyTagValue(way, tag.getKey(), newValue);
-            }
-        }
-    }
-
-    private void applyTagValue(ReaderWay way, String key, String value) {
-        String newValue = value;
-        if (way.hasTag(key)) {
-            try {
-                double newValInt = Double.parseDouble(newValue);
-                double oldValInt = Double.parseDouble(way.getTag(key));
-                newValue = Math.max(newValInt, oldValInt) + "";
-            } catch (Exception e) {
-                // If the value is not a number, we cannot use it anyway, so it does not matter which one we use.
-            }
-        }
-
-        way.setTag(key, newValue);
-    }
-
-    private boolean isKerbTag(String key) {
-        return key.contains("kerb") || key.contains("curb");
-    }
-
 
     @Override
     protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge, IntsRef edgeFlags, EncodingManager.AcceptWay acceptWay, Map<String, Object> nodeTags) {

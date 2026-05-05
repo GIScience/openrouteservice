@@ -116,7 +116,8 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
                 "living_street",
                 "track",
                 "residential",
-                "service"
+                "service",
+                "corridor"
         ));
 
         avoidHighwayTags.addAll(Arrays.asList(

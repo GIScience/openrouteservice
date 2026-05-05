@@ -38,6 +38,22 @@ Releasing is documented in RELEASE.md
 ### Fixed
 
 ### Security
+- update postcss to 8.5.12
+
+
+## [9.9.0] - 2026-04-29
+
+### Added
+- opencontainers metadata annotations to docker image ([#2264](https://github.com/GIScience/openrouteservice/pull/2264))
+- accept bikes on [`sac_scale=strolling`](https://wiki.openstreetmap.org/wiki/Key:sac_scale) ([#2253](https://github.com/GIScience/openrouteservice/pull/2253))
+- allow pedestrians on `highway=corridor` ([#2252](https://github.com/GIScience/openrouteservice/pull/2252))
+- improve track grade parsing ([#2232](https://github.com/GIScience/openrouteservice/pull/2232))
+
+### Security
+- update jackson-core to 2.18.6
+- update log4j-core to 2.25.4 due to [CVE-2026-34477](https://www.cve.org/CVERecord?id=CVE-2026-34477), [CVE-2026-34478](https://www.cve.org/CVERecord?id=CVE-2026-34478) and [CVE-2026-34480](https://www.cve.org/CVERecord?id=CVE-2026-34480)
+- update lodash to 4.18.1 due to [CVE-2026-4800](https://www.cve.org/CVERecord?id=CVE-2026-4800), [CVE-2025-13465](https://www.cve.org/CVERecord?id=CVE-2025-13465) and [CVE-2026-2950](https://www.cve.org/CVERecord?id=CVE-2026-2950)
+- update npm dependencies for docs ([#2265](https://github.com/GIScience/openrouteservice/pull/2265))
 
 
 ## [9.8.0] - 2026-03-30
@@ -1057,7 +1073,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.8.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.9.0...HEAD
+[9.9.0]: https://github.com/GIScience/openrouteservice/compare/v9.8.0...v9.9.0
 [9.8.0]: https://github.com/GIScience/openrouteservice/compare/v9.7.1...v9.8.0
 [9.7.1]: https://github.com/GIScience/openrouteservice/compare/v9.7.0...v9.7.1
 [9.7.0]: https://github.com/GIScience/openrouteservice/compare/v9.6.0...v9.7.0

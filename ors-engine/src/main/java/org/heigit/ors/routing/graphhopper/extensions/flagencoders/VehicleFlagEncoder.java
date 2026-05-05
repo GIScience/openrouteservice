@@ -421,42 +421,38 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     }
 
     protected int getTrackGradeLevel(String grade) {
-        if (grade == null)
+        if (grade == null || grade.equals("unknown"))
             return 0;
 
-        if (grade.contains(";")) {
-            int maxGrade = 0;
-            try {
-                String[] values = grade.split(";");
-                for (String v : values) {
-                    int iv = Integer.parseInt(v.replace("grade", "").trim());
-                    if (iv > maxGrade)
-                        maxGrade = iv;
-                }
+        return switch (grade) {
+            case "grade1" -> 1;
+            case "grade2" -> 2;
+            case "grade3" -> 3;
+            case "grade4" -> 4;
+            case "grade5" -> 5;
+            default -> parseMaxTrackGrade(grade);
+        };
+    }
+                
+    private int parseMaxTrackGrade(String grade) {
+        // Split by ";" or "-"
+        String[] values = grade.split("[;-]");
+    
+        int maxGrade = 0;
 
-                return maxGrade;
-            } catch (Exception ex) {
-                // do nothing
+        for (String v : values) {
+            int parsed = 0;
+            try {
+                parsed = Integer.parseInt(v.replace("grade", "").trim());
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+            if (parsed > maxGrade) {
+                maxGrade = parsed;
             }
         }
 
-        switch (grade) {
-            case "grade":
-            case "grade1":
-                return 1;
-            case "grade2":
-                return 2;
-            case "grade3":
-                return 3;
-            case "grade4":
-                return 4;
-            case "grade5":
-                return 5;
-            case "grade6":
-                return 6;
-            default:
-        }
-        return 10;
+        return Math.min(5, maxGrade);
     }
 
     double addResedentialPenalty(double baseSpeed, ReaderWay way) {

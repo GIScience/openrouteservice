@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>9.9.0-SNAPSHOT</version>
+    <version>9.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>openrouteservice</name>
     <url>https://openrouteservice.org</url>
@@ -45,17 +45,17 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
 
         <!-- switch graphhopper versions to enable debugging -->
-        <!--<graphhopper.version>v4.12.0</graphhopper.version>-->
-        <graphhopper.version>5.0-SNAPSHOT</graphhopper.version>
+        <!--<graphhopper.version>4.13-SNAPSHOT</graphhopper.version>-->
+        <graphhopper.version>v4.13.1</graphhopper.version>
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
-        <log4j.version>2.25.3</log4j.version>
+        <log4j.version>2.25.4</log4j.version>
         <springdoc-openapi-starter.version>2.8.6</springdoc-openapi-starter.version>
         <swagger-core.version>2.2.27</swagger-core.version>
         <swagger-parser.version>2.1.24</swagger-parser.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <geotools.version>32.1</geotools.version>
-        <fasterxml.jackson.version>2.18.2</fasterxml.jackson.version>
+        <fasterxml.jackson.version>2.18.6</fasterxml.jackson.version>
         <commons-io.version>2.16.1</commons-io.version>
         <commons-logging.version>1.3.4</commons-logging.version>
         <commons-compress.version>1.27.1</commons-compress.version>
