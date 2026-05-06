@@ -65,7 +65,7 @@ public class PluginManager<T extends Plugin> {
         return result;
     }
     private boolean storageTransferredToEncodedValues(String storageName) {
-        return of("HeavyVehicle", "OsmId", "WayCategory", "WaySurfaceType", "RoadAccessRestrictions", "HillIndex")
+        return of("HeavyVehicle", "OsmId", "WayCategory", "WaySurfaceType", "RoadAccessRestrictions", "HillIndex", "TrailDifficulty")
                 .anyMatch(s -> s.equalsIgnoreCase(storageName));
     }
 

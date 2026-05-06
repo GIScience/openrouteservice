@@ -47,7 +47,9 @@ import static com.graphhopper.routing.util.EncodingManager.getKey;
 public class ExtraInfoProcessor implements PathProcessor {
     private GreenIndexGraphStorage extGreenIndex;
     private NoiseIndexGraphStorage extNoiseIndex;
-    private TrailDifficultyScaleGraphStorage extTrailDifficulty;
+    private IntEncodedValue sacScaleEnc;
+    private IntEncodedValue mtbScaleEnc;
+    private IntEncodedValue mtbScaleUphillEnc;
     private IntEncodedValue hillIndexEnc;
     private BordersGraphStorage extCountryTraversalInfo;
     private CsvGraphStorage extCsvData;
@@ -195,11 +197,21 @@ public class ExtraInfoProcessor implements PathProcessor {
 
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TRAIL_DIFFICULTY)) {
-                extTrailDifficulty = GraphStorageUtils.getGraphExtension(graphHopperStorage, TrailDifficultyScaleGraphStorage.class);
-                hillIndexEnc = encoder.hasEncodedValue(HillIndex.KEY) ? encoder.getIntEncodedValue(HillIndex.KEY) : null;
+                if (RoutingProfileType.isWalking(profileType)) {
+                    sacScaleEnc = encoder.hasEncodedValue(SacScale.KEY) ? encoder.getIntEncodedValue(SacScale.KEY) : null;
 
-                trailDifficultyInfo = new RouteExtraInfo("traildifficulty");
-                trailDifficultyInfoBuilder = new AppendableRouteExtraInfoBuilder(trailDifficultyInfo);
+                } else if (RoutingProfileType.isCycling(profileType)) {
+                    hillIndexEnc = encoder.hasEncodedValue(HillIndex.KEY) ? encoder.getIntEncodedValue(HillIndex.KEY) : null;
+                    mtbScaleEnc = encoder.hasEncodedValue(MtbScale.KEY) ? encoder.getIntEncodedValue(MtbScale.KEY) : null;
+                    mtbScaleUphillEnc = encoder.hasEncodedValue(MtbScaleUphill.KEY) ? encoder.getIntEncodedValue(MtbScaleUphill.KEY) : null;
+                }
+
+                if (sacScaleEnc == null && mtbScaleEnc == null) {
+                    skippedExtras.add("traildifficulty");
+                } else {
+                    trailDifficultyInfo = new RouteExtraInfo("traildifficulty");
+                    trailDifficultyInfoBuilder = new AppendableRouteExtraInfoBuilder(trailDifficultyInfo);
+                }
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.GREEN)) {
@@ -454,10 +466,15 @@ public class ExtraInfoProcessor implements PathProcessor {
             int value = 0;
             if (RoutingProfileType.isCycling(profileType)) {
                 boolean uphill = hillIndexEnc != null && edge.get(hillIndexEnc) > 0;
-                value = extTrailDifficulty.getMtbScale(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer, uphill);
-            } else if (RoutingProfileType.isWalking(profileType))
-                value = extTrailDifficulty.getHikingScale(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
-
+                if (uphill) {
+                    value = getIntEncValue(edge, mtbScaleUphillEnc);
+                }
+                if (!uphill || value == 0) {
+                    value = getIntEncValue(edge, mtbScaleEnc);
+                }
+            } else if (RoutingProfileType.isWalking(profileType)) {
+                value = getIntEncValue(edge, sacScaleEnc);
+            }
             trailDifficultyInfoBuilder.addSegment(value, value, geom, dist);
         }
 
@@ -525,6 +542,10 @@ public class ExtraInfoProcessor implements PathProcessor {
             int shadowLevel = extShadowIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
             shadowInfoBuilder.addSegment(shadowLevel, shadowLevel, geom, dist);
         }
+    }
+
+    private int getIntEncValue(EdgeIteratorState edge, IntEncodedValue intEncodedValue) {
+        return intEncodedValue != null ? edge.get(intEncodedValue) : 0;
     }
 
     @Override

@@ -35,6 +35,9 @@ public class OrsTagParserFactory implements TagParserFactory {
                 case HazmatAccess.KEY -> new HazmatAccessParser();
                 case AccessRestriction.KEY -> new AccessRestrictionsParser(profileType);
                 case HillIndex.KEY -> new HillIndexParser();
+                case SacScale.KEY -> new SacScaleParser();
+                case MtbScale.KEY -> new MtbScaleParser(MtbScale.create(), false);
+                case MtbScaleUphill.KEY -> new MtbScaleParser(MtbScaleUphill.create(), true);
                 default -> throw e;
             };
         }
