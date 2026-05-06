@@ -59,6 +59,12 @@ public class EncodedValuesProperties {
     private Boolean accessRestriction;
     @JsonProperty(HillIndex.KEY)
     private Boolean hillIndex;
+    @JsonProperty(SacScale.KEY)
+    private Boolean sacScale;
+    @JsonProperty(MtbScale.KEY)
+    private Boolean mtbScale;
+    @JsonProperty(MtbScaleUphill.KEY)
+    private Boolean mtbScaleUphill;
 
     public EncodedValuesProperties() {
     }
@@ -91,6 +97,9 @@ public class EncodedValuesProperties {
         properties.put(MaxWidth.KEY, maxWidth);
         properties.put(AccessRestriction.KEY, accessRestriction);
         properties.put(HillIndex.KEY, hillIndex);
+        properties.put(SacScale.KEY, sacScale);
+        properties.put(MtbScale.KEY, mtbScale);
+        properties.put(MtbScaleUphill.KEY, mtbScaleUphill);
 
         return properties;
     }
@@ -129,5 +138,8 @@ public class EncodedValuesProperties {
         maxWidth = ofNullable(this.maxWidth).orElse(other.maxWidth);
         accessRestriction = ofNullable(this.accessRestriction).orElse(other.accessRestriction);
         hillIndex = ofNullable(this.hillIndex).orElse(other.hillIndex);
+        sacScale = ofNullable(this.sacScale).orElse(other.sacScale);
+        mtbScale = ofNullable(this.mtbScale).orElse(other.mtbScale);
+        mtbScaleUphill = ofNullable(this.mtbScaleUphill).orElse(other.mtbScaleUphill);
     }
 }
