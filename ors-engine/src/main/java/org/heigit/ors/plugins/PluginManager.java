@@ -63,16 +63,22 @@ public class PluginManager<T extends Plugin> {
         if (!parameters.isEmpty()) {
             for (Map.Entry<String, ExtendedStorageProperties> storageEntry : parameters.entrySet()) {
                 String storageName = storageEntry.getKey();
-                ExtendedStorageName storage = ExtendedStorageName.getEnum(storageName);
-                if (STORAGES_MIGRATED_TO_ENCODED_VALUES.contains(storage))
+                ExtendedStorageName storage;
+                try {
+                    storage = ExtendedStorageName.getEnum(storageName);
+                } catch (IllegalArgumentException ex) {
+                    LOGGER.warn("Unknown extended storage '%s'; skipping.".formatted(storageName));
                     continue;
+                }
+                if (!STORAGES_MIGRATED_TO_ENCODED_VALUES.contains(storage)) {
+                    T instance = createInstance(storageName, storageEntry.getValue());
 
-                T instance = createInstance(storageName, storageEntry.getValue());
-
-                if (instance != null) {
-                    result.add(instance);
-                } else
-                    LOGGER.warn("'%s' was not found.".formatted(storageName));
+                    if (instance != null) {
+                        result.add(instance);
+                    } else {
+                        LOGGER.warn("'%s' was not found.".formatted(storageName));
+                    }
+                }
             }
         }
         return result;
