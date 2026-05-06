@@ -30,12 +30,10 @@ import com.graphhopper.util.PMap;
  */
 public class AvoidHillsWeighting extends FastestWeighting {
     private final IntEncodedValue hillIndexEnc;
-    private double maxSteepness = -1;
     private static final double[] PENALTY_FACTOR = {1.0, 1.0, 1.1, 1.5, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.2, 3.5, 3.7, 3.9, 4.2};
 
     public AvoidHillsWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
         super(encoder, map);
-        this.maxSteepness = map.getDouble("steepness_maximum", -1);
         EncodingManager encodingManager = graphStorage.getEncodingManager();
         hillIndexEnc = encodingManager.hasEncodedValue(HillIndex.KEY) ? encodingManager.getIntEncodedValue(HillIndex.KEY) : null;
     }
@@ -45,8 +43,9 @@ public class AvoidHillsWeighting extends FastestWeighting {
         if (hillIndexEnc != null) {
             int hillIndex = reverse ? edgeState.getReverse(hillIndexEnc) : edgeState.get(hillIndexEnc);
 
-            if (maxSteepness > 0 && hillIndex > maxSteepness)
+            if (hillIndex > PENALTY_FACTOR.length - 1) {
                 return 100;
+            }
 
             return PENALTY_FACTOR[hillIndex];
         }

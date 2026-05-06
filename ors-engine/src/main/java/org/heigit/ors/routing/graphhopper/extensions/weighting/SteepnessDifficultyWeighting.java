@@ -51,8 +51,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting {
         if (hillIndexEnc != null) {
             int hillIndex = reverse ? edgeState.getReverse(hillIndexEnc) : edgeState.get(hillIndexEnc);
             if (difficultyWeights != null) {
-                // TODO: Clarify whether hillIndex should be checked for out of bounds.
-                return difficultyWeights[hillIndex];
+                return difficultyWeights[Math.min(hillIndex, difficultyWeights.length - 1)];
             }
         }
         return 1.0;
