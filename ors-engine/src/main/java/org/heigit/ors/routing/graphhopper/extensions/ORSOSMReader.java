@@ -20,6 +20,7 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
+import com.graphhopper.routing.ev.HillIndex;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.EncodingManager.AcceptWay;
@@ -58,7 +59,7 @@ public class ORSOSMReader extends OSMReader {
     private boolean processSimpleGeom = false;
     private boolean processWholeGeom = false;
     private boolean detachSidewalksFromRoad = false;
-    private final HillIndexCalculator hillIndexCalculator = new HillIndexCalculator();
+    private HillIndexCalculator hillIndexCalculator = null;
 
     private final List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
@@ -107,6 +108,10 @@ public class ORSOSMReader extends OSMReader {
         if (procCntx.isUseSidewalks()) {
             detachSidewalksFromRoad = true;
             filtersToApply.add(new PedestrianWayFilter());
+        }
+
+        if (encodingManager.hasEncodedValue(HillIndex.KEY)) {
+            hillIndexCalculator = new HillIndexCalculator();
         }
     }
 
@@ -409,7 +414,9 @@ public class ORSOSMReader extends OSMReader {
     protected void setArtificialWayTags(PointList pointList, ReaderWay way) {
         super.setArtificialWayTags(pointList, way);
 
-        calculateHillIndex(pointList, way);
+        if (hillIndexCalculator != null) {
+            calculateHillIndex(pointList, way);
+        }
     }
 
     private void calculateHillIndex(PointList pointList, ReaderWay way) {
