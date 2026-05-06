@@ -32,7 +32,6 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBorde
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.*;
 import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
-import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.util.extrainfobuilders.AppendableRouteExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.AppendableSteepnessExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;

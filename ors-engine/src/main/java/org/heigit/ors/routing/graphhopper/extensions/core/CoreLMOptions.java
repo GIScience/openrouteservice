@@ -44,65 +44,64 @@ public class CoreLMOptions {
      * These can contain multiple avoidfeatures and avoidcountries
      */
     public List<LMEdgeFilterSequence> createRestrictionFilters(GraphHopperStorage ghStorage, int profileType) {
-        //Create one edgefiltersequence for each lmset
         List<LMEdgeFilterSequence> filters = new ArrayList<>();
         for (String set : coreLMSets) {
-            //Now iterate over all comma separated values in one lm set
-            String[] tmpFilters = set.split(",");
-            LMEdgeFilterSequence edgeFilterSequence = new LMEdgeFilterSequence();
-            int feature;
-            int country;
-            int avoidFeatures = 0;
-            List<Integer> countries = new ArrayList<>();
-
-            for (String filterType : tmpFilters) {
-
-                //Do not add any filter if it is allow_all
-                if (filterType.equalsIgnoreCase("allow_all")) {
-                    edgeFilterSequence.appendName("allow_all");
-                    break;
-                }
-
-                feature = AvoidFeatureFlags.getFromString(filterType);
-
-                //process avoid features
-                if (feature != 0) {
-                    avoidFeatures = avoidFeatures | feature;
-                    edgeFilterSequence.appendName(filterType.toLowerCase());
-                    continue;
-                }
-
-                //process avoid countries
-                String countryPattern = "(?i)country_(\\d+)";
-
-                if (filterType.matches(countryPattern)) {
-                    try {
-                        country = Integer.parseInt(filterType.replaceFirst(countryPattern, "$1"));
-                    } catch (NumberFormatException e) {
-                        country = 0;
-                    }
-                    // todo check for valid country
-                    if (country != 0 && !countries.contains(country)) {
-                        countries.add(country);
-                        edgeFilterSequence.appendName(filterType.toLowerCase());
-                    }
-                }
-            }
-
-            if (avoidFeatures != 0)
-                edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(ghStorage, profileType, avoidFeatures));
-
-            if (!countries.isEmpty()) {
-                int[] avoidCountries = new int[countries.size()];
-                for (int i = 0; i < countries.size(); i++) {
-                    avoidCountries[i] = countries.get(i);
-                }
-                //Only one avoidBordersCoreEdgeFilter per set
-                edgeFilterSequence.add(new AvoidBordersCoreEdgeFilter(ghStorage, avoidCountries));
-            }
-
-            filters.add(edgeFilterSequence);
+            filters.add(createEdgeFilterSequence(set, ghStorage, profileType));
         }
         return filters;
+    }
+
+    private LMEdgeFilterSequence createEdgeFilterSequence(String set, GraphHopperStorage ghStorage, int profileType) {
+        LMEdgeFilterSequence edgeFilterSequence = new LMEdgeFilterSequence();
+        String[] tmpFilters = set.split(",");
+        int avoidFeatures = 0;
+        List<Integer> countries = new ArrayList<>();
+
+        for (String filterType : tmpFilters) {
+            // do not add any filter if it is "allow_all"
+            if (filterType.equalsIgnoreCase("allow_all")) {
+                edgeFilterSequence.appendName("allow_all");
+                break;
+            }
+            avoidFeatures = processAvoidFeaturesFilter(filterType, edgeFilterSequence, avoidFeatures);
+            processAvoidCountriesFilter(filterType, edgeFilterSequence, countries);
+        }
+
+        if (avoidFeatures != 0) {
+            edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(ghStorage, profileType, avoidFeatures));
+        }
+        if (!countries.isEmpty()) {
+            int[] avoidCountries = countries.stream().mapToInt(Integer::intValue).toArray();
+            edgeFilterSequence.add(new AvoidBordersCoreEdgeFilter(ghStorage, avoidCountries));
+        }
+        return edgeFilterSequence;
+    }
+
+    private int processAvoidFeaturesFilter(String filterType, LMEdgeFilterSequence edgeFilterSequence, int avoidFeatures) {
+        int feature = AvoidFeatureFlags.getFromString(filterType);
+        if (feature != 0) {
+            avoidFeatures |= feature;
+            edgeFilterSequence.appendName(filterType.toLowerCase());
+        }
+        return avoidFeatures;
+    }
+
+    private void processAvoidCountriesFilter(String filterType, LMEdgeFilterSequence edgeFilterSequence, List<Integer> countries) {
+        String countryPattern = "(?i)country_(\\d+)";
+        if (filterType.matches(countryPattern)) {
+            int country = parseCountry(filterType, countryPattern);
+            if (country != 0 && !countries.contains(country)) {
+                countries.add(country);
+                edgeFilterSequence.appendName(filterType.toLowerCase());
+            }
+        }
+    }
+
+    private int parseCountry(String filterType, String countryPattern) {
+        try {
+            return Integer.parseInt(filterType.replaceFirst(countryPattern, "$1"));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }
