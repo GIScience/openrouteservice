@@ -131,11 +131,15 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
 
             int extraInfo = params.getInt("routing_extra_info", 0);
-            profileType = params.getInt("routing_profile_type", RoutingProfileType.UNKNOWN);
-            boolean suppressWarnings = params.getBool("routing_suppress_warnings", false);
 
+            boolean suppressWarnings = params.getBool("routing_suppress_warnings", false);
             if (!suppressWarnings) {
                 extraInfo |= RouteExtraInfoFlag.ROAD_ACCESS_RESTRICTIONS;
+            }
+
+            profileType = params.getInt("routing_profile_type", RoutingProfileType.UNKNOWN);
+            if (encoder.hasEncodedValue(Toll.KEY)) {
+                tollwayExtractor = new TollwayExtractor(encoder.getEnumEncodedValue(Toll.KEY, Toll.class), profileType);
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE)) {
@@ -172,7 +176,6 @@ public class ExtraInfoProcessor implements PathProcessor {
                 if (encoder.hasEncodedValue(Toll.KEY)) {
                     tollwaysInfo = new RouteExtraInfo("tollways");
                     tollwaysInfoBuilder = new AppendableRouteExtraInfoBuilder(tollwaysInfo);
-                    tollwayExtractor = new TollwayExtractor(encoder.getEnumEncodedValue(Toll.KEY, Toll.class), profileType);
                 } else {
                     skippedExtras.add("tollways");
                 }
@@ -180,9 +183,8 @@ public class ExtraInfoProcessor implements PathProcessor {
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_CATEGORY)) {
                 boolean addWayCategoryExtraInfo = encoder.hasEncodedValue(WayType.KEY)
-                        || encoder.hasEncodedValue(Ford.KEY)
-                        || encoder.hasEncodedValue(Highway.KEY)
-                        || encoder.hasEncodedValue(Toll.KEY);
+                        && encoder.hasEncodedValue(Ford.KEY)
+                        && encoder.hasEncodedValue(Highway.KEY);
                 if (addWayCategoryExtraInfo) {
                     wayCategoryInfo = new RouteExtraInfo("waycategory");
                     wayCategoryInfoBuilder = new AppendableRouteExtraInfoBuilder(wayCategoryInfo);
@@ -191,11 +193,9 @@ public class ExtraInfoProcessor implements PathProcessor {
                 }
             }
 
-
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TRAIL_DIFFICULTY)) {
                 if (RoutingProfileType.isWalking(profileType)) {
                     sacScaleEnc = encoder.hasEncodedValue(SacScale.KEY) ? encoder.getIntEncodedValue(SacScale.KEY) : null;
-
                 } else if (RoutingProfileType.isCycling(profileType)) {
                     hillIndexEnc = encoder.hasEncodedValue(HillIndex.KEY) ? encoder.getIntEncodedValue(HillIndex.KEY) : null;
                     mtbScaleEnc = encoder.hasEncodedValue(MtbScale.KEY) ? encoder.getIntEncodedValue(MtbScale.KEY) : null;

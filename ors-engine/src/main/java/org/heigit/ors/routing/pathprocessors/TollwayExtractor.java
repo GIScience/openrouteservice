@@ -17,7 +17,6 @@ import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.ev.Toll;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.RoutingProfileType;
-import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 
 public class TollwayExtractor {
     private final int profileType;
@@ -32,22 +31,15 @@ public class TollwayExtractor {
      * return whether a way is a tollway for the configured vehicle.
      *
      * @param edge the edge to check
-     * @see HeavyVehicleAttributes
      */
     public boolean isProfileSpecificTollway(EdgeIteratorState edge) {
         Toll value = edge.get(tollEnc);
 
-        switch (value) {
-            case NO:
-                return false;
-            case ALL:
-                return true;
-            case HGV:
-                return profileType == RoutingProfileType.DRIVING_HGV;
-            default:
-                return false;
-        }
-
+        return switch (value) {
+            case ALL -> true;
+            case HGV -> profileType == RoutingProfileType.DRIVING_HGV;
+            default -> false;
+        };
     }
 
 }
