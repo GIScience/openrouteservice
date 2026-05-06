@@ -13,13 +13,14 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
+import com.graphhopper.routing.ev.HillIndex;
+import com.graphhopper.routing.ev.IntEncodedValue;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 
 /**
  * Special weighting for down/uphills
@@ -28,28 +29,23 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStor
  * @author Maxim Rylov
  */
 public class AvoidHillsWeighting extends FastestWeighting {
-    private final HillIndexGraphStorage gsHillIndex;
-    private final byte[] buffer;
-    private double maxSteepness = -1;
-    //0     1   2    3    4    5    6    7    8    9   10    11   12   13    14    15
+    private final IntEncodedValue hillIndexEnc;
     private static final double[] PENALTY_FACTOR = {1.0, 1.0, 1.1, 1.5, 1.7, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.2, 3.5, 3.7, 3.9, 4.2};
-    //old values:  1.0, 1.0, 1.1, 1.5, 2.0, 2.1, 2.3, 2.4, 2.5, 2.7, 2.9, 3.1, 3.3, 3.6, 3.8, 4.5
 
     public AvoidHillsWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
         super(encoder, map);
-        buffer = new byte[1];
-        this.maxSteepness = map.getDouble("steepness_maximum", -1);
-        gsHillIndex = GraphStorageUtils.getGraphExtension(graphStorage, HillIndexGraphStorage.class);
+        EncodingManager encodingManager = graphStorage.getEncodingManager();
+        hillIndexEnc = encodingManager.hasEncodedValue(HillIndex.KEY) ? encodingManager.getIntEncodedValue(HillIndex.KEY) : null;
     }
 
     @Override
     public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
-        if (gsHillIndex != null) {
-            boolean revert = edgeState.getBaseNode() < edgeState.getAdjNode();
-            int hillIndex = gsHillIndex.getEdgeValue(edgeState.getEdge(), revert, buffer);
+        if (hillIndexEnc != null) {
+            int hillIndex = reverse ? edgeState.getReverse(hillIndexEnc) : edgeState.get(hillIndexEnc);
 
-            if (maxSteepness > 0 && hillIndex > maxSteepness)
+            if (hillIndex > PENALTY_FACTOR.length - 1) {
                 return 100;
+            }
 
             return PENALTY_FACTOR[hillIndex];
         }

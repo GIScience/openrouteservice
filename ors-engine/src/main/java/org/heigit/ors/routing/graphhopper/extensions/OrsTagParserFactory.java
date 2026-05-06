@@ -34,6 +34,7 @@ public class OrsTagParserFactory implements TagParserFactory {
                 case HgvAccess.KEY -> new VehicleAccessParser(HgvAccess.create(), HeavyVehicleAttributes.HGV);
                 case HazmatAccess.KEY -> new HazmatAccessParser();
                 case AccessRestriction.KEY -> new AccessRestrictionsParser(profileType);
+                case HillIndex.KEY -> new HillIndexParser();
                 default -> throw e;
             };
         }

@@ -13,19 +13,17 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
-import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
+import com.graphhopper.routing.ev.HillIndex;
+import com.graphhopper.routing.ev.IntEncodedValue;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 
 public class SteepnessDifficultyWeighting extends FastestWeighting {
-
-    private final HillIndexGraphStorage gsHillIndex;
-    private final byte[] buffer;
+    private final IntEncodedValue hillIndexEnc;
     private double[] difficultyWeights;
 
     private static final double[][] BIKE_DIFFICULTY_MATRIX = { // [4][20]
@@ -37,25 +35,23 @@ public class SteepnessDifficultyWeighting extends FastestWeighting {
 
     public SteepnessDifficultyWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
         super(encoder, map);
-        buffer = new byte[1];
         int difficultyLevel = map.getInt("level", -1);
-        gsHillIndex = GraphStorageUtils.getGraphExtension(graphStorage, HillIndexGraphStorage.class);
+        EncodingManager encodingManager = graphStorage.getEncodingManager();
+        hillIndexEnc = encodingManager.hasEncodedValue(HillIndex.KEY) ? encodingManager.getIntEncodedValue(HillIndex.KEY) : null;
+
         // TODO: Check for upper bound of difficultyLevel. What is the right behavior here?
         // TODO: Ignoring as for negative values, or throwing a dedicated exception?
-        if (gsHillIndex != null && difficultyLevel >= 0) {
+        if (hillIndexEnc != null && difficultyLevel >= 0) {
             difficultyWeights = BIKE_DIFFICULTY_MATRIX[difficultyLevel];
         }
     }
 
     @Override
     public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
-        if (gsHillIndex != null) {
-            boolean revert = edgeState.getBaseNode() < edgeState.getAdjNode();
-            int hillIndex = gsHillIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), revert, buffer);
-
+        if (hillIndexEnc != null) {
+            int hillIndex = reverse ? edgeState.getReverse(hillIndexEnc) : edgeState.get(hillIndexEnc);
             if (difficultyWeights != null) {
-                // TODO: Clarify whether hillIndex should be checked for out of bounds.
-                return difficultyWeights[hillIndex];
+                return difficultyWeights[Math.min(hillIndex, difficultyWeights.length - 1)];
             }
         }
         return 1.0;
