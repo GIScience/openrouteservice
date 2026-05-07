@@ -14,14 +14,26 @@
 package org.heigit.ors.plugins;
 
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.profile.ExtendedStorageName;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import static java.util.stream.Stream.of;
+
+import static org.heigit.ors.config.profile.ExtendedStorageName.*;
 
 public class PluginManager<T extends Plugin> {
     private static final Logger LOGGER = Logger.getLogger(PluginManager.class.getName());
+    private static final Set<ExtendedStorageName> STORAGES_MIGRATED_TO_ENCODED_VALUES = Set.of(
+            HEAVY_VEHICLE,
+            OSM_ID,
+            TOLLWAYS,
+            WAY_CATEGORY,
+            WAY_SURFACE_TYPE,
+            ROAD_ACCESS_RESTRICTIONS,
+            HILL_INDEX,
+            TRAIL_DIFFICULTY
+    );
 
     private final ServiceLoader<T> loader;
     private final Object lockObj;
@@ -51,22 +63,25 @@ public class PluginManager<T extends Plugin> {
         if (!parameters.isEmpty()) {
             for (Map.Entry<String, ExtendedStorageProperties> storageEntry : parameters.entrySet()) {
                 String storageName = storageEntry.getKey();
-                if (storageTransferredToEncodedValues(storageName))
+                ExtendedStorageName storage;
+                try {
+                    storage = ExtendedStorageName.getEnum(storageName);
+                } catch (IllegalArgumentException ex) {
+                    LOGGER.warn("Unknown extended storage '%s'; skipping.".formatted(storageName));
                     continue;
+                }
+                if (!STORAGES_MIGRATED_TO_ENCODED_VALUES.contains(storage)) {
+                    T instance = createInstance(storageName, storageEntry.getValue());
 
-                T instance = createInstance(storageName, storageEntry.getValue());
-
-                if (instance != null) {
-                    result.add(instance);
-                } else
-                    LOGGER.warn("'%s' was not found.".formatted(storageName));
+                    if (instance != null) {
+                        result.add(instance);
+                    } else {
+                        LOGGER.warn("'%s' was not found.".formatted(storageName));
+                    }
+                }
             }
         }
         return result;
-    }
-    private boolean storageTransferredToEncodedValues(String storageName) {
-        return of("HeavyVehicle", "OsmId", "WayCategory", "WaySurfaceType", "RoadAccessRestrictions", "HillIndex", "TrailDifficulty")
-                .anyMatch(s -> s.equalsIgnoreCase(storageName));
     }
 
     @SuppressWarnings("unchecked")

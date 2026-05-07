@@ -13,33 +13,35 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
+import com.graphhopper.routing.ev.Toll;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.AvoidFeatureFlags;
-import org.heigit.ors.routing.graphhopper.extensions.TollwayType;
+import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.FormerWayCategory;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
+import org.heigit.ors.routing.pathprocessors.TollwayExtractor;
 
 public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
-    private int avoidFeatures;
+    private final int avoidFeatures;
     private static final String TYPE = "avoid_features";
     private final FormerWayCategory formerWayCategory;
-    private final TollwaysGraphStorage tollwaysStorage;
+    private final TollwayExtractor tollwayExtractor;
 
 
-    public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileCategory) {
-        avoidFeatures = AvoidFeatureFlags.getProfileFlags(profileCategory);
-        formerWayCategory = new FormerWayCategory(graphStorage, avoidFeatures);
-        tollwaysStorage = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
+    public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileType) {
+        this(graphStorage, profileType, AvoidFeatureFlags.getProfileFlags(RoutingProfileCategory.getFromRouteProfile(profileType)));
     }
 
-    public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileCategory, int overrideClass) {
-        avoidFeatures = overrideClass;
+    public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileType, int avoidFeatures) {
+        this.avoidFeatures = avoidFeatures;
         formerWayCategory = new FormerWayCategory(graphStorage, avoidFeatures);
-        tollwaysStorage = null;
+        EncodingManager encodingManager = graphStorage.getEncodingManager();
+        tollwayExtractor = encodingManager.hasEncodedValue(Toll.KEY) ?
+                new TollwayExtractor(encodingManager.getEnumEncodedValue(Toll.KEY, Toll.class), profileType) :
+                null;
     }
 
     @Override
@@ -51,9 +53,9 @@ public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
     }
 
     private boolean acceptGenericTollways(EdgeIteratorState iter) {
-        return tollwaysStorage == null
+        return tollwayExtractor == null
                 || (avoidFeatures & AvoidFeatureFlags.TOLLWAYS) == 0
-                || tollwaysStorage.getEdgeValue(iter.getEdge()) == TollwayType.NONE;
+                || !tollwayExtractor.isProfileSpecificTollway(iter);
     }
 
     public String getType() {

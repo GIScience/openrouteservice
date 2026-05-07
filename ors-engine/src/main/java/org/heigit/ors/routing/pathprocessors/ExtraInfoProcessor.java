@@ -32,7 +32,6 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBorde
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.*;
 import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
-import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.util.extrainfobuilders.AppendableRouteExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.AppendableSteepnessExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
@@ -132,12 +131,15 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
 
             int extraInfo = params.getInt("routing_extra_info", 0);
-            profileType = params.getInt("routing_profile_type", 0);
-            ProfileParameters profileParameters = params.getObject("routing_profile_params", new ProfileParameters());
-            boolean suppressWarnings = params.getBool("routing_suppress_warnings", false);
 
+            boolean suppressWarnings = params.getBool("routing_suppress_warnings", false);
             if (!suppressWarnings) {
                 extraInfo |= RouteExtraInfoFlag.ROAD_ACCESS_RESTRICTIONS;
+            }
+
+            profileType = params.getInt("routing_profile_type", RoutingProfileType.UNKNOWN);
+            if (encoder.hasEncodedValue(Toll.KEY)) {
+                tollwayExtractor = new TollwayExtractor(encoder.getEnumEncodedValue(Toll.KEY, Toll.class), profileType);
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE)) {
@@ -171,22 +173,18 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TOLLWAYS)) {
-                TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphHopperStorage, TollwaysGraphStorage.class);
-                if (extTollways != null) {
-                    tollwaysInfo = new RouteExtraInfo("tollways", extTollways);
+                if (encoder.hasEncodedValue(Toll.KEY)) {
+                    tollwaysInfo = new RouteExtraInfo("tollways");
                     tollwaysInfoBuilder = new AppendableRouteExtraInfoBuilder(tollwaysInfo);
-                    tollwayExtractor = new TollwayExtractor(extTollways, profileType, profileParameters);
                 } else {
                     skippedExtras.add("tollways");
                 }
             }
 
-            // Caution: this must happen after tollways!
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_CATEGORY)) {
                 boolean addWayCategoryExtraInfo = encoder.hasEncodedValue(WayType.KEY)
-                        || encoder.hasEncodedValue(Ford.KEY)
-                        || encoder.hasEncodedValue(Highway.KEY)
-                        || tollwayExtractor != null;
+                        && encoder.hasEncodedValue(Ford.KEY)
+                        && encoder.hasEncodedValue(Highway.KEY);
                 if (addWayCategoryExtraInfo) {
                     wayCategoryInfo = new RouteExtraInfo("waycategory");
                     wayCategoryInfoBuilder = new AppendableRouteExtraInfoBuilder(wayCategoryInfo);
@@ -195,11 +193,9 @@ public class ExtraInfoProcessor implements PathProcessor {
                 }
             }
 
-
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TRAIL_DIFFICULTY)) {
                 if (RoutingProfileType.isWalking(profileType)) {
                     sacScaleEnc = encoder.hasEncodedValue(SacScale.KEY) ? encoder.getIntEncodedValue(SacScale.KEY) : null;
-
                 } else if (RoutingProfileType.isCycling(profileType)) {
                     hillIndexEnc = encoder.hasEncodedValue(HillIndex.KEY) ? encoder.getIntEncodedValue(HillIndex.KEY) : null;
                     mtbScaleEnc = encoder.hasEncodedValue(MtbScale.KEY) ? encoder.getIntEncodedValue(MtbScale.KEY) : null;
@@ -456,7 +452,7 @@ public class ExtraInfoProcessor implements PathProcessor {
                 }
             }
             // This is redundant with tollway-extra-info
-            if (tollwayExtractor != null && tollwayExtractor.isProfileSpecificTollway(EdgeIteratorStateHelper.getOriginalEdge(edge))) {
+            if (tollwayExtractor != null && tollwayExtractor.isProfileSpecificTollway(edge)) {
                 value |= AvoidFeatureFlags.TOLLWAYS;
             }
             wayCategoryInfoBuilder.addSegment(value, value, geom, dist);
@@ -484,7 +480,7 @@ public class ExtraInfoProcessor implements PathProcessor {
         }
 
         if (tollwaysInfoBuilder != null) {
-            int value = tollwayExtractor.isProfileSpecificTollway(EdgeIteratorStateHelper.getOriginalEdge(edge)) ? 1 : 0;
+            int value = tollwayExtractor.isProfileSpecificTollway(edge) ? 1 : 0;
             tollwaysInfoBuilder.addSegment(value, value, geom, dist);
         }
 
