@@ -287,6 +287,10 @@ public class ORSOSMReader extends OSMReader {
                     tags.put(internalId, tagsForNode);
                 }
             }
+
+            if (!tags.isEmpty()) {
+                way.setTag("ors:node_tags", tags);
+            }
         }
 
         if (processGeom || processSimpleGeom) {
@@ -423,6 +427,8 @@ public class ORSOSMReader extends OSMReader {
         if (hillIndexCalculator != null) {
             calculateHillIndex(pointList, way);
         }
+
+        //TODO: set country "ors:country" tags before calling CountryParser
     }
 
     private void calculateHillIndex(PointList pointList, ReaderWay way) {

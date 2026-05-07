@@ -49,7 +49,6 @@ import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
-import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
@@ -113,8 +112,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         this.engineProperties = engineProperties;
         this.profileProperties = profileProperties;
         setEncodedValueFactory(new OrsEncodedValueFactory());
-        int profileType = RoutingProfileType.getFromEncoderName(profileProperties.getEncoderName().toString());
-        setTagParserFactory(new OrsTagParserFactory(profileType));
+        setTagParserFactory(new OrsTagParserFactory(this));
     }
 
     public ORSGraphHopper() {
