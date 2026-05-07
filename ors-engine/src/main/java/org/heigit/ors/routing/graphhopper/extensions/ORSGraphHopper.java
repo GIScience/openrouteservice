@@ -38,6 +38,7 @@ import com.graphhopper.util.PMap;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import org.geotools.feature.SchemaException;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
@@ -415,7 +416,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     private List<LMConfig> createCoreLMConfigs(List<LMProfile> lmProfiles) {
         CoreLMOptions coreLMOptions = coreLMPreparationHandler.getCoreLMOptions();
-        coreLMOptions.createRestrictionFilters(getGraphHopperStorage());
 
         List<LMConfig> lmConfigs = new ArrayList<>();
         for (LMProfile lmProfile : lmProfiles) {
@@ -426,7 +426,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             if (isTrafficEnabled()) {
                 ORSWeightingFactory.addTrafficSpeedCalculator(weighting, getGraphHopperStorage());
             }
-            for (LMEdgeFilterSequence edgeFilter : coreLMOptions.getFilters()) {
+            int profileType = EncoderNameEnum.getFromEncoderName(profile.getVehicle());
+            for (LMEdgeFilterSequence edgeFilter : coreLMOptions.createRestrictionFilters(getGraphHopperStorage(), profileType)) {
                 lmConfigs.add(new CoreLMConfig(profile.getName(), weighting).setEdgeFilter(edgeFilter));
             }
         }

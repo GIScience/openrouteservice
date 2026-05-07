@@ -3,6 +3,5 @@ org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphS
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.GreenIndexGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.NoiseIndexGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.CsvGraphStorageBuilder
-org.heigit.ors.routing.graphhopper.extensions.storages.builders.TollwaysGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.ShadowIndexGraphStorageBuilder
