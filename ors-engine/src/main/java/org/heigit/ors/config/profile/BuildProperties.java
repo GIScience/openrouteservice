@@ -107,6 +107,12 @@ public class BuildProperties {
                 continue;
             }
             ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
+
+            //FIXME: for debugging only, move to switch once storage is removed
+            if (extendedStorageName == ExtendedStorageName.BORDERS) {
+                handleBorder();
+            }
+
             switch (extendedStorageName) {
                 case HEAVY_VEHICLE -> handleHeavyVehicle(storage);
                 case OSM_ID -> handleOsmId();
@@ -228,6 +234,12 @@ public class BuildProperties {
         }
         if (encodedValues.getMtbScaleUphill() == null) {
             encodedValues.setMtbScaleUphill(true);
+        }
+    }
+
+    private void handleBorder() {
+        if (encodedValues.getBorder() == null) {
+            encodedValues.setBorder(true);
         }
     }
 
