@@ -63,7 +63,7 @@
         <typesafe-config.version>1.4.1</typesafe-config.version>
         <jts.version>1.20.0</jts.version>
         <org-json.version>20240303</org-json.version>
-        <postgresql.version>42.7.3</postgresql.version>
+        <postgresql.version>42.7.11</postgresql.version>
         <progressbar.version>0.10.0</progressbar.version>
         <guava.version>33.2.1-jre</guava.version>
         <jline.version>3.26.3</jline.version>

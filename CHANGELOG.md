@@ -42,6 +42,7 @@ Releasing is documented in RELEASE.md
 
 ### Security
 - update postcss to 8.5.12
+- update org.postgresql:postgresql to 42.7.11 due to [CVE-2025-49146](https://www.cve.org/CVERecord?id=CVE-2025-49146) and [CVE-2026-42198](https://www.cve.org/CVERecord?id=CVE-2026-42198)
 
 
 ## [9.9.0] - 2026-04-29
