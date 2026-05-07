@@ -5,14 +5,15 @@ import com.graphhopper.routing.util.parsers.DefaultTagParserFactory;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.TagParserFactory;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.util.parsers.*;
 
 public class OrsTagParserFactory implements TagParserFactory {
-    private final int profileType;
+    private final ORSGraphHopper orsGraphHopper;
     DefaultTagParserFactory defaultTagParserFactory = new DefaultTagParserFactory();
 
-    public OrsTagParserFactory(int profileType) {
-        this.profileType = profileType;
+    public OrsTagParserFactory(ORSGraphHopper orsGraphHopper) {
+        this.orsGraphHopper = orsGraphHopper;
     }
 
     @Override
@@ -33,11 +34,12 @@ public class OrsTagParserFactory implements TagParserFactory {
                 case GoodsAccess.KEY -> new VehicleAccessParser(GoodsAccess.create(), HeavyVehicleAttributes.GOODS);
                 case HgvAccess.KEY -> new VehicleAccessParser(HgvAccess.create(), HeavyVehicleAttributes.HGV);
                 case HazmatAccess.KEY -> new HazmatAccessParser();
-                case AccessRestriction.KEY -> new AccessRestrictionsParser(profileType);
+                case AccessRestriction.KEY -> new AccessRestrictionsParser(RoutingProfileType.getFromEncoderName(orsGraphHopper.getProfileProperties().getEncoderName().toString()));
                 case HillIndex.KEY -> new HillIndexParser();
                 case SacScale.KEY -> new SacScaleParser();
                 case MtbScale.KEY -> new MtbScaleParser(MtbScale.create(), false);
                 case MtbScaleUphill.KEY -> new MtbScaleParser(MtbScaleUphill.create(), true);
+                case Border.KEY -> new BorderParser(orsGraphHopper);
                 default -> throw e;
             };
         }
