@@ -61,7 +61,7 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'components' }", is(true))
                 .body("info", hasKey("x-ors-version"))
                 .body("servers", hasSize(2))
-                .body("servers[0].url", hasToString("https://api.openrouteservice.org"))
+                .body("servers[0].url", hasToString("https://api.heigit.org/openrouteservice"))
                 .body("servers[1].url", hasToString("http://localhost:{port}{basePath}"))
                 .body("servers[1].variables.port", hasKey("description"))
                 .body("servers[1].variables.port", hasKey("default"))
@@ -100,13 +100,13 @@ class ResultTest extends ServiceTest {
     @Test
     void testOpenAPIProperties() {
         assertNotNull(openAPI.getTags());
-        assertTrue(0 < openAPI.getTags().size());
+        assertFalse(openAPI.getTags().isEmpty());
 
         assertNotNull(openAPI.getPaths());
-        assertTrue(0 < openAPI.getPaths().size());
+        assertFalse(openAPI.getPaths().isEmpty());
 
         assertNotNull(openAPI.getComponents());
         assertNotNull(openAPI.getComponents().getSchemas());
-        assertTrue(0 < openAPI.getComponents().getSchemas().size());
+        assertFalse(openAPI.getComponents().getSchemas().isEmpty());
     }
 }

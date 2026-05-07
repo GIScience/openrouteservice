@@ -34,6 +34,7 @@ Releasing is documented in RELEASE.md
 - migrate hill index storage to a dedicated encoded value ([#2267](https://github.com/GIScience/openrouteservice/pull/2267))
 - migrate trail difficulty storage to `sac_scale`, `mtb_scale`, and `mtb_scale_uphill` encoded values ([#2277](https://github.com/GIScience/openrouteservice/pull/2277))
 - migrate road access restrictions storage to a dedicated encoded value ([#2270](https://github.com/GIScience/openrouteservice/pull/2270))
+- update references to deprecated URL https://api.openrouteservice.org, update default attribution strings ([#2279](https://github.com/GIScience/openrouteservice/pull/2279))
 
 ### Deprecated
 
