@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
+import com.graphhopper.routing.ev.Country;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -43,6 +44,7 @@ public class CountryBordersReader implements Serializable {
     private final HashMap<String, CountryInfo> ids = new HashMap<>();
     private final HashMap<String, ArrayList<String>> openBorders = new HashMap<>();
     private final Map<String, Short> isoCodes = new HashMap<>();
+    private final Map<Short, Country> countries = new HashMap<>();
     private Map<Short, String> names = new HashMap<>();
     private final HashMap<Long, CountryBordersHierarchy> hierarchies = new HashMap<>();
 
@@ -422,9 +424,25 @@ public class CountryBordersReader implements Serializable {
                 LOGGER.warn((countries - isoCCA3) + " countries have no ISO 3166-1 CCA3 code assigned.");
             } else {
                 LOGGER.info("ISO 3166-1 CCA3 codes enabled for all countries");
+                createCountryMap();
             }
         }
     }
+
+    private void createCountryMap() {
+        for (Map.Entry<String, Short> entry : isoCodes.entrySet()) {
+            String code = entry.getKey();
+            Short id = entry.getValue();
+            if (code.length() == 3) {
+                countries.put(id, Country.valueOf(code));
+            }
+        }
+    }
+
+    public Country getCountry(short id) {
+        return countries.getOrDefault(id, Country.MISSING);
+    }
+
 
     /**
      * Read information about whether a border between two countries is open. If a border is in the file, then it is

@@ -233,6 +233,9 @@ public class BuildProperties {
     }
 
     private void handleBorder() {
+        if (encodedValues.getCountry() == null) {
+            encodedValues.setCountry(true);
+        }
         if (encodedValues.getBorder() == null) {
             encodedValues.setBorder(true);
         }

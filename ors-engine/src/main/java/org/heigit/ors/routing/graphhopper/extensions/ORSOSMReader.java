@@ -427,8 +427,6 @@ public class ORSOSMReader extends OSMReader {
         if (hillIndexCalculator != null) {
             calculateHillIndex(pointList, way);
         }
-
-        //TODO: set country "ors:country" tags before calling CountryParser
     }
 
     private void calculateHillIndex(PointList pointList, ReaderWay way) {
