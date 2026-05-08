@@ -126,6 +126,10 @@ public class BorderParser implements TagParser {
             countryId2 = getCountryIdFromWay(way, TAG_KEY_COUNTRY2);
         }
 
+        short countryId = countryId1 == 0 ? countryId2 : countryId1;
+
+        if (countryId != 0)
+            way.setTag("ors:country", cbReader.getCountry(countryId));
         borderEnc.setEnum(false, edgeFlags, getBorderType(countryId1, countryId2));
 
         return edgeFlags;
