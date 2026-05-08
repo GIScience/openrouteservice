@@ -37,7 +37,8 @@ public class MtbScaleParser implements TagParser {
                 mtbScale = getMtbScale(way.getTag("mtb:scale:imba"));
         }
 
-        mtbScaleEnc.setInt(false, edgeFlags, mtbScale);
+        if (mtbScale > 0 && mtbScale < 8)
+            mtbScaleEnc.setInt(false, edgeFlags, mtbScale);
 
         return edgeFlags;
     }
