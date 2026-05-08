@@ -74,6 +74,8 @@ public class EncodedValuesProperties {
     private Boolean mtbScale;
     @JsonProperty(MtbScaleUphill.KEY)
     private Boolean mtbScaleUphill;
+    @JsonProperty(Country.KEY)
+    private Boolean country;
     @JsonProperty(Border.KEY)
     private Boolean border;
 
@@ -113,6 +115,7 @@ public class EncodedValuesProperties {
         properties.put(SacScale.KEY, sacScale);
         properties.put(MtbScale.KEY, mtbScale);
         properties.put(MtbScaleUphill.KEY, mtbScaleUphill);
+        properties.put(Country.KEY, country);
         properties.put(Border.KEY, border);
 
         return properties;
@@ -157,6 +160,7 @@ public class EncodedValuesProperties {
         sacScale = ofNullable(this.sacScale).orElse(other.sacScale);
         mtbScale = ofNullable(this.mtbScale).orElse(other.mtbScale);
         mtbScaleUphill = ofNullable(this.mtbScaleUphill).orElse(other.mtbScaleUphill);
+        country = ofNullable(this.country).orElse(other.country);
         border = ofNullable(this.border).orElse(other.border);
     }
 }
