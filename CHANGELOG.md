@@ -41,6 +41,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- fix: check whether `mtb_scale` values are within the valid range before attempting to store them ([#2280](https://github.com/GIScience/openrouteservice/pull/2280))
 
 ### Security
 - update postcss to 8.5.12
