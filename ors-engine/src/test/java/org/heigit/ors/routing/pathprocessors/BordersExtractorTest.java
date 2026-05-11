@@ -13,20 +13,20 @@
  */
 package org.heigit.ors.routing.pathprocessors;
 
+import com.graphhopper.routing.ev.Border;
+import com.graphhopper.routing.ev.Country;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.storage.DAType;
-import com.graphhopper.storage.GHDirectory;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,101 +34,68 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class BordersExtractorTest {
     private final PMap properties = new PMap();
     private final EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.CAR_ORS, properties));
-    private final BordersGraphStorage _graphstorage;
-
     public BordersExtractorTest() {
-        // Initialise a graph storage with dummy data
-        _graphstorage = new BordersGraphStorage();
-        _graphstorage.init(null, new GHDirectory("", DAType.RAM_STORE));
-        _graphstorage.create(5);
+        encodingManager.addEncodedValue(Border.create(), false);
+        encodingManager.addEncodedValue(Country.create(), false);
 
-        // (edgeId, borderType, startCountry, endCountry)
-
-        _graphstorage.setEdgeValue(1, BordersGraphStorage.CONTROLLED_BORDER, (short) 1, (short) 2);
-        _graphstorage.setEdgeValue(2, BordersGraphStorage.OPEN_BORDER, (short) 3, (short) 4);
-        _graphstorage.setEdgeValue(3, BordersGraphStorage.NO_BORDER, (short) 5, (short) 5);
-        _graphstorage.setEdgeValue(4, BordersGraphStorage.NO_BORDER, (short) 5, (short) 6);
-        _graphstorage.setEdgeValue(5, BordersGraphStorage.NO_BORDER, (short) 7, (short) 7);
-        _graphstorage.setEdgeValue(6, BordersGraphStorage.NO_BORDER, (short) 7, (short) 7);
-
+        CountryBordersReader countryBordersReader = new CountryBordersReader();
+        countryBordersReader.setIsoCodes(Map.of("XXA", (short) 1, "XXB", (short) 2, "XXC", (short) 3));
     }
 
-    private VirtualEdgeIteratorState generateEdge(int id) {
-        IntsRef intsRef = encodingManager.createEdgeFlags();
-        return new VirtualEdgeIteratorState(0, id, 1, 2, 10,
-                intsRef, "test", Helper.createPointList(51, 0, 51, 1), false);
+    private VirtualEdgeIteratorState generateEdge(int id, Border border, Country country) {
+        IntsRef edgeFlags = encodingManager.createEdgeFlags();
+        encodingManager.getEnumEncodedValue(Border.KEY, Border.class).setEnum(false, edgeFlags, border);
+        encodingManager.getEnumEncodedValue(Country.KEY, Country.class).setEnum(false, edgeFlags, country);
+        int edgeKey = GHUtility.createEdgeKey(id, false);
+        return new VirtualEdgeIteratorState(0, edgeKey, 1, 2, 10,
+                edgeFlags, "test", Helper.createPointList(51, 0, 51, 1), false);
     }
 
     @Test
     void TestDetectAnyBorder() {
-        VirtualEdgeIteratorState ve1 = generateEdge(1);
-        VirtualEdgeIteratorState ve2 = generateEdge(2);
-        VirtualEdgeIteratorState ve3 = generateEdge(3);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
 
-        BordersExtractor be = new BordersExtractor(_graphstorage, new int[0]);
-        assertTrue(be.isBorder(1));
-        assertTrue(be.isBorder(2));
-        assertFalse(be.isBorder(3));
+        BordersExtractor be = new BordersExtractor(encodingManager.getEnumEncodedValue(Border.KEY, Border.class), encodingManager.getEnumEncodedValue(Country.KEY, Country.class), new int[0]);
+        assertTrue(be.isBorder(ve1));
+        assertTrue(be.isBorder(ve2));
+        assertFalse(be.isBorder(ve3));
     }
 
     @Test
     void TestDetectControlledBorder() {
-        VirtualEdgeIteratorState ve1 = generateEdge(1);
-        VirtualEdgeIteratorState ve2 = generateEdge(2);
-        VirtualEdgeIteratorState ve3 = generateEdge(3);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
 
-        BordersExtractor be = new BordersExtractor(_graphstorage, new int[0]);
-        assertTrue(be.isControlledBorder(1));
-        assertFalse(be.isControlledBorder(2));
-        assertFalse(be.isControlledBorder(3));
+        BordersExtractor be = new BordersExtractor(encodingManager.getEnumEncodedValue(Border.KEY, Border.class), encodingManager.getEnumEncodedValue(Country.KEY, Country.class), new int[0]);
+        assertTrue(be.isControlledBorder(ve1));
+        assertFalse(be.isControlledBorder(ve2));
+        assertFalse(be.isControlledBorder(ve3));
     }
 
     @Test
     void TestDetectOpenBorder() {
-        VirtualEdgeIteratorState ve1 = generateEdge(1);
-        VirtualEdgeIteratorState ve2 = generateEdge(2);
-        VirtualEdgeIteratorState ve3 = generateEdge(3);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
 
-        BordersExtractor be = new BordersExtractor(_graphstorage, new int[0]);
-        assertFalse(be.isOpenBorder(1));
-        assertTrue(be.isOpenBorder(2));
-        assertFalse(be.isOpenBorder(3));
+        BordersExtractor be = new BordersExtractor(encodingManager.getEnumEncodedValue(Border.KEY, Border.class), encodingManager.getEnumEncodedValue(Country.KEY, Country.class), new int[0]);
+        assertFalse(be.isOpenBorder(ve1));
+        assertTrue(be.isOpenBorder(ve2));
+        assertFalse(be.isOpenBorder(ve3));
     }
 
     @Test
     void TestAvoidCountry() {
-        VirtualEdgeIteratorState ve1 = generateEdge(1);
-        VirtualEdgeIteratorState ve2 = generateEdge(2);
-        VirtualEdgeIteratorState ve3 = generateEdge(3);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
 
-        BordersExtractor be = new BordersExtractor(_graphstorage, new int[]{2, 4});
-        assertTrue(be.restrictedCountry(1));
-        assertTrue(be.restrictedCountry(2));
-        assertFalse(be.restrictedCountry(3));
-    }
-
-    @Test
-    void TestIsSameCountry() {
-        VirtualEdgeIteratorState ve1 = generateEdge(1);
-        VirtualEdgeIteratorState ve2 = generateEdge(2);
-        VirtualEdgeIteratorState ve3 = generateEdge(3);
-
-        BordersExtractor be = new BordersExtractor(_graphstorage, new int[]{2, 4});
-        List<Integer> countries = new ArrayList<>();
-        countries.add(1);
-        countries.add(2);
-        assertFalse(be.isSameCountry(countries));
-        countries = new ArrayList<>();
-        countries.add(3);
-        countries.add(4);
-        assertTrue(be.isSameCountry(countries));
-        countries = new ArrayList<>();
-        countries.add(4);
-        countries.add(5);
-        assertFalse(be.isSameCountry(countries));
-        countries = new ArrayList<>();
-        countries.add(5);
-        countries.add(6);
-        assertTrue(be.isSameCountry(countries));
+        BordersExtractor be = new BordersExtractor(encodingManager.getEnumEncodedValue(Border.KEY, Border.class), encodingManager.getEnumEncodedValue(Country.KEY, Country.class), new int[]{1, 2});
+        assertTrue(be.restrictedCountry(ve1));
+        assertTrue(be.restrictedCountry(ve2));
+        assertFalse(be.restrictedCountry(ve3));
     }
 }

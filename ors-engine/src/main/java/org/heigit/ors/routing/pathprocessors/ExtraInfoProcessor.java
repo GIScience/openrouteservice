@@ -28,7 +28,6 @@ import org.heigit.ors.routing.RouteExtraInfo;
 import org.heigit.ors.routing.RouteExtraInfoFlag;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
-import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.*;
 import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
@@ -36,7 +35,6 @@ import org.heigit.ors.routing.util.extrainfobuilders.AppendableRouteExtraInfoBui
 import org.heigit.ors.routing.util.extrainfobuilders.AppendableSteepnessExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
-import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +48,6 @@ public class ExtraInfoProcessor implements PathProcessor {
     private IntEncodedValue mtbScaleEnc;
     private IntEncodedValue mtbScaleUphillEnc;
     private IntEncodedValue hillIndexEnc;
-    private BordersGraphStorage extCountryTraversalInfo;
     private CsvGraphStorage extCsvData;
     private ShadowIndexGraphStorage extShadowIndex;
 
@@ -270,9 +267,8 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.COUNTRY_INFO)) {
-                extCountryTraversalInfo = GraphStorageUtils.getGraphExtension(graphHopperStorage, BordersGraphStorage.class);
-                if (extCountryTraversalInfo != null) {
-                    countryTraversalInfo = new RouteExtraInfo("countryinfo", extCountryTraversalInfo);
+                if (encoder.hasEncodedValue(Border.KEY) && encoder.hasEncodedValue(Country.KEY)) {
+                    countryTraversalInfo = new RouteExtraInfo("countryinfo");
                     countryTraversalInfoBuilder = new AppendableRouteExtraInfoBuilder(countryTraversalInfo);
                 } else {
                     skippedExtras.add("countryinfo");
@@ -415,21 +411,11 @@ public class ExtraInfoProcessor implements PathProcessor {
         double dist = edge.getDistance();
 
         // TODO Add extra info for crossed countries
-        if (extCountryTraversalInfo != null && countryBordersReader != null) {
-            short country1 = extCountryTraversalInfo.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), BordersGraphStorage.Property.START);
-            short country2 = extCountryTraversalInfo.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), BordersGraphStorage.Property.END);
-            // This check will correct the countries of an edge if the starting coordinate of the route lies in a different country than the start of the edge.
-            if (country1 != country2 && geom.size() > 0) {
-                Coordinate coordinate = new Coordinate();
-                coordinate.x = geom.getLon(0);
-                coordinate.y = geom.getLat(0);
-                CountryBordersPolygon[] countries = countryBordersReader.getCountry(coordinate);
-                if (countries.length >= 1) {
-                    country1 = Short.parseShort(countryBordersReader.getId(countryBordersReader.getCountry(coordinate)[0].getName()));
-                }
-            }
-            if (countryTraversalInfoBuilder != null && country1 != 0) {
-                countryTraversalInfoBuilder.addSegment(country1, country1, geom, dist);
+        if (countryTraversalInfoBuilder != null  && countryBordersReader != null) {
+            Country country = encoder.getEnumEncodedValue(Country.KEY, Country.class).getEnum(false, edge.getFlags());
+            short countryId = country != null ? CountryBordersReader.getCountryIdByISOCode(country.name()) : 0;
+            if (countryId != 0) {
+                countryTraversalInfoBuilder.addSegment(countryId, countryId, geom, dist);
             }
         }
 

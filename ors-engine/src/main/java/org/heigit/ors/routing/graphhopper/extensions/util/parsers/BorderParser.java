@@ -160,7 +160,7 @@ public class BorderParser implements TagParser {
 
     private Border getBorderType(short countryId1, short countryId2) {
         if (countryId1 == countryId2) {
-            return Border.NO;
+            return Border.NONE;
         }
         String countryName1 = cbReader.getName(countryId1);
         String countryName2 = cbReader.getName(countryId2);
