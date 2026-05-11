@@ -117,16 +117,9 @@ public class EngineService implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent contextEvent) {
         LOGGER.info("Shutting down openrouteservice {} and releasing resources.", AppInfo.getEngineInfo());
-        try {
-            FormatUtility.unload();
-            StatisticsProviderFactory.releaseProviders();
-            LogFactory.release(Thread.currentThread().getContextClassLoader());
-            routingProfileManager.destroy();
-        } catch (Exception e) {
-            LOGGER.error(e.toString());
-        }
         Thread initThread = orsInitThread;
         if (initThread != null && initThread.isAlive()) {
+            LOGGER.info("Waiting for thread {} to stop..", initThread.getName());
             initThread.interrupt();
             try {
                 initThread.join(10_000);
@@ -136,7 +129,18 @@ public class EngineService implements ServletContextListener {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
+        } else {
+            LOGGER.info("Init thread is not running.");
         }
+        try {
+            FormatUtility.unload();
+            StatisticsProviderFactory.releaseProviders();
+            LogFactory.release(Thread.currentThread().getContextClassLoader());
+            routingProfileManager.destroy();
+        } catch (Exception e) {
+            LOGGER.error(e.toString());
+        }
+        LOGGER.info("Shutdown completed.");
     }
 
     public static String configurationOutputTarget(EngineProperties engineProperties) {
