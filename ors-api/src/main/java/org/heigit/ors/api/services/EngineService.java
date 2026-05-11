@@ -84,6 +84,7 @@ public class EngineService implements ServletContextListener {
             routingProfileManager.initialize();
             routingProfileManager.awaitReady();
             if (routingProfileManager.isShutdown() || routingProfileManager.hasFailed()) {
+                Thread.currentThread().interrupt();
                 System.exit(routingProfileManager.hasFailed() ? 1 : 0);
             }
             for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
