@@ -31,6 +31,7 @@ public class EngineService implements ServletContextListener {
     private final GraphService graphService;
     @Getter
     private final RoutingProfileManager routingProfileManager;
+    private volatile Thread orsInitThread;
 
     @Autowired
     public EngineService(EngineProperties engineProperties, GraphService graphService) {
@@ -66,7 +67,8 @@ public class EngineService implements ServletContextListener {
             return;
         }
         LOGGER.info("Initializing ORS...");
-        new Thread(this::initializeORS, "ORS-Init").start();
+        orsInitThread = new Thread(this::initializeORS, "ORS-Init");
+        orsInitThread.start();
     }
 
     public void reloadGraphs() {
@@ -75,7 +77,8 @@ public class EngineService implements ServletContextListener {
             return;
         }
         LOGGER.info("Reloading ORS graphs...");
-        new Thread(this::initializeORS, "ORS-Reload").start();
+        orsInitThread = new Thread(this::initializeORS, "ORS-Reload");
+        orsInitThread.start();
     }
 
     private void initializeORS() {
@@ -84,8 +87,13 @@ public class EngineService implements ServletContextListener {
             routingProfileManager.initialize();
             routingProfileManager.awaitReady();
             if (routingProfileManager.isShutdown() || routingProfileManager.hasFailed()) {
-                Thread.currentThread().interrupt();
-                System.exit(routingProfileManager.hasFailed() ? 1 : 0);
+                int exitCode = routingProfileManager.hasFailed() ? 1 : 0;
+                // Let this thread (ORS-Init) finish naturally before calling System.exit(),
+                // so Tomcat does not warn about a thread that was never stopped.
+                Thread exitThread = new Thread(() -> System.exit(exitCode), "ORS-Exit");
+                exitThread.setDaemon(true);
+                exitThread.start();
+                return;
             }
             for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
                 ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
@@ -116,6 +124,18 @@ public class EngineService implements ServletContextListener {
             routingProfileManager.destroy();
         } catch (Exception e) {
             LOGGER.error(e.toString());
+        }
+        Thread initThread = orsInitThread;
+        if (initThread != null && initThread.isAlive()) {
+            initThread.interrupt();
+            try {
+                initThread.join(10_000);
+                if (initThread.isAlive()) {
+                    LOGGER.warn("Thread [{}] did not stop within 10 seconds after interrupt.", initThread.getName());
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
