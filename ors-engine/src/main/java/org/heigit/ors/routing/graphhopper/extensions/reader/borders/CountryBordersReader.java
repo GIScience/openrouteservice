@@ -14,6 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
 import com.graphhopper.routing.ev.Country;
+import lombok.Setter;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -43,7 +44,8 @@ public class CountryBordersReader implements Serializable {
 
     private final HashMap<String, CountryInfo> ids = new HashMap<>();
     private final HashMap<String, ArrayList<String>> openBorders = new HashMap<>();
-    private final Map<String, Short> isoCodes = new HashMap<>();
+    @Setter// for testing purposes
+    private Map<String, Short> isoCodes = new HashMap<>();
     private final Map<Short, Country> countries = new HashMap<>();
     private Map<Short, String> names = new HashMap<>();
     private final HashMap<Long, CountryBordersHierarchy> hierarchies = new HashMap<>();
