@@ -13,40 +13,45 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.routing.ev.Border;
+import com.graphhopper.routing.ev.Country;
+import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 
 public class AvoidBordersEdgeFilter implements EdgeFilter {
     private BordersExtractor.Avoid avoidBorders = BordersExtractor.Avoid.NONE;
     private boolean avoidCountries = false;
-    private boolean isStorageBuilt;
+    private EnumEncodedValue<Border> border = null;
+    private EnumEncodedValue<Country> country = null;
 
     private BordersExtractor bordersExtractor;
 
-    public AvoidBordersEdgeFilter(RouteSearchParameters searchParams, BordersGraphStorage extBorders) {
-        init(searchParams, extBorders);
-    }
 
-    public AvoidBordersEdgeFilter(RouteSearchParameters searchParams, GraphHopperStorage graphStorage) {
-        BordersGraphStorage extBorders = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
-        init(searchParams, extBorders);
+    public AvoidBordersEdgeFilter(RouteSearchParameters searchParams, EncodingManager encodingManager) {
+        init(searchParams, encodingManager);
     }
 
     /**
      * Initialise the edge filter object based on the type of borders to filter
      *
      * @param searchParams The search parameters passed into the request
-     * @param extBorders   The extended borders graph storage to use
+     * @param encodingManager  EncodingManager to check for the presence of the border and country encoded values, and to retrieve them if they are present
      */
-    private void init(RouteSearchParameters searchParams, BordersGraphStorage extBorders) {
+    private void init(RouteSearchParameters searchParams, EncodingManager encodingManager) {
         // Init the graph storage
-        isStorageBuilt = extBorders != null;
-        if (isStorageBuilt) {
+        //isStorageBuilt = extBorders != null;
+        encodingManager.hasEncodedValue(Border.KEY);
+        if (encodingManager.hasEncodedValue(Border.KEY)) {
+            border = encodingManager.getEnumEncodedValue(Border.KEY, Border.class);
+        }
+        if (encodingManager.hasEncodedValue(Country.KEY)) {
+            country = encodingManager.getEnumEncodedValue(Country.KEY, Country.class);
+        }
+        if (border != null && country != null) {
             int[] countriesToAvoid;
             if (searchParams.hasAvoidCountries())
                 countriesToAvoid = searchParams.getAvoidCountries();
@@ -59,7 +64,7 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
                 avoidBorders = searchParams.getAvoidBorders();
             }
 
-            bordersExtractor = new BordersExtractor(extBorders, countriesToAvoid);
+            bordersExtractor = new BordersExtractor(border, country, countriesToAvoid);
         }
     }
 
@@ -72,30 +77,27 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
      */
     @Override
     public final boolean accept(EdgeIteratorState iter) {
-        if (!isStorageBuilt)
+        if (bordersExtractor == null)
             return true;
 
-        if (avoidBorders != BordersExtractor.Avoid.NONE) {
-            // We have been told to avoid some form of border
-            switch (avoidBorders) {
-                case ALL:
-                    if (bordersExtractor.isBorder(iter.getEdge())) {
-                        // It is a border, and we want to avoid all borders
-                        return false;
-                    }
-                    break;
-                case CONTROLLED:
-                    if (bordersExtractor.isControlledBorder(iter.getEdge())) {
-                        // We want to only avoid controlled borders
-                        return false;
-                    }
-                    break;
-                default:
-                    break;
-            }
+        switch (avoidBorders) {
+            case ALL:
+                if (bordersExtractor.isBorder(iter)) {
+                    // It is a border, and we want to avoid all borders
+                    return false;
+                }
+                break;
+            case CONTROLLED:
+                if (bordersExtractor.isControlledBorder(iter)) {
+                    // We want to only avoid controlled borders
+                    return false;
+                }
+                break;
+            default:
+                break;
         }
 
-        return !avoidCountries || !bordersExtractor.restrictedCountry(iter.getEdge());
+        return !avoidCountries || !bordersExtractor.restrictedCountry(iter);
     }
 
 }

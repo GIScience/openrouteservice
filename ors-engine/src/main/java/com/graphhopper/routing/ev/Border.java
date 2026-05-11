@@ -14,7 +14,7 @@
 package com.graphhopper.routing.ev;
 
 public enum Border {
-    NO(0),
+    NONE(0),
     CONTROLLED(1),
     OPEN(2);
 
