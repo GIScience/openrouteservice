@@ -190,7 +190,6 @@ public class ORSOSMReader extends OSMReader {
         }
 
         applyNodeTagsToWay(way);
-        attachNodeTagsToWay(way);
         onProcessWay(way);
         recordExactWayDistance(way);
         recordEstimatedWayDistance(way);// Required for backward compatibility of the acceleration heuristic
@@ -282,6 +281,10 @@ public class ORSOSMReader extends OSMReader {
                     tags.put(internalId, tagsForNode);
                 }
             }
+
+            if (!tags.isEmpty()) {
+                way.setTag("ors:node_tags", nodeTags);
+            }
         }
 
         if (processGeom || processSimpleGeom) {
@@ -360,64 +363,7 @@ public class ORSOSMReader extends OSMReader {
                 if (osmNodeTagValues.containsKey(nodeId)) {
                   osmNodeTagValues.get(nodeId).forEach((key, value) -> way.setTag(key, value.toString()));
                 }
-                applyExtraNodeTagsToWay(way, nodeId);
             }
-        }
-    }
-
-    private void applyExtraNodeTagsToWay(ReaderWay way, long nodeId) {
-        Map<String, String> tagsForNode = nodeTags.get(nodeId);
-        if (tagsForNode == null) {
-            return;
-        }
-
-        for (Map.Entry<String, String> tag : tagsForNode.entrySet()) {
-            if (!extraTagKeys.contains(tag.getKey())) {
-                continue;
-            }
-
-            String newValue = tag.getValue();
-
-            if (isKerbTag(tag.getKey())) {
-                applyTagValue(way, "ors_node:" + tag.getKey(), newValue);
-            } else {
-                applyTagValue(way, tag.getKey(), newValue);
-            }
-        }
-    }
-
-    private void applyTagValue(ReaderWay way, String key, String value) {
-        String newValue = value;
-        if (way.hasTag(key)) {
-            try {
-                double newValInt = Double.parseDouble(newValue);
-                double oldValInt = Double.parseDouble(way.getTag(key));
-                newValue = Math.max(newValInt, oldValInt) + "";
-            } catch (Exception e) {
-                // If the value is not a number, we cannot use it anyway, so it does not matter which one we use.
-            }
-        }
-
-        way.setTag(key, newValue);
-    }
-
-    private boolean isKerbTag(String key) {
-        return key.contains("kerb") || key.contains("curb");
-    }
-
-    private void attachNodeTagsToWay(ReaderWay way) {
-        LongArrayList osmNodeIds = way.getNodes();
-        int size = osmNodeIds.size();
-        if (size > 2) {
-            // If it is a crossing then we need to apply any kerb tags to the way, but we need to make sure we keep the "worse" one
-            GHLongObjectHashMap<Map<String, String>> wayNodeTagValues = new GHLongObjectHashMap<>();
-            for (int i = 1; i < size - 1; i++) {
-                long nodeId = osmNodeIds.get(i);
-                if (nodeTags.containsKey(nodeId)) {
-                    wayNodeTagValues.put(nodeId, nodeTags.get(nodeId));
-                }
-            }
-            way.setTag("ors:node_tags", wayNodeTagValues);
         }
     }
 
