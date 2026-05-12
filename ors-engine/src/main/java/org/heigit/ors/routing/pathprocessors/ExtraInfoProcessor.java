@@ -28,6 +28,7 @@ import org.heigit.ors.routing.RouteExtraInfo;
 import org.heigit.ors.routing.RouteExtraInfoFlag;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.*;
 import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
@@ -35,6 +36,7 @@ import org.heigit.ors.routing.util.extrainfobuilders.AppendableRouteExtraInfoBui
 import org.heigit.ors.routing.util.extrainfobuilders.AppendableSteepnessExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.SteepnessExtraInfoBuilder;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -412,8 +414,22 @@ public class ExtraInfoProcessor implements PathProcessor {
 
         // TODO Add extra info for crossed countries
         if (countryTraversalInfoBuilder != null  && countryBordersReader != null) {
+            Border border = encoder.getEnumEncodedValue(Border.KEY, Border.class).getEnum(false, edge.getFlags());
+            int countryId = 0;
             Country country = encoder.getEnumEncodedValue(Country.KEY, Country.class).getEnum(false, edge.getFlags());
-            short countryId = country != null ? CountryBordersReader.getCountryIdByISOCode(country.name()) : 0;
+            if (country != null) {
+                countryId = CountryBordersReader.getCountryIdByISOCode(country.name());
+            }
+            if (border != Border.NONE) {
+                //TODO: consider edges that end in a different country, not just the first coordinate of the edge geometry
+                Coordinate coordinate = new Coordinate();
+                coordinate.x = geom.getLon(0);
+                coordinate.y = geom.getLat(0);
+                CountryBordersPolygon[] countries = countryBordersReader.getCountry(coordinate);
+                if (countries.length >= 1) {
+                    countryId = Short.parseShort(countryBordersReader.getId(countries[0].getName()));
+                }
+            }
             if (countryId != 0) {
                 countryTraversalInfoBuilder.addSegment(countryId, countryId, geom, dist);
             }
