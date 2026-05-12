@@ -45,8 +45,8 @@
         <project.graphVersion>6</project.graphVersion>
 
         <!-- switch graphhopper versions to enable debugging -->
-        <graphhopper.version>4.17-SNAPSHOT</graphhopper.version>
-        <!--<graphhopper.version>v4.16.0</graphhopper.version>-->
+        <!--<graphhopper.version>4.17-SNAPSHOT</graphhopper.version>-->
+        <graphhopper.version>v4.16.0</graphhopper.version>
         <!-- deliberately ahead of spring-boot-dependencies' log4j2.version (2.25.5); Boot imports
              log4j-bom at ${log4j2.version}, so this one property drives log4j-api/-core/-1.2-api.
              Do not remove, dropping this override is a downgrade -->
