@@ -71,7 +71,7 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
 
             /* Avoid borders */
             if (opts.has("avoid_borders")) {
-                edgeFilters.add(new AvoidBordersEdgeFilter(opts.getObject("avoid_borders", new RouteSearchParameters()), gs.getEncodingManager()));
+                edgeFilters.add(new AvoidBordersEdgeFilter(opts.getObject("avoid_borders", new RouteSearchParameters()), gs));
             }
 
         } catch (Exception ex) {

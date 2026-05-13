@@ -15,9 +15,11 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.ev.Border;
 import com.graphhopper.routing.ev.Country;
+import com.graphhopper.routing.ev.CountryOther;
 import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
@@ -31,8 +33,8 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
     private BordersExtractor bordersExtractor;
 
 
-    public AvoidBordersEdgeFilter(RouteSearchParameters searchParams, EncodingManager encodingManager) {
-        init(searchParams, encodingManager);
+    public AvoidBordersEdgeFilter(RouteSearchParameters searchParams, GraphHopperStorage graphHopperStorage) {
+        init(searchParams, graphHopperStorage.getEncodingManager());
     }
 
     /**
@@ -42,13 +44,9 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
      * @param encodingManager  EncodingManager to check for the presence of the border and country encoded values, and to retrieve them if they are present
      */
     private void init(RouteSearchParameters searchParams, EncodingManager encodingManager) {
-        if (encodingManager.hasEncodedValue(Border.KEY)) {
-            border = encodingManager.getEnumEncodedValue(Border.KEY, Border.class);
-        }
-        if (encodingManager.hasEncodedValue(Country.KEY)) {
-            country = encodingManager.getEnumEncodedValue(Country.KEY, Country.class);
-        }
-        if (border != null && country != null) {
+        if (encodingManager.hasEncodedValue(Border.KEY)
+                && encodingManager.hasEncodedValue(Country.KEY)
+                && encodingManager.hasEncodedValue(CountryOther.KEY)) {
             int[] countriesToAvoid;
             if (searchParams.hasAvoidCountries())
                 countriesToAvoid = searchParams.getAvoidCountries();
@@ -61,7 +59,7 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
                 avoidBorders = searchParams.getAvoidBorders();
             }
 
-            bordersExtractor = new BordersExtractor(border, country, countriesToAvoid);
+            bordersExtractor = new BordersExtractor(encodingManager, countriesToAvoid);
         }
     }
 

@@ -2,10 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.util.parsers;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.Border;
-import com.graphhopper.routing.ev.EncodedValue;
-import com.graphhopper.routing.ev.EncodedValueLookup;
-import com.graphhopper.routing.ev.EnumEncodedValue;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.storage.IntsRef;
 import org.heigit.ors.config.profile.ExtendedStorageName;
@@ -27,6 +24,7 @@ import java.util.MissingResourceException;
 
 public class BorderParser implements TagParser {
     private final EnumEncodedValue<Border> borderEnc;
+    private final EnumEncodedValue<Country> countryEnc;
 
     private static final String PARAM_KEY_IDS = "ids";
     private static final String PARAM_KEY_BOUNDARIES = "boundaries";
@@ -41,11 +39,8 @@ public class BorderParser implements TagParser {
 
 
     public BorderParser(ORSGraphHopper orsGraphHopper) {
-        this(new EnumEncodedValue<>(Border.KEY, Border.class), orsGraphHopper);
-    }
-
-    public BorderParser(EnumEncodedValue<Border> borderEnc, ORSGraphHopper orsGraphHopper) {
-        this.borderEnc = borderEnc;
+        this.borderEnc = Border.create();
+        this.countryEnc = CountryOther.create();
         this.parameters = orsGraphHopper.getProfileProperties().getBuild().getExtStorages().get(ExtendedStorageName.BORDERS.getName());
 
         try {
@@ -103,6 +98,7 @@ public class BorderParser implements TagParser {
     @Override
     public void createEncodedValues(EncodedValueLookup encodedValueLookup, List<EncodedValue> list) {
         list.add(borderEnc);
+        list.add(countryEnc);
     }
 
     @Override
@@ -127,9 +123,12 @@ public class BorderParser implements TagParser {
             countryId2 = getCountryIdFromWay(way, TAG_KEY_COUNTRY2);
         }
 
-        short countryId = countryId1 == 0 ? countryId2 : countryId1;
-        if (countryId != 0)
-            way.setTag("ors:country", cbReader.getCountry(countryId));
+        if (countryId1 != 0) {
+            way.setTag("ors:country", cbReader.getCountry(countryId1));
+        }
+        if (countryId2 != 0) {
+            countryEnc.setEnum(false, edgeFlags, cbReader.getCountry(countryId2));
+        }
 
         borderEnc.setEnum(false, edgeFlags, getBorderType(countryId1, countryId2));
 
