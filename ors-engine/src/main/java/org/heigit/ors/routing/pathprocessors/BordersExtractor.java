@@ -6,6 +6,8 @@ import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 
+
+//TODO: the whole class seems a bit obsolete
 public class BordersExtractor {
     public enum Avoid {CONTROLLED, NONE, ALL}
     private final EnumEncodedValue<Border> border;

@@ -42,9 +42,6 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
      * @param encodingManager  EncodingManager to check for the presence of the border and country encoded values, and to retrieve them if they are present
      */
     private void init(RouteSearchParameters searchParams, EncodingManager encodingManager) {
-        // Init the graph storage
-        //isStorageBuilt = extBorders != null;
-        encodingManager.hasEncodedValue(Border.KEY);
         if (encodingManager.hasEncodedValue(Border.KEY)) {
             border = encodingManager.getEnumEncodedValue(Border.KEY, Border.class);
         }
