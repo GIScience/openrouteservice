@@ -57,7 +57,7 @@ class BordersExtractorTest {
         VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
         VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
 
-        BordersExtractor be = new BordersExtractor(encodingManager.getEnumEncodedValue(Border.KEY, Border.class), encodingManager.getEnumEncodedValue(Country.KEY, Country.class), new int[0]);
+        BordersExtractor be = new BordersExtractor(encodingManager, new int[0]);
         assertTrue(be.isBorder(ve1));
         assertTrue(be.isBorder(ve2));
         assertFalse(be.isBorder(ve3));
@@ -69,7 +69,7 @@ class BordersExtractorTest {
         VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
         VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
 
-        BordersExtractor be = new BordersExtractor(encodingManager.getEnumEncodedValue(Border.KEY, Border.class), encodingManager.getEnumEncodedValue(Country.KEY, Country.class), new int[0]);
+        BordersExtractor be = new BordersExtractor(encodingManager, new int[0]);
         assertTrue(be.isControlledBorder(ve1));
         assertFalse(be.isControlledBorder(ve2));
         assertFalse(be.isControlledBorder(ve3));
@@ -81,7 +81,7 @@ class BordersExtractorTest {
         VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
         VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
 
-        BordersExtractor be = new BordersExtractor(encodingManager.getEnumEncodedValue(Border.KEY, Border.class), encodingManager.getEnumEncodedValue(Country.KEY, Country.class), new int[0]);
+        BordersExtractor be = new BordersExtractor(encodingManager, new int[0]);
         assertFalse(be.isOpenBorder(ve1));
         assertTrue(be.isOpenBorder(ve2));
         assertFalse(be.isOpenBorder(ve3));
@@ -93,7 +93,7 @@ class BordersExtractorTest {
         VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
         VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
 
-        BordersExtractor be = new BordersExtractor(encodingManager.getEnumEncodedValue(Border.KEY, Border.class), encodingManager.getEnumEncodedValue(Country.KEY, Country.class), new int[]{1, 2});
+        BordersExtractor be = new BordersExtractor(encodingManager, new int[]{1, 2});
         assertTrue(be.restrictedCountry(ve1));
         assertTrue(be.restrictedCountry(ve2));
         assertFalse(be.restrictedCountry(ve3));
