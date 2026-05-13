@@ -9,13 +9,12 @@ import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 
 
-//TODO: the whole class seems a bit obsolete
 public class BordersExtractor {
     public enum Avoid {CONTROLLED, NONE, ALL}
     private final EnumEncodedValue<Border> border;
     private final EnumEncodedValue<Country> country1;
     private final EnumEncodedValue<Country> country2;
-    private final int[] avoidCountries;//TODO: use set instead?
+    private final int[] avoidCountries;
 
     public BordersExtractor(EncodingManager encodingManager, int[] avoidCountries) {
       this.border = encodingManager.getEnumEncodedValue(Border.KEY, Border.class);
