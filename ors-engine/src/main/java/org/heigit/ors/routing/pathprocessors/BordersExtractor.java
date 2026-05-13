@@ -2,7 +2,9 @@ package org.heigit.ors.routing.pathprocessors;
 
 import com.graphhopper.routing.ev.Border;
 import com.graphhopper.routing.ev.Country;
+import com.graphhopper.routing.ev.CountryOther;
 import com.graphhopper.routing.ev.EnumEncodedValue;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 
@@ -11,12 +13,14 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBorde
 public class BordersExtractor {
     public enum Avoid {CONTROLLED, NONE, ALL}
     private final EnumEncodedValue<Border> border;
-    private final EnumEncodedValue<Country> country;
+    private final EnumEncodedValue<Country> country1;
+    private final EnumEncodedValue<Country> country2;
     private final int[] avoidCountries;//TODO: use set instead?
 
-    public BordersExtractor(EnumEncodedValue<Border> border, EnumEncodedValue<Country> country, int[] avoidCountries) {
-      this.border = border;
-      this.country = country;
+    public BordersExtractor(EncodingManager encodingManager, int[] avoidCountries) {
+      this.border = encodingManager.getEnumEncodedValue(Border.KEY, Border.class);
+      this.country1 = encodingManager.getEnumEncodedValue(Country.KEY, Country.class);
+      this.country2 = encodingManager.getEnumEncodedValue(CountryOther.KEY, Country.class);
       this.avoidCountries = avoidCountries;
     }
 
@@ -34,10 +38,11 @@ public class BordersExtractor {
     }
 
     public boolean restrictedCountry(EdgeIteratorState edge)  {
-        Country countryValue = country.getEnum(false, edge.getFlags());
-        int countryId = CountryBordersReader.getCountryIdByISOCode(countryValue.name());
+        int startCountry = CountryBordersReader.getCountryIdByISOCode(country1.getEnum(false, edge.getFlags()).name());
+        int endCountry = CountryBordersReader.getCountryIdByISOCode(country2.getEnum(false, edge.getFlags()).name());
+
         for (int i = 0; i < avoidCountries.length; i++) {
-            if (countryId == avoidCountries[i]) {
+            if (startCountry == avoidCountries[i] || endCountry == avoidCountries[i]) {
                 return true;
             }
         }

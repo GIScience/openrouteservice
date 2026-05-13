@@ -143,7 +143,7 @@ public class MatchingRequest extends ServiceRequest {
         if (extBorders != null) {
             RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
             routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.ALL);
-            EdgeFilter borderFilter = new AvoidBordersEdgeFilter(routeSearchParameters, ghStorage.getEncodingManager());
+            EdgeFilter borderFilter = new AvoidBordersEdgeFilter(routeSearchParameters, ghStorage);
             edgeFilter.add(edgeState -> !borderFilter.accept(edgeState));
             LOGGER.trace("Applying border filter for snapping.");
         } else {
