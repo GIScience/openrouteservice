@@ -25,7 +25,6 @@ import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.util.AppInfo;
@@ -137,12 +136,13 @@ public class RoutingProfile {
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
 
         gh.importOrLoad();
-        // store CountryBordersReader for later use
-        for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
-            if (builder.getName().equals(BordersGraphStorageBuilder.BUILDER_NAME)) {
-                pathProcessorFactory.setCountryBordersReader(((BordersGraphStorageBuilder) builder).getCbReader());
-            }
-        }
+        // TODO find a new way of doing this
+//        // store CountryBordersReader for later use
+//        for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
+//            if (builder.getName().equals(BordersGraphStorageBuilder.BUILDER_NAME)) {
+//                pathProcessorFactory.setCountryBordersReader(((BordersGraphStorageBuilder) builder).getCbReader());
+//            }
+//        }
 
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("[%d] Profile: '%s', encoder: '%s', location: '%s'.".formatted(profileId, profileProperties.getProfileName(), profileProperties.getEncoderName().toString(), gh.getOrsGraphManager().getActiveGraphDirAbsPath()));

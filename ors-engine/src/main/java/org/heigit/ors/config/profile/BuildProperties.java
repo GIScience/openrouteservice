@@ -103,11 +103,6 @@ public class BuildProperties {
             }
             ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
 
-            //FIXME: for debugging only, move to switch once storage is removed
-            if (extendedStorageName == ExtendedStorageName.BORDERS) {
-                handleBorder();
-            }
-
             switch (extendedStorageName) {
                 case HEAVY_VEHICLE -> handleHeavyVehicle(storage);
                 case OSM_ID -> handleOsmId();
@@ -117,6 +112,7 @@ public class BuildProperties {
                 case TOLLWAYS -> handleTollways();
                 case HILL_INDEX -> handleHillIndex();
                 case TRAIL_DIFFICULTY -> handleTrailDifficulty();
+                case BORDERS -> handleBorder();
                 default -> {
                     storage.initialize(extendedStorageName);
                     this.extStorages.put(key, storage);
