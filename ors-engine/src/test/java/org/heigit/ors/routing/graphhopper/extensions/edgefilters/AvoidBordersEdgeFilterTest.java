@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.ev.Border;
 import com.graphhopper.routing.ev.Country;
+import com.graphhopper.routing.ev.CountryOther;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -44,17 +45,19 @@ class AvoidBordersEdgeFilterTest {
     public AvoidBordersEdgeFilterTest() {
         encodingManager.addEncodedValue(Border.create(), false);
         encodingManager.addEncodedValue(Country.create(), false);
+        encodingManager.addEncodedValue(CountryOther.create(), false);
 
         CountryBordersReader countryBordersReader = new CountryBordersReader();
-        countryBordersReader.setIsoCodes(Map.of("XXA", (short) 1, "XXB", (short) 2, "XXC", (short) 3));
+        countryBordersReader.setIsoCodes(Map.of("XXA", (short) 1, "XXB", (short) 2, "XXC", (short) 3, "XXD", (short) 4));
 
         _searchParams = new RouteSearchParameters();
     }
 
-    private VirtualEdgeIteratorState generateEdge(int id, Border border, Country country) {
+    private VirtualEdgeIteratorState generateEdge(int id, Border border, Country country1, Country country2) {
         IntsRef edgeFlags = encodingManager.createEdgeFlags();
         encodingManager.getEnumEncodedValue(Border.KEY, Border.class).setEnum(false, edgeFlags, border);
-        encodingManager.getEnumEncodedValue(Country.KEY, Country.class).setEnum(false, edgeFlags, country);
+        encodingManager.getEnumEncodedValue(Country.KEY, Country.class).setEnum(false, edgeFlags, country1);
+        encodingManager.getEnumEncodedValue(CountryOther.KEY, Country.class).setEnum(false, edgeFlags, country2);
         int edgeKey = GHUtility.createEdgeKey(id, false);
         return new VirtualEdgeIteratorState(0, edgeKey, 1, 2, 10,
                 edgeFlags, "test", Helper.createPointList(51, 0, 51, 1), false);
@@ -67,9 +70,9 @@ class AvoidBordersEdgeFilterTest {
 
         AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, graphHopperStorage);
 
-        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA);
-        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
-        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA, Country.XXB);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB, Country.XXC);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXD, Country.XXD);
 
         assertFalse(filter.accept(ve1));
         assertFalse(filter.accept(ve2));
@@ -83,9 +86,9 @@ class AvoidBordersEdgeFilterTest {
 
         AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, graphHopperStorage);
 
-        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA);
-        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
-        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA, Country.XXB);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB, Country.XXC);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXD, Country.XXD);
 
         assertFalse(filter.accept(ve1));
         assertTrue(filter.accept(ve2));
@@ -99,9 +102,9 @@ class AvoidBordersEdgeFilterTest {
 
         AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, graphHopperStorage);
 
-        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA);
-        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
-        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA, Country.XXB);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB, Country.XXC);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXD, Country.XXD);
 
         assertTrue(filter.accept(ve1));
         assertTrue(filter.accept(ve2));
@@ -111,13 +114,13 @@ class AvoidBordersEdgeFilterTest {
     @Test
     void TestAvoidSpecificBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.NONE);
-        _searchParams.setAvoidCountries(new int[]{1, 3});
+        _searchParams.setAvoidCountries(new int[]{1, 4});
 
         AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, graphHopperStorage);
 
-        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA);
-        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
-        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA, Country.XXB);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB, Country.XXC);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXD, Country.XXD);
 
         assertFalse(filter.accept(ve1));
         assertTrue(filter.accept(ve2));
@@ -131,9 +134,9 @@ class AvoidBordersEdgeFilterTest {
 
         AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, graphHopperStorage);
 
-        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA);
-        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB);
-        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXC);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA, Country.XXB);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB, Country.XXC);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXD, Country.XXD);
 
         assertFalse(filter.accept(ve1));
         assertFalse(filter.accept(ve2));
