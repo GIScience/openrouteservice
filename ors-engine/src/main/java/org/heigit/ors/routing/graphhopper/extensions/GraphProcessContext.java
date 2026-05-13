@@ -15,11 +15,14 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.plugins.PluginManager;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.util.ProfileTools;
@@ -33,11 +36,12 @@ public class GraphProcessContext {
     private static final Logger LOGGER = Logger.getLogger(GraphProcessContext.class.getName());
     private List<GraphStorageBuilder> storageBuilders;
     private GraphStorageBuilder[] arrStorageBuilders;
+    private CountryBordersReader countryBordersReader;
     private int trafficArrStorageBuilderLocation = -1;
     private final double maximumSpeedLowerBound;
     private boolean getElevationFromPreprocessedData;
-
     private boolean useSidewalks;
+
 
     public GraphProcessContext(ProfileProperties profile) throws Exception {
         PluginManager<GraphStorageBuilder> mgrGraphStorageBuilders = PluginManager.getPluginManager(GraphStorageBuilder.class);
@@ -146,5 +150,13 @@ public class GraphProcessContext {
 
     public boolean isUseSidewalks() {
         return useSidewalks;
+    }
+
+    public CountryBordersReader getCountryBordersReader() {
+        return countryBordersReader;
+    }
+
+    public void setCountryBordersReader(CountryBordersReader countryBordersReader) {
+        this.countryBordersReader = countryBordersReader;
     }
 }

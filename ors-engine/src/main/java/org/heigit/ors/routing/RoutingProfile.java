@@ -118,9 +118,6 @@ public class RoutingProfile {
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
-        ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
-        gh.setPathProcessorFactory(pathProcessorFactory);
-
         gh.init(args);
 
         // MARQ24: make sure that we only use ONE instance of the ElevationProvider across the multiple vehicle profiles
@@ -136,13 +133,10 @@ public class RoutingProfile {
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
 
         gh.importOrLoad();
-        // TODO find a new way of doing this
-//        // store CountryBordersReader for later use
-//        for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
-//            if (builder.getName().equals(BordersGraphStorageBuilder.BUILDER_NAME)) {
-//                pathProcessorFactory.setCountryBordersReader(((BordersGraphStorageBuilder) builder).getCbReader());
-//            }
-//        }
+
+        ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
+        pathProcessorFactory.setCountryBordersReader(gpc.getCountryBordersReader());
+        gh.setPathProcessorFactory(pathProcessorFactory);
 
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("[%d] Profile: '%s', encoder: '%s', location: '%s'.".formatted(profileId, profileProperties.getProfileName(), profileProperties.getEncoderName().toString(), gh.getOrsGraphManager().getActiveGraphDirAbsPath()));
