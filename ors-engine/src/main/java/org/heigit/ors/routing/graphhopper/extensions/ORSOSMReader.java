@@ -20,6 +20,7 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
+import com.graphhopper.routing.ev.Border;
 import com.graphhopper.routing.ev.HillIndex;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
@@ -86,12 +87,6 @@ public class ORSOSMReader extends OSMReader {
 
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
-            if (b instanceof BordersGraphStorageBuilder) {
-                this.processNodeTags = true;
-                this.countries = new HashMap<>();
-                this.processGeom = true;
-            }
-
             if (b instanceof HereTrafficGraphStorageBuilder) {
                 this.processGeom = true;
                 this.processWholeGeom = true;
@@ -109,6 +104,12 @@ public class ORSOSMReader extends OSMReader {
                 extraTagKeys.add("kerb:left:height");
                 extraTagKeys.add("kerb:right:height");
             }
+        }
+
+        if (encodingManager.hasEncodedValue(Border.KEY)) {
+            this.processNodeTags = true;
+            this.countries = new HashMap<>();
+            this.processGeom = true;
         }
 
         if (procCntx.isUseSidewalks()) {
