@@ -9,8 +9,6 @@ import org.heigit.ors.config.profile.ExtendedStorageName;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
-import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.util.ErrorLoggingUtility;
 
 import java.io.File;
@@ -75,21 +73,21 @@ public class BorderParser implements TagParser {
             if (parameters.getBoundaries() != null) {
                 bordersFile = parameters.getBoundaries().toString();
             } else {
-                ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
+                ErrorLoggingUtility.logMissingConfigParameter(BorderParser.class, PARAM_KEY_BOUNDARIES);
                 // We cannot continue without the information
-                throw new MissingResourceException("An OSM file enriched with country tags or a boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), PARAM_KEY_BOUNDARIES);
+                throw new MissingResourceException("An OSM file enriched with country tags or a boundary geometry file is needed to use the borders extended storage!", BorderParser.class.getName(), PARAM_KEY_BOUNDARIES);
             }
         }
 
         if (parameters.getIds() != null)
             countryIdsFile = parameters.getIds().toString();
         else
-            ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_IDS);
+            ErrorLoggingUtility.logMissingConfigParameter(BorderParser.class, PARAM_KEY_IDS);
 
         if (parameters.getOpenborders() != null)
             openBordersFile = parameters.getOpenborders().toString();
         else
-            ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_OPEN_BORDERS);
+            ErrorLoggingUtility.logMissingConfigParameter(BorderParser.class, PARAM_KEY_OPEN_BORDERS);
 
         // Read the file containing all the country border polygons
         return new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);
