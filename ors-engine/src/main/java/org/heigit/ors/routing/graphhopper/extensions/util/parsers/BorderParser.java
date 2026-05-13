@@ -31,6 +31,11 @@ public class BorderParser implements TagParser {
     private static final String TAG_KEY_COUNTRY1 = "country1";
     private static final String TAG_KEY_COUNTRY2 = "country2";
     private final ExtendedStorageProperties parameters;
+
+    public CountryBordersReader getCbReader() {
+        return cbReader;
+    }
+
     private CountryBordersReader cbReader;
     boolean preprocessed = false;
     private Map<Integer, Map<String, String>> nodeTags;
@@ -48,17 +53,18 @@ public class BorderParser implements TagParser {
         }
 
     }
-    public void init(GraphHopper graphhopper) throws Exception {
-        File expectedStorageFileLocation1 = Path.of(graphhopper.getGraphHopperLocation() + "/ext_borders").toFile();
-        File expectedStorageFileLocation2 = Path.of(graphhopper.getGraphHopperLocation() + "/ext_borders_cbr").toFile();
+    public void init(ORSGraphHopper orsGraphHopper) throws Exception {
+        File expectedStorageFileLocation = Path.of(orsGraphHopper.getGraphHopperLocation() + "/country_borders_reader").toFile();
 
-        if (this.cbReader == null && (!expectedStorageFileLocation1.exists() || !expectedStorageFileLocation2.exists())) {
+        if (cbReader == null && !expectedStorageFileLocation.exists()) {
             cbReader = createCountryBordersReader();
-            cbReader.serialize(expectedStorageFileLocation2);
+            cbReader.serialize(expectedStorageFileLocation);
         }
-        if (cbReader == null && expectedStorageFileLocation2.exists()) {
-            cbReader = CountryBordersReader.deserialize(expectedStorageFileLocation2);
+        if (cbReader == null && expectedStorageFileLocation.exists()) {
+            cbReader = CountryBordersReader.deserialize(expectedStorageFileLocation);
         }
+
+        orsGraphHopper.getProcessContext().setCountryBordersReader(cbReader);
     }
 
     private CountryBordersReader createCountryBordersReader() throws IOException {

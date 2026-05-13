@@ -38,6 +38,7 @@ import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
+import lombok.Getter;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.common.TravelRangeType;
@@ -75,6 +76,7 @@ import java.util.*;
 public class ORSGraphHopper extends GraphHopperGtfs {
     private static final Logger LOGGER = LoggerFactory.getLogger(ORSGraphHopper.class);
 
+    @Getter
     private GraphProcessContext processContext;
     private EngineProperties engineProperties;
     private ProfileProperties profileProperties;
