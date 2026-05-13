@@ -13,28 +13,35 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
+import com.graphhopper.routing.ev.Border;
+import com.graphhopper.routing.ev.Country;
+import com.graphhopper.routing.ev.CountryOther;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 
 public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
-    private final BordersGraphStorage storage;
     private int[] avoidCountries;
-    private boolean isAvoidCountries = false;
+    private BordersExtractor bordersExtractor;
+
 
     //Used to avoid all borders
     public AvoidBordersCoreEdgeFilter(GraphHopperStorage graphStorage) {
-        this.storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
+        this(graphStorage, new int[0]);
     }
 
     //Used to specify multiple countries to avoid (For a specific LM set)
     public AvoidBordersCoreEdgeFilter(GraphHopperStorage graphStorage, int[] avoidCountries) {
-        this.storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
+        EncodingManager encodingManager = graphStorage.getEncodingManager();
         this.avoidCountries = avoidCountries;
-        if (avoidCountries.length > 0) isAvoidCountries = true;
+        if (encodingManager.hasEncodedValue(Border.KEY)
+                && encodingManager.hasEncodedValue(Country.KEY)
+                && encodingManager.hasEncodedValue(CountryOther.KEY)) {
+            bordersExtractor = new BordersExtractor(encodingManager, avoidCountries);
+        }
     }
 
     public int[] getAvoidCountries() {
@@ -49,30 +56,15 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
      */
     @Override
     public final boolean accept(EdgeIteratorState iter) {
+        if (bordersExtractor == null)
+            return true;
+
         //If a specific country was given, just check if its one of the country borders
         if (iter instanceof RoutingCHEdgeIterator iterator && iterator.isShortcut())
             return true;
-        if (isAvoidCountries)
-            return !restrictedCountry(iter.getEdge());
-        //else check if there is ANY border
-        if (storage == null) {
-            return true;
-        } else {
-            return storage.getEdgeValue(iter.getEdge(), BordersGraphStorage.Property.TYPE) == BordersGraphStorage.NO_BORDER;
-        }
+        if (avoidCountries.length > 0)
+            return !bordersExtractor.restrictedCountry(iter);
 
-    }
-
-    public boolean restrictedCountry(int edgeId) {
-        int startCountry = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.START);
-        int endCountry = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.END);
-
-        for (int i = 0; i < avoidCountries.length; i++) {
-            if (startCountry == avoidCountries[i] || endCountry == avoidCountries[i]) {
-                return true;
-            }
-        }
-
-        return false;
+        return !bordersExtractor.isBorder(iter);
     }
 }

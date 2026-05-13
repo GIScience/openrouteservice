@@ -16,7 +16,6 @@ package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 import com.graphhopper.routing.ev.Border;
 import com.graphhopper.routing.ev.Country;
 import com.graphhopper.routing.ev.CountryOther;
-import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -27,8 +26,6 @@ import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 public class AvoidBordersEdgeFilter implements EdgeFilter {
     private BordersExtractor.Avoid avoidBorders = BordersExtractor.Avoid.NONE;
     private boolean avoidCountries = false;
-    private EnumEncodedValue<Border> border = null;
-    private EnumEncodedValue<Country> country = null;
 
     private BordersExtractor bordersExtractor;
 
