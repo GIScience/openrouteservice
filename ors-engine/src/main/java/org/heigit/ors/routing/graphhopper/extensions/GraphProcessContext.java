@@ -37,6 +37,7 @@ public class GraphProcessContext {
     private List<GraphStorageBuilder> storageBuilders;
     private GraphStorageBuilder[] arrStorageBuilders;
     private CountryBordersReader countryBordersReader;
+    private boolean preprocessedCountries = false;
     private int trafficArrStorageBuilderLocation = -1;
     private final double maximumSpeedLowerBound;
     private boolean getElevationFromPreprocessedData;
@@ -159,4 +160,13 @@ public class GraphProcessContext {
     public void setCountryBordersReader(CountryBordersReader countryBordersReader) {
         this.countryBordersReader = countryBordersReader;
     }
+
+    public boolean isPreprocessedCountries() {
+        return preprocessedCountries;
+    }
+
+    public void setPreprocessedCountries(boolean preprocessedCountries) {
+        this.preprocessedCountries = preprocessedCountries;
+    }
+
 }
