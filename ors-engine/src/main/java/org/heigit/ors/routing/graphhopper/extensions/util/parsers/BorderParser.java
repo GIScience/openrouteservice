@@ -45,13 +45,13 @@ public class BorderParser implements TagParser {
         this.borderEnc = Border.create();
         this.countryEnc = CountryOther.create();
         this.parameters = orsGraphHopper.getProfileProperties().getBuild().getExtStorages().get(ExtendedStorageName.BORDERS.getName());
+        this.preprocessed = Boolean.TRUE.equals(parameters.getPreprocessed());
 
         try {
             init(orsGraphHopper);
         } catch (Exception e) {
             throw new RuntimeException("Error initializing BorderParser", e);
         }
-
     }
     public void init(ORSGraphHopper orsGraphHopper) throws Exception {
         File expectedStorageFileLocation = Path.of(orsGraphHopper.getGraphHopperLocation() + "/country_borders_reader").toFile();
@@ -71,8 +71,6 @@ public class BorderParser implements TagParser {
         String bordersFile = "";
         String countryIdsFile = "";
         String openBordersFile = "";
-
-        preprocessed = Boolean.TRUE.equals(parameters.getPreprocessed());
 
         //FIXME: read borders file regardless of the preprocessed flag, as it is used to verify countries for border edges in extra info processor
         if (!preprocessed) {
