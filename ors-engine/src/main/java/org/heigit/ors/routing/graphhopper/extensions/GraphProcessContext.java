@@ -15,8 +15,6 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
-import lombok.Getter;
-import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.config.profile.ProfileProperties;

@@ -1,6 +1,5 @@
 package org.heigit.ors.routing.graphhopper.extensions.util.parsers;
 
-import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.parsers.TagParser;
@@ -19,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 
+import static com.graphhopper.routing.util.parsers.CountryParser.KEY_ORS_COUNTRY;
+import static org.heigit.ors.routing.graphhopper.extensions.ORSOSMReader.KEY_ORS_NODE_TAGS;
+
 
 public class BorderParser implements TagParser {
     private final EnumEncodedValue<Border> borderEnc;
@@ -31,11 +33,6 @@ public class BorderParser implements TagParser {
     private static final String TAG_KEY_COUNTRY1 = "country1";
     private static final String TAG_KEY_COUNTRY2 = "country2";
     private final ExtendedStorageProperties parameters;
-
-    public CountryBordersReader getCbReader() {
-        return cbReader;
-    }
-
     private CountryBordersReader cbReader;
     boolean preprocessed = false;
     private Map<Integer, Map<String, String>> nodeTags;
@@ -117,7 +114,7 @@ public class BorderParser implements TagParser {
         short countryId1 = 0;
         short countryId2 = 0;
         if (preprocessed) {
-            nodeTags = way.getTag("ors:node_tags", new HashMap<>());
+            nodeTags = way.getTag(KEY_ORS_NODE_TAGS, new HashMap<>());
             countryId1 = getCountryIdForNode(fromIndex);
             countryId2 = getCountryIdForNode(toIndex);
         } else {
@@ -126,7 +123,7 @@ public class BorderParser implements TagParser {
         }
 
         if (countryId1 != 0) {
-            way.setTag("ors:country", cbReader.getCountry(countryId1));
+            way.setTag(KEY_ORS_COUNTRY, cbReader.getCountry(countryId1));
         }
         if (countryId2 != 0) {
             countryEnc.setEnum(false, edgeFlags, cbReader.getCountry(countryId2));
