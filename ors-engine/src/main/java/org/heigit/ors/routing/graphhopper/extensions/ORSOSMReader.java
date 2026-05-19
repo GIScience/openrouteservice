@@ -57,6 +57,7 @@ public class ORSOSMReader extends OSMReader {
     private static final Logger LOGGER = Logger.getLogger(ORSOSMReader.class.getName());
     private static final String TAG_KEY_COUNTRY1 = "country1";
     private static final String TAG_KEY_COUNTRY2 = "country2";
+    public static final String KEY_ORS_NODE_TAGS = "ors:node_tags";
 
     private final GraphProcessContext procCntx;
     private boolean processNodeTags;
@@ -298,7 +299,7 @@ public class ORSOSMReader extends OSMReader {
             }
 
             if (!tags.isEmpty()) {
-                way.setTag("ors:node_tags", tags);
+                way.setTag(KEY_ORS_NODE_TAGS, tags);
             }
         }
 
