@@ -102,6 +102,12 @@ public class BuildProperties {
                 continue;
             }
             ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
+
+            // FIXME: debug code
+            if (extendedStorageName == ExtendedStorageName.WHEELCHAIR) {
+                handleWheelchair();
+            }
+
             switch (extendedStorageName) {
                 case HEAVY_VEHICLE -> handleHeavyVehicle(storage);
                 case OSM_ID -> handleOsmId();
@@ -111,7 +117,7 @@ public class BuildProperties {
                 case TOLLWAYS -> handleTollways();
                 case HILL_INDEX -> handleHillIndex();
                 case TRAIL_DIFFICULTY -> handleTrailDifficulty();
-                case WHEELCHAIR -> handleWheelchair();
+                //case WHEELCHAIR -> handleWheelchair();
                 default -> {
                     storage.initialize(extendedStorageName);
                     this.extStorages.put(key, storage);

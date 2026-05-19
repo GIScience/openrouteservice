@@ -13,41 +13,39 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
-import org.heigit.ors.routing.graphhopper.extensions.util.WheelchairAttributesEncodedValues;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
 
-import java.util.List;
-
-public class WheelchairEdgeFilter implements EdgeFilter {
-    private static final Logger LOGGER = Logger.getLogger(WheelchairEdgeFilter.class.getName());
-    private final WheelchairAttributesEncodedValues encodedValues;
-    private WheelchairAttributes attributes;
+public class WheelchairEdgeFilterOld implements EdgeFilter {
+    private static final Logger LOGGER = Logger.getLogger(WheelchairEdgeFilterOld.class.getName());
+    private final byte[] buffer;
+    private final WheelchairAttributesGraphStorage storage;
+    private final WheelchairAttributes attributes;
     private WheelchairParameters params;
-    private WheelchairEdgeFilterOld oldFilter;
 
-    public WheelchairEdgeFilter(WheelchairParameters params, GraphHopperStorage graphStorage) throws Exception {
-        oldFilter = new WheelchairEdgeFilterOld(params, graphStorage);
-        encodedValues = new WheelchairAttributesEncodedValues(graphStorage.getEncodingManager());
+    public WheelchairEdgeFilterOld(WheelchairParameters params, GraphHopperStorage graphStorage) throws Exception {
+        storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
+        if (storage == null)
+            throw new Exception("ExtendedGraphStorage for wheelchair attributes was not found.");
         this.params = params;
         if (this.params == null) {
             this.params = new WheelchairParameters();
         }
         attributes = new WheelchairAttributes();
+        buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
     }
 
     @Override
     public boolean accept(EdgeIteratorState iter) {
-        boolean oldValue = oldFilter.accept(iter);
-        attributes = encodedValues.getAttributes(iter.getFlags());
+        storage.getEdgeValues(iter.getEdge(), attributes, buffer);
         LOGGER.debug("edge: " + iter + (attributes.hasValues() ? " suitable: " + attributes.isSuitable() + " surfaceQualityKnown: " + attributes.isSurfaceQualityKnown() : " no wheelchair attributes"));
-        boolean newValue = !attributes.hasValues() || !(
+        return !attributes.hasValues() || !(
                 checkSurfaceType()
                         || checkSmoothnessType()
                         || checkTrackType()
@@ -57,10 +55,6 @@ public class WheelchairEdgeFilter implements EdgeFilter {
                         || checkSurfaceQualityKnown()
                         || checkUnsuitable()
         );
-        if (oldValue != newValue) {
-            LOGGER.warn("New wheelchair edge filter value " + newValue + " differs from old filter value " + oldValue + " for edge " + iter.getEdge());
-        }
-        return newValue;
     }
 
     private boolean checkSurfaceType() {
