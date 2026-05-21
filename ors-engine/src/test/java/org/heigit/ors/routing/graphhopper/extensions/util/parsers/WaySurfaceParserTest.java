@@ -18,7 +18,6 @@ class WaySurfaceParserTest {
     private static final WaySurface SIDEWALK_SURFACE = WaySurface.PAVING_STONES;
     private static final WaySurface SIDEWALK_SURFACE_OTHER = WaySurface.CONCRETE;
 
-    private EncodingManager em;
     private EnumEncodedValue<WaySurface> surfaceEnc;
     private WaySurfaceParser parser;
     private IntsRef intsRef, relFlags;
@@ -26,7 +25,7 @@ class WaySurfaceParserTest {
     @BeforeEach
     void setUp() {
         parser = new WaySurfaceParser();
-        em = new EncodingManager.Builder().add(parser).build();
+        EncodingManager em = new EncodingManager.Builder().add(parser).build();
         surfaceEnc = em.getEnumEncodedValue(WaySurface.KEY, WaySurface.class);
         relFlags = em.createRelationFlags();
         intsRef = em.createEdgeFlags();
