@@ -34,7 +34,7 @@ public class BorderParser implements TagParser {
     private static final String TAG_KEY_COUNTRY2 = "country2";
     private final ExtendedStorageProperties parameters;
     private CountryBordersReader cbReader;
-    boolean preprocessed = false;
+    boolean preprocessed;
     private Map<Integer, Map<String, String>> nodeTags;
 
 
