@@ -50,9 +50,9 @@
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
         <log4j.version>2.25.4</log4j.version>
-        <springdoc-openapi-starter.version>2.8.6</springdoc-openapi-starter.version>
-        <swagger-core.version>2.2.27</swagger-core.version>
-        <swagger-parser.version>2.1.24</swagger-parser.version>
+        <springdoc-openapi-starter.version>2.8.17</springdoc-openapi-starter.version>
+        <swagger-core.version>2.2.50</swagger-core.version>
+        <swagger-parser.version>2.1.43</swagger-parser.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <geotools.version>32.1</geotools.version>
         <fasterxml.jackson.version>2.18.6</fasterxml.jackson.version>
@@ -253,6 +253,12 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc-openapi-starter.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
