@@ -12,13 +12,16 @@ import com.graphhopper.util.PMap;
 import org.heigit.ors.config.ElevationProperties;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.*;
+import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.util.ProfileTools;
 import org.heigit.ors.util.StringUtility;
+import com.graphhopper.routing.ev.*;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -42,7 +45,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
 
         setElevationProperties(buildProperties, engineConfig, ghConfig);
 
-        setGraphLevelEncodedValues(buildProperties, ghConfig);
+        setGraphLevelEncodedValues(profile, ghConfig);
 
         boolean prepareCH = false;
         boolean prepareLM = false;
@@ -257,10 +260,101 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         }
     }
 
-    private static void setGraphLevelEncodedValues(BuildProperties buildProperties, ORSGraphHopperConfig ghConfig) {
+    /**
+     * Determines which EncodedValues (EVs) are registered on the GraphHopper graph
+     * for the given profile
+     * and sets the {@code graph.encoded_values} configuration key accordingly.
+     *
+     * <p>
+     * <b>Current behaviour (one-graph-per-profile architecture):</b><br>
+     * Since each routing profile owns its own dedicated graph, EVs that are
+     * meaningless for a given
+     * profile category waste intsForFlags bits, disk space, and permanent heap. To
+     * prevent leakage
+     * from shared {@code profile_default} config blocks, this method filters the EV
+     * string by
+     * {@link RoutingProfileCategory}:
+     * <ul>
+     * <li>Hiking/MTB EVs ({@code sac_scale}, {@code mtb_scale},
+     * {@code mtb_scale_uphill},
+     * {@code hill_index}) are blocked for {@code DRIVING} and {@code WHEELCHAIR}
+     * profiles.</li>
+     * <li>Transit/freight EVs ({@code max_height}, {@code hazmat_access},
+     * {@code hgv_access}, etc.)
+     * are blocked for {@code WALKING} and {@code WHEELCHAIR} profiles.</li>
+     * </ul>
+     *
+     * <p>
+     * <b>TODO FUTURE — Unified Graph Architecture:</b><br>
+     * If ORS transitions to a <em>unified graph</em> (one shared graph serving all
+     * profiles), this
+     * entire filter block MUST be reverted. A unified graph requires
+     * {@code graph.encoded_values} to
+     * be the exact <em>union</em> of all EVs needed by every profile. Stripping EVs
+     * here would cause
+     * profile categories that rely on those EVs to fail at routing time.
+     * <br>
+     * In the unified-graph model, cross-profile leakage prevention must be moved
+     * <em>downstream</em>
+     * to the individual {@code FlagEncoder} / {@code VehicleTagParser}
+     * implementations, which should
+     * declare and enforce the EVs they read/write via their own {@code supports()}
+     * or equivalent
+     * contract — leaving unused EV slots allocated but unpopulated for irrelevant
+     * profiles.
+     *
+     * @param profile  the ORS profile properties carrying build config and profile
+     *                 type information
+     * @param ghConfig the GraphHopper config object being assembled for this
+     *                 profile's graph
+     */
+    private static void setGraphLevelEncodedValues(ProfileProperties profile, ORSGraphHopperConfig ghConfig) {
+        BuildProperties buildProperties = profile.getBuild();
         List<String> encodedValues = new ArrayList<>();
 
-        encodedValues.add(buildProperties.getEncodedValuesString());
+        String evs = buildProperties.getEncodedValuesString();
+
+        Integer[] profilesTypes = profile.getProfilesTypes();
+        int category = RoutingProfileCategory.UNKNOWN;
+        if (profilesTypes != null && profilesTypes.length > 0) {
+            category = RoutingProfileCategory.getFromRouteProfile(profilesTypes[0]);
+        }
+
+        final int finalCategory = category;
+
+        // TODO FUTURE: If ORS moves to a Unified Graph architecture (one graph for all
+        // profiles),
+        // this entire filter block MUST be removed. A unified graph requires the union
+        // of all EVs.
+        // instead of a cross-profile EV leakage prevention
+        if (evs != null && !evs.isEmpty()) {
+            evs = Arrays.stream(evs.split(","))
+                    .map(String::trim)
+                    .filter(ev -> !ev.isEmpty())
+                    .filter(ev -> {
+                        boolean isHikingMtbEV = ev.equals(SacScale.KEY) || ev.equals(MtbScale.KEY)
+                                || ev.equals(MtbScaleUphill.KEY) || ev.equals(HillIndex.KEY);
+                        boolean isDrivingTransitEV = ev.equals(MaxAxleLoad.KEY) || ev.equals(MaxHeight.KEY)
+                                || ev.equals(MaxLength.KEY) ||
+                                ev.equals(MaxWeight.KEY) || ev.equals(MaxWidth.KEY) || ev.equals(HazmatAccess.KEY) ||
+                                ev.equals(HgvAccess.KEY) || ev.equals(GoodsAccess.KEY) || ev.equals(DeliveryAccess.KEY)
+                                ||
+                                ev.equals(BusAccess.KEY) || ev.equals(AgriculturalAccess.KEY)
+                                || ev.equals(ForestryAccess.KEY);
+
+                        boolean blockHikingEV = isHikingMtbEV && (finalCategory == RoutingProfileCategory.DRIVING
+                                || finalCategory == RoutingProfileCategory.WHEELCHAIR);
+                        boolean blockTransitEV = isDrivingTransitEV && (finalCategory == RoutingProfileCategory.WALKING
+                                || finalCategory == RoutingProfileCategory.WHEELCHAIR);
+
+                        return !blockHikingEV && !blockTransitEV;
+                    })
+                    .collect(Collectors.joining(","));
+        }
+
+        if (evs != null && !evs.isEmpty()) {
+            encodedValues.add(evs);
+        }
 
         if (Boolean.TRUE.equals(buildProperties.getInterpolateBridgesAndTunnels()))
             encodedValues.add(RoadEnvironment.KEY);
