@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -164,6 +165,33 @@ class CoreLandmarkStorageTest {
 
         assertEquals(2, storage.getSubnetworksWithLandmarks());
         assertEquals("[6, 2]", Arrays.toString(storage.getLandmarks(1)));
+    }
+
+    @Test
+    void testAllComponentsBelowMinimumNodes_noExceptionThrown() {
+        // Regression test for the ORS-LM-WARN crash scenario:
+        // If ALL core graph components fall below minimumNodes (e.g. island partitions
+        // after
+        // aggressive Core contraction, or barrier micro-subgraphs), createLandmarks()
+        // must complete with a warning rather than throwing IllegalStateException.
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        for (int i = 0; i <= 12; i++)
+            restrictedEdges.add(i);
+
+        createMediumGraph();
+        contractGraph(restrictedEdges);
+
+        CoreLMConfig coreLMConfig = new CoreLMConfig(encoder.toString(), weighting)
+                .setEdgeFilter(new LMEdgeFilterSequence());
+        CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, graph, routingCHGraph, coreLMConfig, 2);
+        // Setting minimumNodes much higher than the core graph node count simulates an
+        // island/
+        // partition scenario where no component qualifies — factor stays <= 0 without
+        // the guard.
+        storage.setMinimumNodes(10000);
+
+        assertDoesNotThrow(storage::createLandmarks,
+                "createLandmarks() must not throw when all components are below minimumNodes");
     }
 
     @Test
