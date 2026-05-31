@@ -42,6 +42,7 @@ import org.locationtech.jts.geom.Coordinate;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.graphhopper.reader.osm.OSMNodeData.isPillarNode;
 import static com.graphhopper.reader.osm.OSMNodeData.isTowerNode;
@@ -66,6 +67,11 @@ public class ORSOSMReader extends OSMReader {
     private final HashSet<String> extraTagKeys;
     private final Set<String> nodeTagsToStore;
     private final GHLongObjectHashMap<Map<String, Object>> osmNodeTagValues;
+
+    private final AtomicInteger barrierNodesTotal = new AtomicInteger(
+            0);
+    private final AtomicInteger barrierNodesSkipped = new AtomicInteger(
+            0);
 
     public ORSOSMReader(GraphHopperStorage storage, OSMReaderConfig osmReaderConfig, GraphProcessContext procCntx) {
         super(storage, osmReaderConfig);
@@ -430,7 +436,38 @@ public class ORSOSMReader extends OSMReader {
     @Override
     public void readGraph() throws IOException {
         super.readGraph();
+        LOGGER.info(String.format(
+                "[ORS-READER-DIAG] profile=%s barrier_nodes_total=%d barrier_edges_created=%d barrier_edges_skipped_passable=%d",
+                ghStorage.getBaseGraph().toString(),
+                barrierNodesTotal.get(),
+                barrierNodesTotal.get() - barrierNodesSkipped.get(),
+                barrierNodesSkipped.get()));
         procCntx.finish();
+    }
+
+    @Override
+    protected boolean isBarrierNode(ReaderNode node) {
+        if (!super.isBarrierNode(node))
+            return false;
+
+        barrierNodesTotal.incrementAndGet();
+
+        for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
+            if (encoder instanceof AbstractFlagEncoder abstractEncoder
+                    && !abstractEncoder.isBarrier(node)) {
+                barrierNodesSkipped.incrementAndGet();
+                return false; // at least one encoder can pass → no topology split
+            }
+        }
+        return true; // all encoders blocked → split is correct
+    }
+
+    public int getBarrierNodesTotal() {
+        return barrierNodesTotal.get();
+    }
+
+    public int getBarrierNodesSkipped() {
+        return barrierNodesSkipped.get();
     }
 
 }

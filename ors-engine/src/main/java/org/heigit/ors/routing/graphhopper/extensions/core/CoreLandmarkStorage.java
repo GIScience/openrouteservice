@@ -183,6 +183,13 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             setMaximumWeight(maxWeight);
             additionalInfo = ", maxWeight:" + maxWeight + " from quick estimation";
         }
+
+        if (getFactor() <= 0) {
+            logger.warn(String.format("[ORS-LM-WARN] %s No component reached minimumNodes=%d in Core graph of %d nodes. Skipping landmark preparation — fallback to BeelineApproximator.",
+                configName(), minimumNodes, core.getCoreNodes()));
+            return;
+        }
+
         double factor = getFactor();
 
         if (logDetails)
@@ -191,6 +198,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         int nodes = 0;
         for (IntArrayList subnetworkIds : graphComponents) {
             nodes += subnetworkIds.size();
+            logger.info(String.format("[ORS-LM-DIAG] %s eval subnetwork size=%d minimumNodes=%d", configName(), subnetworkIds.size(), minimumNodes));
             if (subnetworkIds.size() < minimumNodes)
                 continue;
             if (factor <= 0)
