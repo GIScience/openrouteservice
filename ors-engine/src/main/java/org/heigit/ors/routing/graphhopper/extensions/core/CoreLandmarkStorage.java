@@ -196,11 +196,16 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             logger.debug(configName() + "init landmarks for subnetworks with node count greater than " + minimumNodes + " with factor:" + factor + additionalInfo);
 
         int nodes = 0;
+        int skippedSubnetworks = 0;
+        int processedSubnetworks = 0;
         for (IntArrayList subnetworkIds : graphComponents) {
             nodes += subnetworkIds.size();
-            logger.info(String.format("[ORS-LM-DIAG] %s eval subnetwork size=%d minimumNodes=%d", configName(), subnetworkIds.size(), minimumNodes));
-            if (subnetworkIds.size() < minimumNodes)
+            if (subnetworkIds.size() < minimumNodes) {
+                skippedSubnetworks++;
                 continue;
+            }
+            processedSubnetworks++;
+            logger.debug(String.format("[ORS-LM-DIAG] %s processing subnetwork size=%d minimumNodes=%d", configName(), subnetworkIds.size(), minimumNodes));
             if (factor <= 0)
                 throw new IllegalStateException("factor wasn't initialized " + factor + ", subnetworks:"
                         + graphComponents.size() + ", minimumNodes:" + minimumNodes + ", current size:" + subnetworkIds.size());
@@ -222,6 +227,9 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             if (index < 0)
                 logger.warn("next start node not found in big enough network of size " + subnetworkIds.size() + ", first element is " + subnetworkIds.get(0) + ", " + createPoint(graph, subnetworkIds.get(0)));
         }
+
+        logger.info(String.format("[ORS-LM-DIAG] %s subnetwork summary: processed=%d skipped(size<minimumNodes=%d)=%d total=%d",
+                configName(), processedSubnetworks, minimumNodes, skippedSubnetworks, graphComponents.size()));
 
         int subnetworkCount = landmarkIDs.size();
         // store all landmark node IDs and one int for the factor itself.
