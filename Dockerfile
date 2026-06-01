@@ -88,11 +88,9 @@ COPY --chown=ors:ors --chmod=750 --from=build /tmp/ors/ors-api/target/ors.jar /o
 # Switch to non-root user
 USER ors
 
-# Run Java jar directly as PID 1
-# Configuration via environment variables:
-# - JDK_JAVA_OPTIONS: additional JVM options
-# - Server settings via Spring properties (e.g., server.port, server.servlet.context-path)
-# - Logging via Spring properties (logging.level.*, logging.pattern.*)
+# Override to set JVM flags. Example: -XX:+UseParallelGC -XX:InitialRAMPercentage=90.0 -XX:MaxRAMPercentage=90.0
+# Default is empty — G1GC and JVM ergonomics apply automatically on Java 21.
+ENV JDK_JAVA_OPTIONS=""
 ENTRYPOINT ["java", "-jar", "/ors.jar"]
 
 FROM base AS publish
