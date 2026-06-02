@@ -105,6 +105,7 @@ public class BuildProperties {
                 continue;
             }
             ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
+
             switch (extendedStorageName) {
                 case HEAVY_VEHICLE -> handleHeavyVehicle(storage);
                 case OSM_ID -> handleOsmId();
