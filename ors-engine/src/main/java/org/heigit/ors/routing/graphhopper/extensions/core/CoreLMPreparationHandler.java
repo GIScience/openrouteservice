@@ -19,10 +19,16 @@ import com.graphhopper.routing.lm.LandmarkSuggestion;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
+import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.util.StopWatch;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLandmark;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.graphhopper.util.Helper.getMemInfo;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +44,8 @@ import java.util.List;
  * @author Andrzej Oles
  */
 public class CoreLMPreparationHandler extends LMPreparationHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreLMPreparationHandler.class);
+
     private final CoreLMOptions coreLMOptions = new CoreLMOptions();
 
     public CoreLMPreparationHandler() {
@@ -107,6 +115,15 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
 
     public CoreLMOptions getCoreLMOptions() {
         return coreLMOptions;
+    }
+
+    @Override
+    public boolean loadOrDoWork(List<LMConfig> lmConfigs, GraphHopperStorage ghStorage, LocationIndex locationIndex, boolean closeEarly) {
+        LOGGER.info("[ORS-CORE-LM-STAGE] action=start lm_config_count={} {}", lmConfigs.size(), getMemInfo());
+        StopWatch sw = new StopWatch().start();
+        boolean result = super.loadOrDoWork(lmConfigs, ghStorage, locationIndex, closeEarly);
+        LOGGER.info("[ORS-CORE-LM-STAGE] action=end took={}s {}", sw.stop().getSeconds(), getMemInfo());
+        return result;
     }
 
 }

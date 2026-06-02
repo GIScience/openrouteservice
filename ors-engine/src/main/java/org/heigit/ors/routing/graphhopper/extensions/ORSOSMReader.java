@@ -442,7 +442,13 @@ public class ORSOSMReader extends OSMReader {
                 barrierNodesTotal.get(),
                 barrierNodesTotal.get() - barrierNodesSkipped.get(),
                 barrierNodesSkipped.get()));
+        int builderCount = procCntx.getStorageBuilders() != null ? procCntx.getStorageBuilders().size() : 0;
+        LOGGER.info(String.format("[ORS-READER-STAGE] profile=%s stage=storage_builder_finish action=start builder_count=%d",
+                ghStorage.getBaseGraph().toString(), builderCount));
+        long t0 = System.currentTimeMillis();
         procCntx.finish();
+        LOGGER.info(String.format("[ORS-READER-STAGE] profile=%s stage=storage_builder_finish action=end took=%ds",
+                ghStorage.getBaseGraph().toString(), (System.currentTimeMillis() - t0) / 1000));
     }
 
     @Override

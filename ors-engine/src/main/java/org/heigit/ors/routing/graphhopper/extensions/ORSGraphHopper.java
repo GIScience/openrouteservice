@@ -35,6 +35,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.PMap;
+import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import org.geotools.feature.SchemaException;
@@ -121,6 +122,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         // used to initialize tests more easily without the need to create GraphProcessContext etc. when they're anyway not used in the tested functions.
     }
 
+    private String getProfileName() {
+        return profileProperties != null ? profileProperties.getEncoderName().toString() : "unknown";
+    }
+
     @Override
     public GraphHopper init(GraphHopperConfig ghConfig) {
         GraphHopper ret = super.init(ghConfig);
@@ -169,6 +174,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         if (isFullyLoaded()) {
             throw new IllegalStateException("graph is already successfully loaded");
         }
+        LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=import_or_load action=start location={}", getProfileName(), getGraphHopperLocation());
+        StopWatch swBuild = new StopWatch().start();
 
         ORSGraphHopper gh = (ORSGraphHopper) super.importOrLoad();
         AppInfo.setGraphDate(gh.getGraphHopperStorage().getProperties().get("datareader.import.date"));
@@ -209,6 +216,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             }
         }
 
+        LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=import_or_load action=end took={}s nodes={} edges={}", getProfileName(), swBuild.stop().getSeconds(), gh.getGraphHopperStorage().getNodes(), gh.getGraphHopperStorage().getEdges());
         return gh;
     }
 
@@ -278,6 +286,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
      */
     @Override
     protected void postProcessing(boolean closeEarly) {
+        String profile = getProfileName();
+        LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=post_processing action=start", profile);
         super.postProcessing(closeEarly);
 
         //Create the core
@@ -285,10 +295,11 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         if (corePreparationHandler.isEnabled())
             corePreparationHandler.setProcessContext(processContext).createPreparations(gs);
         if (isCorePrepared()) {
+            LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=core_preparation action=skip reason=already_prepared", profile);
             // check loaded profiles
-            for (CHProfile profile : corePreparationHandler.getCHProfiles()) {
-                if (!getProfileVersion(profile.getProfile()).isEmpty() && !getProfileVersion(profile.getProfile()).equals("" + profilesByName.get(profile.getProfile()).getVersion()))
-                    throw new IllegalArgumentException("Core preparation of " + profile.getProfile() + " already exists in storage and doesn't match configuration");
+            for (CHProfile chProfile : corePreparationHandler.getCHProfiles()) {
+                if (!getProfileVersion(chProfile.getProfile()).isEmpty() && !getProfileVersion(chProfile.getProfile()).equals("" + profilesByName.get(chProfile.getProfile()).getVersion()))
+                    throw new IllegalArgumentException("Core preparation of " + chProfile.getProfile() + " already exists in storage and doesn't match configuration");
             }
         } else {
             prepareCore(closeEarly);
@@ -296,7 +307,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
         //Create the landmarks in the core
         if (coreLMPreparationHandler.isEnabled()) {
+            LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=core_lm_preparation action=start lm_config_count={}", profile, coreLMPreparationHandler.getLMProfiles().size());
+            StopWatch swCoreLM = new StopWatch().start();
             loadOrPrepareCoreLM();
+            LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=core_lm_preparation action=end took={}s", profile, swCoreLM.stop().getSeconds());
         }
 
         if (fastIsochroneFactory.isEnabled()) {
@@ -308,26 +322,38 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             }
             fastIsochroneFactory.createPreparation(gs, partitioningEdgeFilter);
 
-            if (!isPartitionPrepared())
+            if (!isPartitionPrepared()) {
+                LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=fast_isochrone_partition action=start", profile);
+                StopWatch swPartition = new StopWatch().start();
                 preparePartition();
-            else {
+                LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=fast_isochrone_partition action=end took={}s", profile, swPartition.stop().getSeconds());
+            } else {
+                LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=fast_isochrone_partition action=skip reason=already_prepared", profile);
                 fastIsochroneFactory.setExistingStorages();
                 fastIsochroneFactory.getCellStorage().loadExisting();
                 fastIsochroneFactory.getIsochroneNodeStorage().loadExisting();
             }
             //No fast isochrones without partition
             if (isPartitionPrepared()) {
-                // Initialize edge filter sequence for fast isochrones
+                LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=fast_isochrone_contours action=start", profile);
+                StopWatch swContours = new StopWatch().start();
                 calculateContours();
+                LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=fast_isochrone_contours action=end took={}s", profile, swContours.stop().getSeconds());
+
                 List<Profile> profiles = fastIsochroneFactory.getFastIsochroneProfiles();
-                for (Profile profile : profiles) {
-                    Weighting weighting = ((ORSWeightingFactory) createWeightingFactory()).createIsochroneWeighting(profile);
+                LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=fast_isochrone_eccentricity action=start isochrone_profile_count={}", profile, profiles.size());
+                StopWatch swEcc = new StopWatch().start();
+                for (Profile isoProfile : profiles) {
+                    Weighting weighting = ((ORSWeightingFactory) createWeightingFactory()).createIsochroneWeighting(isoProfile);
                     for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
                         calculateCellProperties(weighting, partitioningEdgeFilter, encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
                     }
                 }
+                LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=fast_isochrone_eccentricity action=end took={}s", profile, swEcc.stop().getSeconds());
             }
         }
+
+        LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=post_processing action=end nodes={} edges={}", profile, gs.getNodes(), gs.getEdges());
     }
 
     @Override
@@ -437,21 +463,24 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
 
     protected void prepareCore(boolean closeEarly) {
-        for (CHProfile profile : corePreparationHandler.getCHProfiles()) {
-            if (!getProfileVersion(profile.getProfile()).isEmpty()
-                    && !getProfileVersion(profile.getProfile()).equals("" + profilesByName.get(profile.getProfile()).getVersion()))
-                throw new IllegalArgumentException("Core preparation of " + profile.getProfile() + " already exists in storage and doesn't match configuration");
+        for (CHProfile chProfile : corePreparationHandler.getCHProfiles()) {
+            if (!getProfileVersion(chProfile.getProfile()).isEmpty()
+                    && !getProfileVersion(chProfile.getProfile()).equals("" + profilesByName.get(chProfile.getProfile()).getVersion()))
+                throw new IllegalArgumentException("Core preparation of " + chProfile.getProfile() + " already exists in storage and doesn't match configuration");
         }
         if (isCoreEnabled()) {
+            LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=core_preparation action=start core_profile_count={}", getProfileName(), corePreparationHandler.getCHProfiles().size());
+            StopWatch sw = new StopWatch().start();
             ensureWriteAccess();
             GraphHopperStorage ghStorage = getGraphHopperStorage();
             ghStorage.freeze();
             corePreparationHandler.prepare(ghStorage.getProperties(), closeEarly);
             ghStorage.getProperties().put(ORSParameters.Core.PREPARE + "done", true);
-            for (CHProfile profile : corePreparationHandler.getCHProfiles()) {
+            for (CHProfile chProfile : corePreparationHandler.getCHProfiles()) {
                 // potentially overwrite existing keys from CH/LM
-                setProfileVersion(profile.getProfile(), profilesByName.get(profile.getProfile()).getVersion());
+                setProfileVersion(chProfile.getProfile(), profilesByName.get(chProfile.getProfile()).getVersion());
             }
+            LOGGER.info("[ORS-BUILD-STAGE] profile={} stage=core_preparation action=end took={}s", getProfileName(), sw.stop().getSeconds());
         }
     }
 
