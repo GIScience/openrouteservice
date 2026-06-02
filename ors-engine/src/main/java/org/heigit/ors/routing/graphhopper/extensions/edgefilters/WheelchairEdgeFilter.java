@@ -13,17 +13,13 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.util.WheelchairAttributesEncodedValues;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
-
-import java.util.List;
 
 public class WheelchairEdgeFilter implements EdgeFilter {
     private static final Logger LOGGER = Logger.getLogger(WheelchairEdgeFilter.class.getName());
