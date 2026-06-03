@@ -17,6 +17,7 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.routing.OSMReaderConfig;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,9 +36,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Unit tests for {@link ORSOSMReader#isBarrierNode(ReaderNode)}.
  *
- * Verifies that the barrier-edge fix restores pre-GH-4.13 semantics:
- * a barrier edge is only created when ALL registered encoders block the node.
- * If ANY encoder can pass it, no artificial barrier edge is created.
+ * Verifies the barrier-edge split policy: a topology split (and thus a barrier edge) is created
+ * when ANY registered encoder is blocked by the node. The split is skipped only when EVERY encoder
+ * can pass — those would be zero-length no-op edges. The barrier edge itself carries per-encoder
+ * access via {@link EncodingManager#handleNodeTags}, so encoders that can pass simply traverse it.
+ *
+ * The single-encoder cases below exercise the common ORS model (one flag encoder per graph). The
+ * {@code multiEncoder_*} cases guard the multi-encoder branch: a selective barrier (blocks one
+ * profile, passes another) MUST still split, otherwise the blocked profile would leak through.
  */
 class ORSOSMReaderBarrierTest {
 
@@ -47,13 +53,18 @@ class ORSOSMReaderBarrierTest {
     void setUp() {
         CarFlagEncoder carEncoder = new CarFlagEncoder();
         EncodingManager encodingManager = new EncodingManager.Builder().add(carEncoder).build();
+        reader = newReader(encodingManager);
+    }
+
+    /** Builds an ORSOSMReader over a graph using the given encoding manager. */
+    private static ORSOSMReader newReader(EncodingManager encodingManager) {
         GraphHopperStorage storage = new GraphBuilder(encodingManager).create();
 
         GraphProcessContext mockCtx = Mockito.mock(GraphProcessContext.class);
         Mockito.when(mockCtx.getStorageBuilders()).thenReturn(Collections.emptyList());
         Mockito.when(mockCtx.isUseSidewalks()).thenReturn(false);
 
-        reader = new ORSOSMReader(storage, new OSMReaderConfig(), mockCtx);
+        return new ORSOSMReader(storage, new OSMReaderConfig(), mockCtx);
     }
 
     private static ReaderNode makeNode(long id, Map<String, Object> tags) {
@@ -153,5 +164,58 @@ class ORSOSMReaderBarrierTest {
         }
         assertEquals(expectedTotal,   reader.getBarrierNodesTotal(),   description + ": total mismatch");
         assertEquals(expectedSkipped, reader.getBarrierNodesSkipped(), description + ": skipped mismatch");
+    }
+
+    // ---------------------------------------------------------------------------
+    // Multi-encoder branch: a graph with both car and foot encoders.
+    //
+    // Car blocks bollard/fence/stile by default; foot passes a bollard but blocks a fence.
+    // A selective barrier (bollard) MUST still split because car is blocked — otherwise the car
+    // restriction would be silently dropped. The split is skipped only when BOTH encoders pass.
+    // ---------------------------------------------------------------------------
+
+    static Stream<Arguments> multiEncoderExpectations() {
+        return Stream.of(
+            // selective: car blocked, foot passes → must split (regression guard)
+            Arguments.of("bollard - car blocked, foot passes → split",   Map.of("barrier", "bollard"),               true),
+            // both blocked → split
+            Arguments.of("fence - both blocked → split",                 Map.of("barrier", "fence"),                 true),
+            // car blocked via access=no, foot blocked via access=no on a pass-by-default gate → split
+            Arguments.of("gate + access=no - both blocked → split",      Map.of("barrier", "gate", "access", "no"),  true),
+            // passable for both encoders → no split
+            Arguments.of("gate - both pass → no split",                  Map.of("barrier", "gate"),                  false),
+            Arguments.of("cattle_grid - both pass → no split",           Map.of("barrier", "cattle_grid"),           false),
+            // explicit access=yes lets both pass → no split
+            Arguments.of("bollard + access=yes - both pass → no split",  Map.of("barrier", "bollard", "access", "yes"), false)
+        );
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("multiEncoderExpectations")
+    void multiEncoder_selectiveBarrierStillSplits(String description, Map<String, Object> tags, boolean expected) {
+        EncodingManager carAndFoot = new EncodingManager.Builder()
+                .add(new CarFlagEncoder())
+                .add(new FootFlagEncoder())
+                .build();
+        ORSOSMReader multiReader = newReader(carAndFoot);
+
+        assertEquals(expected, multiReader.isBarrierNode(makeNode(1L, tags)),
+            "multi-encoder isBarrierNode mismatch for: " + description);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("multiEncoderExpectations")
+    void multiEncoder_skippedCountReflectsAllPass(String description, Map<String, Object> tags, boolean expected) {
+        EncodingManager carAndFoot = new EncodingManager.Builder()
+                .add(new CarFlagEncoder())
+                .add(new FootFlagEncoder())
+                .build();
+        ORSOSMReader multiReader = newReader(carAndFoot);
+
+        multiReader.isBarrierNode(makeNode(1L, tags));
+
+        // A node is "skipped" only when no encoder is blocked, i.e. when it does NOT split.
+        assertEquals(1, multiReader.getBarrierNodesTotal(), description + ": total mismatch");
+        assertEquals(expected ? 0 : 1, multiReader.getBarrierNodesSkipped(), description + ": skipped mismatch");
     }
 }

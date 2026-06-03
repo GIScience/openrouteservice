@@ -458,14 +458,21 @@ public class ORSOSMReader extends OSMReader {
 
         barrierNodesTotal.incrementAndGet();
 
+        // Split the topology if ANY encoder is blocked by this barrier. The barrier edge then
+        // carries per-encoder access (EncodingManager.handleNodeTags blocks only the encoders whose
+        // isBarrier() is true), so the encoders that can pass simply traverse a zero-length no-op
+        // edge. Skipping the split only when EVERY encoder can pass drops just the fully-passable
+        // no-op edges. The inverse ("skip if any can pass") would be a correctness bug on any
+        // multi-encoder graph — it would leak a blocked profile through. For ORS's single-encoder
+        // graphs the two are equivalent, but this formulation stays correct if that ever changes.
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
             if (encoder instanceof AbstractFlagEncoder abstractEncoder
-                    && !abstractEncoder.isBarrier(node)) {
-                barrierNodesSkipped.incrementAndGet();
-                return false; // at least one encoder can pass → no topology split
+                    && abstractEncoder.isBarrier(node)) {
+                return true; // at least one encoder is blocked → topology split is required
             }
         }
-        return true; // all encoders blocked → split is correct
+        barrierNodesSkipped.incrementAndGet();
+        return false; // passable for every encoder → no-op barrier edge, safe to skip
     }
 
     public int getBarrierNodesTotal() {
