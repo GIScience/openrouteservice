@@ -209,6 +209,17 @@ public class RoutingProfile {
                 LOGGER.error("No graph files found to archive at %s, though we found a graph_build_info file before.".formatted(graphFilesPath.toString()));
                 return false;
             }
+            long totalRawBytes = 0;
+            int fileCount = 0;
+            for (File f : graphFiles) {
+                if (!Files.isDirectory(f.toPath())) {
+                    totalRawBytes += f.length();
+                    fileCount++;
+                }
+            }
+            double totalRawMB = totalRawBytes / (1024.0 * 1024.0);
+            LOGGER.info("[ORS-PACKAGING-DIAG] Starting archive of %d files (%.1f MB raw) to %s".formatted(fileCount, totalRawMB, graphArchiveDst));
+            long packStart = System.currentTimeMillis();
             for (File file : graphFiles) {
                 if (!Files.isDirectory(file.toPath())) {
                     try (FileInputStream fis = new FileInputStream(file)) {
@@ -222,6 +233,12 @@ public class RoutingProfile {
                     }
                 }
             }
+            long packEnd = System.currentTimeMillis();
+            double packElapsedS = (packEnd - packStart) / 1000.0;
+            double archiveMB = graphArchiveDst.toFile().length() / (1024.0 * 1024.0);
+            double throughputMBs = packElapsedS > 0 ? totalRawMB / packElapsedS : 0;
+            LOGGER.info("[ORS-PACKAGING-DIAG] Compressed %d files (%.1f MB) into %.1f MB in %.1fs (%.1f MB/s) using sequential ZIP.".formatted(
+                    fileCount, totalRawMB, archiveMB, packElapsedS, throughputMBs));
             LOGGER.info("Created archive %s".formatted(graphArchiveDst.toString()));
         } catch (IOException e) {
             LOGGER.error("Failed to create archive: %s".formatted(e.toString()));

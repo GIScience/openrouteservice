@@ -335,8 +335,13 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         try {
             LOGGER.info("[%s] Extracting downloaded graph file to %s".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
             long start = System.currentTimeMillis();
+            double compressedMB = graphDownloadFile.length() / (1024.0 * 1024.0);
             (new Unzipper()).unzip(graphDownloadFileAbsPath, extractionDirectoryAbsPath, true);
             long end = System.currentTimeMillis();
+            double elapsedS = (end - start) / 1000.0;
+            double throughputMBs = elapsedS > 0 ? compressedMB / elapsedS : 0;
+            LOGGER.info("[ORS-UNPACKING-DIAG] Extracted %s (%.1f MB) in %.1fs (%.1f MB/s) using sequential Unzipper.".formatted(
+                    graphDownloadFile.getName(), compressedMB, elapsedS, throughputMBs));
 
             LOGGER.debug("[%s] Extraction of downloaded graph file finished after %d ms, deleting downloaded graph file %s".formatted(
                     getProfileDescriptiveName(),
