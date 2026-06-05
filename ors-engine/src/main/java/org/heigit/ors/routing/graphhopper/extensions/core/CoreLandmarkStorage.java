@@ -122,6 +122,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         boolean logDetails = LOGGER.isDebugEnabled();
         SubnetworkStorage subnetworkStorage = getSubnetworkStorage();
         int coreNodes = getBaseNodes();
+        logger.info(String.format("[ORS-LM-DIAG] %s action=start coreNodes=%d", configName(), coreNodes));
 
         // fill 'from' and 'to' weights with maximum value
         long maxBytes = (long) coreNodes * LM_ROW_LENGTH;
@@ -167,8 +168,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         StopWatch sw = new StopWatch().start();
         TarjansCoreSCCAlgorithm tarjanAlgo = new TarjansCoreSCCAlgorithm(graph, core, accessFilter, false);
         List<IntArrayList> graphComponents = tarjanAlgo.findComponents();
-        if (logDetails)
-            logger.debug(configName() + "Calculated " + graphComponents.size() + " subnetworks via tarjan in " + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
+        logger.info(String.format("[ORS-LM-DIAG] %s tarjan_scc took=%ss subnetworks=%d %s", configName(), sw.stop().getSeconds(), graphComponents.size(), Helper.getMemInfo()));
 
         createCoreNodeIdDA();
         String additionalInfo = "";
@@ -179,8 +179,10 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             // see estimateMaxWeight. If we pick the distance too big for small areas this could lead to (slightly)
             // suboptimal routes as there will be too big rounding errors. But picking it too small is bad for performance
             // e.g. for Germany at least 1500km is very important otherwise speed is at least twice as slow e.g. for 1000km
+            StopWatch swEst = new StopWatch().start();
             double maxWeight = estimateMaxWeight(graphComponents, accessFilter);
             setMaximumWeight(maxWeight);
+            logger.info(String.format("[ORS-LM-DIAG] %s factor_estimation took=%ss maxWeight=%.1f", configName(), swEst.stop().getSeconds(), maxWeight));
             additionalInfo = ", maxWeight:" + maxWeight + " from quick estimation";
         }
 
@@ -198,6 +200,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         int nodes = 0;
         int skippedSubnetworks = 0;
         int processedSubnetworks = 0;
+        StopWatch swLoop = new StopWatch().start();
         for (IntArrayList subnetworkIds : graphComponents) {
             nodes += subnetworkIds.size();
             if (subnetworkIds.size() < minimumNodes) {
@@ -205,6 +208,10 @@ public class CoreLandmarkStorage extends LandmarkStorage {
                 continue;
             }
             processedSubnetworks++;
+            if (processedSubnetworks == 1) {
+                logger.info(String.format("[ORS-LM-DIAG] %s skip_loop took=%ss skipped=%d main_subnetwork_size=%d",
+                        configName(), swLoop.stop().getSeconds(), skippedSubnetworks, subnetworkIds.size()));
+            }
             logger.debug(String.format("[ORS-LM-DIAG] %s processing subnetwork size=%d minimumNodes=%d", configName(), subnetworkIds.size(), minimumNodes));
             if (factor <= 0)
                 throw new IllegalStateException("factor wasn't initialized " + factor + ", subnetworks:"
@@ -212,6 +219,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
             subnetworkNodes = new IntHashSet(subnetworkIds);
             int index = subnetworkIds.size() - 1;
+            StopWatch swFindLm = new StopWatch().start();
             for (; index >= 0; index--) {
                 int nextStartNode = subnetworkIds.get(index);
                 if (subnetworks[getIndex(nextStartNode)] == UNSET_SUBNETWORK) {
@@ -224,6 +232,8 @@ public class CoreLandmarkStorage extends LandmarkStorage {
                         break;
                 }
             }
+            logger.info(String.format("[ORS-LM-DIAG] %s find_landmarks took=%ss subnetwork_size=%d",
+                    configName(), swFindLm.stop().getSeconds(), subnetworkIds.size()));
             if (index < 0)
                 logger.warn("next start node not found in big enough network of size " + subnetworkIds.size() + ", first element is " + subnetworkIds.get(0) + ", " + createPoint(graph, subnetworkIds.get(0)));
         }
