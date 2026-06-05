@@ -108,16 +108,18 @@ public class PreparationProperties {
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties extends LMProperties {
             private String lmsets;
+            private Double maximumLmWeight;
 
             @JsonIgnore
             @Override
             public boolean isEmpty() {
-                return super.isEmpty() && lmsets == null;
+                return super.isEmpty() && lmsets == null && maximumLmWeight == null;
             }
 
             public void merge(CoreProperties other) {
                 super.merge(other);
                 lmsets = ofNullable(this.lmsets).orElse(other.lmsets);
+                maximumLmWeight = ofNullable(this.maximumLmWeight).orElse(other.maximumLmWeight);
             }
         }
 
