@@ -151,7 +151,10 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
                                 String profileName = ProfileTools.makeProfileName(vehicle, weighting, considerTurnRestrictions);
                                 profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(considerTurnRestrictions));
                                 coreProfiles.add(new CHProfile(profileName));
-                                coreLMProfiles.add(new LMProfile(profileName));
+                                LMProfile lmProfile = new LMProfile(profileName);
+                                if (coreOpts.getMaximumLmWeight() != null)
+                                    lmProfile.setMaximumLMWeight(coreOpts.getMaximumLmWeight());
+                                coreLMProfiles.add(lmProfile);
                             }
                             ghConfig.setCoreProfiles(coreProfiles);
                             ghConfig.setCoreLMProfiles(coreLMProfiles);
