@@ -175,9 +175,11 @@ public class PrepareCore extends PrepareContractionHierarchies {
 
     @Override
     public void finishContractionHook() {
-        int coreNodes = sortedNodes.size() + restrictedNodesCount;
+        int remaining = sortedNodes.size();
+        int coreNodes = remaining + restrictedNodesCount;
         chStore.setCoreNodes(coreNodes);
-        logger.info("[ORS-CORE-DIAG] Core contraction finished. core_node_count={}", coreNodes);
+        logger.info("[ORS-CORE-DIAG] Core contraction finished. core_node_count={} restricted_nodes={} remaining_contractable={}",
+                coreNodes, restrictedNodesCount, remaining);
 
         // insert shortcuts connected to core nodes
         CoreNodeContractor coreNodeContractor = (CoreNodeContractor) nodeContractor;
