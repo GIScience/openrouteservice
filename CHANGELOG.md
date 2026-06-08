@@ -41,7 +41,8 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
-- fix: check whether `mtb_scale` values are within the valid range before attempting to store them ([#2280](https://github.com/GIScience/openrouteservice/pull/2280))
+- check whether `mtb_scale` values are within the valid range before attempting to store them ([#2280](https://github.com/GIScience/openrouteservice/pull/2280))
+- update springdoc-openapi and swagger dependencies to address test suite errors ([#2290](https://github.com/GIScience/openrouteservice/pull/2290))
 
 ### Security
 - update postcss to 8.5.12
