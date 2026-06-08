@@ -200,6 +200,7 @@ ors:
 #                weightings: fastest,shortest
 #                landmarks: 64
 #                lmsets: highways;allow_all
+#                maximum_lm_weight: 100000
 #          ext_storages:
 #            WayCategory:
 #            HeavyVehicle:
@@ -239,6 +240,7 @@ ors:
 #                weightings: recommended,shortest
 #                landmarks: 64
 #                lmsets: highways;allow_all
+#                maximum_lm_weight: 100000
 #          ext_storages:
 #            WayCategory:
 #            HeavyVehicle:

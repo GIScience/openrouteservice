@@ -78,13 +78,14 @@ Settings for preprocessing core routing with landmarks
 
 Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.preparation.methods.core`:
 
-| key        | type    | description                                                                                                                 | example value                                               |
-|------------|---------|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
-| enabled    | boolean | Enables or disables the routing algorithm                                                                                   | `true`                                                      |
-| threads    | number  | Number of parallel threads for computing the preparation                                                                    | `1`                                                         |
-| weightings | string  | Comma-separated list of weightings                                                                                          | `recommended,shortest`                                      |
-| landmarks  | number  | Total number of precomputed landmarks, the subset used during the query is set in `execution.methods.core.active_landmarks` | `32`                                                        |
-| lmsets     | string  | Landmark sets tailored for specific avoid-filters enabled                                                                   | `highways,tollways;highways;tollways;country_193;allow_all` |
+| key               | type    | description                                                                                                                                                                                                             | example value                                               |
+|-------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| enabled           | boolean | Enables or disables the routing algorithm                                                                                                                                                                               | `true`                                                      |
+| threads           | number  | Number of parallel threads for computing the preparation                                                                                                                                                                | `1`                                                         |
+| weightings        | string  | Comma-separated list of weightings                                                                                                                                                                                      | `recommended,shortest`                                      |
+| landmarks         | number  | Total number of precomputed landmarks, the subset used during the query is set in `execution.methods.core.active_landmarks`                                                                                             | `32`                                                        |
+| lmsets            | string  | Landmark sets tailored for specific avoid-filters enabled                                                                                                                                                               | `highways,tollways;highways;tollways;country_193;allow_all` |
+| maximum_lm_weight | number  | Maximum edge weight used as the LM heuristic bound. Leave unset for auto-estimate (correct for regional graphs). Set to `30000000` for continent/planet-scale builds to fix `too many weights were maxed out` warnings. | `30000000`                                                  |
 
 ## `ext_storages`
 

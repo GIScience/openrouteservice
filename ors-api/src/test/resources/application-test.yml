@@ -78,6 +78,7 @@ ors:
                 threads: 1
                 weightings: fastest,shortest
                 landmarks: 64
+                maximum_lm_weight: 1000000
           ext_storages:
             WayCategory:
             HeavyVehicle:
