@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.util.Helper;
-import com.graphhopper.util.Unzipper;
 import lombok.NoArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
@@ -23,9 +22,14 @@ import org.heigit.ors.util.AppInfo;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -35,6 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
 import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @NoArgsConstructor
 public class ORSGraphFileManager implements ORSGraphFolderStrategy {
@@ -335,13 +340,35 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         try {
             LOGGER.info("[%s] Extracting downloaded graph file to %s".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
             long start = System.currentTimeMillis();
-            (new Unzipper()).unzip(graphDownloadFileAbsPath, extractionDirectoryAbsPath, true);
+            double compressedMB = graphDownloadFile.length() / (1024.0 * 1024.0);
+            // "jar:" scheme is required. FileSystems.newFileSystem dispatches by URI scheme.
+            // Using "file:" would route to the local filesystem provider instead of the built-in ZIP provider and throw FileSystemNotFoundException.
+            URI zipUri = URI.create("jar:" + graphDownloadFile.toURI());
+            try (FileSystem zipFs = FileSystems.newFileSystem(zipUri, Map.of())) {
+                Path zipRoot = zipFs.getPath("/");
+                List<Path> entries;
+                try (Stream<Path> walk = Files.walk(zipRoot)) {
+                    entries = walk.filter(p -> !Files.isDirectory(p)).toList();
+                }
+                List<IOException> extractErrors = Collections.synchronizedList(new ArrayList<>());
+                entries.parallelStream().forEach(zipPath -> {
+                    try {
+                        Path targetPath = extractionDirectory.toPath().resolve(zipRoot.relativize(zipPath).toString());
+                        Files.createDirectories(targetPath.getParent());
+                        Files.copy(zipPath, targetPath, REPLACE_EXISTING);
+                    } catch (IOException e) {
+                        extractErrors.add(e);
+                    }
+                });
+                if (!extractErrors.isEmpty()) {
+                    throw extractErrors.get(0);
+                }
+            }
             long end = System.currentTimeMillis();
-
-            LOGGER.debug("[%s] Extraction of downloaded graph file finished after %d ms, deleting downloaded graph file %s".formatted(
-                    getProfileDescriptiveName(),
-                    end - start,
-                    graphDownloadFileAbsPath));
+            double elapsedS = (end - start) / 1000.0;
+            double throughputMBs = elapsedS > 0 ? compressedMB / elapsedS : 0;
+            LOGGER.info("Extracted %s (%.1f MB) in %.1fs (%.1f MB/s) using parallel NIO ZipFileSystem.".formatted(
+                    graphDownloadFile.getName(), compressedMB, elapsedS, throughputMBs));
             deleteFileWithLogging(graphDownloadFile,
                     "[%s] Deleted downloaded graph file %s".formatted(getProfileDescriptiveName(), graphDownloadFileAbsPath),
                     "Error deleting downloaded graph file: %s");
