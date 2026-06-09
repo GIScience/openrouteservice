@@ -42,6 +42,7 @@ import org.locationtech.jts.geom.Coordinate;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.graphhopper.reader.osm.OSMNodeData.isPillarNode;
 import static com.graphhopper.reader.osm.OSMNodeData.isTowerNode;
@@ -66,6 +67,11 @@ public class ORSOSMReader extends OSMReader {
     private final HashSet<String> extraTagKeys;
     private final Set<String> nodeTagsToStore;
     private final GHLongObjectHashMap<Map<String, Object>> osmNodeTagValues;
+
+    private final AtomicInteger barrierNodesTotal = new AtomicInteger(
+            0);
+    private final AtomicInteger barrierNodesSkipped = new AtomicInteger(
+            0);
 
     public ORSOSMReader(GraphHopperStorage storage, OSMReaderConfig osmReaderConfig, GraphProcessContext procCntx) {
         super(storage, osmReaderConfig);
@@ -431,6 +437,45 @@ public class ORSOSMReader extends OSMReader {
     public void readGraph() throws IOException {
         super.readGraph();
         procCntx.finish();
+    }
+
+    /**
+     * We need to overwrite the basic barrier selection.
+     * <p>
+     * Split the topology if ANY encoder is blocked by this barrier. The barrier edge then
+     * carries per-encoder access (EncodingManager.handleNodeTags blocks only the encoders whose
+     * isBarrier() is true), so the encoders that can pass simply traverse a zero-length no-op
+     * edge. Skipping the split only when EVERY encoder can pass drops just the fully-passable
+     * no-op edges. The inverse ("skip if any can pass") would be a correctness bug on any
+     * multi-encoder graph. It would leak a blocked profile through. For ORS's single-encoder
+     * graphs the two are equivalent, but this formulation stays correct if that ever changes.
+     *
+     * @param node A ReaderNode that is validated against the FlagEncoder isBarrier function.
+     * @return Returns a boolean based on the isBarrierNode decision.
+     */
+    @Override
+    protected boolean isBarrierNode(ReaderNode node) {
+        if (!super.isBarrierNode(node))
+            return false;
+
+        barrierNodesTotal.incrementAndGet();
+
+        for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
+            if (encoder instanceof AbstractFlagEncoder abstractEncoder
+                    && abstractEncoder.isBarrier(node)) {
+                return true; // at least one encoder is blocked → topology split is required
+            }
+        }
+        barrierNodesSkipped.incrementAndGet();
+        return false; // passable for every encoder → no-op barrier edge, safe to skip
+    }
+
+    int getBarrierNodesTotal() {
+        return barrierNodesTotal.get();
+    }
+
+    int getBarrierNodesSkipped() {
+        return barrierNodesSkipped.get();
     }
 
 }
