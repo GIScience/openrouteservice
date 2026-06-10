@@ -43,6 +43,7 @@ Releasing is documented in RELEASE.md
 ### Fixed
 - check whether `mtb_scale` values are within the valid range before attempting to store them ([#2280](https://github.com/GIScience/openrouteservice/pull/2280))
 - update springdoc-openapi and swagger dependencies to address test suite errors ([#2290](https://github.com/GIScience/openrouteservice/pull/2290))
+- return status code 200, and issue a warning if extra info surface or waytype is requested but not available for the given profile ([#2296](https://github.com/GIScience/openrouteservice/pull/2296))
 
 ### Security
 - update postcss to 8.5.12
