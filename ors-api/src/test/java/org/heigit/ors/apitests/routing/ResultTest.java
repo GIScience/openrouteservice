@@ -1430,7 +1430,7 @@ class ResultTest extends ServiceTest {
                 .headers(CommonHeaders.jsonContent)
                 .body(body.toString())
                 .when()
-//                profile 'driving-car-no-preparations' has no 'ext_storage's
+                // Profile 'driving-car-no-preparations' has no 'ext_storage's
                 .post(getEndPointPath() + "/driving-car-no-preparations/json")
                 .then()
                 .assertThat()
@@ -1439,7 +1439,7 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].containsKey('extras')", is(false))
                 .body("routes[0].warnings.size()", is(1))
                 .body("routes[0].warnings[0].code", is(4))
-                .body("routes[0].warnings[0].message", is("Extra info requested but not available: surface, waytype"))
+                .body("routes[0].warnings[0].message", is("Extra info requested but not available: surface, waytype, roadaccessrestrictions"))
         ;
     }
 
