@@ -1420,6 +1420,30 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testMissingSurfaceWayTypeYieldsWarning() {
+        JSONObject body = new JSONObject();
+        body.put("preference", "recommended");
+        body.put("coordinates", new JSONArray("[[8.682386, 49.417412],[8.690583, 49.413347]]"));
+        body.put("extra_info", new JSONArray("[\"surface\",\"waytype\"]"));
+
+        given()
+                .headers(CommonHeaders.jsonContent)
+                .body(body.toString())
+                .when()
+                // Profile 'driving-car-no-preparations' has no 'ext_storage's
+                .post(getEndPointPath() + "/driving-car-no-preparations/json")
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(false))
+                .body("routes[0].warnings.size()", is(1))
+                .body("routes[0].warnings[0].code", is(4))
+                .body("routes[0].warnings[0].message", is("Extra info requested but not available: surface, waytype, roadaccessrestrictions"))
+        ;
+    }
+
+    @Test
     void testOptimizedAndTurnRestrictions() {
         JSONObject body = new JSONObject();
         body.put("coordinates", HelperFunctions.constructCoords("8.684081,49.398155|8.684703,49.397359"));

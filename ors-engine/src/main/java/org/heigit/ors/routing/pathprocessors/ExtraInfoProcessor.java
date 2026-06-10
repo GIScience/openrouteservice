@@ -143,13 +143,21 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE)) {
-                surfaceInfo = new RouteExtraInfo("surface");
-                surfaceInfoBuilder = new AppendableRouteExtraInfoBuilder(surfaceInfo);
+                if (encoder.hasEncodedValue(WaySurface.KEY)) {
+                    surfaceInfo = new RouteExtraInfo("surface");
+                    surfaceInfoBuilder = new AppendableRouteExtraInfoBuilder(surfaceInfo);
+                } else {
+                    skippedExtras.add("surface");
+                }
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_TYPE)) {
-                wayTypeInfo = new RouteExtraInfo("waytype");
-                wayTypeInfoBuilder = new AppendableRouteExtraInfoBuilder(wayTypeInfo);
+                if (encoder.hasEncodedValue(WayType.KEY)) {
+                    wayTypeInfo = new RouteExtraInfo("waytype");
+                    wayTypeInfoBuilder = new AppendableRouteExtraInfoBuilder(wayTypeInfo);
+                } else {
+                    skippedExtras.add("waytype");
+                }
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.STEEPNESS)) {
