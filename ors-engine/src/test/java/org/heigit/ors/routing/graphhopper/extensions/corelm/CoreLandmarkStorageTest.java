@@ -13,37 +13,44 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.corelm;
 
-import com.graphhopper.routing.ch.NodeOrderingProvider;
-import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.ev.Subnetwork;
-import com.graphhopper.routing.util.CarFlagEncoder;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.ShortestWeighting;
-import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
-import com.graphhopper.util.GHUtility;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Arrays;
+
+import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLMConfig;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreTestEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCore;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.VehicleFlagEncoder;
 import org.heigit.ors.util.DebugUtility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.graphhopper.routing.ch.NodeOrderingProvider;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.Subnetwork;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.weighting.ShortestWeighting;
+import com.graphhopper.routing.weighting.Weighting;
+import com.graphhopper.storage.*;
+import com.graphhopper.util.GHUtility;
+import com.graphhopper.util.PMap;
 
 /**
- * @author Andrzej Oles, Hendrik Leuschner
+ * @author Andrzej Oles, Hendrik Leuschner, Julian Psotta
  */
 class CoreLandmarkStorageTest {
     private ORSGraphHopperStorage graph;
-    private FlagEncoder encoder;
+    private VehicleFlagEncoder encoder;
+    private final PMap properties = new PMap();
     private EncodingManager encodingManager;
     private BooleanEncodedValue subnetworkEnc;
 
@@ -54,8 +61,9 @@ class CoreLandmarkStorageTest {
 
     @BeforeEach
     void setUp() {
-        encoder = new CarFlagEncoder();
-        subnetworkEnc = Subnetwork.create(encoder.toString());
+        encoder = (CarFlagEncoder) new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.CAR_ORS,
+                properties);
+        subnetworkEnc = Subnetwork.create(FlagEncoderNames.CAR_ORS);
         encodingManager = new EncodingManager.Builder().add(encoder).add(subnetworkEnc).build();
 
         weighting = new ShortestWeighting(encoder);
@@ -164,6 +172,34 @@ class CoreLandmarkStorageTest {
 
         assertEquals(2, storage.getSubnetworksWithLandmarks());
         assertEquals("[6, 2]", Arrays.toString(storage.getLandmarks(1)));
+    }
+
+    /**
+     * If all core graph components fall below minimumNodes
+     * (e.g. island partitions after aggressive Core contraction, or barrier micro-subgraphs), createLandmarks()
+     * must complete with a warning rather than throwing IllegalStateException.
+     * <p>
+     * Setting minimumNodes much higher than the core graph node count simulates an island
+     * partition scenario where no component qualifies.
+     */
+    @Test
+    @DisplayName("Given all core components below minimumNodes, when createLandmarks is called, then no exception is thrown")
+    void testAllComponentsBelowMinimumNodesNoExceptionThrown() {
+        CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
+        for (int i = 0; i <= 12; i++)
+            restrictedEdges.add(i);
+
+        createMediumGraph();
+        contractGraph(restrictedEdges);
+
+        CoreLMConfig coreLMConfig = new CoreLMConfig(encoder.toString(), weighting)
+                .setEdgeFilter(new LMEdgeFilterSequence());
+        CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, graph, routingCHGraph, coreLMConfig, 2);
+
+        storage.setMinimumNodes(1000000);
+
+        assertDoesNotThrow(storage::createLandmarks,
+                "createLandmarks() must not throw when all components are below minimumNodes");
     }
 
     @Test

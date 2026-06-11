@@ -1026,7 +1026,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].way_points", hasItems(0, 237, 436))
+                .body("routes[0].way_points", hasItems(0, 229, 426))
                 .statusCode(200);
     }
 
@@ -1126,8 +1126,8 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.surface.values.size()", is(32))
-                .body("routes[0].extras.surface.values[18][1]", is(245))
-                .body("routes[0].extras.suitability.values[18][0]", is(367))
+                .body("routes[0].extras.surface.values[18][1]", is(237))
+                .body("routes[0].extras.suitability.values[18][0]", is(359))
                 .body("routes[0].extras.containsKey('steepness')", is(true))
                 .statusCode(200);
 
