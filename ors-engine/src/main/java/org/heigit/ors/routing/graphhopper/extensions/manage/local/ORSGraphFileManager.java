@@ -352,8 +352,15 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                 List<IOException> extractErrors = Collections.synchronizedList(new ArrayList<>());
                 entries.parallelStream().forEach(zipPath -> {
                     try {
-                        Path targetPath = extractionDirectory.toPath().resolve(zipRoot.relativize(zipPath).toString());
-                        Files.createDirectories(targetPath.getParent());
+                        Path relative = zipRoot.relativize(zipPath).normalize();
+                        Path targetPath = extractionDirectory.toPath().resolve(relative.toString()).normalize();
+                        if (!targetPath.startsWith(extractionDirectory.toPath())) {
+                            throw new IOException("Refusing to write zip entry outside target dir: " + relative);
+                        }
+                        Path parent = targetPath.getParent();
+                        if (parent != null) {
+                            Files.createDirectories(parent);
+                        }
                         Files.copy(zipPath, targetPath, REPLACE_EXISTING);
                     } catch (IOException e) {
                         extractErrors.add(e);

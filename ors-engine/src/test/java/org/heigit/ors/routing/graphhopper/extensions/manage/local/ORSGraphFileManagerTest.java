@@ -235,6 +235,22 @@ class ORSGraphFileManagerTest {
     }
 
     @Test
+    @DisplayName("Given a .ghz archive containing a path-traversal entry, when extractDownloadedGraph is called, then an exception is thrown and no file is written outside the extraction directory")
+    void extractDownloadedGraph_zipSlipEntry_throwsException() throws IOException {
+        setupORSGraphManager(managementPropsBuilder().build());
+        File ghzFile = new File(orsGraphFileManager.getDownloadedCompressedGraphFileAbsPath());
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(ghzFile))) {
+            zos.putNextEntry(new ZipEntry("../../traversal.txt"));
+            zos.write("evil".getBytes(StandardCharsets.UTF_8));
+            zos.closeEntry();
+        }
+
+        assertThrows(Exception.class, () -> orsGraphFileManager.extractDownloadedGraph());
+
+        assertFalse(tempDir.getParent().resolve("traversal.txt").toFile().exists());
+    }
+
+    @Test
     @DisplayName("Given no .ghz archive exists, when extractDownloadedGraph is called, then nothing happens and no directory is created")
     void extractDownloadedGraph_noGhzFile_doesNothing() throws IOException {
         setupORSGraphManager(managementPropsBuilder().build());
