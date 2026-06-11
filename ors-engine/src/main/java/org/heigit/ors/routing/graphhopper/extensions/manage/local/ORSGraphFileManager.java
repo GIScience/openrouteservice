@@ -369,8 +369,8 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             long end = System.currentTimeMillis();
             double elapsedS = (end - start) / 1000.0;
             double throughputMBs = elapsedS > 0 ? compressedMB / elapsedS : 0;
-            LOGGER.info("Extracted %s (%.1f MB) in %.1fs (%.1f MB/s) using parallel ZipFile (commons-compress).".formatted(
-                    graphDownloadFile.getName(), compressedMB, elapsedS, throughputMBs));
+            LOGGER.info("[%s] Extracted %s (%.1f MB) in %.1fs (%.1f MB/s) using parallel ZipFile (commons-compress).".formatted(
+                    getProfileDescriptiveName(), graphDownloadFile.getName(), compressedMB, elapsedS, throughputMBs));
             deleteFileWithLogging(graphDownloadFile,
                     "[%s] Deleted downloaded graph file %s".formatted(getProfileDescriptiveName(), graphDownloadFileAbsPath),
                     "Error deleting downloaded graph file: %s");
