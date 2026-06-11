@@ -233,21 +233,25 @@ public class RoutingProfile {
             LOGGER.info("Starting archive of %d files (%.1f MB raw) to %s".formatted(fileCount, totalRawMB, graphArchiveDst));
             packStart = System.currentTimeMillis();
             ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-            ParallelScatterZipCreator creator = new ParallelScatterZipCreator(pool);
-            for (Path file : graphFiles) {
-                ZipArchiveEntry entry = new ZipArchiveEntry(graphFilesPath.relativize(file).toString());
-                entry.setMethod(ZipArchiveEntry.DEFLATED);
-                creator.addArchiveEntry(entry, () -> {
-                    try {
-                        return Files.newInputStream(file);
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                });
-            }
-            try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(graphArchiveDst.toFile())) {
-                zos.setUseZip64(Zip64Mode.AlwaysWithCompatibility);
-                creator.writeTo(zos);
+            try {
+                ParallelScatterZipCreator creator = new ParallelScatterZipCreator(pool);
+                for (Path file : graphFiles) {
+                    ZipArchiveEntry entry = new ZipArchiveEntry(graphFilesPath.relativize(file).toString());
+                    entry.setMethod(ZipArchiveEntry.DEFLATED);
+                    creator.addArchiveEntry(entry, () -> {
+                        try {
+                            return Files.newInputStream(file);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
+                }
+                try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(graphArchiveDst.toFile())) {
+                    zos.setUseZip64(Zip64Mode.AlwaysWithCompatibility);
+                    creator.writeTo(zos);
+                }
+            } finally {
+                pool.shutdown();
             }
             packEnd = System.currentTimeMillis();
         } catch (IOException | ExecutionException e) {
