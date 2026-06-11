@@ -53,6 +53,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -237,7 +238,7 @@ public class RoutingProfile {
                 ParallelScatterZipCreator creator = new ParallelScatterZipCreator(pool);
                 for (Path file : graphFiles) {
                     ZipArchiveEntry entry = new ZipArchiveEntry(graphFilesPath.relativize(file).toString().replace('\\', '/'));
-                    entry.setMethod(ZipArchiveEntry.DEFLATED);
+                    entry.setMethod(ZipEntry.DEFLATED);
                     creator.addArchiveEntry(entry, () -> {
                         try {
                             return Files.newInputStream(file);
