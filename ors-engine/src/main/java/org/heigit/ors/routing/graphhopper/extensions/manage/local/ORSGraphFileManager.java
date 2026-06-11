@@ -363,6 +363,8 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                     }
                 });
                 if (!extractErrors.isEmpty()) {
+                    extractErrors.stream().skip(1).forEach(e ->
+                            LOGGER.error("[%s] Additional extraction error: %s".formatted(getProfileDescriptiveName(), e.getMessage())));
                     throw extractErrors.get(0);
                 }
             }
