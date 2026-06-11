@@ -33,10 +33,14 @@ import org.heigit.ors.util.TimeUtility;
 import org.json.simple.JSONObject;
 import org.springframework.util.FileSystemUtils;
 
+import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.Zip64Mode;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,9 +48,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -201,32 +208,68 @@ public class RoutingProfile {
             return false;
         }
 
-        // create a zip archive of all files in graphFilesPath with .ghz extension
+        // create a zip archive (DEFLATED, parallel scatter-gather) of all files in
+        // graphFilesPath with .ghz extension
         Path graphArchiveDst = profileProperties.getGraphPath().resolve(graphBaseFilename + ".ghz");
-        try (FileOutputStream fos = new FileOutputStream(graphArchiveDst.toFile()); ZipOutputStream zos = new ZipOutputStream(fos)) {
-            File[] graphFiles = graphFilesPath.toFile().listFiles();
-            if (graphFiles == null) {
+        if (Files.isDirectory(graphArchiveDst)) {
+            LOGGER.error("Failed to create archive: destination path is a directory: %s".formatted(graphArchiveDst));
+            return false;
+        }
+        double totalRawMB;
+        int fileCount;
+        long packStart;
+        long packEnd;
+        try {
+            List<Path> graphFiles;
+            try (Stream<Path> walk = Files.walk(graphFilesPath)) {
+                graphFiles = walk.filter(p -> !Files.isDirectory(p)).toList();
+            }
+            if (graphFiles.isEmpty()) {
                 LOGGER.error("No graph files found to archive at %s, though we found a graph_build_info file before.".formatted(graphFilesPath.toString()));
                 return false;
             }
-            for (File file : graphFiles) {
-                if (!Files.isDirectory(file.toPath())) {
-                    try (FileInputStream fis = new FileInputStream(file)) {
-                        ZipEntry zipEntry = new ZipEntry(graphFilesPath.relativize(file.toPath()).toString());
-                        zos.putNextEntry(zipEntry);
-                        byte[] buffer = new byte[1024];
-                        int len;
-                        while ((len = fis.read(buffer)) > 0) {
-                            zos.write(buffer, 0, len);
+            long totalRawBytes = graphFiles.stream().mapToLong(p -> p.toFile().length()).sum();
+            totalRawMB = totalRawBytes / (1024.0 * 1024.0);
+            fileCount = graphFiles.size();
+            LOGGER.info("Starting archive of %d files (%.1f MB raw) to %s".formatted(fileCount, totalRawMB, graphArchiveDst));
+            packStart = System.currentTimeMillis();
+            ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            try {
+                ParallelScatterZipCreator creator = new ParallelScatterZipCreator(pool);
+                for (Path file : graphFiles) {
+                    ZipArchiveEntry entry = new ZipArchiveEntry(graphFilesPath.relativize(file).toString().replace('\\', '/'));
+                    entry.setMethod(ZipEntry.DEFLATED);
+                    creator.addArchiveEntry(entry, () -> {
+                        try {
+                            return Files.newInputStream(file);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
                         }
-                    }
+                    });
                 }
+                try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(graphArchiveDst.toFile())) {
+                    zos.setUseZip64(Zip64Mode.AlwaysWithCompatibility);
+                    creator.writeTo(zos);
+                }
+            } finally {
+                pool.shutdown();
             }
-            LOGGER.info("Created archive %s".formatted(graphArchiveDst.toString()));
-        } catch (IOException e) {
-            LOGGER.error("Failed to create archive: %s".formatted(e.toString()));
+            packEnd = System.currentTimeMillis();
+        } catch (IOException | ExecutionException e) {
+            LOGGER.error("Failed to create archive: %s".formatted(e.getMessage()), e);
+            return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.error("Failed to create archive (interrupted): %s".formatted(e.getMessage()), e);
             return false;
         }
+        double packElapsedS = (packEnd - packStart) / 1000.0;
+        double archiveMB = graphArchiveDst.toFile().length() / (1024.0 * 1024.0);
+        double throughputMBs = packElapsedS > 0 ? totalRawMB / packElapsedS : 0;
+        LOGGER.info(
+                "Archived %d files (%.1f MB) into %.1f MB in %.1fs (%.1f MB/s) using parallel scatter-gather (DEFLATED)."
+                .formatted(fileCount, totalRawMB, archiveMB, packElapsedS, throughputMBs));
+        LOGGER.info("Created archive %s".formatted(graphArchiveDst.toString()));
 
         // delete original graph files
         try {
