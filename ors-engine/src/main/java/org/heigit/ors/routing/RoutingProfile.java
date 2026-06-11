@@ -255,11 +255,11 @@ public class RoutingProfile {
             }
             packEnd = System.currentTimeMillis();
         } catch (IOException | ExecutionException e) {
-            LOGGER.error("Failed to create archive: %s".formatted(e.toString()));
+            LOGGER.error("Failed to create archive: %s".formatted(e.getMessage()), e);
             return false;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            LOGGER.error("Failed to create archive (interrupted): %s".formatted(e.toString()));
+            LOGGER.error("Failed to create archive (interrupted): %s".formatted(e.getMessage()), e);
             return false;
         }
         double packElapsedS = (packEnd - packStart) / 1000.0;
