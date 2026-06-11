@@ -19,16 +19,16 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRunti
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphBuildInfo;
 import org.heigit.ors.util.AppInfo;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.URI;
+import java.io.InputStream;
 import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Stream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -340,28 +340,24 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             LOGGER.info("[%s] Extracting downloaded graph file to %s".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
             long start = System.currentTimeMillis();
             double compressedMB = graphDownloadFile.length() / (1024.0 * 1024.0);
-            // "jar:" scheme is required. FileSystems.newFileSystem dispatches by URI scheme.
-            // Using "file:" would route to the local filesystem provider instead of the built-in ZIP provider and throw FileSystemNotFoundException.
-            URI zipUri = URI.create("jar:" + graphDownloadFile.toURI());
-            try (FileSystem zipFs = FileSystems.newFileSystem(zipUri, Map.of())) {
-                Path zipRoot = zipFs.getPath("/");
-                List<Path> entries;
-                try (Stream<Path> walk = Files.walk(zipRoot)) {
-                    entries = walk.filter(p -> !Files.isDirectory(p)).toList();
-                }
+            try (ZipFile zipFile = ZipFile.builder().setFile(graphDownloadFile).get()) {
+                List<ZipArchiveEntry> entries = Collections.list(zipFile.getEntries())
+                        .stream().filter(e -> !e.isDirectory()).toList();
                 List<IOException> extractErrors = Collections.synchronizedList(new ArrayList<>());
-                entries.parallelStream().forEach(zipPath -> {
+                entries.parallelStream().forEach(entry -> {
                     try {
-                        Path relative = zipRoot.relativize(zipPath).normalize();
-                        Path targetPath = extractionDirectory.toPath().resolve(relative.toString()).normalize();
+                        Path relative = Path.of(entry.getName()).normalize();
+                        Path targetPath = extractionDirectory.toPath().resolve(relative).normalize();
                         if (!targetPath.startsWith(extractionDirectory.toPath())) {
-                            throw new IOException("Refusing to write zip entry outside target dir: " + relative);
+                            throw new IOException("Refusing to extract entry outside target dir: " + relative);
                         }
                         Path parent = targetPath.getParent();
                         if (parent != null) {
                             Files.createDirectories(parent);
                         }
-                        Files.copy(zipPath, targetPath, REPLACE_EXISTING);
+                        try (InputStream is = zipFile.getInputStream(entry)) {
+                            Files.copy(is, targetPath, REPLACE_EXISTING);
+                        }
                     } catch (IOException e) {
                         extractErrors.add(e);
                     }
@@ -373,7 +369,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             long end = System.currentTimeMillis();
             double elapsedS = (end - start) / 1000.0;
             double throughputMBs = elapsedS > 0 ? compressedMB / elapsedS : 0;
-            LOGGER.info("Extracted %s (%.1f MB) in %.1fs (%.1f MB/s) using parallel NIO ZipFileSystem.".formatted(
+            LOGGER.info("Extracted %s (%.1f MB) in %.1fs (%.1f MB/s) using parallel ZipFile (commons-compress).".formatted(
                     graphDownloadFile.getName(), compressedMB, elapsedS, throughputMBs));
             deleteFileWithLogging(graphDownloadFile,
                     "[%s] Deleted downloaded graph file %s".formatted(getProfileDescriptiveName(), graphDownloadFileAbsPath),

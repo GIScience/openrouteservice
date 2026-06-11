@@ -33,20 +33,24 @@ import org.heigit.ors.util.TimeUtility;
 import org.json.simple.JSONObject;
 import org.springframework.util.FileSystemUtils;
 
+import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.Zip64Mode;
+
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -203,23 +207,18 @@ public class RoutingProfile {
             return false;
         }
 
-        // create a zip archive (DEFLATED, parallel NIO) of all files in graphFilesPath with .ghz extension
+        // create a zip archive (DEFLATED, parallel scatter-gather) of all files in
+        // graphFilesPath with .ghz extension
         Path graphArchiveDst = profileProperties.getGraphPath().resolve(graphBaseFilename + ".ghz");
         if (Files.isDirectory(graphArchiveDst)) {
             LOGGER.error("Failed to create archive: destination path is a directory: %s".formatted(graphArchiveDst));
             return false;
         }
-        Map<String, String> zipEnv = Map.of("create", "true", "compressionMethod", "DEFLATED", "zip64", "true");
-        // "jar:" scheme is required — FileSystems.newFileSystem dispatches by URI scheme; "file:" would route to the
-        // local filesystem provider instead of the built-in ZIP provider and throw FileSystemNotFoundException.
-        // Note: Path.toUri() on a directory appends a trailing slash, which the jar: provider also does not accept.
-        URI zipUri = URI.create("jar:" + graphArchiveDst.toUri());
-        // Declare outside the try so we can log after ZipFileSystem.close() flushes the central directory.
         double totalRawMB;
         int fileCount;
         long packStart;
         long packEnd;
-        try (FileSystem zipFs = FileSystems.newFileSystem(zipUri, zipEnv)) {
+        try {
             List<Path> graphFiles;
             try (Stream<Path> walk = Files.walk(graphFilesPath)) {
                 graphFiles = walk.filter(p -> !Files.isDirectory(p)).toList();
@@ -233,31 +232,37 @@ public class RoutingProfile {
             fileCount = graphFiles.size();
             LOGGER.info("Starting archive of %d files (%.1f MB raw) to %s".formatted(fileCount, totalRawMB, graphArchiveDst));
             packStart = System.currentTimeMillis();
-            List<IOException> packErrors = Collections.synchronizedList(new ArrayList<>());
-            graphFiles.parallelStream().forEach(file -> {
-                try {
-                    Path zipPath = zipFs.getPath(graphFilesPath.relativize(file).toString());
-                    if (zipPath.getParent() != null) {
-                        Files.createDirectories(zipPath.getParent());
+            ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            ParallelScatterZipCreator creator = new ParallelScatterZipCreator(pool);
+            for (Path file : graphFiles) {
+                ZipArchiveEntry entry = new ZipArchiveEntry(graphFilesPath.relativize(file).toString());
+                entry.setMethod(ZipArchiveEntry.DEFLATED);
+                creator.addArchiveEntry(entry, () -> {
+                    try {
+                        return Files.newInputStream(file);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
                     }
-                    Files.copy(file, zipPath, REPLACE_EXISTING);
-                } catch (IOException e) {
-                    packErrors.add(e);
-                }
-            });
-            if (!packErrors.isEmpty()) {
-                throw packErrors.get(0);
+                });
+            }
+            try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(graphArchiveDst.toFile())) {
+                zos.setUseZip64(Zip64Mode.AlwaysWithCompatibility);
+                creator.writeTo(zos);
             }
             packEnd = System.currentTimeMillis();
-        } catch (IOException e) {
+        } catch (IOException | ExecutionException e) {
             LOGGER.error("Failed to create archive: %s".formatted(e.toString()));
             return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOGGER.error("Failed to create archive (interrupted): %s".formatted(e.toString()));
+            return false;
         }
-        // ZipFileSystem.close() has now written the central directory — file size is final.
         double packElapsedS = (packEnd - packStart) / 1000.0;
         double archiveMB = graphArchiveDst.toFile().length() / (1024.0 * 1024.0);
         double throughputMBs = packElapsedS > 0 ? totalRawMB / packElapsedS : 0;
-        LOGGER.info("Archived %d files (%.1f MB) into %.1f MB in %.1fs (%.1f MB/s) using parallel NIO ZipFileSystem (DEFLATED)."
+        LOGGER.info(
+                "Archived %d files (%.1f MB) into %.1f MB in %.1fs (%.1f MB/s) using parallel scatter-gather (DEFLATED)."
                 .formatted(fileCount, totalRawMB, archiveMB, packElapsedS, throughputMBs));
         LOGGER.info("Created archive %s".formatted(graphArchiveDst.toString()));
 
