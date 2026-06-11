@@ -236,7 +236,7 @@ public class RoutingProfile {
             try {
                 ParallelScatterZipCreator creator = new ParallelScatterZipCreator(pool);
                 for (Path file : graphFiles) {
-                    ZipArchiveEntry entry = new ZipArchiveEntry(graphFilesPath.relativize(file).toString());
+                    ZipArchiveEntry entry = new ZipArchiveEntry(graphFilesPath.relativize(file).toString().replace('\\', '/'));
                     entry.setMethod(ZipArchiveEntry.DEFLATED);
                     creator.addArchiveEntry(entry, () -> {
                         try {
