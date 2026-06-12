@@ -104,6 +104,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with: # make sure we check out the configured repo and branch on manual trigger
+          repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
+          ref: ${{ inputs.branch || 'main' }}
 
       - name: Set up build environment
         if: matrix.build == true
