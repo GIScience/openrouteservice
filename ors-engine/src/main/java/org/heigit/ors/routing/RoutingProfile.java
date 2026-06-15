@@ -243,7 +243,10 @@ public class RoutingProfile {
             fileCount = graphFiles.size();
             LOGGER.info("[ORS-PACKAGING-DIAG] Starting archive of %d files (%.1f MB raw) to %s".formatted(fileCount, totalRawMB, graphArchiveDst));
             packStart = System.currentTimeMillis();
-            ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+            int zipThreads = Math.max(1, Math.min(Runtime.getRuntime().availableProcessors(), 8));
+            LOGGER.info("[ORS-PACKAGING-DIAG] Using %d threads for parallel ZIP creation.".formatted(zipThreads));
+            ExecutorService pool = Executors.newFixedThreadPool(zipThreads);
             try {
                 ParallelScatterZipCreator creator = new ParallelScatterZipCreator(pool);
                 for (Path file : graphFiles) {
