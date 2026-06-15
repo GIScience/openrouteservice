@@ -271,6 +271,16 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         return BUILDER_NAME;
     }
 
+    @Override
+    public void finish() {
+        matchedHereLinks.clear();
+        matchedOSMLinks.clear();
+        gh = null;
+        mMapMatcher = null;
+        trafficEdgeFilter = null;
+        progressBar = null;
+    }
+
     public void addHereSegmentForLogging(Integer linkID) {
         matchedHereLinks.add(linkID);
     }

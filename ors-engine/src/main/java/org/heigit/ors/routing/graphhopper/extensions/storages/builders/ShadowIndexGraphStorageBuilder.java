@@ -132,4 +132,8 @@ public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder 
         return _storage;
     }
 
+    @Override
+    public void finish() {
+        osm_shadowindex_lookup.clear();
+    }
 }

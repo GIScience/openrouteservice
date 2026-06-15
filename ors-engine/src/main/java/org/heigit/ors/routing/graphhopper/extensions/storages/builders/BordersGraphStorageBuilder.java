@@ -386,4 +386,13 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     public CountryBordersReader getCbReader() {
         return cbReader;
     }
+
+    @Override
+    public void finish() {
+        cbReader = null;
+        if (wayNodeTags != null) {
+            wayNodeTags.clear();
+            wayNodeTags = null;
+        }
+    }
 }

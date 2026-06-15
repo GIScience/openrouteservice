@@ -328,6 +328,14 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                 }
             }
         }
+
+        if (closeEarly) {
+            tmcEdges = null;
+            osmId2EdgeIds = null;
+            eccentricity = null;
+        }
+
+        processContext.finish();
     }
 
     @Override
@@ -473,7 +481,11 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         GraphHopperStorage ghStorage = getGraphHopperStorage();
         ghStorage.freeze();
         List<LMConfig> lmConfigs = createCoreLMConfigs(coreLMPreparationHandler.getLMProfiles());
-        if (coreLMPreparationHandler.loadOrDoWork(lmConfigs, ghStorage, getLocationIndex(), false)) {
+        boolean closeEarly = Boolean.TRUE.equals(engineProperties.getPreparationMode());
+        if (closeEarly) {
+            LOGGER.info("Offloading LM preparations for profile {} ...", getGraphHopperStorage().toDetailsString());
+        }
+        if (coreLMPreparationHandler.loadOrDoWork(lmConfigs, ghStorage, getLocationIndex(), closeEarly)) {
             ghStorage.getProperties().put(ORSParameters.CoreLandmark.PREPARE + "done", true);
         }
     }

@@ -795,4 +795,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
         return "Wheelchair";
     }
 
+    @Override
+    public void finish() {
+        nodeTagsOnWay = null;
+        cleanedTags = null;
+        if (wheelchairAttributes != null) wheelchairAttributes.reset();
+        if (wheelchairAttributesLeftSide != null) wheelchairAttributesLeftSide.reset();
+        if (wheelchairAttributesRightSide != null) wheelchairAttributesRightSide.reset();
+    }
 }

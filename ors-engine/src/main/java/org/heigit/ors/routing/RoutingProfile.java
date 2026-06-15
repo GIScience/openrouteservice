@@ -48,6 +48,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -75,7 +76,7 @@ public class RoutingProfile {
     @Getter
     private ProfileProperties profileProperties;
 
-    private final ORSGraphHopper mGraphHopper;
+    private ORSGraphHopper mGraphHopper;
     @Getter
     private String astarApproximation;
     @Getter
@@ -89,6 +90,11 @@ public class RoutingProfile {
         this.profileProperties = profile;
         this.engineProperties = engine;
         mGraphHopper = initGraphHopper(loadCntx);
+
+        if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
+            mGraphHopper = null;
+        }
+
         ExecutionProperties execution = profile.getService().getExecution();
         if (execution.getMethods().getAstar().getApproximation() != null)
             astarApproximation = execution.getMethods().getAstar().getApproximation();
@@ -161,8 +167,12 @@ public class RoutingProfile {
                 Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
         }
 
-        if (Boolean.TRUE.equals(engineProperties.getPreparationMode()) && !prepareGeneratedGraphForUpload(profileProperties, AppInfo.GRAPH_VERSION)) {
-            throw new IOException("Failed to prepare generated graph for upload for profile '%s'.".formatted(profileName));
+        if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
+            LOGGER.info("Offloading graph for profile '%s' before upload.".formatted(profileName));
+            gh.close();
+            if (!prepareGeneratedGraphForUpload(profileProperties, AppInfo.GRAPH_VERSION)) {
+                throw new IOException("Failed to prepare generated graph for upload for profile '%s'.".formatted(profileName));
+            }
         }
 
         return gh;
@@ -231,7 +241,7 @@ public class RoutingProfile {
             long totalRawBytes = graphFiles.stream().mapToLong(p -> p.toFile().length()).sum();
             totalRawMB = totalRawBytes / (1024.0 * 1024.0);
             fileCount = graphFiles.size();
-            LOGGER.info("Starting archive of %d files (%.1f MB raw) to %s".formatted(fileCount, totalRawMB, graphArchiveDst));
+            LOGGER.info("[ORS-PACKAGING-DIAG] Starting archive of %d files (%.1f MB raw) to %s".formatted(fileCount, totalRawMB, graphArchiveDst));
             packStart = System.currentTimeMillis();
             ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             try {
@@ -267,7 +277,7 @@ public class RoutingProfile {
         double archiveMB = graphArchiveDst.toFile().length() / (1024.0 * 1024.0);
         double throughputMBs = packElapsedS > 0 ? totalRawMB / packElapsedS : 0;
         LOGGER.info(
-                "Archived %d files (%.1f MB) into %.1f MB in %.1fs (%.1f MB/s) using parallel scatter-gather (DEFLATED)."
+                "[ORS-PACKAGING-DIAG] Archived %d files (%.1f MB) into %.1f MB in %.1fs (%.1f MB/s) using parallel scatter-gather (DEFLATED)."
                 .formatted(fileCount, totalRawMB, archiveMB, packElapsedS, throughputMBs));
         LOGGER.info("Created archive %s".formatted(graphArchiveDst.toString()));
 
@@ -300,7 +310,7 @@ public class RoutingProfile {
     }
 
     public long getMemoryUsage() {
-        return mGraphHopper.getMemoryUsage();
+        return mGraphHopper != null ? mGraphHopper.getMemoryUsage() : 0;
     }
 
     public ORSGraphHopper getGraphhopper() {
@@ -308,7 +318,7 @@ public class RoutingProfile {
     }
 
     public StorableProperties getGraphProperties() {
-        return mGraphHopper.getGraphHopperStorage().getProperties();
+        return mGraphHopper != null ? mGraphHopper.getGraphHopperStorage().getProperties() : null;
     }
 
     public ProfileProperties getProfileConfiguration() {
@@ -316,15 +326,17 @@ public class RoutingProfile {
     }
 
     public void close() {
-        mGraphHopper.close();
+        if (mGraphHopper != null) {
+            mGraphHopper.close();
+        }
     }
 
     public boolean equals(Object o) {
-        return o != null && o.getClass().equals(RoutingProfile.class) && this.hashCode() == o.hashCode();
+        return o instanceof RoutingProfile that && Objects.equals(this.profileName, that.profileName);
     }
 
     public int hashCode() {
-        return mGraphHopper.getGraphHopperStorage().getDirectory().getLocation().hashCode();
+        return Objects.hashCode(profileName);
     }
 
     public String name() {
@@ -332,7 +344,9 @@ public class RoutingProfile {
     }
 
     public void addDynamicData(String datasetName) {
-        getGraphhopper().addSparseEncodedValue(datasetName);
+        if (mGraphHopper != null) {
+            mGraphHopper.addSparseEncodedValue(datasetName);
+        }
         dynamicDatasets.add(datasetName);
     }
 
@@ -341,6 +355,9 @@ public class RoutingProfile {
     }
 
     public void updateDynamicData(String key, int edgeID, String value) {
+        if (mGraphHopper == null) {
+            return;
+        }
         Function<String, Object> stateFromString = null;
         switch (key) {
             case LogieBorders.KEY:
@@ -360,7 +377,7 @@ public class RoutingProfile {
             LOGGER.error("No stateFromString function defined for key '" + key + "', cannot update dynamic data.");
             return;
         }
-        SparseEncodedValue<String> sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+        SparseEncodedValue<String> sev = mGraphHopper.getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
         if (sev == null) {
             LOGGER.error("SparseEncodedValue for key %s not found, cannot update dynamic data.".formatted(key));
             return;
@@ -369,7 +386,10 @@ public class RoutingProfile {
     }
 
     public void unsetDynamicData(String key, int edgeID) {
-        SparseEncodedValue<String> sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+        if (mGraphHopper == null) {
+            return;
+        }
+        SparseEncodedValue<String> sev = mGraphHopper.getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
         if (sev == null) {
             LOGGER.error("SparseEncodedValue for key %s not found, cannot unset dynamic data.".formatted(key));
             return;
@@ -379,8 +399,11 @@ public class RoutingProfile {
 
     public JSONObject getDynamicDataStats() {
         JSONObject result = new JSONObject();
+        if (mGraphHopper == null) {
+            return result;
+        }
         for (String key : dynamicDatasets) {
-            HashMapSparseEncodedValue<String> ev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+            HashMapSparseEncodedValue<String> ev = mGraphHopper.getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
             if (ev == null) {
                 LOGGER.warn("SparseEncodedValue for key %s not found, this should not happen.".formatted(key));
                 continue;

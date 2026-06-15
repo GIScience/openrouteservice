@@ -152,4 +152,10 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     public String getName() {
         return "GreenIndex";
     }
+
+    @Override
+    public void finish() {
+        greenIndices.clear();
+        slots.clear();
+    }
 }

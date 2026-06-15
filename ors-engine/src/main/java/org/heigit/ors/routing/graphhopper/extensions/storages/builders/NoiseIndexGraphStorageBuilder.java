@@ -115,4 +115,9 @@ public class NoiseIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     public String getName() {
         return "NoiseIndex";
     }
+
+    @Override
+    public void finish() {
+        osmId2noiseLevel.clear();
+    }
 }

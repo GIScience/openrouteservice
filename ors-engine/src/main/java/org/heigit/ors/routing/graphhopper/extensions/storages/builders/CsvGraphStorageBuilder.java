@@ -121,4 +121,10 @@ public class CsvGraphStorageBuilder extends AbstractGraphStorageBuilder {
     public String getName() {
         return "csv";
     }
+
+    @Override
+    public void finish() {
+        id2Value.clear();
+        columnNames = null;
+    }
 }
