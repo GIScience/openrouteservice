@@ -468,7 +468,7 @@ public class ORSOSMReader extends OSMReader {
         lookupCountriesAndSetWayTags(way, coordinates);
     }
 
-    private void lookupCountriesAndSetWayTags(ReaderWay way, Coordinate[] coords) {
+    void lookupCountriesAndSetWayTags(ReaderWay way, Coordinate[] coords) {
         String[] countries = findBorderCrossing(coords);
         if (countries.length > 1 && !countries[0].equals(countries[1])) {
             way.setTag(TAG_KEY_COUNTRY1, countries[0]);
