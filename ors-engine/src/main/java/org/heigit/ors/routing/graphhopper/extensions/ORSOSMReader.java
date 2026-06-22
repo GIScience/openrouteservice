@@ -62,7 +62,7 @@ public class ORSOSMReader extends OSMReader {
     private final GraphProcessContext procCntx;
     private boolean processNodeTags;
     private static final String KEY_COUNTRY = "country";
-    private Map<Long, String> countries;
+    private Map<Long, String> nodeCountryMap;
     private final GHLongObjectHashMap<Map<String, String>> nodeTags = new GHLongObjectHashMap<>(200, 0.5);
     private boolean processGeom = false;
     private boolean processSimpleGeom = false;
@@ -116,7 +116,7 @@ public class ORSOSMReader extends OSMReader {
 
         if (encodingManager.hasEncodedValue(Border.KEY)) {
             this.processNodeTags = true;
-            this.countries = new HashMap<>();
+            this.nodeCountryMap = new HashMap<>();
             this.processGeom = true;
         }
 
@@ -167,8 +167,8 @@ public class ORSOSMReader extends OSMReader {
             }
         }
 
-        if (countries != null  && node.hasTag(KEY_COUNTRY)) {
-            countries.put(node.getId(), node.getTag(KEY_COUNTRY));
+        if (nodeCountryMap != null  && node.hasTag(KEY_COUNTRY)) {
+            nodeCountryMap.put(node.getId(), node.getTag(KEY_COUNTRY));
         }
 
         if (isPillarNode(nodeData.getId(node.getId()))) {
@@ -287,10 +287,10 @@ public class ORSOSMReader extends OSMReader {
                 int internalId = nodeData.getId(osmId);
                 Map<String, String> tagsForNode = nodeTags.get(osmId);
 
-                if (countries != null && countries.containsKey(osmId)) {
+                if (nodeCountryMap != null && nodeCountryMap.containsKey(osmId)) {
                     if (tagsForNode == null)
                         tagsForNode = new HashMap<>();
-                    tagsForNode.put(KEY_COUNTRY, countries.get(osmId));
+                    tagsForNode.put(KEY_COUNTRY, nodeCountryMap.get(osmId));
                 }
 
                 if (tagsForNode != null) {

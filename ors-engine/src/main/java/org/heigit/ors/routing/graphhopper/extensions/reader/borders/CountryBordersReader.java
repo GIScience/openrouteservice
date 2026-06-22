@@ -266,7 +266,7 @@ public class CountryBordersReader implements Serializable {
      * @return An array of CountryBorderPolygons that the point is within the geometry of.
      */
     public CountryBordersPolygon[] getCountry(Coordinate c) {
-        ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
+        ArrayList<CountryBordersPolygon> countryBordersPolygons = new ArrayList<>();
         Iterator it = hierarchies.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<Long, CountryBordersHierarchy> pair = (Map.Entry) it.next();
@@ -276,13 +276,13 @@ public class CountryBordersReader implements Serializable {
                 List<CountryBordersPolygon> ps = h.getPolygons();
                 for (CountryBordersPolygon cp : ps) {
                     if (cp.inBbox(c) && cp.inArea(c)) {
-                        countries.add(cp);
+                        countryBordersPolygons.add(cp);
                     }
                 }
             }
         }
 
-        return countries.toArray(new CountryBordersPolygon[0]);
+        return countryBordersPolygons.toArray(new CountryBordersPolygon[0]);
     }
 
     /**
@@ -295,7 +295,7 @@ public class CountryBordersReader implements Serializable {
      * @return An array of CountryBorderPolygons that the point is within the geometry of.
      */
     public CountryBordersPolygon[] getCandidateCountry(Coordinate c) {
-        ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
+        ArrayList<CountryBordersPolygon> countryBordersPolygons = new ArrayList<>();
         Iterator it = hierarchies.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<Long, CountryBordersHierarchy> pair = (Map.Entry) it.next();
@@ -305,13 +305,13 @@ public class CountryBordersReader implements Serializable {
                 List<CountryBordersPolygon> ps = h.getPolygons();
                 for (CountryBordersPolygon cp : ps) {
                     if (cp.inBbox(c)) {
-                        countries.add(cp);
+                        countryBordersPolygons.add(cp);
                     }
                 }
             }
         }
 
-        return countries.toArray(new CountryBordersPolygon[0]);
+        return countryBordersPolygons.toArray(new CountryBordersPolygon[0]);
     }
 
     /**
@@ -388,7 +388,7 @@ public class CountryBordersReader implements Serializable {
         List<List<String>> data = CSVUtility.readFile(idsPath);
 
         // Loop through and store in the hashmap
-        int countries = 0;
+        int counter = 0;
         int isoCCA2 = 0;
         int isoCCA3 = 0;
         for (List<String> col : data) {
@@ -402,7 +402,7 @@ public class CountryBordersReader implements Serializable {
             if (col.size() >= 3) {
                 ids.put(col.get(1), new CountryInfo(col.get(0), col.get(1), col.get(2)));
                 names.put(shortID, col.get(2));
-                countries++;
+                counter++;
             }
             if (col.size() >= 4 && !col.get(3).trim().isEmpty()) {
                 isoCodes.put(col.get(3).trim().toUpperCase(), shortID);
@@ -413,17 +413,17 @@ public class CountryBordersReader implements Serializable {
                 isoCCA3++;
             }
         }
-        LOGGER.info(countries + " country IDs read");
+        LOGGER.info(counter + " country IDs read");
         if (isoCCA2 > 0) {
-            if (isoCCA2 < countries) {
-                LOGGER.warn((countries - isoCCA2) + " countries have no ISO 3166-1 CCA2 code assigned.");
+            if (isoCCA2 < counter) {
+                LOGGER.warn((counter - isoCCA2) + " countries have no ISO 3166-1 CCA2 code assigned.");
             } else {
                 LOGGER.info("ISO 3166-1 CCA2 codes enabled for all countries");
             }
         }
         if (isoCCA3 > 0) {
-            if (isoCCA3 < countries) {
-                LOGGER.warn((countries - isoCCA3) + " countries have no ISO 3166-1 CCA3 code assigned.");
+            if (isoCCA3 < counter) {
+                LOGGER.warn((counter - isoCCA3) + " countries have no ISO 3166-1 CCA3 code assigned.");
             } else {
                 LOGGER.info("ISO 3166-1 CCA3 codes enabled for all countries");
                 createCountryMap();
