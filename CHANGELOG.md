@@ -53,6 +53,7 @@ Releasing is documented in RELEASE.md
 - update mermaid to 11.15.0
 - update uuid to 14.0.0 due to [CVE-2026-41907](https://www.cve.org/CVERecord?id=CVE-2026-41907) and [CVE-2026-41988](https://www.cve.org/CVERecord?id=CVE-2026-41988)
 - update dompurify to 3.4.10
+- update spring-boot-parent to 3.5.15
 
 
 ## [9.9.0] - 2026-04-29
