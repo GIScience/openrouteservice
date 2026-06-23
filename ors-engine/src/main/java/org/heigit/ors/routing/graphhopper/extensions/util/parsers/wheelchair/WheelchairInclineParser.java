@@ -7,6 +7,7 @@ import org.heigit.ors.util.UnitsConverter;
 
 public class WheelchairInclineParser extends WheelchairBaseParser {
     public static final String TAG_NAME = "incline";
+    public static final int INCLINE_MAX_VALUE = 15;
 
     public WheelchairInclineParser(){
         this.encoder = WheelchairIncline.create();
@@ -18,8 +19,7 @@ public class WheelchairInclineParser extends WheelchairBaseParser {
     }
 
     private int getInclineFromTagValue(String inclineValue) {
-        double decimalIncline = UnitsConverter.convertOSMInclineValueToPercentage(inclineValue, true);
-        decimalIncline = Math.min(decimalIncline, 15.0);
-        return (int) Math.round(decimalIncline);
+        int decimalIncline = UnitsConverter.convertOSMInclineValueToPercentage(inclineValue, true);
+        return Math.min(decimalIncline, INCLINE_MAX_VALUE);
     }
 }

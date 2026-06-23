@@ -2,7 +2,7 @@ package com.graphhopper.routing.ev;
 
 /**
  * EncodedValue for wheelchair kerb/curb height attribute.
- * Stores kerb height in centimeters as an unsigned integer value (range: 0-30cm).
+ * Stores kerb height in centimeters as an unsigned integer value (range: 0-15cm).
  */
 public class WheelchairKerb {
     public static final String KEY = "wheelchair_kerb";
@@ -12,8 +12,8 @@ public class WheelchairKerb {
     }
 
     public static IntEncodedValue create() {
-        // 6 bits unsigned to store 0-30cm kerb height
-        return new UnsignedIntEncodedValue(KEY, 6, false);
+        // 4 bits unsigned to store 0-15cm kerb height
+        return new UnsignedIntEncodedValue(KEY, 4, false);
     }
 }
 
