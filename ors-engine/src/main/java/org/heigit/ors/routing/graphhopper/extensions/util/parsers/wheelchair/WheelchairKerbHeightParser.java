@@ -14,6 +14,7 @@ import java.util.Map;
 
 public class WheelchairKerbHeightParser extends WheelchairBaseParser {
     public static final String TAG_NAME = "kerb_height";
+    public static final int KERB_MAX_VALUE = 15;
 
     @Getter
     @Setter
@@ -59,6 +60,7 @@ public class WheelchairKerbHeightParser extends WheelchairBaseParser {
         }
 
         int finalHeight = selectIntValueForSidewalkSide(way, heightC, heightL, heightR);
+        finalHeight = Math.min(finalHeight, KERB_MAX_VALUE);
 
         setInt(edgeFlags, finalHeight);
 

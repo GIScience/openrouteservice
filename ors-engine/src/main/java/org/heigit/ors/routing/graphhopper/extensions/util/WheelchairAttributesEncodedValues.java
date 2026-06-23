@@ -10,7 +10,7 @@ public class WheelchairAttributesEncodedValues {
     IntEncodedValue smoothnessEncoder;
     IntEncodedValue trackTypeEncoder;
     IntEncodedValue inclineEncoder;
-    IntEncodedValue widthEncoder;
+    DecimalEncodedValue widthEncoder;
     IntEncodedValue kerbEncoder;
     BooleanEncodedValue suitableEncoder;
     EnumEncodedValue<WheelchairAttributes.Side> sideEncoder;
@@ -30,7 +30,7 @@ public class WheelchairAttributesEncodedValues {
             inclineEncoder = encodingManager.getIntEncodedValue(WheelchairIncline.KEY);
 
         if(encodingManager.hasEncodedValue(WheelchairWidth.KEY))
-            widthEncoder = encodingManager.getIntEncodedValue(WheelchairWidth.KEY);
+            widthEncoder = encodingManager.getDecimalEncodedValue(WheelchairWidth.KEY);
 
         if(encodingManager.hasEncodedValue(WheelchairKerb.KEY))
             kerbEncoder = encodingManager.getIntEncodedValue(WheelchairKerb.KEY);
@@ -47,34 +47,34 @@ public class WheelchairAttributesEncodedValues {
 
     public WheelchairAttributes getAttributes(IntsRef edgeFlags) {
         WheelchairAttributes attrs = new WheelchairAttributes();
-        int surface = surfaceEncoder.getInt(false, edgeFlags) - 1;
-        if(surface > -1)
+        int surface = surfaceEncoder.getInt(false, edgeFlags);
+        if(surface > 0)
             attrs.setSurfaceType(surface);
 
-        int smoothness = smoothnessEncoder.getInt(false, edgeFlags) - 1;
-        if(smoothness > -1)
+        int smoothness = smoothnessEncoder.getInt(false, edgeFlags);
+        if(smoothness > 0)
             attrs.setSmoothnessType(smoothness);
 
-        int  trackType = trackTypeEncoder.getInt(false, edgeFlags) - 1;
-        if(trackType > -1)
+        int  trackType = trackTypeEncoder.getInt(false, edgeFlags);
+        if(trackType > 0)
             attrs.setTrackType(trackType);
 
         attrs.setSuitable(suitableEncoder.getBool(false, edgeFlags));
         attrs.setSide(sideEncoder.getEnum(false, edgeFlags));
         attrs.setSurfaceQualityKnown(surfaceQualityKnownEncoder.getBool(false, edgeFlags));
         
-        int incline = inclineEncoder.getInt(false, edgeFlags) - 1; // we store unsigned integers, however -1 is used to indicate unknown
-        if (incline > -1) {
+        int incline = inclineEncoder.getInt(false, edgeFlags); // we store unsigned integers, however -1 is used to indicate unknown
+        if (incline > 0) {
             attrs.setIncline(incline); // incline is converts to int in WheelchairAttributes, weird that the method takes a double...
         }
 
-        int width = widthEncoder.getInt(false, edgeFlags) - 1;
-        if (width > 0) { // no idea why we also exclude 0 here, but this was already the previous behavior and changing it to -1 breaks it
+        int width = (int) widthEncoder.getDecimal(false, edgeFlags);
+        if (width > 0) {
             attrs.setWidth(width);
         }
 
-        int kerb = kerbEncoder.getInt(false, edgeFlags) - 1;
-        if (kerb > -1) {
+        int kerb = kerbEncoder.getInt(false, edgeFlags);
+        if (kerb > 0) {
             attrs.setSlopedKerbHeight(kerb);
         }
 
