@@ -22,6 +22,7 @@ import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
 import com.graphhopper.routing.ev.Border;
 import com.graphhopper.routing.ev.HillIndex;
+import com.graphhopper.routing.ev.WheelchairKerb;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.EncodingManager.AcceptWay;
@@ -93,7 +94,7 @@ public class ORSOSMReader extends OSMReader {
         nodeTagsToStore = new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload"));
         osmNodeTagValues = new GHLongObjectHashMap<>(200, .5f);
 
-        if(super.encodingManager.hasEncoder("wheelchair")) {
+        if(encodingManager.hasEncodedValue(WheelchairKerb.KEY)) {
             this.processNodeTags = true;
             this.processSimpleGeom = true;
             extraTagKeys.add("kerb");

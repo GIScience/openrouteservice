@@ -4,6 +4,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.EncodedValueLookup;
 import com.graphhopper.routing.ev.IntEncodedValue;
+import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.storage.IntsRef;
 import org.heigit.ors.util.UnitsConverter;
@@ -58,7 +59,7 @@ public abstract class WheelchairBaseParser implements TagParser {
     }
 
     protected void setInt(IntsRef edgeFlags, int value) {
-        ((IntEncodedValue) encoder).setInt(false, edgeFlags, value + 1);
+        ((IntEncodedValue) encoder).setInt(false, edgeFlags, Math.max(0, value));
     }
 
     /**
@@ -334,7 +335,10 @@ public abstract class WheelchairBaseParser implements TagParser {
         // Select based on artificial ors-sidewalk-side tag
         center = selectIntValueForSidewalkSide(way, center, left, right, moreIsBetter);
 
-        setInt(edgeFlags, center);
+        if(!tagName.equals(WheelchairWidthParser.TAG_NAME))
+            setInt(edgeFlags, center);
+        else
+            ((UnsignedDecimalEncodedValue) encoder).setDecimal(false, edgeFlags, Math.max(0, center));
 
         return edgeFlags;
     }
