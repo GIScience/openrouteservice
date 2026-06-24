@@ -69,7 +69,6 @@ public class BorderParser implements TagParser {
         String countryIdsFile = "";
         String openBordersFile = "";
 
-        //FIXME: read borders file regardless of the preprocessed flag, as it is used to verify countries for border edges in extra info processor
         if (!preprocessed) {
             if (parameters.getBoundaries() != null) {
                 bordersFile = parameters.getBoundaries().toString();
