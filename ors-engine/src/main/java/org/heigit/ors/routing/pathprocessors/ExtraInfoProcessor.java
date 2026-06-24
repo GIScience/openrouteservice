@@ -109,6 +109,7 @@ public class ExtraInfoProcessor implements PathProcessor {
     private String skippedExtraInfo = "";
 
     private CountryBordersReader countryBordersReader;
+    private final int baseNodes;
 
     ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) {
         this(opts, graphHopperStorage, enc);
@@ -117,6 +118,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 
     ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) {
         encoder = enc;
+        baseNodes = graphHopperStorage.getNodes();
         encoderWithPriority = encoder.supports(PriorityWeighting.class);
         List<String> skippedExtras = new ArrayList<>();
 
@@ -269,7 +271,7 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.COUNTRY_INFO)) {
-                if (encoder.hasEncodedValue(Border.KEY) && encoder.hasEncodedValue(Country.KEY)) {
+                if (encoder.hasEncodedValue(Border.KEY) && encoder.hasEncodedValue(Country.KEY) && encoder.hasEncodedValue(CountryOther.KEY)) {
                     countryTraversalInfo = new RouteExtraInfo("countryinfo");
                     countryTraversalInfoBuilder = new AppendableRouteExtraInfoBuilder(countryTraversalInfo);
                 } else {
@@ -412,20 +414,12 @@ public class ExtraInfoProcessor implements PathProcessor {
     public void processPathEdge(EdgeIteratorState edge, PointList geom) {
         double dist = edge.getDistance();
 
-        // TODO Add extra info for crossed countries
-        if (countryTraversalInfoBuilder != null  && countryBordersReader != null) {
+        if (countryTraversalInfoBuilder != null) {
             Border border = encoder.getEnumEncodedValue(Border.KEY, Border.class).getEnum(false, edge.getFlags());
-            int countryId = 0;
             Country country = encoder.getEnumEncodedValue(Country.KEY, Country.class).getEnum(false, edge.getFlags());
-            if (country != null) {
-                countryId = CountryBordersReader.getCountryIdByISOCode(country.name());
-            }
-            if (border != Border.NONE) {
-                //TODO: consider edges that end in a different country, not just the first coordinate of the edge geometry
-                Coordinate coordinate = new Coordinate();
-                coordinate.x = geom.getLon(0);
-                coordinate.y = geom.getLat(0);
-                CountryBordersPolygon[] countries = countryBordersReader.getCountry(coordinate);
+            int countryId = country == null ? 0 : CountryBordersReader.getCountryIdByISOCode(country.name());
+            if (border != Border.NONE && isVirtualNode(edge.getBaseNode()) && countryBordersReader != null) {
+                CountryBordersPolygon[] countries = countryBordersReader.getCountry(new Coordinate(geom.getLon(0), geom.getLat(0)));
                 if (countries.length >= 1) {
                     countryId = Short.parseShort(countryBordersReader.getId(countries[0].getName()));
                 }
@@ -568,5 +562,9 @@ public class ExtraInfoProcessor implements PathProcessor {
 
     public String getSkippedExtraInfo() {
         return skippedExtraInfo;
+    }
+
+    public boolean isVirtualNode(int nodeId) {
+        return nodeId >= baseNodes;
     }
 }
