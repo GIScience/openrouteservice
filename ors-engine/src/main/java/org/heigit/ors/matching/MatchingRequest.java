@@ -34,6 +34,8 @@ import org.locationtech.jts.geom.Geometry;
 
 import java.util.*;
 
+import static org.heigit.ors.routing.graphhopper.extensions.util.EncodedValues.hasCountryBorders;
+
 public class MatchingRequest extends ServiceRequest {
     private static final Logger LOGGER = Logger.getLogger(MatchingRequest.class);
     private final int maximumSearchRadius;
@@ -138,9 +140,7 @@ public class MatchingRequest extends ServiceRequest {
 
     private static void addBorderFilter(EdgeFilterSequence edgeFilter, GraphHopperStorage ghStorage) {
         EncodingManager encodingManager = ghStorage.getEncodingManager();
-        if (encodingManager.hasEncodedValue(Border.KEY)
-                && encodingManager.hasEncodedValue(Country.KEY)
-                && encodingManager.hasEncodedValue(CountryOther.KEY)) {
+        if (hasCountryBorders(encodingManager)) {
             RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
             routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.ALL);
             EdgeFilter borderFilter = new AvoidBordersEdgeFilter(routeSearchParameters, ghStorage);

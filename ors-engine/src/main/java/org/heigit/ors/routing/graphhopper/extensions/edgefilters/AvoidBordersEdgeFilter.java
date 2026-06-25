@@ -13,15 +13,14 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import com.graphhopper.routing.ev.Border;
-import com.graphhopper.routing.ev.Country;
-import com.graphhopper.routing.ev.CountryOther;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+
+import static org.heigit.ors.routing.graphhopper.extensions.util.EncodedValues.hasCountryBorders;
 
 public class AvoidBordersEdgeFilter implements EdgeFilter {
     private BordersExtractor.Avoid avoidBorders = BordersExtractor.Avoid.NONE;
@@ -41,9 +40,7 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
      * @param encodingManager  EncodingManager to check for the presence of the border and country encoded values, and to retrieve them if they are present
      */
     private void init(RouteSearchParameters searchParams, EncodingManager encodingManager) {
-        if (encodingManager.hasEncodedValue(Border.KEY)
-                && encodingManager.hasEncodedValue(Country.KEY)
-                && encodingManager.hasEncodedValue(CountryOther.KEY)) {
+        if (hasCountryBorders(encodingManager)) {
             int[] countriesToAvoid;
             if (searchParams.hasAvoidCountries())
                 countriesToAvoid = searchParams.getAvoidCountries();
