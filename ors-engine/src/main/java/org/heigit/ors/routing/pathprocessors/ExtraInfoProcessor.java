@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
+import static org.heigit.ors.routing.graphhopper.extensions.util.EncodedValues.hasCountryBorders;
 
 public class ExtraInfoProcessor implements PathProcessor {
     private GreenIndexGraphStorage extGreenIndex;
@@ -271,7 +272,7 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.COUNTRY_INFO)) {
-                if (encoder.hasEncodedValue(Border.KEY) && encoder.hasEncodedValue(Country.KEY) && encoder.hasEncodedValue(CountryOther.KEY)) {
+                if (hasCountryBorders(encoder)) {
                     countryTraversalInfo = new RouteExtraInfo("countryinfo");
                     countryTraversalInfoBuilder = new AppendableRouteExtraInfoBuilder(countryTraversalInfo);
                 } else {
