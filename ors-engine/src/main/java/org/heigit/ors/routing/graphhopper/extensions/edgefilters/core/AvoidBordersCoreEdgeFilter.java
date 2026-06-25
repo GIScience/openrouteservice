@@ -13,15 +13,14 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
-import com.graphhopper.routing.ev.Border;
-import com.graphhopper.routing.ev.Country;
-import com.graphhopper.routing.ev.CountryOther;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+
+import static org.heigit.ors.routing.graphhopper.extensions.util.EncodedValues.hasCountryBorders;
 
 public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
     private int[] avoidCountries;
@@ -37,9 +36,7 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
     public AvoidBordersCoreEdgeFilter(GraphHopperStorage graphStorage, int[] avoidCountries) {
         EncodingManager encodingManager = graphStorage.getEncodingManager();
         this.avoidCountries = avoidCountries;
-        if (encodingManager.hasEncodedValue(Border.KEY)
-                && encodingManager.hasEncodedValue(Country.KEY)
-                && encodingManager.hasEncodedValue(CountryOther.KEY)) {
+        if (hasCountryBorders(encodingManager)) {
             bordersExtractor = new BordersExtractor(encodingManager, avoidCountries);
         }
     }
