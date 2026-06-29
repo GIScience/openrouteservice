@@ -45,7 +45,8 @@ Releasing is documented in RELEASE.md
 - check whether `mtb_scale` values are within the valid range before attempting to store them ([#2280](https://github.com/GIScience/openrouteservice/pull/2280))
 - update springdoc-openapi and swagger dependencies to address test suite errors ([#2290](https://github.com/GIScience/openrouteservice/pull/2290))
 - return status code 200, and issue a warning if extra info surface or waytype is requested but not available for the given profile ([#2296](https://github.com/GIScience/openrouteservice/pull/2296))
-- fix the graphhopper upgrade barrier node handling ([#2292](https://github.com/GIScience/openrouteservice/pull/2292))
+- barrier node handling after graphhopper upgrade ([#2292](https://github.com/GIScience/openrouteservice/pull/2292))
+- prevent the downloading of elevation data for OSM files preprocessed with `ele` node tags ([#2305](https://github.com/GIScience/openrouteservice/pull/2305))
 
 ### Security
 - update postcss to 8.5.12
