@@ -15,8 +15,10 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.dem.ElevationProvider;
+import lombok.Getter;
 import org.apache.log4j.Logger;
 
+@Getter
 public class PbfElevationProvider implements ElevationProvider {
     private static final Logger LOGGER = Logger.getLogger(PbfElevationProvider.class);
     private boolean errorLogged = false;
