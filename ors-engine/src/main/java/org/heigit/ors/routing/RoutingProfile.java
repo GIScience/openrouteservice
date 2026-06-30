@@ -25,8 +25,6 @@ import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.TimeUtility;
@@ -119,9 +117,6 @@ public class RoutingProfile {
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
-        ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
-        gh.setPathProcessorFactory(pathProcessorFactory);
-
         gh.init(args);
 
         // MARQ24: make sure that we only use ONE instance of the ElevationProvider across the multiple vehicle profiles
@@ -137,12 +132,10 @@ public class RoutingProfile {
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
 
         gh.importOrLoad();
-        // store CountryBordersReader for later use
-        for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
-            if (builder.getName().equals(BordersGraphStorageBuilder.BUILDER_NAME)) {
-                pathProcessorFactory.setCountryBordersReader(((BordersGraphStorageBuilder) builder).getCbReader());
-            }
-        }
+
+        ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
+        pathProcessorFactory.setCountryBordersReader(gpc.getCountryBordersReader());
+        gh.setPathProcessorFactory(pathProcessorFactory);
 
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("[%d] Profile: '%s', encoder: '%s', location: '%s'.".formatted(profileId, profileProperties.getProfileName(), profileProperties.getEncoderName().toString(), gh.getOrsGraphManager().getActiveGraphDirAbsPath()));

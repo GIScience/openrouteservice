@@ -110,6 +110,7 @@ class ORSGraphHopperTest {
                                                        EngineProperties engineProperties, ProfileProperties profileProperties) throws Exception {
         GraphProcessContext gpc = new GraphProcessContext(engineProperties.getProfiles().get(ROUTE_PROFILE_NAME));
         gpc.setGetElevationFromPreprocessedData(true);
+        gpc.setPreprocessedCountries(true);
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties, profileProperties);
         gh.init(ghConfig);

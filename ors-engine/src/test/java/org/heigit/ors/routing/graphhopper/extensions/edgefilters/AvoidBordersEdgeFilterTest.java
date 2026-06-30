@@ -13,21 +13,25 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.routing.ev.Border;
+import com.graphhopper.routing.ev.Country;
+import com.graphhopper.routing.ev.CountryOther;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.DAType;
-import com.graphhopper.storage.GHDirectory;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.storage.RAMDirectory;
 import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,32 +39,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AvoidBordersEdgeFilterTest {
     private final PMap properties = new PMap();
     private final EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.CAR_ORS, properties));
-    private final FlagEncoder encoder = encodingManager.getEncoder(FlagEncoderNames.CAR_ORS);
-    private final BordersGraphStorage _graphStorage;
-
+    private final GraphHopperStorage graphHopperStorage = new GraphHopperStorage(new RAMDirectory(), encodingManager, false);
     private final RouteSearchParameters _searchParams;
 
     public AvoidBordersEdgeFilterTest() {
-        // Initialise a graph storage with dummy data
-        _graphStorage = new BordersGraphStorage();
-        _graphStorage.init(null, new GHDirectory("", DAType.RAM_STORE));
-        _graphStorage.create(3);
+        encodingManager.addEncodedValue(Border.create(), false);
+        encodingManager.addEncodedValue(Country.create(), false);
+        encodingManager.addEncodedValue(CountryOther.create(), false);
 
-
-        // (edgeId, borderType, startCountry, endCountry)
-
-        _graphStorage.setEdgeValue(1, BordersGraphStorage.CONTROLLED_BORDER, (short) 1, (short) 2);
-        _graphStorage.setEdgeValue(2, BordersGraphStorage.OPEN_BORDER, (short) 3, (short) 4);
-        _graphStorage.setEdgeValue(3, BordersGraphStorage.NO_BORDER, (short) 5, (short) 5);
+        CountryBordersReader countryBordersReader = new CountryBordersReader();
+        countryBordersReader.setIsoCodes(Map.of("XXA", (short) 1, "XXB", (short) 2, "XXC", (short) 3, "XXD", (short) 4));
 
         _searchParams = new RouteSearchParameters();
     }
 
-    private VirtualEdgeIteratorState generateEdge(int id) {
-        IntsRef intsRef = encodingManager.createEdgeFlags();
+    private VirtualEdgeIteratorState generateEdge(int id, Border border, Country country1, Country country2) {
+        IntsRef edgeFlags = encodingManager.createEdgeFlags();
+        encodingManager.getEnumEncodedValue(Border.KEY, Border.class).setEnum(false, edgeFlags, border);
+        encodingManager.getEnumEncodedValue(Country.KEY, Country.class).setEnum(false, edgeFlags, country1);
+        encodingManager.getEnumEncodedValue(CountryOther.KEY, Country.class).setEnum(false, edgeFlags, country2);
         int edgeKey = GHUtility.createEdgeKey(id, false);
         return new VirtualEdgeIteratorState(0, edgeKey, 1, 2, 10,
-                intsRef, "test", Helper.createPointList(51, 0, 51, 1), false);
+                edgeFlags, "test", Helper.createPointList(51, 0, 51, 1), false);
     }
 
     @Test
@@ -68,16 +68,15 @@ class AvoidBordersEdgeFilterTest {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.ALL);
         _searchParams.setAvoidCountries(new int[]{});
 
-        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
+        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, graphHopperStorage);
 
-        VirtualEdgeIteratorState ve1 = generateEdge(1);
-        VirtualEdgeIteratorState ve2 = generateEdge(2);
-        VirtualEdgeIteratorState ve3 = generateEdge(3);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA, Country.XXB);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB, Country.XXC);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXD, Country.XXD);
 
         assertFalse(filter.accept(ve1));
         assertFalse(filter.accept(ve2));
         assertTrue(filter.accept(ve3));
-
     }
 
     @Test
@@ -85,11 +84,11 @@ class AvoidBordersEdgeFilterTest {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
         _searchParams.setAvoidCountries(new int[]{});
 
-        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
+        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, graphHopperStorage);
 
-        VirtualEdgeIteratorState ve1 = generateEdge(1);
-        VirtualEdgeIteratorState ve2 = generateEdge(2);
-        VirtualEdgeIteratorState ve3 = generateEdge(3);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA, Country.XXB);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB, Country.XXC);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXD, Country.XXD);
 
         assertFalse(filter.accept(ve1));
         assertTrue(filter.accept(ve2));
@@ -101,11 +100,11 @@ class AvoidBordersEdgeFilterTest {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.NONE);
         _searchParams.setAvoidCountries(new int[]{});
 
-        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
+        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, graphHopperStorage);
 
-        VirtualEdgeIteratorState ve1 = generateEdge(1);
-        VirtualEdgeIteratorState ve2 = generateEdge(2);
-        VirtualEdgeIteratorState ve3 = generateEdge(3);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA, Country.XXB);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB, Country.XXC);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXD, Country.XXD);
 
         assertTrue(filter.accept(ve1));
         assertTrue(filter.accept(ve2));
@@ -115,13 +114,13 @@ class AvoidBordersEdgeFilterTest {
     @Test
     void TestAvoidSpecificBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.NONE);
-        _searchParams.setAvoidCountries(new int[]{1, 5});
+        _searchParams.setAvoidCountries(new int[]{1, 4});
 
-        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
+        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, graphHopperStorage);
 
-        VirtualEdgeIteratorState ve1 = generateEdge(1);
-        VirtualEdgeIteratorState ve2 = generateEdge(2);
-        VirtualEdgeIteratorState ve3 = generateEdge(3);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA, Country.XXB);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB, Country.XXC);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXD, Country.XXD);
 
         assertFalse(filter.accept(ve1));
         assertTrue(filter.accept(ve2));
@@ -131,13 +130,13 @@ class AvoidBordersEdgeFilterTest {
     @Test
     void TestAvoidSpecificAndControlledBorders() {
         _searchParams.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
-        _searchParams.setAvoidCountries(new int[]{3});
+        _searchParams.setAvoidCountries(new int[]{2});
 
-        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, _graphStorage);
+        AvoidBordersEdgeFilter filter = new AvoidBordersEdgeFilter(_searchParams, graphHopperStorage);
 
-        VirtualEdgeIteratorState ve1 = generateEdge(1);
-        VirtualEdgeIteratorState ve2 = generateEdge(2);
-        VirtualEdgeIteratorState ve3 = generateEdge(3);
+        VirtualEdgeIteratorState ve1 = generateEdge(1, Border.CONTROLLED, Country.XXA, Country.XXB);
+        VirtualEdgeIteratorState ve2 = generateEdge(2, Border.OPEN, Country.XXB, Country.XXC);
+        VirtualEdgeIteratorState ve3 = generateEdge(3, Border.NONE, Country.XXD, Country.XXD);
 
         assertFalse(filter.accept(ve1));
         assertFalse(filter.accept(ve2));

@@ -1,11 +1,11 @@
 package org.heigit.ors.matching;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.ev.RoadEnvironment;
-import com.graphhopper.routing.ev.Subnetwork;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.DefaultSnapFilter;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndex;
@@ -27,14 +27,14 @@ import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidBordersEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
-import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 
 import java.util.*;
+
+import static org.heigit.ors.routing.graphhopper.extensions.util.EncodedValues.hasCountryBorders;
 
 public class MatchingRequest extends ServiceRequest {
     private static final Logger LOGGER = Logger.getLogger(MatchingRequest.class);
@@ -139,15 +139,15 @@ public class MatchingRequest extends ServiceRequest {
     }
 
     private static void addBorderFilter(EdgeFilterSequence edgeFilter, GraphHopperStorage ghStorage) {
-        BordersGraphStorage extBorders = GraphStorageUtils.getGraphExtension(ghStorage, BordersGraphStorage.class);
-        if (extBorders != null) {
+        EncodingManager encodingManager = ghStorage.getEncodingManager();
+        if (hasCountryBorders(encodingManager)) {
             RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
             routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.ALL);
-            EdgeFilter borderFilter = new AvoidBordersEdgeFilter(routeSearchParameters, extBorders);
+            EdgeFilter borderFilter = new AvoidBordersEdgeFilter(routeSearchParameters, ghStorage);
             edgeFilter.add(edgeState -> !borderFilter.accept(edgeState));
             LOGGER.trace("Applying border filter for snapping.");
         } else {
-            LOGGER.trace("BordersGraphStorage not found, cannot apply border filter for snapping.");
+            LOGGER.trace("Border encoded value not found, cannot apply border filter for snapping.");
         }
     }
 

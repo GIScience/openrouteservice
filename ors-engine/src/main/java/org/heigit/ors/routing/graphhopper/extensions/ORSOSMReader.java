@@ -20,6 +20,7 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
+import com.graphhopper.routing.ev.Border;
 import com.graphhopper.routing.ev.HillIndex;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
@@ -33,11 +34,15 @@ import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint3D;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.PedestrianWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
 import org.heigit.ors.routing.util.HillIndexCalculator;
 import org.locationtech.jts.geom.Coordinate;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -50,11 +55,14 @@ import static com.graphhopper.reader.osm.OSMNodeData.isTowerNode;
 public class ORSOSMReader extends OSMReader {
 
     private static final Logger LOGGER = Logger.getLogger(ORSOSMReader.class.getName());
+    private static final String TAG_KEY_COUNTRY1 = "country1";
+    private static final String TAG_KEY_COUNTRY2 = "country2";
+    public static final String KEY_ORS_NODE_TAGS = "ors:node_tags";
 
     private final GraphProcessContext procCntx;
     private boolean processNodeTags;
     private static final String KEY_COUNTRY = "country";
-    private Map<Long, String> countries;
+    private Map<Long, String> nodeCountryMap;
     private final GHLongObjectHashMap<Map<String, String>> nodeTags = new GHLongObjectHashMap<>(200, 0.5);
     private boolean processGeom = false;
     private boolean processSimpleGeom = false;
@@ -67,6 +75,7 @@ public class ORSOSMReader extends OSMReader {
     private final HashSet<String> extraTagKeys;
     private final Set<String> nodeTagsToStore;
     private final GHLongObjectHashMap<Map<String, Object>> osmNodeTagValues;
+    private final GeometryFactory gf = new GeometryFactory();
 
     private final AtomicInteger barrierNodesTotal = new AtomicInteger(
             0);
@@ -86,12 +95,6 @@ public class ORSOSMReader extends OSMReader {
 
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
-            if (b instanceof BordersGraphStorageBuilder) {
-                this.processNodeTags = true;
-                this.countries = new HashMap<>();
-                this.processGeom = true;
-            }
-
             if (b instanceof HereTrafficGraphStorageBuilder) {
                 this.processGeom = true;
                 this.processWholeGeom = true;
@@ -109,6 +112,12 @@ public class ORSOSMReader extends OSMReader {
                 extraTagKeys.add("kerb:left:height");
                 extraTagKeys.add("kerb:right:height");
             }
+        }
+
+        if (encodingManager.hasEncodedValue(Border.KEY)) {
+            this.processNodeTags = true;
+            this.nodeCountryMap = new HashMap<>();
+            this.processGeom = true;
         }
 
         if (procCntx.isUseSidewalks()) {
@@ -158,8 +167,8 @@ public class ORSOSMReader extends OSMReader {
             }
         }
 
-        if (countries != null  && node.hasTag(KEY_COUNTRY)) {
-            countries.put(node.getId(), node.getTag(KEY_COUNTRY));
+        if (nodeCountryMap != null  && node.hasTag(KEY_COUNTRY)) {
+            nodeCountryMap.put(node.getId(), node.getTag(KEY_COUNTRY));
         }
 
         if (isPillarNode(nodeData.getId(node.getId()))) {
@@ -199,6 +208,7 @@ public class ORSOSMReader extends OSMReader {
         onProcessWay(way);
         recordExactWayDistance(way);
         recordEstimatedWayDistance(way);// Required for backward compatibility of the acceleration heuristic
+        lookupCountries(way);
     }
 
     private void recordExactWayDistance(ReaderWay way) {
@@ -277,15 +287,19 @@ public class ORSOSMReader extends OSMReader {
                 int internalId = nodeData.getId(osmId);
                 Map<String, String> tagsForNode = nodeTags.get(osmId);
 
-                if (countries != null && countries.containsKey(osmId)) {
+                if (nodeCountryMap != null && nodeCountryMap.containsKey(osmId)) {
                     if (tagsForNode == null)
                         tagsForNode = new HashMap<>();
-                    tagsForNode.put(KEY_COUNTRY, countries.get(osmId));
+                    tagsForNode.put(KEY_COUNTRY, nodeCountryMap.get(osmId));
                 }
 
                 if (tagsForNode != null) {
                     tags.put(internalId, tagsForNode);
                 }
+            }
+
+            if (!tags.isEmpty()) {
+                way.setTag(KEY_ORS_NODE_TAGS, tags);
             }
         }
 
@@ -439,6 +453,144 @@ public class ORSOSMReader extends OSMReader {
         procCntx.finish();
     }
 
+    private void lookupCountries(ReaderWay way) {
+        if (procCntx.isPreprocessedCountries() || procCntx.getCountryBordersReader() == null) {
+            return;
+        }
+
+        var osmNodeIds = way.getNodes();
+        var coordinates = new Coordinate[osmNodeIds.size()];
+        for (int i = 0; i < osmNodeIds.size(); i++) {
+            GHPoint3D point = nodeData.getCoordinates(nodeData.getId(osmNodeIds.get(i)));
+            coordinates[i] = new Coordinate(point.getLon(), point.getLat());
+        }
+
+        lookupCountriesAndSetWayTags(way, coordinates);
+    }
+
+    void lookupCountriesAndSetWayTags(ReaderWay way, Coordinate[] coords) {
+        String[] countries = findBorderCrossing(coords);
+        if (countries.length > 1 && !countries[0].equals(countries[1])) {
+            way.setTag(TAG_KEY_COUNTRY1, countries[0]);
+            way.setTag(TAG_KEY_COUNTRY2, countries[1]);
+        } else if (countries.length == 1) {
+            way.setTag(TAG_KEY_COUNTRY1, countries[0]);
+            way.setTag(TAG_KEY_COUNTRY2, countries[0]);
+        }
+    }
+
+    public String[] findBorderCrossing(Coordinate[] coords) {
+
+        ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
+
+        boolean hasInternational = false;
+        boolean overlap = false;
+
+        CountryBordersReader cbReader = procCntx.getCountryBordersReader();
+        // Go through the points of the linestring and check what country they are in
+        int lsLen = coords.length;
+        if (lsLen > 1) {
+            for (int i = 0; i < lsLen; i++) {
+                // Make sure that it is a valid point
+                Coordinate c = coords[i];
+                if (!Double.isNaN(c.x) && !Double.isNaN(c.y)) {
+                    CountryBordersPolygon[] cnts = cbReader.getCandidateCountry(c);
+                    for (CountryBordersPolygon cbp : cnts) {
+                        // This check is for the bbox as that is quickest for detecting if there is the possibility of a
+                        // crossing
+                        if (!countries.contains(cbp)) {
+                            countries.add(cbp);
+                        }
+                    }
+
+                    // If we ended up with no candidates for the point, then we indicate that at least one point is
+                    // in international territory
+                    if (cnts.length == 0)
+                        hasInternational = true;
+                }
+            }
+        }
+        // Now get the definite ones that are contained - though this involves another iteration, it will be quicker
+        // than the linestring check in the next stage
+        if (countries.size() > 1) {
+            ArrayList<CountryBordersPolygon> temp = new ArrayList<>();
+
+            for (int i = 0; i < lsLen; i++) {
+                // Loop through each point of the line and check whcih countries it is in. This should only be 1 unless
+                // there is an overlap
+                Coordinate c = coords[i];
+                if (!Double.isNaN(c.x) && !Double.isNaN(c.y)) {
+                    // Check each country candidate
+                    boolean found = false;
+                    int countriesFound = 0;
+
+                    for (CountryBordersPolygon cbp : countries) {
+                        if (cbp.inArea(c)) {
+                            found = true;
+                            countriesFound++;
+                            if (!temp.contains(cbp)) {
+                                // At this point we only want to add countries that are not present. Basically, if a
+                                // boundary polygon of the same name is in the list, don't add the country again
+                                temp.add(cbp);
+                            }
+                        }
+                    }
+
+                    if (countriesFound > 1) {
+                        overlap = true;
+                    }
+
+                    if (!found) {
+                        hasInternational = true;
+                    }
+                }
+            }
+
+
+            // Replace the arraylist
+            countries = temp;
+        }
+
+        // Now we have a list of all the countries that the nodes are in - if this is more than one it is likely it is
+        // crossing a border, but not certain as in some disputed areas, countries overlap and so it may not cross any
+        // border.
+        if (countries.size() > 1 && overlap) {
+            boolean crosses = false;
+            // Construct the linesting
+            LineString ls = gf.createLineString(coords);
+            // Check for actually crossing a border, though we only want to do this for overlapping polygons
+            for (CountryBordersPolygon cp : countries) {
+                // We only want to do this check in the case where all points are in two countrie as this signifies an
+                // overlap
+                if (cp.crossesBoundary(ls)) {
+                    // it crosses a border
+                    crosses = true;
+                    break;
+                }
+            }
+
+            if (!crosses) {
+                // We want to indicate that it is in the same country, so to do that we only pass one country back
+                CountryBordersPolygon cp = countries.get(0);
+                countries.clear();
+                countries.add(cp);
+            }
+        }
+
+        // Now get the names of the countries
+        ArrayList<String> names = new ArrayList<>();
+        for (int i = 0; i < countries.size(); i++) {
+            if (!names.contains(countries.get(i).getName()))
+                names.add(countries.get(i).getName());
+        }
+
+        // If there is an international point and at least one country name, then we know it is a border
+        if (hasInternational && !countries.isEmpty()) {
+            names.add(CountryBordersReader.INTERNATIONAL_NAME);
+        }
+
+        return names.toArray(new String[0]);
+    }
     /**
      * We need to overwrite the basic barrier selection.
      * <p>
