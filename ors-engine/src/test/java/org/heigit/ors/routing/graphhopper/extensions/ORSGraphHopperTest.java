@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ORSGraphHopperTest {
     static final String GH_PROFILE_NAME = "car_ors";
@@ -41,7 +41,8 @@ class ORSGraphHopperTest {
      */
     @Test
     void buildGraphWithPreprocessedData() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("repoDir", "https://my.domain.com/");
+        ORSGraphHopper gh = createORSGraphHopperWithOsmFile(true);
+
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withEnabled(true)
                 .withLocalProfileName("buildGraphWithPreprocessedData")
@@ -58,12 +59,20 @@ class ORSGraphHopperTest {
         assertEquals(419, storage.getNodes());
     }
 
+    @Test
+    void usePbfElevationProviderOnlyWithPreprocessedElevation() throws Exception {
+        assertInstanceOf(PbfElevationProvider.class, createORSGraphHopperWithOsmFile(true).getElevationProvider());
+        assertFalse(createORSGraphHopperWithOsmFile(false).getElevationProvider() instanceof PbfElevationProvider);
+    }
+
     private static EngineProperties createEngineProperties(Path localGraphsRootPath,
                                                            String graphManagementRepositoryUrl,
                                                            String graphManagementRepositoryName,
                                                            String graphManagementRepositoryProfileGroup,
                                                            String graphManagementGraphExtent,
-                                                           String profileName, int graphManagementMaxBackups) {
+                                                           String profileName,
+                                                           int graphManagementMaxBackups,
+                                                           boolean preprocessed) {
 
         EngineProperties engineProperties = new EngineProperties();
 
@@ -91,6 +100,7 @@ class ORSGraphHopperTest {
         engineProperties.getProfileDefault().getBuild().getExtStorages().put("GreenIndex", greenIndex);
 
         ProfileProperties carProperties = new ProfileProperties();
+        engineProperties.getElevation().setPreprocessed(preprocessed);
         carProperties.setProfileName(profileName);
         carProperties.setEncoderName(EncoderNameEnum.DRIVING_CAR);
         carProperties.getBuild().getPreparation().getMethods().getLm().setEnabled(true);
@@ -109,7 +119,7 @@ class ORSGraphHopperTest {
     private static ORSGraphHopper createORSGraphHopper(ORSGraphHopperConfig ghConfig,
                                                        EngineProperties engineProperties, ProfileProperties profileProperties) throws Exception {
         GraphProcessContext gpc = new GraphProcessContext(engineProperties.getProfiles().get(ROUTE_PROFILE_NAME));
-        gpc.setGetElevationFromPreprocessedData(true);
+        gpc.setGetElevationFromPreprocessedData(engineProperties.getElevation().getPreprocessed());
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties, profileProperties);
         gh.init(ghConfig);
@@ -131,13 +141,12 @@ class ORSGraphHopperTest {
         return ghConfig;
     }
 
-    private static ORSGraphHopper createORSGraphHoopperWithOsmFile(String repoDir, String repoUrl) throws Exception {
+    private static ORSGraphHopper createORSGraphHopperWithOsmFile(boolean preprocessed) throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithOsmFile();
 
-        Path repoPath = repoDir.isEmpty() ? null : Path.of(repoDir);
-        EngineProperties engineProperties = createEngineProperties(repoPath, repoUrl,
+        EngineProperties engineProperties = createEngineProperties(Path.of("repoDir"), "https://my.domain.com/",
                 "repoName", "profileGroup", "graphExtent",
-                ROUTE_PROFILE_NAME, 0
+                ROUTE_PROFILE_NAME, 0, preprocessed
         );
         return createORSGraphHopper(ghConfig, engineProperties, engineProperties.getProfiles().get(ROUTE_PROFILE_NAME));
     }
