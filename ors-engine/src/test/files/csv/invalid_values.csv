@@ -1,0 +1,4 @@
+osm_id,col_a,col_b
+1,not_a_number,0.75
+2,1.0,also_invalid
+
