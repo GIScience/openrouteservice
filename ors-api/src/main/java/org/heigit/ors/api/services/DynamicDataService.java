@@ -291,7 +291,7 @@ public class DynamicDataService {
      * Parse NDJSON response from FeatureStore API using streaming JSON parser.
      * Each line is a JSON object representing a match.
      * Format:
-     * {"feature_id":1,"dataset_key":"logie_borders","edge_id":3239,"value":1.0,"timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
+     * {"feature_id":1,"dataset_key":"example_dataset","edge_id":3239,"value":1.0,"timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
      */
     private void parseNdjsonMatches(InputStream stream, RoutingProfile profile, String profileName) {
         LOGGER.info("Starting NDJSON parsing for profile '" + profileName + "' from stream");
@@ -397,7 +397,7 @@ public class DynamicDataService {
     /**
      * Fetch dataset statistics from FeatureStore API.
      * Returns a JsonNode array containing dataset information.
-     * Format: [{"datasetId": "logie_borders", "totalFeatures": 1000,
+     * Format: [{"datasetId": "example_dataset", "totalFeatures": 1000,
      * "matchedFeatures": 1000, ...}]
      */
     public JsonNode getFeatureStoreStats(String profileName) {
