@@ -20,6 +20,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.graphhopper.extensions.storages.CsvGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -60,7 +61,7 @@ public class CsvGraphStorageBuilder extends AbstractGraphStorageBuilder {
         return storage;
     }
 
-    private void readFromCSV(String csvFile) throws IOException {
+    private void readFromCSV(String csvFile) throws GraphStorageException {
         try (BufferedReader csvBuffer = new BufferedReader(new FileReader(csvFile))) {
             // Header line
             String row = csvBuffer.readLine();
@@ -78,9 +79,10 @@ public class CsvGraphStorageBuilder extends AbstractGraphStorageBuilder {
                         .toArray(Integer[]::new);
                 id2Value.put(id, values);
             }
-        } catch (IOException openFileEx) {
-            LOGGER.error(openFileEx.getStackTrace());
-            throw openFileEx;
+        } catch (IOException ioException) {
+            throw new GraphStorageException("CsvGraphStorageBuilder could not read CSV file " + ioException.getMessage());
+        } catch (Exception otherException) {
+            throw new GraphStorageException("CsvGraphStorageBuilder could not parse CSV file. " + otherException.getClass().getSimpleName() + ": " + otherException.getMessage());
         }
     }
 

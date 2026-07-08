@@ -17,6 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.*;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageException;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
     }
 
     @Override
-    public GraphHopperStorage createStorage(GHDirectory dir, GraphHopper gh) {
+    public GraphHopperStorage createStorage(GHDirectory dir, GraphHopper gh) throws RuntimeException {
         EncodingManager encodingManager = gh.getEncodingManager();
         ArrayList<GraphExtension> graphExtensions = new ArrayList<>();
 
@@ -44,6 +45,8 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
                     GraphExtension ext = builder.init(gh);
                     if (ext != null)
                         graphExtensions.add(ext);
+                } catch (GraphStorageException ex) {
+                    throw new RuntimeException(ex.getMessage(), ex);
                 } catch (Exception ex) {
                     graphStorageBuilders.remove(builder);
                     LOGGER.error(ex);
