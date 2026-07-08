@@ -30,8 +30,6 @@ public abstract class AccessRestrictionType {
     }
 
     public static int getFromString(String tagValue) {
-        //TODO: account for multiple values separated by ';' (e.g. "private;customers")
-        //      see https://github.com/GIScience/openrouteservice/issues/2275
         if (tagValue == null) {
             return NONE;
         }

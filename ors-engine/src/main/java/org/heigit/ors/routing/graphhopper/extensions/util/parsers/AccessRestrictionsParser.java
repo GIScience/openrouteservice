@@ -36,6 +36,9 @@ public class AccessRestrictionsParser implements TagParser {
         motorCarTags.addAll(Arrays.asList(VAL_MOTORCAR, VAL_MOTOR_VEHICLE));
         motorCycleTags.addAll(Arrays.asList(VAL_MOTORCYCLE, VAL_MOTOR_VEHICLE));
 
+//        motorCarTags.addAll(Arrays.asList(VAL_MOTORCAR, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
+//        motorCycleTags.addAll(Arrays.asList(VAL_MOTORCYCLE, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
+
         restrictedValues.add("private");
         restrictedValues.add("no");
         restrictedValues.add("restricted");
@@ -143,6 +146,8 @@ public class AccessRestrictionsParser implements TagParser {
      * @return An integer encoded representation of all restrictions that have been set
      */
     private int updateRestriction(int encodedRestrictions, String restrictionValue) {
+        //TODO: account for multiple values separated by ';' (e.g. "private;customers")
+        //      see https://github.com/GIScience/openrouteservice/issues/2275
         return encodedRestrictions | AccessRestrictionType.getFromString(restrictionValue);
     }
 
