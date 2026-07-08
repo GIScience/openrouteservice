@@ -24,34 +24,20 @@ public class AccessRestrictionsParser implements TagParser {
     private static final String VAL_HGV = "hgv";
     private static final String VAL_BICYCLE = "bicycle";
     private static final String VAL_FOOT = "foot";
-    private final List<String> accessRestrictedTags = new ArrayList<>(5);
     private final List<String> motorcarTags = new ArrayList<>(5);
     private final List<String> motorcycleTags = new ArrayList<>(5);
     private final List<String> hgvTags = new ArrayList<>(5);
     private final List<String> bicycleTags = new ArrayList<>(5);
     private final List<String> footTags = new ArrayList<>(5);
-    private final Set<String> restrictedValues = new HashSet<>(5);
 
     private final int profileType;
 
     public void initTags() {
-        accessRestrictedTags.addAll(Arrays.asList(VAL_MOTORCAR, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS, VAL_BICYCLE, VAL_FOOT));
         motorcarTags.addAll(Arrays.asList(VAL_MOTORCAR, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
         motorcycleTags.addAll(Arrays.asList(VAL_MOTORCYCLE, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
         hgvTags.addAll(Arrays.asList(VAL_HGV, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
         bicycleTags.addAll(Arrays.asList(VAL_BICYCLE, VAL_VEHICLE, VAL_ACCESS));
         footTags.addAll(Arrays.asList(VAL_FOOT, VAL_ACCESS));
-
-        restrictedValues.add("private");
-        restrictedValues.add("no");
-        restrictedValues.add("restricted");
-        restrictedValues.add("military");
-        restrictedValues.add("destination");
-        restrictedValues.add("customers");
-        restrictedValues.add("emergency");
-        restrictedValues.add("permissive");
-        restrictedValues.add("delivery");
-        restrictedValues.add("permit");
     }
 
 
