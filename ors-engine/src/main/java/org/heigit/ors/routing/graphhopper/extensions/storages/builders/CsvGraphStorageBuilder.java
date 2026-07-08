@@ -80,9 +80,9 @@ public class CsvGraphStorageBuilder extends AbstractGraphStorageBuilder {
                 id2Value.put(id, values);
             }
         } catch (IOException ioException) {
-            throw new GraphStorageException("CsvGraphStorageBuilder could not read CSV file " + ioException.getMessage());
+            throw new GraphStorageException("CsvGraphStorageBuilder could not read CSV file '" + csvFile + "'.", ioException);
         } catch (Exception otherException) {
-            throw new GraphStorageException("CsvGraphStorageBuilder could not parse CSV file. " + otherException.getClass().getSimpleName() + ": " + otherException.getMessage());
+            throw new GraphStorageException("CsvGraphStorageBuilder could not parse CSV file '" + csvFile + "'. " + otherException.getClass().getSimpleName() + ": " + otherException.getMessage(), otherException);
         }
     }
 
