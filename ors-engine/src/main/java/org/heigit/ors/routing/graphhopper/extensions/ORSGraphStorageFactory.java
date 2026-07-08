@@ -47,7 +47,6 @@ public class ORSGraphStorageFactory implements GraphStorageFactory {
                         graphExtensions.add(ext);
                 } catch (GraphStorageException ex) {
                     throw new IllegalStateException("Failed to initialize graph storage builder '" + builder.getName() + "': " + ex.getMessage(), ex);
-                }
                 } catch (Exception ex) {
                     graphStorageBuilders.remove(builder);
                     LOGGER.error(ex);

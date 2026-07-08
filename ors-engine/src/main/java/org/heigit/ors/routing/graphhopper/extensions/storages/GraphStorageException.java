@@ -16,10 +16,6 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 public class GraphStorageException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    public GraphStorageException(String message) {
-        super(message);
-    }
-
     public GraphStorageException(String message, Throwable cause) {
         super(message, cause);
     }
