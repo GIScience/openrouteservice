@@ -47,6 +47,7 @@ Releasing is documented in RELEASE.md
 - return status code 200, and issue a warning if extra info surface or waytype is requested but not available for the given profile ([#2296](https://github.com/GIScience/openrouteservice/pull/2296))
 - barrier node handling after graphhopper upgrade ([#2292](https://github.com/GIScience/openrouteservice/pull/2292))
 - prevent the downloading of elevation data for OSM files preprocessed with `ele` node tags ([#2305](https://github.com/GIScience/openrouteservice/pull/2305))
+- handle CSV parsing exceptions in CsvGraphStorageBuilder gracefully ([#2312](https://github.com/GIScience/openrouteservice/pull/2312))
 
 ### Security
 - update postcss to 8.5.12
