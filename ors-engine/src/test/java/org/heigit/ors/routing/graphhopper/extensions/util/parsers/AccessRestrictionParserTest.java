@@ -25,9 +25,8 @@ class AccessRestrictionParserTest {
         intsRef = em.createEdgeFlags();
     }
 
-    @Test
-    void testAccessTypes() {
-        initParser(RoutingProfileType.DRIVING_CAR);
+    private void assertRestrictionsForProfile(int profileType) {
+        initParser(profileType);
         ReaderWay way = new ReaderWay(1);
 
         parser.handleWayTags(intsRef, way, false, relFlags);
@@ -63,40 +62,13 @@ class AccessRestrictionParserTest {
     }
 
     @Test
+    void testAccessTypesCar() {
+        assertRestrictionsForProfile(RoutingProfileType.DRIVING_CAR);
+    }
+
+    @Test
     void testAccessCycling() {
-        initParser(RoutingProfileType.CYCLING_REGULAR);
-        ReaderWay way = new ReaderWay(1);
-
-        parser.handleWayTags(intsRef, way, false, relFlags);
-        assertEquals(AccessRestrictionType.NONE, accessRestrictionEnc.getInt(false, intsRef));
-
-        way.setTag("access", "no");
-        parser.handleWayTags(intsRef, way, false, relFlags);
-        assertEquals(AccessRestrictionType.NO, accessRestrictionEnc.getInt(false, intsRef));
-
-        way.setTag("access", "customers");
-        parser.handleWayTags(intsRef, way, false, relFlags);
-        assertEquals(AccessRestrictionType.CUSTOMERS, accessRestrictionEnc.getInt(false, intsRef));
-
-        way.setTag("access", "destination");
-        parser.handleWayTags(intsRef, way, false, relFlags);
-        assertEquals(AccessRestrictionType.DESTINATION, accessRestrictionEnc.getInt(false, intsRef));
-
-        way.setTag("access", "delivery");
-        parser.handleWayTags(intsRef, way, false, relFlags);
-        assertEquals(AccessRestrictionType.DELIVERY, accessRestrictionEnc.getInt(false, intsRef));
-
-        way.setTag("access", "private");
-        parser.handleWayTags(intsRef, way, false, relFlags);
-        assertEquals(AccessRestrictionType.PRIVATE, accessRestrictionEnc.getInt(false, intsRef));
-
-        way.setTag("access", "permissive");
-        parser.handleWayTags(intsRef, way, false, relFlags);
-        assertEquals(AccessRestrictionType.PERMISSIVE, accessRestrictionEnc.getInt(false, intsRef));
-
-        way.setTag("access", "permit");
-        parser.handleWayTags(intsRef, way, false, relFlags);
-        assertEquals(AccessRestrictionType.PERMIT, accessRestrictionEnc.getInt(false, intsRef));
+        assertRestrictionsForProfile(RoutingProfileType.CYCLING_REGULAR);
     }
 
     @Test

@@ -14,8 +14,6 @@ import java.util.*;
 
 
 public class AccessRestrictionsParser implements TagParser {
-    private final IntEncodedValue accessRestrictionEnc;
-
     private static final String VAL_ACCESS = "access";
     private static final String VAL_MOTOR_VEHICLE = "motor_vehicle";
     private static final String VAL_MOTORCAR = "motorcar";
@@ -24,22 +22,13 @@ public class AccessRestrictionsParser implements TagParser {
     private static final String VAL_HGV = "hgv";
     private static final String VAL_BICYCLE = "bicycle";
     private static final String VAL_FOOT = "foot";
-    private final List<String> motorcarTags = new ArrayList<>(5);
-    private final List<String> motorcycleTags = new ArrayList<>(5);
-    private final List<String> hgvTags = new ArrayList<>(5);
-    private final List<String> bicycleTags = new ArrayList<>(5);
-    private final List<String> footTags = new ArrayList<>(5);
-
+    private static final List<String> motorcarTags = Arrays.asList(VAL_MOTORCAR, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS);
+    private static final List<String> motorcycleTags = Arrays.asList(VAL_MOTORCYCLE, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS);
+    private static final List<String> hgvTags = Arrays.asList(VAL_HGV, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS);
+    private static final List<String> bicycleTags = Arrays.asList(VAL_BICYCLE, VAL_VEHICLE, VAL_ACCESS);
+    private static final List<String> footTags = Arrays.asList(VAL_FOOT, VAL_ACCESS);
+    private final IntEncodedValue accessRestrictionEnc;
     private final int profileType;
-
-    public void initTags() {
-        motorcarTags.addAll(Arrays.asList(VAL_MOTORCAR, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
-        motorcycleTags.addAll(Arrays.asList(VAL_MOTORCYCLE, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
-        hgvTags.addAll(Arrays.asList(VAL_HGV, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
-        bicycleTags.addAll(Arrays.asList(VAL_BICYCLE, VAL_VEHICLE, VAL_ACCESS));
-        footTags.addAll(Arrays.asList(VAL_FOOT, VAL_ACCESS));
-    }
-
 
     public AccessRestrictionsParser(int profileType) {
         this(AccessRestriction.create(), profileType);
@@ -48,7 +37,6 @@ public class AccessRestrictionsParser implements TagParser {
     public AccessRestrictionsParser(IntEncodedValue accessRestrictionEnc, int profileType) {
         this.accessRestrictionEnc = accessRestrictionEnc;
         this.profileType = profileType;
-        initTags();
     }
 
     @Override
@@ -96,7 +84,7 @@ public class AccessRestrictionsParser implements TagParser {
     private int getRestrictionType(ReaderWay way, List<String> tags) {
         int res = 0;
 
-      for (String value : way.getFirstPriorityTagValues(tags)) {
+        for (String value : way.getFirstPriorityTagValues(tags)) {
             res = updateRestriction(res, value);
         }
 
