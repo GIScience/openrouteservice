@@ -21,23 +21,26 @@ public class AccessRestrictionsParser implements TagParser {
     private static final String VAL_MOTORCAR = "motorcar";
     private static final String VAL_VEHICLE = "vehicle";
     private static final String VAL_MOTORCYCLE = "motorcycle";
+    private static final String VAL_HGV = "hgv";
     private static final String VAL_BICYCLE = "bicycle";
     private static final String VAL_FOOT = "foot";
     private final List<String> accessRestrictedTags = new ArrayList<>(5);
-    private final List<String> motorCarTags = new ArrayList<>(5);
-    private final List<String> motorCycleTags = new ArrayList<>(5);
+    private final List<String> motorcarTags = new ArrayList<>(5);
+    private final List<String> motorcycleTags = new ArrayList<>(5);
+    private final List<String> hgvTags = new ArrayList<>(5);
+    private final List<String> bicycleTags = new ArrayList<>(5);
+    private final List<String> footTags = new ArrayList<>(5);
     private final Set<String> restrictedValues = new HashSet<>(5);
-    private final Set<String> permissiveValues = new HashSet<>(5);
 
     private final int profileType;
 
     public void initTags() {
         accessRestrictedTags.addAll(Arrays.asList(VAL_MOTORCAR, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS, VAL_BICYCLE, VAL_FOOT));
-        motorCarTags.addAll(Arrays.asList(VAL_MOTORCAR, VAL_MOTOR_VEHICLE));
-        motorCycleTags.addAll(Arrays.asList(VAL_MOTORCYCLE, VAL_MOTOR_VEHICLE));
-
-//        motorCarTags.addAll(Arrays.asList(VAL_MOTORCAR, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
-//        motorCycleTags.addAll(Arrays.asList(VAL_MOTORCYCLE, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
+        motorcarTags.addAll(Arrays.asList(VAL_MOTORCAR, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
+        motorcycleTags.addAll(Arrays.asList(VAL_MOTORCYCLE, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
+        hgvTags.addAll(Arrays.asList(VAL_HGV, VAL_MOTOR_VEHICLE, VAL_VEHICLE, VAL_ACCESS));
+        bicycleTags.addAll(Arrays.asList(VAL_BICYCLE, VAL_VEHICLE, VAL_ACCESS));
+        footTags.addAll(Arrays.asList(VAL_FOOT, VAL_ACCESS));
 
         restrictedValues.add("private");
         restrictedValues.add("no");
@@ -49,10 +52,6 @@ public class AccessRestrictionsParser implements TagParser {
         restrictedValues.add("permissive");
         restrictedValues.add("delivery");
         restrictedValues.add("permit");
-
-        permissiveValues.add("yes");
-        permissiveValues.add("designated");
-        permissiveValues.add("official");
     }
 
 
@@ -79,39 +78,26 @@ public class AccessRestrictionsParser implements TagParser {
     }
 
     public int processWay(ReaderWay way) {
-        //TODO: modify the following logic to process access restriction tags from the most specific to the least
-        //      specific, e.g. motorcar > motor_vehicle > vehicle > access via a call to way.getFirstPriorityTag
-        //      see https://github.com/GIScience/openrouteservice/issues/2275
-
-        if (!way.hasTag(accessRestrictedTags, restrictedValues)) {
-            return 0;
-        }
-
-        if (RoutingProfileType.isDriving(profileType)) {
-            return processAccess(way, motorCarTags);
+        if (profileType == RoutingProfileType.DRIVING_CAR) {
+            return getRestrictionType(way, motorcarTags);
         }
         if (profileType == RoutingProfileType.DRIVING_MOTORCYCLE) {
-            return processAccess(way, motorCycleTags);
+            return getRestrictionType(way, motorcycleTags);
+        }
+        if (RoutingProfileType.isHeavyVehicle(profileType)) {
+            return getRestrictionType(way, hgvTags);
         }
         if (RoutingProfileType.isCycling(profileType)) {
-            return processAccess(way, VAL_BICYCLE);
+            return getRestrictionType(way, bicycleTags);
         }
         if (RoutingProfileType.isPedestrian(profileType)) {
-            return processAccess(way, VAL_FOOT);
+            return getRestrictionType(way, footTags);
         }
         if (profileType == RoutingProfileType.UNKNOWN) {
-            return processAccess(way, VAL_ACCESS);
+            return getRestrictionType(way, Collections.singletonList(VAL_ACCESS));
         }
 
         return 0;
-    }
-
-    private int processAccess(ReaderWay way, String tag) {
-        return processAccess(way, Collections.singletonList(tag));
-    }
-
-    private int processAccess(ReaderWay way, List<String> tags) {
-        return isAccessAllowed(way, tags) ? 0 : getRestrictionType(way, tags);
     }
 
     /**
@@ -124,15 +110,8 @@ public class AccessRestrictionsParser implements TagParser {
     private int getRestrictionType(ReaderWay way, List<String> tags) {
         int res = 0;
 
-        String tagValue = way.getTag(VAL_ACCESS);
-        if (tagValue != null)
-            res = updateRestriction(res, tagValue);
-
-        if (tags != null) {
-            for (String key : tags) {
-                tagValue = way.getTag(key);
-                res = updateRestriction(res, tagValue);
-            }
+      for (String value : way.getFirstPriorityTagValues(tags)) {
+            res = updateRestriction(res, value);
         }
 
         return res;
@@ -146,20 +125,6 @@ public class AccessRestrictionsParser implements TagParser {
      * @return An integer encoded representation of all restrictions that have been set
      */
     private int updateRestriction(int encodedRestrictions, String restrictionValue) {
-        //TODO: account for multiple values separated by ';' (e.g. "private;customers")
-        //      see https://github.com/GIScience/openrouteservice/issues/2275
         return encodedRestrictions | AccessRestrictionType.getFromString(restrictionValue);
     }
-
-    /**
-     * Check if access is allowed on the way. e.g. it would check if motor_car=yes/permissive/destination etc. is set
-     *
-     * @param way      The OSM way to be checked
-     * @param tagNames The tags (keys) to be checked
-     * @return Whether access is allowed on the way
-     */
-    private boolean isAccessAllowed(ReaderWay way, List<String> tagNames) {
-        return way.hasTag(tagNames, permissiveValues);
-    }
-
 }
