@@ -15,6 +15,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -416,8 +417,12 @@ public class DynamicDataService {
 
             LOGGER.debug("Successfully retrieved FeatureStore stats: " + response);
             return response;
+        } catch (HttpClientErrorException e) {
+            LOGGER.warn("FeatureStore stats endpoint returned " + e.getStatusCode() + " for profile '"
+                    + profileName + "': " + e.getMessage());
+            return new ObjectMapper().createArrayNode();
         } catch (Exception e) {
-            LOGGER.error("Error fetching FeatureStore stats", e);
+            LOGGER.error("Error fetching FeatureStore stats for profile '" + profileName + "'", e);
             return new ObjectMapper().createArrayNode();
         }
     }
