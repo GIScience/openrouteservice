@@ -481,6 +481,19 @@ public class DynamicDataService {
     }
 
     /**
+     * Advance the incremental-poll cursor for a profile, but only forward.
+     * NDJSON matches are not guaranteed to arrive in timestamp order, so a
+     * plain put() here would let an out-of-order (older) match in the same
+     * batch drag the cursor backward, causing FeatureStore to re-send an
+     * ever-growing backlog of already-processed matches on every subsequent
+     * poll.
+     */
+    private void advanceLastUpdateTimestamp(String profileName, Instant matchTimestamp) {
+        lastUpdateTimestamps.merge(profileName, matchTimestamp,
+                (existing, incoming) -> incoming.isAfter(existing) ? incoming : existing);
+    }
+
+    /**
      * Process a single NDJSON match record and update the profile.
      */
     private MatchOutcome processSingleMatch(ObjectMapper objectMapper, JsonParser parser, RoutingProfile profile, String profileName) {
@@ -502,16 +515,14 @@ public class DynamicDataService {
             
             // Track timestamp for incremental updates (from Phase 6.3.3)
             try {
-                Instant matchTimestamp = Instant.parse(timestamp);
-                lastUpdateTimestamps.put(profileName, matchTimestamp);
+                advanceLastUpdateTimestamp(profileName, Instant.parse(timestamp));
             } catch (Exception timeEx) {
                 // If FSS sends just a local time without Z, append Z or parse differently
                 try {
                     if (!timestamp.endsWith("Z") && !timestamp.contains("+")) {
                         timestamp = timestamp + "Z";
                     }
-                    Instant matchTimestamp = Instant.parse(timestamp);
-                    lastUpdateTimestamps.put(profileName, matchTimestamp);
+                    advanceLastUpdateTimestamp(profileName, Instant.parse(timestamp));
                 } catch (Exception timeEx2) {
                     LOGGER.warn("Could not parse timestamp '" + timestamp + "' for dataset=" + datasetKey + ", edgeId="
                             + edgeId);
