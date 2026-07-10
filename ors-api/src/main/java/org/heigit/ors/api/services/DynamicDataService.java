@@ -296,6 +296,7 @@ public class DynamicDataService {
         try {
             JsonParser parser = jsonFactory.createParser(stream);
             int applied = 0;
+            int deleted = 0;
             int skipped = 0;
             int errors = 0;
 
@@ -303,6 +304,7 @@ public class DynamicDataService {
                 if (parser.currentToken().isStructStart()) {
                     switch (processSingleMatch(objectMapper, parser, profile, profileName)) {
                         case APPLIED -> applied++;
+                        case DELETED -> deleted++;
                         case SKIPPED -> skipped++;
                         case ERROR -> errors++;
                     }
@@ -310,15 +312,15 @@ public class DynamicDataService {
             }
 
             parser.close();
-            LOGGER.info("Parsed " + (applied + skipped + errors) + " matches for profile '" + profileName
-                    + "' (" + applied + " applied, " + skipped + " skipped, " + errors + " errors)");
+            LOGGER.info("Parsed " + (applied + deleted + skipped + errors) + " matches for profile '" + profileName
+                    + "' (" + applied + " applied, " + deleted + " deleted, " + skipped + " skipped, " + errors + " errors)");
         } catch (IOException e) {
             LOGGER.error("Error parsing NDJSON stream for profile '" + profileName + "'", e);
         }
     }
 
     private enum MatchOutcome {
-        APPLIED, SKIPPED, ERROR
+        APPLIED, DELETED, SKIPPED, ERROR
     }
 
     /**
@@ -362,6 +364,7 @@ public class DynamicDataService {
             // Update or unset the dynamic data in the profile
             if (isDeleted) {
                 profile.unsetDynamicData(datasetKey, edgeId);
+                return MatchOutcome.DELETED;
             } else {
                 // Safe extraction of optional value field
                 // Prefer numeric read to avoid String intermediate for float JSON values
