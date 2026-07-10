@@ -54,6 +54,7 @@ class RoutingProfileDynamicDataTest {
         setField(routingProfile, "mGraphHopper", graphHopper);
         dynamicDatasets = new ArrayList<>();
         setField(routingProfile, "dynamicDatasets", dynamicDatasets);
+        setField(routingProfile, "loggedUnregisteredDatasets", java.util.concurrent.ConcurrentHashMap.newKeySet());
         setField(routingProfile, "profileName", "logie-hgv");
 
         lenient().when(graphHopper.getEncodingManager()).thenReturn(encodingManager);

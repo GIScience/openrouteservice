@@ -44,6 +44,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -75,6 +77,7 @@ public class RoutingProfile {
 
     @Getter
     private final List<String> dynamicDatasets = new ArrayList<>();
+    private final Set<String> loggedUnregisteredDatasets = ConcurrentHashMap.newKeySet();
 
     public RoutingProfile(String profileName, ProfileProperties profile, EngineProperties engine, RoutingProfileLoadContext loadCntx) throws Exception {
         this.profileName = profileName;
@@ -308,10 +311,14 @@ public class RoutingProfile {
 
     public void updateDynamicData(String key, int edgeID, Double value) {
         if (!dynamicDatasets.contains(key)) {
-            LOGGER.error("Dataset '" + key + "' not registered in profile '" + profileName
-                    + "', cannot update dynamic data. Available datasets: " + dynamicDatasets);
+            if (loggedUnregisteredDatasets.add(key)) {
+                LOGGER.error("Dataset '" + key + "' not registered in profile '" + profileName
+                        + "', cannot update dynamic data. Available datasets: " + dynamicDatasets
+                        + " (further occurrences for this dataset will be suppressed until it is registered)");
+            }
             return;
         }
+        loggedUnregisteredDatasets.remove(key);
         SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(sanitizeEncodedValueKey(key), HashMapSparseEncodedValue.class);
         if (sev == null) {
             LOGGER.error("SparseEncodedValue for key '" + key + "' not found in profile '" + profileName
