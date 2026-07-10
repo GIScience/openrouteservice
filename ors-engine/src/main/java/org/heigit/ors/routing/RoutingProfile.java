@@ -319,7 +319,7 @@ public class RoutingProfile {
             return;
         }
         sev.set(edgeID, value);
-        LOGGER.debug("Updated dynamic data: profile=" + profileName + ", key=" + key + ", edgeID=" + edgeID
+        LOGGER.trace("Updated dynamic data: profile=" + profileName + ", key=" + key + ", edgeID=" + edgeID
                 + ", value=" + value);
     }
 

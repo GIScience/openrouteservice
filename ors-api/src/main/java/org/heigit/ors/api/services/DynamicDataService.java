@@ -49,10 +49,8 @@ public class DynamicDataService {
 
         enabled = engineProperties.getDynamicData().getEnabled();
         featureStoreApiUrl = engineProperties.getDynamicData().getFeatureStoreApiUrl();
-        
-        // DEBUG: Log what we received from configuration
-        LOGGER.info("DynamicDataService constructor: enabled=" + enabled);
-        LOGGER.info("DynamicDataService constructor: featureStoreApiUrl=" + featureStoreApiUrl);
+
+        LOGGER.debug("DynamicDataService constructor: enabled=" + enabled + ", featureStoreApiUrl=" + featureStoreApiUrl);
 
         // Dynamic data now only supports FeatureStore API (REST endpoint)
         if (StringUtility.isNullOrEmpty(featureStoreApiUrl)) {
@@ -94,14 +92,13 @@ public class DynamicDataService {
 
     private void initialize() {
         RoutingProfileManager routingProfileManager = engineService.waitForInitializedRoutingProfileManager();
-        LOGGER.info("=== DynamicDataService.initialize() called ===");
-        LOGGER.info("RoutingProfileManager status: shutdown=" + routingProfileManager.isShutdown() + ", failed="
-                + routingProfileManager.hasFailed());
+        LOGGER.debug("DynamicDataService.initialize() called: shutdown=" + routingProfileManager.isShutdown()
+                + ", failed=" + routingProfileManager.hasFailed());
         if (routingProfileManager.isShutdown() || routingProfileManager.hasFailed()) {
             LOGGER.warn("RoutingProfileManager is shutdown or failed, skipping dynamic data initialization");
             return;
         }
-        LOGGER.info("Initializing dynamic data service with FeatureStore API URL: " + featureStoreApiUrl);
+        LOGGER.debug("Initializing dynamic data service with FeatureStore API URL: " + featureStoreApiUrl);
         routingProfileManager.getUniqueProfiles().forEach(profile -> {
             LOGGER.debug("Checking profile: " + profile.name());
             if (Boolean.TRUE.equals(profile.getProfileConfiguration().getBuild().getEncoderOptions().getEnableCustomModels()))
@@ -147,26 +144,23 @@ public class DynamicDataService {
             LOGGER.debug("Dynamic data service is disabled, skipping refresh.");
             return;
         }
-        LOGGER.info("================== MANUALLY TRIGGERED DYNAMIC DATA REFRESH ==================");
-        LOGGER.info("enabledProfiles count: " + enabledProfiles.size());
-        for (RoutingProfile profile : enabledProfiles) {
-            LOGGER.info("  - Profile: " + profile.name());
-        }
+        LOGGER.info("Manually triggered dynamic data refresh for profiles: "
+                + enabledProfiles.stream().map(RoutingProfile::name).toList());
         enabledProfiles.forEach(this::fetchDynamicData);
-        LOGGER.info("================== DYNAMIC DATA REFRESH COMPLETED ==================");
+        LOGGER.info("Manually triggered dynamic data refresh completed.");
     }
 
     private void fetchDynamicData(RoutingProfile profile) {
         if (StringUtility.isNullOrEmpty(featureStoreApiUrl)) {
-            LOGGER.warn(">>> featureStoreApiUrl is null or empty, cannot fetch dynamic data!");
+            LOGGER.warn("featureStoreApiUrl is null or empty, cannot fetch dynamic data!");
             return;
         }
 
-        LOGGER.debug(">>> Using FSS API URL: " + featureStoreApiUrl);
+        LOGGER.debug("Using FSS API URL: " + featureStoreApiUrl);
 
         String profileName = profile.name();
-        LOGGER.info(">>> fetchDynamicData started for profile: " + profileName);
-        
+        LOGGER.debug("fetchDynamicData started for profile: " + profileName);
+
         try {
             if (!areEnabledDatasetsPresent(profile)) {
                 LOGGER.warn("No enabled datasets found in FeatureStore for profile '" + profileName
@@ -224,7 +218,7 @@ public class DynamicDataService {
                         }
                         return null;
                     });
-            LOGGER.info("Successfully fetched dynamic data for profile '" + profileName + "'");
+            LOGGER.debug("Successfully fetched dynamic data for profile '" + profileName + "'");
         } catch (Exception e) {
             LOGGER.error("Error fetching dynamic data for profile '" + profileName + "'", e);
         }
@@ -245,7 +239,7 @@ public class DynamicDataService {
             return false;
         }
 
-        LOGGER.info(
+        LOGGER.debug(
                 "Checking enabled datasets for profile '" + profileName + "': " + enabledDatasets.size() + " datasets");
 
         try {
@@ -263,11 +257,11 @@ public class DynamicDataService {
             // Check if at least one enabled dataset is present
             for (String enabledDataset : enabledDatasets) {
                 if (availableDatasets.contains(enabledDataset)) {
-                    LOGGER.info("Dataset '" + enabledDataset + "' is present in FeatureStore for profile '"
+                    LOGGER.debug("Dataset '" + enabledDataset + "' is present in FeatureStore for profile '"
                             + profileName + "'");
                     return true;
                 } else {
-                    LOGGER.warn("Dataset '" + enabledDataset + "' missing in FeatureStore for profile '" + profileName
+                    LOGGER.debug("Dataset '" + enabledDataset + "' missing in FeatureStore for profile '" + profileName
                             + "'");
                 }
             }
@@ -295,32 +289,42 @@ public class DynamicDataService {
      * {"feature_id":1,"dataset_key":"example_dataset","edge_id":3239,"value":1.0,"timestamp":"2024-09-08T20:21:00Z","is_deleted":false}
      */
     private void parseNdjsonMatches(InputStream stream, RoutingProfile profile, String profileName) {
-        LOGGER.info("Starting NDJSON parsing for profile '" + profileName + "' from stream");
+        LOGGER.debug("Starting NDJSON parsing for profile '" + profileName + "' from stream");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonFactory jsonFactory = new JsonFactory();
-        
+
         try {
             JsonParser parser = jsonFactory.createParser(stream);
-            int matchCount = 0;
-            
+            int applied = 0;
+            int skipped = 0;
+            int errors = 0;
+
             while (parser.nextToken() != null) {
                 if (parser.currentToken().isStructStart()) {
-                    matchCount += processSingleMatch(objectMapper, parser, profile, profileName);
+                    switch (processSingleMatch(objectMapper, parser, profile, profileName)) {
+                        case APPLIED -> applied++;
+                        case SKIPPED -> skipped++;
+                        case ERROR -> errors++;
+                    }
                 }
             }
-            
+
             parser.close();
-            LOGGER.info("Successfully parsed " + matchCount + " dynamic data matches for profile '" + profileName + "'");
+            LOGGER.info("Parsed " + (applied + skipped + errors) + " matches for profile '" + profileName
+                    + "' (" + applied + " applied, " + skipped + " skipped, " + errors + " errors)");
         } catch (IOException e) {
             LOGGER.error("Error parsing NDJSON stream for profile '" + profileName + "'", e);
         }
     }
 
+    private enum MatchOutcome {
+        APPLIED, SKIPPED, ERROR
+    }
+
     /**
      * Process a single NDJSON match record and update the profile.
-     * Returns 1 if successful, 0 if error occurred.
      */
-    private int processSingleMatch(ObjectMapper objectMapper, JsonParser parser, RoutingProfile profile, String profileName) {
+    private MatchOutcome processSingleMatch(ObjectMapper objectMapper, JsonParser parser, RoutingProfile profile, String profileName) {
         try {
             JsonNode node = objectMapper.readTree(parser);
             
@@ -381,17 +385,17 @@ public class DynamicDataService {
                 }
                 
                 if (value == null) {
-                    LOGGER.warn("Skipping match with null or invalid value: dataset=" + datasetKey + ", edgeId=" + edgeId);
-                    return 0; // Skip invalid match
+                    LOGGER.debug("Skipping match with null or invalid value: dataset=" + datasetKey + ", edgeId=" + edgeId);
+                    return MatchOutcome.SKIPPED;
                 }
-                LOGGER.info("Processing match: dataset=" + datasetKey + ", edgeId=" + edgeId + ", value=" + value);
+                LOGGER.trace("Processing match: dataset=" + datasetKey + ", edgeId=" + edgeId + ", value=" + value);
                 profile.updateDynamicData(datasetKey, edgeId, value);
             }
-            
-            return 1;
+
+            return MatchOutcome.APPLIED;
         } catch (Exception e) {
             LOGGER.error("Error parsing NDJSON match entry for profile '" + profileName + "': " + e.getMessage(), e);
-            return 0;
+            return MatchOutcome.ERROR;
         }
     }
 
