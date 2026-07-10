@@ -11,6 +11,7 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.StringUtility;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -29,7 +30,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.io.InputStream;
 
@@ -53,11 +56,15 @@ public class DynamicDataService {
     private final Map<String, Integer> consecutiveFailureCounts = new ConcurrentHashMap<>();
     private final Map<String, Instant> lastSuccessfulPollTimestamps = new ConcurrentHashMap<>();
     private final Map<String, Long> totalSyncedFeatureCounts = new ConcurrentHashMap<>();
-    private final AtomicBoolean updateInProgress = new AtomicBoolean(false);
+    private final Map<String, AtomicBoolean> profileUpdateInProgress = new ConcurrentHashMap<>();
+    private final Executor backgroundTaskExecutor;
     private boolean deferredInitializationPending = false;
 
-    public DynamicDataService(EngineService engineService, EngineProperties engineProperties, RestClient.Builder restClientBuilder) {
+    public DynamicDataService(EngineService engineService, EngineProperties engineProperties,
+            RestClient.Builder restClientBuilder,
+            @Qualifier("backgroundTaskExecutor") Executor backgroundTaskExecutor) {
         this.engineService = engineService;
+        this.backgroundTaskExecutor = backgroundTaskExecutor;
 
         // Log the configuration for debugging
         engineProperties.getDynamicData().logConfiguration();
@@ -124,27 +131,55 @@ public class DynamicDataService {
         if (enabledProfiles.isEmpty()) {
             LOGGER.warn("Dynamic data module activated but no profile has custom models enabled.");
         }
-        // Hold the same reentrancy guard as update()/refreshNow() while registering datasets
-        // and running the first fetch: enabledProfiles is populated above before any profile's
-        // datasets are registered, so a scheduled tick firing mid-initialization could otherwise
-        // call fetchDynamicData() on a profile whose datasets aren't added yet, spamming
-        // "Dataset not registered" errors for every edge in the batch.
-        if (!updateInProgress.compareAndSet(false, true)) {
-            LOGGER.warn("Dynamic data update already in progress, deferring initialization.");
+        // Dispatch and return immediately - joining here would block app startup on the slowest profile's first poll.
+        enabledProfiles.forEach(profile -> CompletableFuture.runAsync(() -> guardedInitializeProfile(profile), backgroundTaskExecutor)
+                .exceptionally(ex -> {
+                    LOGGER.error("Unexpected error during dynamic data initialization for profile '" + profile.name() + "'", ex);
+                    return null;
+                }));
+        LOGGER.info("Dynamic data service initialization dispatched asynchronously for profiles: "
+                + enabledProfiles.stream().map(RoutingProfile::name).toList());
+    }
+
+    private void guardedInitializeProfile(RoutingProfile profile) {
+        String profileName = profile.name();
+        AtomicBoolean guard = guardFor(profileName);
+        if (!guard.compareAndSet(false, true)) {
+            LOGGER.warn("Dynamic data update already in progress for profile '" + profileName
+                    + "', deferring initialization.");
             return;
         }
         try {
-            for (RoutingProfile profile : enabledProfiles) {
-                for (String datasetName : profile.getProfileConfiguration().getService().getDynamicData().getEnabledDynamicDatasets()) {
-                    LOGGER.info("Adding dynamic data support for dataset '" + datasetName + "' to profile '" + profile.name() + "'.");
-                    profile.addDynamicData(datasetName);
-                }
-                fetchDynamicData(profile);
+            for (String datasetName : profile.getProfileConfiguration().getService().getDynamicData()
+                    .getEnabledDynamicDatasets()) {
+                LOGGER.info("Adding dynamic data support for dataset '" + datasetName + "' to profile '" + profileName
+                        + "'.");
+                profile.addDynamicData(datasetName);
             }
+            fetchDynamicData(profile);
         } finally {
-            updateInProgress.set(false);
+            guard.set(false);
         }
-        LOGGER.info("Dynamic data service initialized for profiles: " + enabledProfiles.stream().map(RoutingProfile::name).toList());
+    }
+
+    // Each profile gets its own guard so e.g. 'logie-hgv' and 'logie-car' can update concurrently.
+    private AtomicBoolean guardFor(String profileName) {
+        return profileUpdateInProgress.computeIfAbsent(profileName, k -> new AtomicBoolean(false));
+    }
+
+    private void guardedUpdateProfile(RoutingProfile profile) {
+        String profileName = profile.name();
+        AtomicBoolean guard = guardFor(profileName);
+        if (!guard.compareAndSet(false, true)) {
+            LOGGER.debug("Previous dynamic data update for profile '" + profileName
+                    + "' still in progress, skipping this scheduled tick.");
+            return;
+        }
+        try {
+            fetchDynamicData(profile);
+        } finally {
+            guard.set(false);
+        }
     }
 
     public void reinitialize() {
@@ -160,43 +195,24 @@ public class DynamicDataService {
             LOGGER.trace("Dynamic data updates are disabled, skipping scheduled update.");
             return;
         }
-        if (!updateInProgress.compareAndSet(false, true)) {
-            LOGGER.debug("Previous dynamic data update still in progress, skipping this scheduled tick.");
-            return;
-        }
-        try {
-            enabledProfiles.forEach(this::fetchDynamicData);
-            LOGGER.debug("Dynamic data update cycle finished.");
-        } finally {
-            updateInProgress.set(false);
-        }
+        // Dispatch each profile independently so they sync in parallel rather than one after another.
+        enabledProfiles.forEach(profile -> backgroundTaskExecutor.execute(() -> guardedUpdateProfile(profile)));
+        LOGGER.debug("Dynamic data update cycle dispatched.");
     }
 
-    /**
-     * Synchronous version of update() for manual refresh/admin operations.
-     * This method performs the same work as update() but blocks until completion,
-     * making it suitable for admin endpoints that need immediate results.
-     * Shares the same reentrancy guard as update() so a manual refresh can't
-     * race with a concurrently-running scheduled update (or another manual
-     * refresh).
-     */
+    // Blocking version of update() for manual refresh/admin operations that need an immediate result.
     public void refreshNow() {
         if (!Boolean.TRUE.equals(enabled)) {
             LOGGER.debug("Dynamic data service is disabled, skipping refresh.");
             return;
         }
-        if (!updateInProgress.compareAndSet(false, true)) {
-            LOGGER.info("Dynamic data update already in progress, skipping manual refresh.");
-            return;
-        }
-        try {
-            LOGGER.info("Manually triggered dynamic data refresh for profiles: "
-                    + enabledProfiles.stream().map(RoutingProfile::name).toList());
-            enabledProfiles.forEach(this::fetchDynamicData);
-            LOGGER.info("Manually triggered dynamic data refresh completed.");
-        } finally {
-            updateInProgress.set(false);
-        }
+        LOGGER.info("Manually triggered dynamic data refresh for profiles: "
+                + enabledProfiles.stream().map(RoutingProfile::name).toList());
+        List<CompletableFuture<Void>> refreshFutures = enabledProfiles.stream()
+                .map(profile -> CompletableFuture.runAsync(() -> guardedUpdateProfile(profile), backgroundTaskExecutor))
+                .toList();
+        refreshFutures.forEach(CompletableFuture::join);
+        LOGGER.info("Manually triggered dynamic data refresh completed.");
     }
 
     private void fetchDynamicData(RoutingProfile profile) {

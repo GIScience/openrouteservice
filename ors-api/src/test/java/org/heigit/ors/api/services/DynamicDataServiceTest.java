@@ -10,7 +10,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestClient;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,7 +59,7 @@ class DynamicDataServiceTest {
         lenient().when(routingProfileManager.hasFailed()).thenReturn(false);
         lenient().when(routingProfileManager.getUniqueProfiles()).thenReturn(new ArrayList<>());
 
-        dynamicDataService = new DynamicDataService(engineService, engineProperties, restClientBuilder);
+        dynamicDataService = new DynamicDataService(engineService, engineProperties, restClientBuilder, Runnable::run);
     }
 
     @Test
@@ -77,7 +79,8 @@ class DynamicDataServiceTest {
         lenient().when(stubBuilder.baseUrl(any(String.class))).thenReturn(stubBuilder);
         lenient().when(stubBuilder.build()).thenReturn(mock(RestClient.class));
 
-        DynamicDataService disabledService = new DynamicDataService(engineService, disabledProperties, stubBuilder);
+        DynamicDataService disabledService = new DynamicDataService(engineService, disabledProperties, stubBuilder,
+                Runnable::run);
 
         assertFalse(disabledService.isEnabled(), "Service should be disabled when configured to be disabled");
     }
@@ -92,7 +95,7 @@ class DynamicDataServiceTest {
         RestClient.Builder stubBuilder = mock(RestClient.Builder.class);
         lenient().when(stubBuilder.build()).thenReturn(mock(RestClient.class));
 
-        DynamicDataService service = new DynamicDataService(engineService, properties, stubBuilder);
+        DynamicDataService service = new DynamicDataService(engineService, properties, stubBuilder, Runnable::run);
 
         assertFalse(service.isEnabled(), "Service should be disabled when feature store URL is null");
     }
@@ -107,8 +110,29 @@ class DynamicDataServiceTest {
         RestClient.Builder stubBuilder = mock(RestClient.Builder.class);
         lenient().when(stubBuilder.build()).thenReturn(mock(RestClient.class));
 
-        DynamicDataService service = new DynamicDataService(engineService, properties, stubBuilder);
+        DynamicDataService service = new DynamicDataService(engineService, properties, stubBuilder, Runnable::run);
 
         assertFalse(service.isEnabled(), "Service should be disabled when feature store URL is empty");
+    }
+
+    @Test
+    @DisplayName("Should guard each profile independently instead of serializing all profiles behind one lock")
+    void testPerProfileGuardsAreIndependent() throws Exception {
+        Method guardForMethod = DynamicDataService.class.getDeclaredMethod("guardFor", String.class);
+        guardForMethod.setAccessible(true);
+
+        AtomicBoolean hgvGuard = (AtomicBoolean) guardForMethod.invoke(dynamicDataService, "logie-hgv");
+        AtomicBoolean carGuard = (AtomicBoolean) guardForMethod.invoke(dynamicDataService, "logie-car");
+
+        assertNotSame(hgvGuard, carGuard, "Different profiles must not share a reentrancy guard");
+
+        assertTrue(hgvGuard.compareAndSet(false, true), "Should acquire the hgv guard");
+
+        assertTrue(carGuard.compareAndSet(false, true),
+                "car profile must be able to update while hgv is still in progress");
+
+        assertFalse(hgvGuard.compareAndSet(false, true), "A profile must not overlap with its own in-progress update");
+
+        assertSame(hgvGuard, guardForMethod.invoke(dynamicDataService, "logie-hgv"));
     }
 }
