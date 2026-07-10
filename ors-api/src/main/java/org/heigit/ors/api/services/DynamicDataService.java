@@ -124,12 +124,25 @@ public class DynamicDataService {
         if (enabledProfiles.isEmpty()) {
             LOGGER.warn("Dynamic data module activated but no profile has custom models enabled.");
         }
-        for (RoutingProfile profile : enabledProfiles) {
-            for (String datasetName : profile.getProfileConfiguration().getService().getDynamicData().getEnabledDynamicDatasets()) {
-                LOGGER.info("Adding dynamic data support for dataset '" + datasetName + "' to profile '" + profile.name() + "'.");
-                profile.addDynamicData(datasetName);
+        // Hold the same reentrancy guard as update()/refreshNow() while registering datasets
+        // and running the first fetch: enabledProfiles is populated above before any profile's
+        // datasets are registered, so a scheduled tick firing mid-initialization could otherwise
+        // call fetchDynamicData() on a profile whose datasets aren't added yet, spamming
+        // "Dataset not registered" errors for every edge in the batch.
+        if (!updateInProgress.compareAndSet(false, true)) {
+            LOGGER.warn("Dynamic data update already in progress, deferring initialization.");
+            return;
+        }
+        try {
+            for (RoutingProfile profile : enabledProfiles) {
+                for (String datasetName : profile.getProfileConfiguration().getService().getDynamicData().getEnabledDynamicDatasets()) {
+                    LOGGER.info("Adding dynamic data support for dataset '" + datasetName + "' to profile '" + profile.name() + "'.");
+                    profile.addDynamicData(datasetName);
+                }
+                fetchDynamicData(profile);
             }
-            fetchDynamicData(profile);
+        } finally {
+            updateInProgress.set(false);
         }
         LOGGER.info("Dynamic data service initialized for profiles: " + enabledProfiles.stream().map(RoutingProfile::name).toList());
     }
