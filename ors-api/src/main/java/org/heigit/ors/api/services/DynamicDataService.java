@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
+import org.apache.log4j.MDC;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
@@ -172,6 +173,15 @@ public class DynamicDataService {
         LOGGER.debug("Using FSS API URL: " + featureStoreApiUrl);
 
         String profileName = profile.name();
+        MDC.put("profile", profileName);
+        try {
+            fetchDynamicDataForProfile(profile, profileName);
+        } finally {
+            MDC.remove("profile");
+        }
+    }
+
+    private void fetchDynamicDataForProfile(RoutingProfile profile, String profileName) {
         LOGGER.debug("fetchDynamicData started for profile: " + profileName);
 
         try {
