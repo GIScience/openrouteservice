@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.io.InputStream;
 
 @Service
@@ -51,6 +52,7 @@ public class DynamicDataService {
     private final Set<String> staleDatasets = ConcurrentHashMap.newKeySet();
     private final Map<String, Integer> consecutiveFailureCounts = new ConcurrentHashMap<>();
     private final Map<String, Instant> lastSuccessfulPollTimestamps = new ConcurrentHashMap<>();
+    private final AtomicBoolean updateInProgress = new AtomicBoolean(false);
     private boolean deferredInitializationPending = false;
 
     public DynamicDataService(EngineService engineService, EngineProperties engineProperties, RestClient.Builder restClientBuilder) {
@@ -144,24 +146,43 @@ public class DynamicDataService {
             LOGGER.trace("Dynamic data updates are disabled, skipping scheduled update.");
             return;
         }
-        enabledProfiles.forEach(this::fetchDynamicData);
-        LOGGER.info("Dynamic data update completed successfully.");
+        if (!updateInProgress.compareAndSet(false, true)) {
+            LOGGER.debug("Previous dynamic data update still in progress, skipping this scheduled tick.");
+            return;
+        }
+        try {
+            enabledProfiles.forEach(this::fetchDynamicData);
+            LOGGER.info("Dynamic data update completed successfully.");
+        } finally {
+            updateInProgress.set(false);
+        }
     }
 
     /**
      * Synchronous version of update() for manual refresh/admin operations.
      * This method performs the same work as update() but blocks until completion,
      * making it suitable for admin endpoints that need immediate results.
+     * Shares the same reentrancy guard as update() so a manual refresh can't
+     * race with a concurrently-running scheduled update (or another manual
+     * refresh).
      */
     public void refreshNow() {
         if (!Boolean.TRUE.equals(enabled)) {
             LOGGER.debug("Dynamic data service is disabled, skipping refresh.");
             return;
         }
-        LOGGER.info("Manually triggered dynamic data refresh for profiles: "
-                + enabledProfiles.stream().map(RoutingProfile::name).toList());
-        enabledProfiles.forEach(this::fetchDynamicData);
-        LOGGER.info("Manually triggered dynamic data refresh completed.");
+        if (!updateInProgress.compareAndSet(false, true)) {
+            LOGGER.info("Dynamic data update already in progress, skipping manual refresh.");
+            return;
+        }
+        try {
+            LOGGER.info("Manually triggered dynamic data refresh for profiles: "
+                    + enabledProfiles.stream().map(RoutingProfile::name).toList());
+            enabledProfiles.forEach(this::fetchDynamicData);
+            LOGGER.info("Manually triggered dynamic data refresh completed.");
+        } finally {
+            updateInProgress.set(false);
+        }
     }
 
     private void fetchDynamicData(RoutingProfile profile) {
