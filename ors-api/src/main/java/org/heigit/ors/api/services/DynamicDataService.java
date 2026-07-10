@@ -200,7 +200,7 @@ public class DynamicDataService {
         Instant lastUpdate = lastUpdateTimestamps.getOrDefault(profileName, Instant.EPOCH);
         String updatedAfter = formatInstantAsIsoDateTime(lastUpdate);
         
-        String endpoint = UriComponentsBuilder.fromPath("/matches")
+        String endpoint = UriComponentsBuilder.fromPath("/api/v1/matches")
                 .queryParam("profile", profileName)
                 .queryParam("graphTimestamp", graphTimestampStr)
                 .queryParam("orsVersion", AppInfo.VERSION)
@@ -406,7 +406,7 @@ public class DynamicDataService {
 
         try {
             JsonNode response = restClient.get()
-                    .uri("/datasets/stats")
+                    .uri("/api/v1/datasets/stats")
                     .retrieve()
                     .body(JsonNode.class);
 

@@ -287,8 +287,18 @@ public class RoutingProfile {
         return this.profileName;
     }
 
+    /**
+     * GraphHopper EncodedValue names may only contain lowercase letters, digits, and single
+     * underscores (no hyphens), while dataset names from config/FeatureStore use hyphens
+     * (e.g. "logie-roads"). Sanitize here, at the GraphHopper boundary, so the rest of this
+     * class (and external APIs like the status endpoint) keep using the original raw name.
+     */
+    private static String sanitizeEncodedValueKey(String key) {
+        return key.replace('-', '_');
+    }
+
     public void addDynamicData(String datasetName) {
-        getGraphhopper().addSparseEncodedValue(datasetName);
+        getGraphhopper().addSparseEncodedValue(sanitizeEncodedValueKey(datasetName));
         dynamicDatasets.add(datasetName);
     }
 
@@ -302,7 +312,7 @@ public class RoutingProfile {
                     + "', cannot update dynamic data. Available datasets: " + dynamicDatasets);
             return;
         }
-        SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+        SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(sanitizeEncodedValueKey(key), HashMapSparseEncodedValue.class);
         if (sev == null) {
             LOGGER.error("SparseEncodedValue for key '" + key + "' not found in profile '" + profileName
                     + "', cannot update dynamic data. Available datasets: " + dynamicDatasets);
@@ -316,7 +326,7 @@ public class RoutingProfile {
 
 
     public void unsetDynamicData(String key, int edgeID) {
-        SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+        SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(sanitizeEncodedValueKey(key), HashMapSparseEncodedValue.class);
         if (sev == null) {
             LOGGER.error("SparseEncodedValue for key %s not found, cannot unset dynamic data.".formatted(key));
             return;
@@ -349,7 +359,7 @@ public class RoutingProfile {
         }
 
         for (String key : dynamicDatasets) {
-            HashMapSparseEncodedValue<?> ev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+            HashMapSparseEncodedValue<?> ev = getGraphhopper().getEncodingManager().getEncodedValue(sanitizeEncodedValueKey(key), HashMapSparseEncodedValue.class);
             if (ev == null) {
                 LOGGER.warn("SparseEncodedValue for key %s not found, this should not happen.".formatted(key));
                 continue;

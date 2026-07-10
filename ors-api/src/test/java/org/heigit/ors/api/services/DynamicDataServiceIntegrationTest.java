@@ -37,11 +37,20 @@ class DynamicDataServiceIntegrationTest extends MockRestBaseTest {
     @DisplayName("Should fetch stats and return JsonNode array")
     void testFetchStatsReturnsJsonArray() {
         assertNotNull(dynamicDataService, "DynamicDataService should be autowired");
-        
+
         JsonNode stats = dynamicDataService.getFeatureStoreStats("driving-car");
 
         assertNotNull(stats, "getFeatureStoreStats should never return null");
         assertTrue(stats.isArray(), "Result should be a JSON array from the call");
+        // An empty array is also "valid" per the above assertions but is what getFeatureStoreStats
+        // silently falls back to on any HTTP error (wrong path, 404, etc.) - assert on the actual
+        // mocked content (see MockRestBaseTest) so a broken request path fails this test instead
+        // of slipping through as a "successful" empty response.
+        assertFalse(stats.isEmpty(), "Result should contain the datasets stubbed in MockRestBaseTest, not be empty");
+        assertEquals(3, stats.size(), "Should contain all three stubbed datasets");
+        java.util.Set<String> datasetIds = new java.util.HashSet<>();
+        stats.forEach(node -> datasetIds.add(node.get("datasetId").asText()));
+        assertEquals(java.util.Set.of("logie_borders", "logie_bridges", "logie_roads"), datasetIds);
     }
 
     @Test
