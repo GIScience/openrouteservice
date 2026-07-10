@@ -204,6 +204,7 @@ public class DynamicDataService {
         LOGGER.debug("Fetching dynamic data for profile '" + profileName + "' from FeatureStore API: "
                 + featureStoreApiUrl + endpoint);
         
+        Instant fetchStart = Instant.now();
         try {
             restClient.get()
                     .uri(endpoint)
@@ -218,7 +219,8 @@ public class DynamicDataService {
                         }
                         return null;
                     });
-            LOGGER.debug("Successfully fetched dynamic data for profile '" + profileName + "'");
+            long elapsedMs = java.time.Duration.between(fetchStart, Instant.now()).toMillis();
+            LOGGER.debug("Successfully fetched dynamic data for profile '" + profileName + "' (" + elapsedMs + "ms)");
         } catch (Exception e) {
             LOGGER.error("Error fetching dynamic data for profile '" + profileName + "'", e);
         }
