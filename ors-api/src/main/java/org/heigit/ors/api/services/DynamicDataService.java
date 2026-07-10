@@ -40,6 +40,7 @@ public class DynamicDataService {
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     private static final int MAX_FSS_ATTEMPTS = 3;
     private static final long[] RETRY_BACKOFF_MILLIS = {500, 1500};
+    private static final int FAILURE_WARN_THRESHOLD = 3;
 
     private final String featureStoreApiUrl;
     private final int stalenessThresholdSeconds;
@@ -47,6 +48,8 @@ public class DynamicDataService {
     private final List<RoutingProfile> enabledProfiles = new ArrayList<>();
     private final Map<String, Instant> lastUpdateTimestamps = new ConcurrentHashMap<>();
     private final Set<String> staleDatasets = ConcurrentHashMap.newKeySet();
+    private final Map<String, Integer> consecutiveFailureCounts = new ConcurrentHashMap<>();
+    private final Map<String, Instant> lastSuccessfulPollTimestamps = new ConcurrentHashMap<>();
     private boolean deferredInitializationPending = false;
 
     public DynamicDataService(EngineService engineService, EngineProperties engineProperties, RestClient.Builder restClientBuilder) {
@@ -220,9 +223,55 @@ public class DynamicDataService {
             long elapsedMs = Duration.between(fetchStart, Instant.now()).toMillis();
             LOGGER.debug("Successfully fetched dynamic data for profile '" + profileName + "' (" + elapsedMs + "ms)");
             checkDatasetStaleness(profile, profileName);
+            recordPollSuccess(profileName);
         } catch (Exception e) {
             LOGGER.error("Error fetching dynamic data for profile '" + profileName + "'", e);
+            recordPollFailure(profileName);
         }
+    }
+
+    /**
+     * Reset the consecutive-failure counter for a profile and log a recovery
+     * line if the profile had previously crossed FAILURE_WARN_THRESHOLD.
+     */
+    private void recordPollSuccess(String profileName) {
+        lastSuccessfulPollTimestamps.put(profileName, Instant.now());
+        Integer previousFailures = consecutiveFailureCounts.remove(profileName);
+        if (previousFailures != null && previousFailures >= FAILURE_WARN_THRESHOLD) {
+            LOGGER.info("FeatureStore connectivity restored for profile '" + profileName + "' after "
+                    + previousFailures + " failed polls.");
+        }
+    }
+
+    /**
+     * Increment the consecutive-failure counter for a profile and log a WARN
+     * once (not on every subsequent failure) when it first crosses
+     * FAILURE_WARN_THRESHOLD.
+     */
+    private void recordPollFailure(String profileName) {
+        int failures = consecutiveFailureCounts.merge(profileName, 1, Integer::sum);
+        if (failures == FAILURE_WARN_THRESHOLD) {
+            Instant lastSuccess = lastSuccessfulPollTimestamps.get(profileName);
+            LOGGER.warn("FeatureStore unreachable for profile '" + profileName + "' after " + failures
+                    + " consecutive failed polls (last success: "
+                    + (lastSuccess != null ? lastSuccess : "never") + ")");
+        }
+    }
+
+    /**
+     * Current FeatureStore connectivity health for a profile, for exposure via
+     * /v2/status.
+     */
+    public JSONObject getHealthStatus(String profileName) {
+        JSONObject health = new JSONObject();
+        int failures = consecutiveFailureCounts.getOrDefault(profileName, 0);
+        health.put("healthy", failures < FAILURE_WARN_THRESHOLD);
+        health.put("consecutive_failures", failures);
+        Instant lastSuccess = lastSuccessfulPollTimestamps.get(profileName);
+        if (lastSuccess != null) {
+            health.put("last_successful_poll", lastSuccess.toString());
+        }
+        return health;
     }
 
     /**

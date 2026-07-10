@@ -104,6 +104,7 @@ public class StatusAPI {
 
         if (dynamicDataService.isEnabled() && profileWithDynamicData != null) {
             jInfo.put("dynamic_data_service", dynamicDataService.getFeatureStoreStats(profileWithDynamicData));
+            jInfo.put("dynamic_data_service_health", dynamicDataService.getHealthStatus(profileWithDynamicData));
         }
 
         jInfo.put("profiles", jProfiles);
