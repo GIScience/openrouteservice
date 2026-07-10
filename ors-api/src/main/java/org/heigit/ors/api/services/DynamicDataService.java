@@ -369,6 +369,7 @@ public class DynamicDataService {
                 // Safe extraction of optional value field
                 // Prefer numeric read to avoid String intermediate for float JSON values
                 Double value = null;
+                String skipReason = "missing value";
                 JsonNode valueNode = node.path("value");
                 if (!valueNode.isMissingNode() && !valueNode.isNull()) {
                     if (valueNode.isNumber()) {
@@ -381,14 +382,15 @@ public class DynamicDataService {
                             try {
                                 value = Double.parseDouble(strVal);
                             } catch (NumberFormatException e) {
+                                skipReason = "unparseable value '" + strVal + "'";
                                 LOGGER.warn("Cannot parse '" + strVal + "' as a numeric or boolean value");
                             }
                         }
                     }
                 }
-                
+
                 if (value == null) {
-                    LOGGER.debug("Skipping match with null or invalid value: dataset=" + datasetKey + ", edgeId=" + edgeId);
+                    LOGGER.debug("Skipping match: dataset=" + datasetKey + ", edgeId=" + edgeId + ", reason=" + skipReason);
                     return MatchOutcome.SKIPPED;
                 }
                 LOGGER.trace("Processing match: dataset=" + datasetKey + ", edgeId=" + edgeId + ", value=" + value);
