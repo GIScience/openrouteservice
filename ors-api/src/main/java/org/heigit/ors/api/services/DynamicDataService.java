@@ -52,6 +52,7 @@ public class DynamicDataService {
     private final Set<String> staleDatasets = ConcurrentHashMap.newKeySet();
     private final Map<String, Integer> consecutiveFailureCounts = new ConcurrentHashMap<>();
     private final Map<String, Instant> lastSuccessfulPollTimestamps = new ConcurrentHashMap<>();
+    private final Map<String, Long> totalSyncedFeatureCounts = new ConcurrentHashMap<>();
     private final AtomicBoolean updateInProgress = new AtomicBoolean(false);
     private boolean deferredInitializationPending = false;
 
@@ -490,8 +491,10 @@ public class DynamicDataService {
             }
 
             parser.close();
+            long totalSynced = totalSyncedFeatureCounts.merge(profileName, (long) (applied + deleted), Long::sum);
             LOGGER.info("Parsed " + (applied + deleted + skipped + errors) + " matches for profile '" + profileName
-                    + "' (" + applied + " applied, " + deleted + " deleted, " + skipped + " skipped, " + errors + " errors)");
+                    + "' (" + applied + " applied, " + deleted + " deleted, " + skipped + " skipped, " + errors
+                    + " errors, " + totalSynced + " total synced since startup)");
         } catch (IOException e) {
             LOGGER.error("Error parsing NDJSON stream for profile '" + profileName + "'", e);
         }
