@@ -166,7 +166,7 @@ public class DynamicDataService {
         }
         try {
             enabledProfiles.forEach(this::fetchDynamicData);
-            LOGGER.info("Dynamic data update completed successfully.");
+            LOGGER.debug("Dynamic data update cycle finished.");
         } finally {
             updateInProgress.set(false);
         }
@@ -505,9 +505,14 @@ public class DynamicDataService {
 
             parser.close();
             long totalSynced = totalSyncedFeatureCounts.merge(profileName, (long) (applied + deleted), Long::sum);
-            LOGGER.info("Parsed " + (applied + deleted + skipped + errors) + " matches for profile '" + profileName
+            String stats = "parsed " + (applied + deleted + skipped + errors) + " matches for profile '" + profileName
                     + "' (" + applied + " applied, " + deleted + " deleted, " + skipped + " skipped, " + errors
-                    + " errors, " + totalSynced + " total synced since startup)");
+                    + " errors, " + totalSynced + " total synced since startup)";
+            if (applied + deleted > 0) {
+                LOGGER.info("Dynamic data update completed successfully: " + stats);
+            } else {
+                LOGGER.debug("Dynamic data poll found no changes: " + stats);
+            }
         } catch (IOException e) {
             LOGGER.error("Error parsing NDJSON stream for profile '" + profileName + "'", e);
         }
