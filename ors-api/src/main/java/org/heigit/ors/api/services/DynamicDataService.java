@@ -16,6 +16,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -34,6 +36,8 @@ public class DynamicDataService {
 
     private static final Logger LOGGER = Logger.getLogger(DynamicDataService.class.getName());
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private static final int MAX_FSS_ATTEMPTS = 3;
+    private static final long[] RETRY_BACKOFF_MILLIS = {500, 1500};
 
     private final String featureStoreApiUrl;
     private Boolean enabled;
@@ -206,23 +210,68 @@ public class DynamicDataService {
         
         Instant fetchStart = Instant.now();
         try {
-            restClient.get()
-                    .uri(endpoint)
-                    .exchange((request, response) -> {
-                        if (response.getStatusCode().is2xxSuccessful()) {
-                            try (InputStream is = response.getBody()) {
-                                parseNdjsonMatches(is, profile, profileName);
-                            }
-                        } else {
-                            LOGGER.warn("Failed to fetch dynamic data for profile '" + profileName + "': "
-                                    + response.getStatusCode());
-                        }
-                        return null;
-                    });
+            fetchMatchesWithRetry(endpoint, profile, profileName);
             long elapsedMs = java.time.Duration.between(fetchStart, Instant.now()).toMillis();
             LOGGER.debug("Successfully fetched dynamic data for profile '" + profileName + "' (" + elapsedMs + "ms)");
         } catch (Exception e) {
             LOGGER.error("Error fetching dynamic data for profile '" + profileName + "'", e);
+        }
+    }
+
+    /**
+     * Thrown internally when the FeatureStore matches endpoint returns a
+     * transient (5xx) error, so the retry loop in fetchMatchesWithRetry can
+     * distinguish it from a non-retryable 4xx response.
+     */
+    private static class TransientFeatureStoreException extends RuntimeException {
+        TransientFeatureStoreException(String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * Fetch and parse the matches endpoint, retrying a small number of times
+     * with a short backoff on transient failures (connection errors, 5xx).
+     * Non-2xx/non-5xx responses (e.g. 4xx) are logged and not retried.
+     */
+    private void fetchMatchesWithRetry(String endpoint, RoutingProfile profile, String profileName) {
+        RuntimeException lastTransientFailure = null;
+        for (int attempt = 1; attempt <= MAX_FSS_ATTEMPTS; attempt++) {
+            try {
+                restClient.get()
+                        .uri(endpoint)
+                        .exchange((request, response) -> {
+                            if (response.getStatusCode().is2xxSuccessful()) {
+                                try (InputStream is = response.getBody()) {
+                                    parseNdjsonMatches(is, profile, profileName);
+                                }
+                            } else if (response.getStatusCode().is5xxServerError()) {
+                                throw new TransientFeatureStoreException(
+                                        "Matches endpoint returned " + response.getStatusCode());
+                            } else {
+                                LOGGER.warn("Failed to fetch dynamic data for profile '" + profileName + "': "
+                                        + response.getStatusCode());
+                            }
+                            return null;
+                        });
+                return;
+            } catch (TransientFeatureStoreException | ResourceAccessException e) {
+                lastTransientFailure = e;
+                if (attempt < MAX_FSS_ATTEMPTS) {
+                    LOGGER.debug("Retrying FeatureStore matches request for profile '" + profileName + "' (attempt "
+                            + (attempt + 1) + "/" + MAX_FSS_ATTEMPTS + ") after: " + e.getMessage());
+                    sleep(RETRY_BACKOFF_MILLIS[attempt - 1]);
+                }
+            }
+        }
+        throw lastTransientFailure;
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -416,10 +465,7 @@ public class DynamicDataService {
         LOGGER.debug("Fetching FeatureStore stats for profile '" + profileName + "' from: " + featureStoreApiUrl);
 
         try {
-            JsonNode response = restClient.get()
-                    .uri("/api/v1/datasets/stats")
-                    .retrieve()
-                    .body(JsonNode.class);
+            JsonNode response = fetchStatsWithRetry(profileName);
 
             if (response == null) {
                 LOGGER.warn("Null response from FeatureStore stats endpoint");
@@ -436,6 +482,31 @@ public class DynamicDataService {
             LOGGER.error("Error fetching FeatureStore stats for profile '" + profileName + "'", e);
             return new ObjectMapper().createArrayNode();
         }
+    }
+
+    /**
+     * Fetch the dataset stats endpoint, retrying a small number of times with a
+     * short backoff on transient failures (connection errors, 5xx). Non-retryable
+     * 4xx errors are thrown immediately for the caller's existing handling.
+     */
+    private JsonNode fetchStatsWithRetry(String profileName) {
+        RuntimeException lastTransientFailure = null;
+        for (int attempt = 1; attempt <= MAX_FSS_ATTEMPTS; attempt++) {
+            try {
+                return restClient.get()
+                        .uri("/api/v1/datasets/stats")
+                        .retrieve()
+                        .body(JsonNode.class);
+            } catch (HttpServerErrorException | ResourceAccessException e) {
+                lastTransientFailure = e;
+                if (attempt < MAX_FSS_ATTEMPTS) {
+                    LOGGER.debug("Retrying FeatureStore stats request for profile '" + profileName + "' (attempt "
+                            + (attempt + 1) + "/" + MAX_FSS_ATTEMPTS + ") after: " + e.getMessage());
+                    sleep(RETRY_BACKOFF_MILLIS[attempt - 1]);
+                }
+            }
+        }
+        throw lastTransientFailure;
     }
 
     public boolean isEnabled() {
