@@ -46,7 +46,7 @@ class DynamicDataServiceTest {
     void setUp() {
         engineProperties = new EngineProperties();
         engineProperties.getDynamicData().setEnabled(true);
-        engineProperties.getDynamicData().setFeatureStoreApiUrl("http://localhost:8080/api/v1");
+        engineProperties.getDynamicData().setFeatureStoreApiUrl("http://localhost:8080");
 
         // Mock RestClient.Builder chain
         lenient().when(restClientBuilder.baseUrl(any(String.class))).thenReturn(restClientBuilder);
@@ -73,7 +73,7 @@ class DynamicDataServiceTest {
     void testIsEnabledReturnsFalseWhenDisabled() {
         EngineProperties disabledProperties = new EngineProperties();
         disabledProperties.getDynamicData().setEnabled(false);
-        disabledProperties.getDynamicData().setFeatureStoreApiUrl("http://localhost:8080/api/v1");
+        disabledProperties.getDynamicData().setFeatureStoreApiUrl("http://localhost:8080");
 
         RestClient.Builder stubBuilder = mock(RestClient.Builder.class);
         lenient().when(stubBuilder.baseUrl(any(String.class))).thenReturn(stubBuilder);
