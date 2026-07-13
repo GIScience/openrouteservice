@@ -47,12 +47,13 @@ public class DynamicDataProfilePropertiesTest {
     }
 
     /**
-     * Config values like "ors.engine.profiles.logie-hgv.service.dynamic_data.datasets=..." are
-     * comma-separated lists bound by Spring's relaxed binding into this List<String> as-is - it
-     * doesn't care whether entries use hyphens, underscores, or a mix. This locks down that the
-     * dataset names configured here (whatever separator style FeatureStore/the operator uses)
-     * survive unmodified, since any hyphen->underscore translation for GraphHopper compatibility
-     * happens later, at the RoutingProfile/EncodedValue boundary - not here.
+     * Config values like "ors.engine.profiles.logie_hgv.service.dynamic_data.datasets=..." are
+     * comma-separated lists bound by Spring's relaxed binding into this List<String> as-is - this
+     * class does no format validation of its own, it just preserves whatever was configured
+     * unmodified. Actual identifier validation happens later, at the RoutingProfile/EncodedValue
+     * boundary (RoutingProfile#validateDatasetName), which rejects anything but Java-identifier-safe
+     * names (see RoutingProfileDynamicDataTest) - this test only covers that this passthrough layer
+     * doesn't itself mangle or reject any particular separator style.
      */
     @ParameterizedTest
     @ValueSource(strings = {

@@ -46,6 +46,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -291,17 +292,33 @@ public class RoutingProfile {
     }
 
     /**
-     * GraphHopper EncodedValue names may only contain lowercase letters, digits, and single
-     * underscores (no hyphens), while dataset names from config/FeatureStore use hyphens
-     * (e.g. "logie-roads"). Sanitize here, at the GraphHopper boundary, so the rest of this
-     * class (and external APIs like the status endpoint) keep using the original raw name.
+     * Dataset names come from FeatureStore config and are used unchanged as GraphHopper
+     * EncodedValue names and as custom_model expression identifiers - both of which require
+     * Java-identifier syntax (lowercase start, letters/digits/single underscores only, no
+     * hyphens - custom_model expressions are compiled as literal Java source via janino, so
+     * a hyphen would be parsed as subtraction). FeatureStore validates this at its config
+     * boundary, so any invalid name reaching here indicates a misconfiguration that should
+     * fail loudly rather than be silently rewritten.
      */
-    private static String sanitizeEncodedValueKey(String key) {
-        return key.replace('-', '_');
+    private static final Pattern VALID_DATASET_NAME_CHARS = Pattern.compile("^[a-z][a-z0-9_]*$");
+
+    private static boolean isValidDatasetName(String key) {
+        return key != null && VALID_DATASET_NAME_CHARS.matcher(key).matches()
+                && !key.endsWith("_") && !key.contains("__");
+    }
+
+    private static void validateDatasetName(String key) {
+        if (!isValidDatasetName(key)) {
+            throw new IllegalArgumentException("Invalid dynamic data dataset name '" + key
+                    + "' - a dataset name must start with a lowercase letter and contain only lowercase letters, "
+                    + "digits, and single underscores (e.g. \"venezuela_road_blocks\"). It is used directly as a "
+                    + "GraphHopper encoded value name and as a custom_model expression identifier.");
+        }
     }
 
     public void addDynamicData(String datasetName) {
-        getGraphhopper().addSparseEncodedValue(sanitizeEncodedValueKey(datasetName));
+        validateDatasetName(datasetName);
+        getGraphhopper().addSparseEncodedValue(datasetName);
         dynamicDatasets.add(datasetName);
     }
 
@@ -319,7 +336,7 @@ public class RoutingProfile {
             return;
         }
         loggedUnregisteredDatasets.remove(key);
-        SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(sanitizeEncodedValueKey(key), HashMapSparseEncodedValue.class);
+        SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
         if (sev == null) {
             LOGGER.error("SparseEncodedValue for key '" + key + "' not found in profile '" + profileName
                     + "', cannot update dynamic data. Available datasets: " + dynamicDatasets);
@@ -333,7 +350,7 @@ public class RoutingProfile {
 
 
     public void unsetDynamicData(String key, int edgeID) {
-        SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(sanitizeEncodedValueKey(key), HashMapSparseEncodedValue.class);
+        SparseEncodedValue sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
         if (sev == null) {
             LOGGER.error("SparseEncodedValue for key %s not found, cannot unset dynamic data.".formatted(key));
             return;
@@ -366,7 +383,7 @@ public class RoutingProfile {
         }
 
         for (String key : dynamicDatasets) {
-            HashMapSparseEncodedValue<?> ev = getGraphhopper().getEncodingManager().getEncodedValue(sanitizeEncodedValueKey(key), HashMapSparseEncodedValue.class);
+            HashMapSparseEncodedValue<?> ev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
             if (ev == null) {
                 LOGGER.warn("SparseEncodedValue for key %s not found, this should not happen.".formatted(key));
                 continue;

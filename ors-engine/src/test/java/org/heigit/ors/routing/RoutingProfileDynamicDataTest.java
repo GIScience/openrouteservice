@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -15,9 +15,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -28,10 +28,12 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 /**
- * Covers the hyphen/underscore dataset-name mismatch between config/FeatureStore identifiers
- * (e.g. {@code logie-roads}, as configured in {@code ors.engine.profiles.*.service.dynamic_data.datasets})
- * and GraphHopper's stricter EncodedValue naming rules (lowercase letters, digits, single
- * underscores only - no hyphens). See RoutingProfile#sanitizeEncodedValueKey.
+ * Dataset names come from FeatureStore config and are used unchanged as GraphHopper
+ * EncodedValue names and as custom_model expression identifiers. FeatureStore already
+ * validates dataset keys at its config boundary (Java-identifier-safe, no hyphens), so
+ * RoutingProfile no longer sanitizes/rewrites names - it validates and fails loudly on
+ * anything invalid, since that would indicate a misconfiguration slipping past FeatureStore
+ * rather than something safe to silently patch up. See RoutingProfile#validateDatasetName.
  */
 @ExtendWith(MockitoExtension.class)
 class RoutingProfileDynamicDataTest {
@@ -55,7 +57,7 @@ class RoutingProfileDynamicDataTest {
         dynamicDatasets = new ArrayList<>();
         setField(routingProfile, "dynamicDatasets", dynamicDatasets);
         setField(routingProfile, "loggedUnregisteredDatasets", java.util.concurrent.ConcurrentHashMap.newKeySet());
-        setField(routingProfile, "profileName", "logie-hgv");
+        setField(routingProfile, "profileName", "logie_hgv");
 
         lenient().when(graphHopper.getEncodingManager()).thenReturn(encodingManager);
     }
@@ -66,38 +68,40 @@ class RoutingProfileDynamicDataTest {
         field.set(target, value);
     }
 
-    /**
-     * Dataset names as they actually appear in .ors.env config (comma-separated
-     * "ors.engine.profiles.*.service.dynamic_data.datasets" values), covering the possibilities
-     * an operator might configure: hyphenated (FeatureStore's native style), already-underscored,
-     * mixed separators, and plain single-word names with no separator at all.
-     */
-    @ParameterizedTest(name = "[{index}] datasetName=''{0}'' -> encodedValueName=''{1}''")
-    @CsvSource({
-            "logie-roads,     logie_roads",
-            "logie-borders,   logie_borders",
-            "logie-bridges,   logie_bridges",
-            "logie_roads,     logie_roads",
-            "logie-multi-word-name, logie_multi_word_name",
-            "plainname,       plainname",
-    })
-    void addDynamicDataSanitizesHyphensForGraphHopperButKeepsRawNameForBookkeeping(String datasetName, String expectedEncodedValueName) {
-        routingProfile.addDynamicData(datasetName);
+    @Test
+    void addDynamicDataRegistersValidNameUnchanged() {
+        routingProfile.addDynamicData("logie_roads");
 
-        verify(graphHopper).addSparseEncodedValue(expectedEncodedValueName);
-        assertTrue(dynamicDatasets.contains(datasetName),
-                "dynamicDatasets should track the raw config/FeatureStore name, not the sanitized one");
+        verify(graphHopper).addSparseEncodedValue("logie_roads");
+        assertThat(dynamicDatasets).containsExactly("logie_roads");
+    }
+
+    @ParameterizedTest(name = "[{index}] invalidName=''{0}''")
+    @ValueSource(strings = {
+            "logie-roads",       // hyphens
+            "Logie_roads",       // uppercase
+            "1logie",            // leading digit
+            "logie__roads",      // double underscore
+            "logie_roads_",      // trailing underscore
+            "_logie",            // leading underscore
+            "",                  // blank
+    })
+    void addDynamicDataRejectsInvalidNames(String invalidName) {
+        assertThatThrownBy(() -> routingProfile.addDynamicData(invalidName))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(invalidName);
+
+        assertThat(dynamicDatasets).isEmpty();
     }
 
     @Test
-    void updateDynamicDataResolvesHyphenatedKeyToSanitizedEncodedValue() {
-        String datasetName = "logie-roads";
+    void updateDynamicDataResolvesRegisteredKeyDirectly() {
+        String datasetName = "logie_roads";
         routingProfile.addDynamicData(datasetName);
 
         HashMapSparseEncodedValue sev = mock(HashMapSparseEncodedValue.class);
         when(encodingManager.getEncodedValue("logie_roads", HashMapSparseEncodedValue.class)).thenReturn(sev);
 
-        // FeatureStore's /matches payload sends back the same hyphenated key that was configured.
         routingProfile.updateDynamicData(datasetName, 42, 3.5);
 
         verify(sev).set(42, 3.5);
@@ -105,14 +109,14 @@ class RoutingProfileDynamicDataTest {
 
     @Test
     void updateDynamicDataIsNoOpWhenDatasetWasNeverRegistered() {
-        routingProfile.updateDynamicData("logie-not-registered", 1, 1.0);
+        routingProfile.updateDynamicData("logie_not_registered", 1, 1.0);
 
         verify(encodingManager, never()).getEncodedValue(anyString(), eq(HashMapSparseEncodedValue.class));
     }
 
     @Test
-    void unsetDynamicDataResolvesHyphenatedKeyToSanitizedEncodedValue() {
-        String datasetName = "logie-borders";
+    void unsetDynamicDataResolvesRegisteredKeyDirectly() {
+        String datasetName = "logie_borders";
         routingProfile.addDynamicData(datasetName);
 
         HashMapSparseEncodedValue sev = mock(HashMapSparseEncodedValue.class);
@@ -127,24 +131,22 @@ class RoutingProfileDynamicDataTest {
     void unsetDynamicDataDoesNotThrowWhenEncodedValueMissing() {
         when(encodingManager.getEncodedValue(anyString(), eq(HashMapSparseEncodedValue.class))).thenReturn(null);
 
-        assertDoesNotThrow(() -> routingProfile.unsetDynamicData("logie-roads", 1));
+        assertDoesNotThrow(() -> routingProfile.unsetDynamicData("logie_roads", 1));
     }
 
     /**
      * Simulates a profile configured with a full dataset list, e.g.
-     * "ors.engine.profiles.logie-hgv.service.dynamic_data.datasets=logie-roads,logie-borders,logie-bridges",
-     * verifying each hyphenated entry is independently sanitized without cross-contamination.
+     * "ors.engine.profiles.logie_hgv.service.dynamic_data.datasets=logie_roads,logie_borders,logie_bridges".
      */
     @Test
-    void multipleHyphenatedDatasetsFromAProfilesConfigListAreEachSanitizedIndependently() {
-        List<String> configuredDatasets = List.of("logie-roads", "logie-borders", "logie-bridges");
+    void multipleValidDatasetsFromAProfilesConfigListAreEachRegisteredIndependently() {
+        List<String> configuredDatasets = List.of("logie_roads", "logie_borders", "logie_bridges");
 
         configuredDatasets.forEach(routingProfile::addDynamicData);
 
         for (String datasetName : configuredDatasets) {
-            verify(graphHopper).addSparseEncodedValue(datasetName.replace('-', '_'));
+            verify(graphHopper).addSparseEncodedValue(datasetName);
         }
-        assertEquals(configuredDatasets.size(), dynamicDatasets.size());
-        assertTrue(dynamicDatasets.containsAll(configuredDatasets));
+        assertThat(dynamicDatasets).containsExactlyInAnyOrderElementsOf(configuredDatasets);
     }
 }

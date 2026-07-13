@@ -150,7 +150,14 @@ public class DynamicDataService {
                     .getEnabledDynamicDatasets()) {
                 LOGGER.info("Adding dynamic data support for dataset '" + datasetName + "' to profile '" + profileName
                         + "'.");
-                profile.addDynamicData(datasetName);
+                try {
+                    profile.addDynamicData(datasetName);
+                } catch (Exception e) {
+                    // An invalid dataset name (e.g. a misconfigured hyphenated entry) must not abort
+                    // initialization for the whole profile - skip it and keep registering the rest.
+                    LOGGER.error("Failed to register dataset '" + datasetName + "' for profile '" + profileName
+                            + "': " + e.getMessage());
+                }
             }
             fetchDynamicData(profile);
         } finally {
