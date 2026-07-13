@@ -48,11 +48,9 @@ public class DynamicDataService {
     private static final int FAILURE_WARN_THRESHOLD = 3;
 
     private final String featureStoreApiUrl;
-    private final int stalenessThresholdSeconds;
     private Boolean enabled;
     private final List<RoutingProfile> enabledProfiles = new ArrayList<>();
     private final Map<String, Instant> lastUpdateTimestamps = new ConcurrentHashMap<>();
-    private final Set<String> staleDatasets = ConcurrentHashMap.newKeySet();
     private final Map<String, Integer> consecutiveFailureCounts = new ConcurrentHashMap<>();
     private final Map<String, Instant> lastSuccessfulPollTimestamps = new ConcurrentHashMap<>();
     private final Map<String, Long> totalSyncedFeatureCounts = new ConcurrentHashMap<>();
@@ -71,8 +69,6 @@ public class DynamicDataService {
 
         enabled = engineProperties.getDynamicData().getEnabled();
         featureStoreApiUrl = engineProperties.getDynamicData().getFeatureStoreApiUrl();
-        stalenessThresholdSeconds = Optional.ofNullable(engineProperties.getDynamicData().getStalenessThresholdSeconds())
-                .orElse(900);
 
         LOGGER.debug("DynamicDataService constructor: enabled=" + enabled + ", featureStoreApiUrl=" + featureStoreApiUrl);
 
@@ -283,7 +279,6 @@ public class DynamicDataService {
             fetchMatchesWithRetry(endpoint, profile, profileName);
             long elapsedMs = Duration.between(fetchStart, Instant.now()).toMillis();
             LOGGER.debug("Successfully fetched dynamic data for profile '" + profileName + "' (" + elapsedMs + "ms)");
-            checkDatasetStaleness(profile, profileName);
             recordPollSuccess(profileName);
         } catch (Exception e) {
             LOGGER.error("Error fetching dynamic data for profile '" + profileName + "'", e);
@@ -333,46 +328,6 @@ public class DynamicDataService {
             health.put("last_successful_poll", lastSuccess.toString());
         }
         return health;
-    }
-
-    /**
-     * Warn (once, debounced) when a dataset hasn't had an applied/deleted match
-     * in longer than stalenessThresholdSeconds -- this can indicate a stalled
-     * FeatureStore data pipeline even though polling itself is succeeding.
-     * Recovers with an INFO log once the dataset receives fresh data again.
-     */
-    private void checkDatasetStaleness(RoutingProfile profile, String profileName) {
-        JSONObject stats = profile.getDynamicDataStats();
-        Instant now = Instant.now();
-        for (Object keyObj : stats.keySet()) {
-            String datasetKey = String.valueOf(keyObj);
-            Object datasetStatsObj = stats.get(keyObj);
-            if (!(datasetStatsObj instanceof JSONObject datasetStats)) {
-                continue;
-            }
-            Object lastUpdatedObj = datasetStats.get("last_updated");
-            if (lastUpdatedObj == null) {
-                continue;
-            }
-            Instant lastUpdated;
-            try {
-                lastUpdated = Instant.parse(lastUpdatedObj.toString());
-            } catch (Exception e) {
-                continue;
-            }
-            long ageSeconds = Duration.between(lastUpdated, now).getSeconds();
-            String staleKey = profileName + ":" + datasetKey;
-            boolean isStale = ageSeconds > stalenessThresholdSeconds;
-            boolean wasStale = staleDatasets.contains(staleKey);
-            if (isStale && !wasStale) {
-                staleDatasets.add(staleKey);
-                LOGGER.warn("Dataset '" + datasetKey + "' for profile '" + profileName + "' has not changed in "
-                        + ageSeconds + "s -- check FeatureStore data pipeline for staleness.");
-            } else if (!isStale && wasStale) {
-                staleDatasets.remove(staleKey);
-                LOGGER.info("Dataset '" + datasetKey + "' for profile '" + profileName + "' is receiving updates again.");
-            }
-        }
     }
 
     /**

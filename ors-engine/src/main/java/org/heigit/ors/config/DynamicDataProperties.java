@@ -31,11 +31,6 @@ public class DynamicDataProperties {
     @JsonProperty("api_url")
     private String apiUrl; // Alias for featureStoreApiUrl for backward/forward compatibility
 
-    // How long a dataset can go without an applied/deleted match before a
-    // staleness warning is logged. Default: 15 minutes.
-    @JsonProperty("staleness_threshold_seconds")
-    private Integer stalenessThresholdSeconds = 900;
-
     public DynamicDataProperties() {
         LOGGER.debug("DynamicDataProperties constructed (no-arg)");
     }
@@ -75,7 +70,6 @@ public class DynamicDataProperties {
         enabled = ofNullable(this.enabled).orElse(other.enabled);
         featureStoreApiUrl = ofNullable(this.featureStoreApiUrl).orElse(other.featureStoreApiUrl);
         apiUrl = ofNullable(this.apiUrl).orElse(other.apiUrl);
-        stalenessThresholdSeconds = ofNullable(this.stalenessThresholdSeconds).orElse(other.stalenessThresholdSeconds);
     }
 
     /**
