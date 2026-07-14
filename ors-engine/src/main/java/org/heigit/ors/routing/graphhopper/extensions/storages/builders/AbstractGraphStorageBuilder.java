@@ -29,7 +29,7 @@ public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder
         processWay(way);
     }
 
-    public void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords) {
+    public void processEdge(ReaderWay way, EdgeIteratorState edge, Map<Integer, Map<String, String>> nodeTags) {
         processEdge(way, edge);
     }
 
