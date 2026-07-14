@@ -154,9 +154,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             return;
         }
 
-        if (preprocessed) {
-            extractNodeToCountryMapping(nodeTags);
-        } else {
+        if (!preprocessed) {
             lookupCountriesAndSetWayTags(way, coords);
         }
     }
@@ -205,7 +203,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
      * @param edge The graph edge to be processed
      */
     @Override
-    public void processEdge(ReaderWay way, EdgeIteratorState edge) {
+    public void processEdge(ReaderWay way, EdgeIteratorState edge, Map<Integer, Map<String, String>> nodeTags) {
         if (storage == null) {
             return;
         }
@@ -214,6 +212,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         short countryId2 = 0;
 
         if (preprocessed) {
+            extractNodeToCountryMapping(nodeTags);
             countryId1 = getCountryIdForNode(edge.getBaseNode());
             countryId2 = getCountryIdForNode(edge.getAdjNode());
         } else {
@@ -223,6 +222,11 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
         short borderType = getBorderType(countryId1, countryId2);
         storage.setEdgeValue(edge.getEdge(), borderType, countryId1, countryId2);
+    }
+
+    @Override
+    public void processEdge(ReaderWay way, EdgeIteratorState edge) {
+       throw new UnsupportedOperationException("processEdge without node tags is not supported in BordersGraphStorageBuilder.");
     }
 
     private short getCountryIdForNode(int nodeId) {

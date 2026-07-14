@@ -372,14 +372,35 @@ public class ORSOSMReader extends OSMReader {
     @Override
     protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge, IntsRef edgeFlags, EncodingManager.AcceptWay acceptWay) {
         try {
-            int baseNode = edge.getBaseNode();
-            int adjNode = edge.getAdjNode();
-            Coordinate [] coordinates = {
-                    new Coordinate(nodeAccess.getLon(baseNode), nodeAccess.getLat(baseNode)),
-                    new Coordinate(nodeAccess.getLon(adjNode), nodeAccess.getLat(adjNode))
-            };
+            Map<Integer, Map<String, String>> tags = new HashMap<>();
+            if (processNodeTags) {
+                // If we are processing the node tags then we need to obtain the tags for nodes that are on the way. We
+                // should store the internal node id though rather than the osm node as during the edge processing, we
+                // do not know the osm node id
 
-            procCntx.processEdge(way, edge, coordinates);
+                LongArrayList osmNodeIds = way.getNodes();
+                int size = osmNodeIds.size();
+
+                for (int i = 0; i < size; i++) {
+                    // find the node
+                    long osmId = osmNodeIds.get(i);
+                    // replace the osm id with the internal id
+                    int internalId = nodeData.getId(osmId);
+                    Map<String, String> tagsForNode = nodeTags.get(osmId);
+
+                    if (countries != null && countries.containsKey(osmId)) {
+                        if (tagsForNode == null)
+                            tagsForNode = new HashMap<>();
+                        tagsForNode.put(KEY_COUNTRY, countries.get(osmId));
+                    }
+
+                    if (tagsForNode != null) {
+                        tags.put(internalId, tagsForNode);
+                    }
+                }
+            }
+
+            procCntx.processEdge(way, edge, tags);
 
             if (acceptWay.hasConditional()) {
                 storeConditionalAccess(acceptWay, edge);

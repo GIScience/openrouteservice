@@ -49,6 +49,7 @@ Releasing is documented in RELEASE.md
 - prevent the downloading of elevation data for OSM files preprocessed with `ele` node tags ([#2305](https://github.com/GIScience/openrouteservice/pull/2305))
 - handle CSV parsing exceptions in CsvGraphStorageBuilder gracefully ([#2312](https://github.com/GIScience/openrouteservice/pull/2312))
 - handle the hierarchy of access restrictions properly in `AccessRestrictionsParser` ([#2311](https://github.com/GIScience/openrouteservice/pull/2311))
+- correctly resolve country borders from an PBF enriched with country tags ([#2314](https://github.com/GIScience/openrouteservice/pull/2314))
 
 ### Security
 - update postcss to 8.5.12
