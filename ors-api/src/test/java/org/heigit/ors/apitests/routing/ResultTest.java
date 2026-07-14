@@ -4792,6 +4792,48 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testServiceWayPenalty() {
+        JSONArray coord1 = new JSONArray().put(8.679073).put(49.415723);
+        JSONArray coord2 = new JSONArray().put(8.677970).put(49.415520);
+        JSONArray coordinates = new JSONArray().put(coord1).put(coord2);
+
+        JSONObject body = new JSONObject()
+                .put("coordinates", coordinates)
+                .put("preference", "shortest");
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(97.2, 0.1)))
+                .statusCode(200);
+
+        coord1 = new JSONArray().put(8.678027).put(49.416127);
+        coord2 = new JSONArray().put(8.678309).put(49.415561);
+        coordinates = new JSONArray().put(coord1).put(coord2);
+        body.put("coordinates", coordinates);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(86.0, 0.1)))
+                .statusCode(200);
+    }
+
+    @Test
     void testSidewalkSurface() {
         JSONObject body = new JSONObject()
                 .put("coordinates", HelperFunctions.constructCoords("8.69840,49.408406|8.69816,49.408937"))
