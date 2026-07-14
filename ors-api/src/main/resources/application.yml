@@ -214,6 +214,7 @@ ors:
               use_for_warnings: true
           encoded_values:
             road_environment: true
+            road_class: true
         service:
           execution:
             methods:
