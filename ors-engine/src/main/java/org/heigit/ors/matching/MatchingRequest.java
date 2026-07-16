@@ -33,6 +33,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.heigit.ors.routing.graphhopper.extensions.util.EncodedValues.hasCountryBorders;
 
@@ -147,7 +148,10 @@ public class MatchingRequest extends ServiceRequest {
             edgeFilter.add(edgeState -> !borderFilter.accept(edgeState));
             LOGGER.trace("Applying border filter for snapping.");
         } else {
-            LOGGER.trace("Border encoded value not found, cannot apply border filter for snapping.");
+            var missing = Stream.of(Border.KEY, Country.KEY, CountryOther.KEY).filter(ev -> !encodingManager.hasEncodedValue(ev)).toList();
+            LOGGER.trace(String.join(", ", missing) +
+                    " encoded value" + (missing.size() > 1 ? "s" : "") +
+                    " not found, cannot apply border filter for snapping.");
         }
     }
 
