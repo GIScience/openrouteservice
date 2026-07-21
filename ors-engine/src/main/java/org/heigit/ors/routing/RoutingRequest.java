@@ -39,7 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.heigit.ors.util.ProfileTools.Flexibility.*;
+import static org.heigit.ors.util.ProfileTools.Flexibility.PREPROCESSED_WEIGHTS;
+import static org.heigit.ors.util.ProfileTools.Flexibility.STATIC_WEIGHTS;
 
 public class RoutingRequest extends ServiceRequest {
     private static final Logger LOGGER = Logger.getLogger(RoutingRequest.class);
@@ -422,7 +423,7 @@ public class RoutingRequest extends ServiceRequest {
     }
 
     private GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
-                                   double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile)
+                                    double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile)
             throws Exception {
 
         GHResponse resp;
@@ -480,7 +481,7 @@ public class RoutingRequest extends ServiceRequest {
             } else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
-            switch(flexibility) {
+            switch (flexibility) {
                 case STATIC_WEIGHTS:
                     setSpeedups(req, true, true, true, searchCntx.profileNameCH());
                     break;
@@ -531,6 +532,10 @@ public class RoutingRequest extends ServiceRequest {
             if (searchParams.hasMaximumSpeed()) {
                 req.getHints().putObject("maximum_speed", searchParams.getMaximumSpeed());
                 req.getHints().putObject("maximum_speed_lower_bound", routingProfile.getProfileConfiguration().getBuild().getMaximumSpeedLowerBound());
+            }
+
+            if (searchParams.hasRestThreshold()) {
+                req.getHints().putObject("rest_threshold", searchParams.getRestThreshold());
             }
 
             if (directedSegment) {
