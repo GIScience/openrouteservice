@@ -4871,7 +4871,7 @@ class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .statusCode(404);
+                .statusCode(200);
     }
 
     private JSONArray constructBearings(String coordString) {
