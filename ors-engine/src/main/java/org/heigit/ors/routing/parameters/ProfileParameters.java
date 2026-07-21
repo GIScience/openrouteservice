@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.routing.parameters;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ors.routing.ProfileWeighting;
 import org.heigit.ors.routing.ProfileWeightingCollection;
 
@@ -21,6 +23,9 @@ import java.util.List;
 
 public class ProfileParameters {
     protected ProfileWeightingCollection weightings;
+    @Getter
+    @Setter
+    protected int restThreshold = Integer.MAX_VALUE;
 
     public void add(ProfileWeighting weighting) {
         if (weightings == null)

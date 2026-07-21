@@ -4828,6 +4828,28 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test
+    void testMultiLabelDijkstra() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesWalking"));
+        JSONObject params = new JSONObject();
+        params.put("rest_threshold", 500);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .statusCode(404);
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");

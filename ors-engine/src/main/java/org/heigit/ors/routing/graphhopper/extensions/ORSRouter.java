@@ -28,6 +28,7 @@ import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
+import org.heigit.ors.routing.algorithms.MultiLabelRoutingAlgorithmFactory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreRoutingAlgorithmFactory;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCoreLandmarks;
 
@@ -63,16 +64,58 @@ public class ORSRouter extends Router {
         return hints.getBool("core.disable", true);
     }
 
+    private static boolean hasRestThreshold(PMap hints) {
+        return hints.getInt("rest_threshold", Integer.MAX_VALUE) != Integer.MAX_VALUE;
+    }
+
     @Override
     protected Router.Solver createSolver(GHRequest request, EdgeFilterFactory edgeFilterFactory) {
         boolean disableCore = getDisableCore(request.getHints());
-        if (!disableCore) {
+        if (hasRestThreshold(request.getHints()))
+            return new ORSRouter.MultiLabelSolver(request, this.profilesByName, this.routerConfig, this.encodingManager, this.weightingFactory, this.ghStorage).setEdgeFilterFactory(edgeFilterFactory);
+        else if (!disableCore) {
             return new ORSRouter.CoreSolver(request, this.profilesByName, this.routerConfig, this.encodingManager, this.weightingFactory, this.ghStorage, this.coreGraphs, this.coreLandmarks).setEdgeFilterFactory(edgeFilterFactory);
         } else {
             return super.createSolver(request, edgeFilterFactory);
         }
     }
 
+
+
+    private static class MultiLabelSolver extends Router.Solver {
+        private final GraphHopperStorage ghStorage;
+        private final WeightingFactory weightingFactory;
+
+        MultiLabelSolver(GHRequest request, Map<String, Profile> profilesByName, RouterConfig routerConfig, EncodedValueLookup lookup, WeightingFactory weightingFactory, GraphHopperStorage ghStorage) {
+            super(request, profilesByName, routerConfig, lookup);
+            this.weightingFactory = weightingFactory;
+            this.ghStorage = ghStorage;
+        }
+
+        AlgorithmOptions getAlgoOpts() {
+            AlgorithmOptions algoOpts = new AlgorithmOptions().
+                    setAlgorithm(request.getAlgorithm()).
+                    setTraversalMode(profile.isTurnCosts() ? TraversalMode.EDGE_BASED : TraversalMode.NODE_BASED).
+                    setMaxVisitedNodes(getMaxVisitedNodes(request.getHints())).
+                    setHints(request.getHints());
+
+            if (edgeFilterFactory != null)
+                algoOpts.setEdgeFilter(edgeFilterFactory.createEdgeFilter(request.getAdditionalHints(), weighting.getFlagEncoder(), ghStorage));
+
+            return algoOpts;
+        }
+
+        @Override
+        protected Weighting createWeighting() {
+            return weightingFactory.createWeighting(profile, request.getHints(), false);
+        }
+
+        @Override
+        protected PathCalculator createPathCalculator(QueryGraph queryGraph) {
+            RoutingAlgorithmFactory algorithmFactory = new MultiLabelRoutingAlgorithmFactory();
+            return new FlexiblePathCalculator(queryGraph, algorithmFactory, weighting, getAlgoOpts());
+        }
+    }
     private static class CoreSolver extends Router.Solver {
         private final Map<String, RoutingCHGraph> chGraphs;
         private final GraphHopperStorage ghStorage;

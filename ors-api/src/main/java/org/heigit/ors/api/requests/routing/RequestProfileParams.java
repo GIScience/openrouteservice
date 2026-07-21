@@ -29,6 +29,7 @@ public class RequestProfileParams {
     public static final String PARAM_RESTRICTIONS = "restrictions";
     public static final String PARAM_SURFACE_QUALITY_KNOWN = "surface_quality_known";
     public static final String PARAM_ALLOW_UNSUITABLE = "allow_unsuitable";
+    public static final String PARAM_REST_THRESHOLD = "rest_threshold";
 
     @JsonProperty(PARAM_WEIGHTINGS)
     private RequestProfileParamsWeightings weightings;
@@ -61,6 +62,11 @@ public class RequestProfileParams {
     private boolean allowUnsuitable;
     @JsonIgnore
     private boolean hasAllowUnsuitable = false;
+
+    @JsonProperty(PARAM_REST_THRESHOLD)
+    private Integer restThreshold;
+    @JsonIgnore
+    private boolean hasRestThreshold = false;
 
     public RequestProfileParamsWeightings getWeightings() {
         return weightings;
@@ -98,6 +104,15 @@ public class RequestProfileParams {
         hasAllowUnsuitable = true;
     }
 
+    public int getRestThreshold() {
+        return restThreshold;
+    }
+
+    public void setRestThreshold(int value) {
+        this.restThreshold = value;
+        hasRestThreshold = true;
+    }
+
     public boolean hasWeightings() {
         return hasWeightings;
     }
@@ -112,5 +127,9 @@ public class RequestProfileParams {
 
     public boolean hasSurfaceQualityKnown() {
         return hasSurfaceQualityKnown;
+    }
+
+    public boolean hasRestThreshold() {
+        return hasRestThreshold;
     }
 }
