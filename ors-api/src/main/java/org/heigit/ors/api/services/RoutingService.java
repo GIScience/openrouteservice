@@ -344,6 +344,9 @@ public class RoutingService extends ApiService {
             params.setCustomModel(routeApiRequest.getCustomModel().toGHCustomModel());
         }
 
+        if (routeApiRequest.getRouteOptions().getProfileParams().hasRestThreshold())
+            params.setRestThreshold(routeApiRequest.getRouteOptions().getProfileParams().getRestThreshold());
+
         params.setConsiderTurnRestrictions(false);
 
         routingRequest.setSearchParameters(params);
