@@ -1,13 +1,19 @@
 package org.heigit.ors.routing.algorithms;
 
 import com.graphhopper.util.EdgeIterator;
+import lombok.Getter;
+import lombok.Setter;
 
 public class Label implements Cloneable, Comparable<Label> {
     public int edgeId;
     public int nodeId;
     public double weight;
     public double sinceRest;
+    @Getter
     public Label parent;
+    @Getter
+    @Setter
+    private boolean active = true;
 
     public Label(int edgeId, int nodeId, double weight, double sinceRest) {
         this.edgeId = edgeId;
@@ -27,10 +33,6 @@ public class Label implements Cloneable, Comparable<Label> {
      */
     public double getWeightOfVisitedPath() {
         return weight;
-    }
-
-    public Label getParent() {
-        return parent;
     }
 
     @Override

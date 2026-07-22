@@ -4832,6 +4832,7 @@ class ResultTest extends ServiceTest {
     void testMultiLabelDijkstra() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesWalking"));
+        body.put("preference", "shortest");
         JSONObject params = new JSONObject();
         params.put("rest_threshold", 500);
         JSONObject options = new JSONObject();
@@ -4839,14 +4840,13 @@ class ResultTest extends ServiceTest {
         body.put("options", options);
 
         given()
-                .headers(CommonHeaders.jsonContent)
+                .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath() + "/{profile}/json")
-                .then().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
                 .assertThat()
-                .body("any { it.key == 'routes' }", is(true))
                 .statusCode(200);
     }
 

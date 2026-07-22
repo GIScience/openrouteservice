@@ -4,6 +4,8 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.ev.Rest;
+import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -11,23 +13,32 @@ import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.GHUtility;
 import org.apache.log4j.Logger;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.PriorityQueue;
+
+import static java.lang.Math.max;
 
 public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     public static final int INITIAL_CAPACITY = 2000;
     private static final Logger LOGGER = Logger.getLogger(MultiLabelDijkstraAlgorithm.class);
     protected IntObjectMap<Label> fromMap;
     protected PriorityQueue<Label> queue;
+    protected HashMap<Integer, List<Label>> nodeToLabelMap = new HashMap<>();
     protected Label currentLabel;
     protected int visitedNodes;
     protected int to = -1;
+    protected double penalty;
+    protected double restThreshold;
 
 
-    public MultiLabelDijkstraAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode) {
+    public MultiLabelDijkstraAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode, double restThreshold, double penalty) {
         super(graph, weighting, tMode);
         queue = new PriorityQueue<>(INITIAL_CAPACITY);
         fromMap = new GHIntObjectHashMap<>(INITIAL_CAPACITY);
-        LOGGER.debug("MultiLabelDijkstraAlgorithm initialized with graph size: " + graph.getNodes() + ", weighting: " + weighting.getName() + ", traversal mode: " + tMode);
+        this.restThreshold = restThreshold;
+        this.penalty = penalty;
+        LOGGER.debug("MultiLabelDijkstraAlgorithm initialized with graph size: " + graph.getNodes() + ", weighting: " + weighting.getName() + ", traversal mode: " + tMode + ", rest threshold: " + restThreshold + ", penalty: " + penalty);
     }
 
     @Override
@@ -66,43 +77,72 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
 
                 Label nextLabel = fromMap.get(traversalId);
                 double sinceRest = calculateNewSinceRest(currentLabel, iter);
-                double adjustedWeight = adjustWeightWithSinceRest(tmpWeight, iter);
+                double adjustedWeight = adjustWeightWithSinceRest(tmpWeight, iter, currentLabel.sinceRest);
 
                 if (nextLabel == null) {
                     nextLabel = new Label(iter.getEdge(), iter.getAdjNode(), adjustedWeight, sinceRest);
                     nextLabel.parent = currentLabel;
                     fromMap.put(traversalId, nextLabel);
-                    queue.add(nextLabel);
+                    if (checkAndPrune(nextLabel)) {
+                        queue.add(nextLabel);
+                        nodeToLabelMap.computeIfAbsent(nextLabel.nodeId, k -> new java.util.ArrayList<>()).add(nextLabel);
+                    }
                 } else if (nextLabel.weight > adjustedWeight) {
                     queue.remove(nextLabel);
                     nextLabel.edgeId = iter.getEdge();
                     nextLabel.weight = adjustedWeight;
                     nextLabel.sinceRest = sinceRest;
                     nextLabel.parent = currentLabel;
-                    queue.add(nextLabel);
+                    if (checkAndPrune(nextLabel)) {
+                        queue.add(nextLabel);
+                        nodeToLabelMap.computeIfAbsent(nextLabel.nodeId, k -> new java.util.ArrayList<>()).add(nextLabel);
+                    }
                 }
-                checkAndPrune(nextLabel);
             }
             if (queue.isEmpty())
                 break;
 
             currentLabel = queue.poll();
+            while (currentLabel != null && !currentLabel.isActive()) { // get next Label that is not set to active=false
+                currentLabel = queue.poll();
+            }
             if (currentLabel == null)
                 throw new AssertionError("Empty edge cannot happen");
         }
     }
 
-    private void checkAndPrune(Label nextLabel) {
-        // TODO: decide if pruning is worth it
-        // what we would do: find all labels with same node id, remove dominated
+    private boolean checkAndPrune(Label nextLabel) {
+        List<Label> labelsAtNode = nodeToLabelMap.get(nextLabel.nodeId);
+        if (labelsAtNode == null) {
+            return true;
+        }
+        labelsAtNode.forEach(existingLabel -> {
+            if (existingLabel.weight >= nextLabel.weight && existingLabel.sinceRest >= nextLabel.sinceRest) {
+                existingLabel.setActive(false);
+            }
+        });
+        return !labelsAtNode.stream().anyMatch(existingLabel -> existingLabel.weight <= nextLabel.weight && existingLabel.sinceRest <= nextLabel.sinceRest);
     }
 
-    private double adjustWeightWithSinceRest(double tmpWeight, EdgeIterator iter) {
-        return tmpWeight;
+    private double adjustWeightWithSinceRest(double tmpWeight, EdgeIterator iter, double sinceRest) {
+        if (edgeHasRestPoint(iter)) {
+            double distanceToRest = iter.getDistance() / 2;
+            return max(0, sinceRest + distanceToRest - restThreshold) * penalty + max(0, distanceToRest - restThreshold) * penalty + tmpWeight;
+        }
+        return max(0, sinceRest + iter.getDistance() - restThreshold) * penalty + tmpWeight;
     }
 
     private double calculateNewSinceRest(Label currentLabel, EdgeIterator iter) {
-        return 0;
+        if (edgeHasRestPoint(iter)) {
+            return iter.getDistance() / 2;
+        } else {
+            return currentLabel.sinceRest + iter.getDistance();
+        }
+    }
+
+    private boolean edgeHasRestPoint(EdgeIterator iter) {
+        FootFlagEncoder encoder = (FootFlagEncoder) weighting.getFlagEncoder();
+        return iter.get(encoder.getBooleanEncodedValue(encoder + "$" + Rest.KEY));
     }
 
     @Override
