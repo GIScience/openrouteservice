@@ -22,26 +22,14 @@ import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
-import com.graphhopper.routing.lm.LMApproximator;
-import com.graphhopper.routing.lm.LandmarkStorage;
-import com.graphhopper.routing.querygraph.QueryGraph;
-import com.graphhopper.routing.querygraph.QueryRoutingCoreGraph;
-import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.RoutingCHGraph;
-import org.heigit.ors.routing.RouteRequestParameterNames;
-import org.heigit.ors.routing.graphhopper.extensions.core.*;
-import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
-import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
-
-import static com.graphhopper.util.Parameters.Algorithms.*;
 
 public class MultiLabelRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
 
     @Override
     public RoutingAlgorithm createAlgo(Graph graph, Weighting weighting, AlgorithmOptions opts) {
-        AbstractRoutingAlgorithm algo = new MultiLabelDijkstraAlgorithm(graph, weighting, opts.getTraversalMode());
+        AbstractRoutingAlgorithm algo = new MultiLabelDijkstraAlgorithm(graph, weighting, opts.getTraversalMode(), opts.getHints().getDouble("rest_threshold", Integer.MAX_VALUE), opts.getHints().getDouble("rest_penalty", 2.0));
         algo.setMaxVisitedNodes(opts.getMaxVisitedNodes());
         return algo;
     }
