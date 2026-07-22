@@ -23,10 +23,14 @@ import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.HashMapSparseEncodedValue;
+import com.graphhopper.routing.ev.Rest;
+import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
+import com.graphhopper.routing.util.DefaultSnapFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
@@ -34,6 +38,7 @@ import com.graphhopper.storage.CHConfig;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
@@ -50,12 +55,14 @@ import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
@@ -64,6 +71,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTraff
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
 import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.util.ProfileTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -332,6 +340,27 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                 }
             }
         }
+
+        processGraphDependentEVData();
+    }
+
+    private void processGraphDependentEVData() {
+        for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+            if (encoder instanceof FootFlagEncoder footFlagEncoder) {
+                BooleanEncodedValue restEV = footFlagEncoder.getBooleanEncodedValue(footFlagEncoder + "$" + Rest.KEY);
+                PMap hintsMap = new PMap();
+                ProfileTools.setWeightingMethod(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
+                ProfileTools.setWeighting(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
+                String localProfileName = ProfileTools.makeProfileName(encoder.toString(), hintsMap.getString("weighting", ""), false);
+                Weighting weighting = new ORSWeightingFactory(getGraphHopperStorage(), getEncodingManager()).createWeighting(getProfile(localProfileName), hintsMap, false);
+                EdgeFilter snapFilter = new DefaultSnapFilter(weighting, getGraphHopperStorage().getEncodingManager().getBooleanEncodedValue(Subnetwork.key(localProfileName)));
+                EdgeFilterSequence edgeFilter = new EdgeFilterSequence().add(snapFilter);
+                Snap snappedPoint = getLocationIndex().findClosest(49.4144071, 8.6883768, edgeFilter); // TODO: get useful data
+                if (snappedPoint.isValid()) {
+                    snappedPoint.getClosestEdge().set(restEV, true);
+                }
+            }
+        }
     }
 
     @Override
@@ -437,7 +466,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
         return lmConfigs;
     }
-
 
 
     protected void prepareCore(boolean closeEarly) {

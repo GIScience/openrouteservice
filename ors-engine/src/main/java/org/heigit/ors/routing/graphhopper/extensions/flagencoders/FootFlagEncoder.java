@@ -169,6 +169,7 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
             registerNewEncodedValue.add(conditionalAccessEncoder);
         }
         footRouteEnc = getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
+        registerNewEncodedValue.add(new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, Rest.KEY)));
     }
 
     @Override

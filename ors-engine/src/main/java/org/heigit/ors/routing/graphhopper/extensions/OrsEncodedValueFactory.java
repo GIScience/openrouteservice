@@ -3,6 +3,7 @@ package org.heigit.ors.routing.graphhopper.extensions;
 import com.graphhopper.routing.ev.DefaultEncodedValueFactory;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.EncodedValueFactory;
+import com.graphhopper.routing.ev.Rest;
 import com.graphhopper.util.Helper;
 import org.heigit.ors.routing.graphhopper.extensions.ev.DynamicData;
 
