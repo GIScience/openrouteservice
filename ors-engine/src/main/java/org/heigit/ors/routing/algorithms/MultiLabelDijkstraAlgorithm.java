@@ -1,7 +1,5 @@
 package org.heigit.ors.routing.algorithms;
 
-import com.carrotsearch.hppc.IntObjectMap;
-import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.ev.Rest;
@@ -14,6 +12,7 @@ import com.graphhopper.util.GHUtility;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -22,9 +21,8 @@ import static java.lang.Math.max;
 public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     public static final int INITIAL_CAPACITY = 2000;
     private static final Logger LOGGER = Logger.getLogger(MultiLabelDijkstraAlgorithm.class);
-    protected IntObjectMap<Label> fromMap;
     protected PriorityQueue<Label> queue;
-    protected HashMap<Integer, List<Label>> nodeToLabelMap = new HashMap<>();
+    protected HashMap<Integer, List<Label>> traversalIdToLabelMap = new HashMap<>();
     protected Label currentLabel;
     protected int visitedNodes;
     protected int to = -1;
@@ -35,7 +33,6 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     public MultiLabelDijkstraAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode, double restThreshold, double penalty) {
         super(graph, weighting, tMode);
         queue = new PriorityQueue<>(INITIAL_CAPACITY);
-        fromMap = new GHIntObjectHashMap<>(INITIAL_CAPACITY);
         this.restThreshold = restThreshold;
         this.penalty = penalty;
         LOGGER.debug("MultiLabelDijkstraAlgorithm initialized with graph size: " + graph.getNodes() + ", weighting: " + weighting.getName() + ", traversal mode: " + tMode + ", rest threshold: " + restThreshold + ", penalty: " + penalty);
@@ -47,9 +44,6 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         checkAlreadyRun();
         this.to = to;
         currentLabel = Label.createStartLabel(from);
-        if (!traversalMode.isEdgeBased()) {
-            fromMap.put(from, currentLabel);
-        }
         runAlgo();
         return extractPath();
     }
@@ -67,7 +61,8 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
                 if (!accept(iter, currentLabel.edgeId))
                     continue;
 
-                double tmpWeight = GHUtility.calcWeightWithTurnWeightWithAccess(weighting, iter, false, currentLabel.edgeId) + currentLabel.weight;
+                double nextEdgeWeight = GHUtility.calcWeightWithTurnWeightWithAccess(weighting, iter, false, currentLabel.edgeId);
+                double tmpWeight = nextEdgeWeight + currentLabel.weight;
                 if (Double.isInfinite(tmpWeight)) {
                     continue;
                 }
@@ -75,29 +70,12 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
                 // TODO ORS (minor): MARQ24 WHY the heck the 'reverseDirection' is not used also for the traversal ID ???
                 int traversalId = traversalMode.createTraversalId(iter, false);
 
-                Label nextLabel = fromMap.get(traversalId);
                 double sinceRest = calculateNewSinceRest(currentLabel, iter);
-                double adjustedWeight = adjustWeightWithSinceRest(tmpWeight, iter, currentLabel.sinceRest);
+                double adjustedWeight = adjustWeightWithSinceRest(tmpWeight, nextEdgeWeight, iter, currentLabel.sinceRest);
 
-                if (nextLabel == null) {
-                    nextLabel = new Label(iter.getEdge(), iter.getAdjNode(), adjustedWeight, sinceRest);
-                    nextLabel.parent = currentLabel;
-                    fromMap.put(traversalId, nextLabel);
-                    if (checkAndPrune(nextLabel)) {
-                        queue.add(nextLabel);
-                        nodeToLabelMap.computeIfAbsent(nextLabel.nodeId, k -> new java.util.ArrayList<>()).add(nextLabel);
-                    }
-                } else if (nextLabel.weight > adjustedWeight) {
-                    queue.remove(nextLabel);
-                    nextLabel.edgeId = iter.getEdge();
-                    nextLabel.weight = adjustedWeight;
-                    nextLabel.sinceRest = sinceRest;
-                    nextLabel.parent = currentLabel;
-                    if (checkAndPrune(nextLabel)) {
-                        queue.add(nextLabel);
-                        nodeToLabelMap.computeIfAbsent(nextLabel.nodeId, k -> new java.util.ArrayList<>()).add(nextLabel);
-                    }
-                }
+                Label nextLabel = new Label(iter.getEdge(), iter.getAdjNode(), adjustedWeight, sinceRest);
+                nextLabel.parent = currentLabel;
+                checkAndPrune(nextLabel, traversalId);
             }
             if (queue.isEmpty())
                 break;
@@ -107,29 +85,50 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
                 currentLabel = queue.poll();
             }
             if (currentLabel == null)
-                throw new AssertionError("Empty edge cannot happen");
+                break;
         }
     }
 
-    private boolean checkAndPrune(Label nextLabel) {
-        List<Label> labelsAtNode = nodeToLabelMap.get(nextLabel.nodeId);
-        if (labelsAtNode == null) {
-            return true;
-        }
-        labelsAtNode.forEach(existingLabel -> {
-            if (existingLabel.weight >= nextLabel.weight && existingLabel.sinceRest >= nextLabel.sinceRest) {
-                existingLabel.setActive(false);
+    private void checkAndPrune(Label nextLabel, int traversalId) {
+        List<Label> labelsAtNode = traversalIdToLabelMap.computeIfAbsent(traversalId, k -> new java.util.ArrayList<>());
+        for (Label existingLabel : labelsAtNode) {
+            if (dominates(existingLabel, nextLabel)) {
+                nextLabel.setActive(false);
+                return;
             }
-        });
-        return !labelsAtNode.stream().anyMatch(existingLabel -> existingLabel.weight <= nextLabel.weight && existingLabel.sinceRest <= nextLabel.sinceRest);
+        }
+        Iterator<Label> i = labelsAtNode.iterator();
+        while (i.hasNext()) {
+            Label existingLabel = i.next();
+            if (dominates(nextLabel, existingLabel)) {
+                existingLabel.setActive(false);
+                i.remove();
+            }
+        }
+        labelsAtNode.add(nextLabel);
+        queue.add(nextLabel);
     }
 
-    private double adjustWeightWithSinceRest(double tmpWeight, EdgeIterator iter, double sinceRest) {
+    private boolean dominates(Label aLabel, Label bLabel) {
+        return aLabel.weight <= bLabel.weight && aLabel.sinceRest <= bLabel.sinceRest;
+    }
+
+    private double adjustWeightWithSinceRest(double tmpWeight, double nextEdgeWeight, EdgeIterator iter, double sinceRest) {
+        double edgeDistance = iter.getDistance();
         if (edgeHasRestPoint(iter)) {
-            double distanceToRest = iter.getDistance() / 2;
-            return max(0, sinceRest + distanceToRest - restThreshold) * penalty + max(0, distanceToRest - restThreshold) * penalty + tmpWeight;
+            double distanceToRest = edgeDistance / 2; // TODO: precise point along edge instead of assuming in the middle
+            double distanceFromRest = edgeDistance / 2;
+            return penaltyWeight(sinceRest, distanceToRest, nextEdgeWeight) + penaltyWeight(0, distanceFromRest, nextEdgeWeight) + tmpWeight;
         }
-        return max(0, sinceRest + iter.getDistance() - restThreshold) * penalty + tmpWeight;
+        return penaltyWeight(sinceRest, edgeDistance, nextEdgeWeight) + tmpWeight;
+    }
+
+    private double penaltyWeight(double sinceRest, double edgeDistance, double nextEdgeWeight) {
+        double beforeExcess = max(0.0, sinceRest - restThreshold);
+        double afterExcess = max(0.0, sinceRest + edgeDistance - restThreshold);
+        double newExcess = max(0.0, afterExcess - beforeExcess);
+        double weightPerMeter = edgeDistance == 0 ? 0 : nextEdgeWeight / edgeDistance;
+        return newExcess * weightPerMeter * penalty;
     }
 
     private double calculateNewSinceRest(Label currentLabel, EdgeIterator iter) {
