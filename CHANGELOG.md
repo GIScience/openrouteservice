@@ -29,6 +29,7 @@ Releasing is documented in RELEASE.md
 
 ### Added
 - speedup zip packing and unpacking with Apache Commons parallel processes ([#2294](https://github.com/GIScience/openrouteservice/pull/2294))
+- log the number of restricted nodes during core preparation ([#2317](https://github.com/GIScience/openrouteservice/pull/2317))
 
 ### Changed
 - replace tollways storage with a corresponding encoded value from GraphHopper ([#2257](https://github.com/GIScience/openrouteservice/pull/2257))
