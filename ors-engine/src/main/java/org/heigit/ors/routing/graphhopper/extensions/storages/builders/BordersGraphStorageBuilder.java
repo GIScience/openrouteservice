@@ -51,7 +51,6 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private static final String TAG_KEY_COUNTRY1 = "country1";
     private static final String TAG_KEY_COUNTRY2 = "country2";
     private static final int EMPTY_NODE = -1;
-    private static final int TOWER_NODE = -2;
     private HashMap<Integer, String> wayNodeTags;
 
     private BordersGraphStorage storage;
@@ -200,7 +199,8 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             return;
         }
 
-        short countryId1, countryId2;
+        short countryId1;
+        short countryId2;
 
         if (preprocessed) {
             extractNodeToCountryMapping(nodeTags);
