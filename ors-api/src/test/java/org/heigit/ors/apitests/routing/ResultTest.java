@@ -2161,6 +2161,30 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testBordersAtBarriers() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", HelperFunctions.constructCoords("8.682567,49.406522|8.68275,49.406215"));
+        body.put("preference", "shortest");
+        body.put("instructions", false);
+        body.put("units", "m");
+
+        body.put("options", new JSONObject().put("avoid_borders", "all"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(44, 1)))
+                .statusCode(200);
+    }
+
+    @Test
     void testDetourFactor() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
