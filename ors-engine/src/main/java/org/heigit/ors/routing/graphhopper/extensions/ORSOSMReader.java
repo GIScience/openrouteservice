@@ -377,15 +377,9 @@ public class ORSOSMReader extends OSMReader {
                 // If we are processing the node tags then we need to obtain the tags for nodes that are on the way. We
                 // should store the internal node id though rather than the osm node as during the edge processing, we
                 // do not know the osm node id
+                Arrays.asList(edge.getBaseNode(), edge.getAdjNode()).forEach(nodeId -> {
+                    long osmId = nodeData.getOsmId(nodeData.towerNodeToId(nodeId));
 
-                LongArrayList osmNodeIds = way.getNodes();
-                int size = osmNodeIds.size();
-
-                for (int i = 0; i < size; i++) {
-                    // find the node
-                    long osmId = osmNodeIds.get(i);
-                    // replace the osm id with the internal id
-                    int internalId = nodeData.getId(osmId);
                     Map<String, String> tagsForNode = nodeTags.get(osmId);
 
                     if (countries != null && countries.containsKey(osmId)) {
@@ -395,9 +389,9 @@ public class ORSOSMReader extends OSMReader {
                     }
 
                     if (tagsForNode != null) {
-                        tags.put(internalId, tagsForNode);
+                        tags.put(nodeId, tagsForNode);
                     }
-                }
+                });
             }
 
             procCntx.processEdge(way, edge, tags);
