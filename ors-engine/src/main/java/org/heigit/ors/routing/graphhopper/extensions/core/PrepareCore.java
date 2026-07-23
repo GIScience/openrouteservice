@@ -98,6 +98,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
         logger.info("Finished building Core graph, took: {}s, {}", sw.stop().getSeconds(), getMemInfo());
         nodeContractor.initFromGraph();
         postInit(prepareGraph);
+        logger.info("Restricted nodes count: {}", restrictedNodesCount);
     }
 
     public void postInit(CHPreparationGraph prepareGraph) {
@@ -168,7 +169,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
         if (neighbors instanceof IntArrayList intArrayList)
             intArrayList.removeAll(isCoreNode);
         else
-            throw (new IllegalStateException("Not an isntance of IntArrayList"));
+            throw (new IllegalStateException("Not an instance of IntArrayList"));
 
         return neighbors;
     }
