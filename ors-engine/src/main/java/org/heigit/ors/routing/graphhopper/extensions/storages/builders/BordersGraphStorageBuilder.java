@@ -51,7 +51,6 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private static final String TAG_KEY_COUNTRY1 = "country1";
     private static final String TAG_KEY_COUNTRY2 = "country2";
     private static final int EMPTY_NODE = -1;
-    private static final int TOWER_NODE = -2;
     private HashMap<Integer, String> wayNodeTags;
 
     private BordersGraphStorage storage;
@@ -165,8 +164,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             return;
         }
 
-        nodeTags.forEach((internalNodeId, tagPairs) -> {
-            int nodeId = convertTowerNodeId(internalNodeId);
+        nodeTags.forEach((nodeId, tagPairs) -> {
             if (nodeId != EMPTY_NODE) {
                 wayNodeTags.put(nodeId, tagPairs.get(TAG_KEY_COUNTRY));
             }
@@ -182,13 +180,6 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             way.setTag(TAG_KEY_COUNTRY1, countries[0]);
             way.setTag(TAG_KEY_COUNTRY2, countries[0]);
         }
-    }
-
-    private int convertTowerNodeId(int id) {
-        if (id < TOWER_NODE)
-            return -id - 3;
-
-        return EMPTY_NODE;
     }
 
     /**
@@ -208,8 +199,8 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             return;
         }
 
-        short countryId1 = 0;
-        short countryId2 = 0;
+        short countryId1;
+        short countryId2;
 
         if (preprocessed) {
             extractNodeToCountryMapping(nodeTags);
