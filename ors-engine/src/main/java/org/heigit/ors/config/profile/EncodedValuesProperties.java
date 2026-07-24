@@ -200,5 +200,3 @@ public class EncodedValuesProperties {
         border = ofNullable(this.border).orElse(other.border);
     }
 }
-
-
