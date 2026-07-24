@@ -25,7 +25,7 @@ public class RouteGeneratorApp {
             CoordinateGeneratorRoute generator = cli.createGenerator();
 
             LOGGER.info("Generating {} routes...", generator.getNumRoutes());
-            generator.generateRoutes();
+            generator.generate();
             LOGGER.info("\n");
 
             List<Route> result = generator.getResult();
