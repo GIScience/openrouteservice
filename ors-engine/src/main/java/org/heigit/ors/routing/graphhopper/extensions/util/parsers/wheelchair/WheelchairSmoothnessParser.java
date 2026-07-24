@@ -9,7 +9,7 @@ import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 public class WheelchairSmoothnessParser extends WheelchairBaseParser<IntEncodedValue> {
     public static final String TAG_NAME = "smoothness";
 
-    public WheelchairSmoothnessParser(){
+    public WheelchairSmoothnessParser() {
         this.encoder = WheelchairSmoothness.create();
     }
 

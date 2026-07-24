@@ -183,5 +183,3 @@ public class EncodedValuesProperties {
         mtbScaleUphill = ofNullable(this.mtbScaleUphill).orElse(other.mtbScaleUphill);
     }
 }
-
-

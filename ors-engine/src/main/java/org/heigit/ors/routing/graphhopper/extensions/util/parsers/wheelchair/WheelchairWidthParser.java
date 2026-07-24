@@ -9,7 +9,7 @@ import org.heigit.ors.util.UnitsConverter;
 public class WheelchairWidthParser extends WheelchairBaseParser<UnsignedDecimalEncodedValue> {
     public static final String TAG_NAME = "width";
 
-    public WheelchairWidthParser(){
+    public WheelchairWidthParser() {
         this.encoder = WheelchairWidth.create();
     }
 
