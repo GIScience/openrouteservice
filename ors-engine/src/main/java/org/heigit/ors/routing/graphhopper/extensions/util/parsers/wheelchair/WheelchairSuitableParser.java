@@ -5,7 +5,7 @@ import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.WheelchairSuitable;
 import com.graphhopper.storage.IntsRef;
 
-public class WheelchairSuitableParser extends WheelchairBaseParser {
+public class WheelchairSuitableParser extends WheelchairBaseParser<BooleanEncodedValue> {
     public WheelchairSuitableParser() {
         this.encoder = WheelchairSuitable.create();
     }
@@ -20,7 +20,7 @@ public class WheelchairSuitableParser extends WheelchairBaseParser {
 
         suited = selectBooleanValueForSidewalkSide(way, suited, suitedLeft, suitedRight);
 
-        ((BooleanEncodedValue) encoder).setBool(false, edgeFlags, suited);
+        encoder.setBool(false, edgeFlags, suited);
         return edgeFlags;
     }
 }

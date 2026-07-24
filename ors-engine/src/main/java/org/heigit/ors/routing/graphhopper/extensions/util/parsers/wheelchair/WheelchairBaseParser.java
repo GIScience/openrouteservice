@@ -17,7 +17,7 @@ import java.util.function.ToIntFunction;
 
 import static org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor.KEY_ORS_SIDEWALK_SIDE;
 
-public abstract class WheelchairBaseParser implements TagParser {
+public abstract class WheelchairBaseParser<T extends EncodedValue> implements TagParser {
     public static final String SW_VAL_RIGHT = "right";
     public static final String SW_VAL_LEFT = "left";
     public static final String KEY_BOTH = "both";
@@ -25,7 +25,7 @@ public abstract class WheelchairBaseParser implements TagParser {
     public static final String KEY_SIDEWALK_BOTH = "sidewalk:both:";
     public static final String KEY_FOOTWAY_BOTH = "footway:both:";
 
-    protected EncodedValue encoder;
+    protected T encoder;
 
     protected boolean hasLeftSidewalk = false;
     protected boolean hasRightSidewalk = false;
@@ -56,10 +56,6 @@ public abstract class WheelchairBaseParser implements TagParser {
         cleanedTags = cleanTags(way.getTags());
         detectAndRecordSidewalkSide(way);
         detectAndRecordSidewalkSideWithKerb();
-    }
-
-    protected void setInt(IntsRef edgeFlags, int value) {
-        ((IntEncodedValue) encoder).setInt(false, edgeFlags, Math.max(0, value));
     }
 
     /**
@@ -186,20 +182,26 @@ public abstract class WheelchairBaseParser implements TagParser {
         return values;
     }
 
-    /** Select the worst value (maximum) for the sidewalk side based on the presence of the ors-sidewalk-side tag and the presence of sidewalk tags on the sides of the way */
+    /**
+     * Select the worst value (maximum) for the sidewalk side based on the presence of the ors-sidewalk-side tag and the presence of sidewalk tags on the sides of the way
+     */
     protected int selectIntValueForSidewalkSide(ReaderWay way, int center, int left, int right) {
         return selectIntValueForSidewalkSide(way, center, left, right, false);
     }
 
-    /** Select the worst of two integer values */
+    /**
+     * Select the worst of two integer values
+     */
     protected int combineValues(int a, int b, boolean moreIsBetter) {
-        if(a == -1) return b;
-        if(b == -1) return a;
+        if (a == -1) return b;
+        if (b == -1) return a;
 
         return moreIsBetter ? Math.min(a, b) : Math.max(a, b);
     }
 
-    /** Select the worst value (maximum or minimum depending on the value of moreIsBetter) for the sidewalk side based on the presence of the ors-sidewalk-side tag and the presence of sidewalk tags on the sides of the way */
+    /**
+     * Select the worst value (maximum or minimum depending on the value of moreIsBetter) for the sidewalk side based on the presence of the ors-sidewalk-side tag and the presence of sidewalk tags on the sides of the way
+     */
     protected int selectIntValueForSidewalkSide(ReaderWay way, int center, int left, int right, boolean moreIsBetter) {
         if (way.hasTag(KEY_ORS_SIDEWALK_SIDE)) {
             String side = way.getTag(KEY_ORS_SIDEWALK_SIDE);
@@ -309,11 +311,11 @@ public abstract class WheelchairBaseParser implements TagParser {
     }
 
 
-    protected IntsRef defaultHandleWayTags(IntsRef edgeFlags, ReaderWay way, String tagName, ToIntFunction<String> tagValueToEncodedValueFunction){
-        return defaultHandleWayTags(edgeFlags, way, tagName, tagValueToEncodedValueFunction, false);
+    protected int defaultHandleWayTags(ReaderWay way, String tagName, ToIntFunction<String> tagValueToEncodedValueFunction) {
+        return defaultHandleWayTags(way, tagName, tagValueToEncodedValueFunction, false);
     }
 
-    protected IntsRef defaultHandleWayTags(IntsRef edgeFlags, ReaderWay way, String tagName, ToIntFunction<String> tagValueToEncodedValueFunction, boolean moreIsBetter) {
+    protected int defaultHandleWayTags(ReaderWay way, String tagName, ToIntFunction<String> tagValueToEncodedValueFunction, boolean moreIsBetter) {
         beforeHandleWayTags(way);
 
         int center = -1;
@@ -333,14 +335,7 @@ public abstract class WheelchairBaseParser implements TagParser {
             right = tagValueToEncodedValueFunction.applyAsInt(tagValues[1].toLowerCase());
 
         // Select based on artificial ors-sidewalk-side tag
-        center = selectIntValueForSidewalkSide(way, center, left, right, moreIsBetter);
-
-        if(!tagName.equals(WheelchairWidthParser.TAG_NAME))
-            setInt(edgeFlags, center);
-        else
-            ((UnsignedDecimalEncodedValue) encoder).setDecimal(false, edgeFlags, Math.max(0, center));
-
-        return edgeFlags;
+        return selectIntValueForSidewalkSide(way, center, left, right, moreIsBetter);
     }
 
     /**
