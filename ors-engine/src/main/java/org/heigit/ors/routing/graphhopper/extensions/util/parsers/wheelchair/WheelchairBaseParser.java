@@ -3,10 +3,7 @@ package org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.EncodedValueLookup;
-import com.graphhopper.routing.ev.IntEncodedValue;
-import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.parsers.TagParser;
-import com.graphhopper.storage.IntsRef;
 import org.heigit.ors.util.UnitsConverter;
 
 import java.util.Arrays;

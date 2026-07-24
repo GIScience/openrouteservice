@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class WheelchairSurfaceQualityKnownParser extends WheelchairBaseParser<BooleanEncodedValue> {
-    public WheelchairSurfaceQualityKnownParser(){
+    public WheelchairSurfaceQualityKnownParser() {
         this.encoder = WheelchairSurfaceQualityKnown.create();
     }
 

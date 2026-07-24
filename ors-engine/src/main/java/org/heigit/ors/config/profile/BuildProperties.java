@@ -252,13 +252,13 @@ public class BuildProperties {
         if (encodedValues.getWheelchairKerb() == null) {
             encodedValues.setWheelchairKerb(true);
         }
-        if(encodedValues.getWheelchairSuitable() == null) {
+        if (encodedValues.getWheelchairSuitable() == null) {
             encodedValues.setWheelchairSuitable(true);
         }
         if (encodedValues.getWheelchairSide() == null) {
             encodedValues.setWheelchairSide(true);
         }
-        if(encodedValues.getWheelchairSurfaceQualityKnown() == null) {
+        if (encodedValues.getWheelchairSurfaceQualityKnown() == null) {
             encodedValues.setWheelchairSurfaceQualityKnown(true);
         }
     }
