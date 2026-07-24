@@ -375,7 +375,7 @@ public class ORSOSMReader extends OSMReader {
             Map<Integer, Map<String, String>> tags = new HashMap<>();
             if (processNodeTags) {
                 for (int nodeId : new int[]{edge.getBaseNode(), edge.getAdjNode()}) {
-                    long osmId = nodeData.getOsmId(nodeData.towerNodeToId(nodeId));
+                    long osmId = nodeData.getOsmId(nodeId);
                     Map<String, String> tagsForNode = nodeTags.get(osmId);
 
                     if (countries != null && countries.containsKey(osmId)) {

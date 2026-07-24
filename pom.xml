@@ -46,7 +46,7 @@
 
         <!-- switch graphhopper versions to enable debugging -->
         <!--<graphhopper.version>4.15-SNAPSHOT</graphhopper.version>-->
-        <graphhopper.version>v4.14.0</graphhopper.version>
+        <graphhopper.version>v4.14.1</graphhopper.version>
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
         <log4j.version>2.25.4</log4j.version>
