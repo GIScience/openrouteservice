@@ -62,10 +62,10 @@ public class WheelchairAttributesEncodedValues {
         attrs.setSuitable(suitableEncoder.getBool(false, edgeFlags));
         attrs.setSide(sideEncoder.getEnum(false, edgeFlags));
         attrs.setSurfaceQualityKnown(surfaceQualityKnownEncoder.getBool(false, edgeFlags));
-        
-        int incline = inclineEncoder.getInt(false, edgeFlags); // we store unsigned integers, however -1 is used to indicate unknown
+
+        int incline = inclineEncoder.getInt(false, edgeFlags);
         if (incline > 0) {
-            attrs.setIncline(incline); // incline is converts to int in WheelchairAttributes, weird that the method takes a double...
+            attrs.setIncline(incline);
         }
 
         int width = (int) widthEncoder.getDecimal(false, edgeFlags);
