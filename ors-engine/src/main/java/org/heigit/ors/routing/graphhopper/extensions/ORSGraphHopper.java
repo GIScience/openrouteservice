@@ -71,6 +71,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTraff
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
 import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.util.CSVUtility;
 import org.heigit.ors.util.ProfileTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class ORSGraphHopper extends GraphHopperGtfs {
@@ -340,13 +342,15 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                 }
             }
         }
-
-        processGraphDependentEVData();
+        if (config.has("foot_rest_data")) {
+            processGraphDependentEVData();
+        }
     }
 
     private void processGraphDependentEVData() {
         for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
             if (encoder instanceof FootFlagEncoder footFlagEncoder) {
+                AtomicInteger imported = new AtomicInteger();
                 BooleanEncodedValue restEV = footFlagEncoder.getBooleanEncodedValue(footFlagEncoder + "$" + Rest.KEY);
                 PMap hintsMap = new PMap();
                 ProfileTools.setWeightingMethod(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
@@ -355,10 +359,25 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                 Weighting weighting = new ORSWeightingFactory(getGraphHopperStorage(), getEncodingManager()).createWeighting(getProfile(localProfileName), hintsMap, false);
                 EdgeFilter snapFilter = new DefaultSnapFilter(weighting, getGraphHopperStorage().getEncodingManager().getBooleanEncodedValue(Subnetwork.key(localProfileName)));
                 EdgeFilterSequence edgeFilter = new EdgeFilterSequence().add(snapFilter);
-                Snap snappedPoint = getLocationIndex().findClosest(49.4144071, 8.6883768, edgeFilter); // TODO: get useful data
-                if (snappedPoint.isValid()) {
-                    snappedPoint.getClosestEdge().set(restEV, true);
-                }
+                String filename = config.getString("foot_rest_data", null);
+                CSVUtility.readFile(filename).forEach(line -> {
+                    if (line.size() >= 2) {
+                        try {
+                            double lat = Double.parseDouble(line.get(0));
+                            double lon = Double.parseDouble(line.get(1));
+                            Snap snappedPoint = getLocationIndex().findClosest(lat, lon, edgeFilter);
+                            if (snappedPoint.isValid()) {
+                                snappedPoint.getClosestEdge().set(restEV, true);
+                            }
+                            imported.getAndIncrement();
+                        } catch (NumberFormatException e) {
+                            LOGGER.error("Invalid coordinates in foot_rest_data: " + line);
+                        }
+                    } else {
+                        LOGGER.error("Invalid line in foot_rest_data: " + line);
+                    }
+                });
+                LOGGER.debug("Imported " + imported.get() + " foot rest points from " + filename);
             }
         }
     }
