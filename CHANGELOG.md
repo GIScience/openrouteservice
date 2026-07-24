@@ -32,6 +32,7 @@ Releasing is documented in RELEASE.md
 - log the number of restricted nodes during core preparation ([#2317](https://github.com/GIScience/openrouteservice/pull/2317))
 
 ### Changed
+- penalize routing through service ways ([#2313](https://github.com/GIScience/openrouteservice/pull/2313))
 - replace tollways storage with a corresponding encoded value from GraphHopper ([#2257](https://github.com/GIScience/openrouteservice/pull/2257))
 - migrate hill index storage to a dedicated encoded value ([#2267](https://github.com/GIScience/openrouteservice/pull/2267))
 - migrate trail difficulty storage to `sac_scale`, `mtb_scale`, and `mtb_scale_uphill` encoded values ([#2277](https://github.com/GIScience/openrouteservice/pull/2277))

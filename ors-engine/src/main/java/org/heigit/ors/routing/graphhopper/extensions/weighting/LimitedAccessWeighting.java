@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.ev.RoadAccess;
+import com.graphhopper.routing.ev.RoadClass;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.AbstractAdjustedWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -35,25 +36,34 @@ public class LimitedAccessWeighting extends AbstractAdjustedWeighting {
     public static final double VEHICLE_PRIVATE_FACTOR = 10;
     public static final double DEFAULT_CUSTOMERS_FACTOR = 1.2;
     public static final double VEHICLE_CUSTOMERS_FACTOR = 1.5;
+    public static final double DEFAULT_SERVICES_FACTOR = 1.2;
+    public static final double VEHICLE_SERVICES_FACTOR = 1.5;
 
     private final EnumEncodedValue<RoadAccess> roadAccessEnc;
+    private final EnumEncodedValue<RoadClass> roadClassEnc;
     // this factor puts a penalty on roads with a "destination"-only or private access, see GH#733 and GH#1936
     private final double destinationPenalty;
     private final double privatePenalty;
     // this factor puts a penalty on roads with a "customers"-only access, see ORS#1981
     private final double customersPenalty;
+    // this factor puts a penalty on roads with a highway=service tag, see ORS#2182
+    private final double servicePenalty;
 
     public LimitedAccessWeighting(Weighting superWeighting, PMap map) {
         super(superWeighting);
         FlagEncoder encoder = superWeighting.getFlagEncoder();
         if (!encoder.hasEncodedValue(RoadAccess.KEY))
             throw new IllegalArgumentException("road_access is not available");
+        if (!encoder.hasEncodedValue(RoadClass.KEY))
+            throw new IllegalArgumentException("road_class is not available");
 
         destinationPenalty = getFactorValue(encoder, map, "road_access_destination_factor", DEFAULT_DESTINATION_FACTOR, VEHICLE_DESTINATION_FACTOR);
         privatePenalty = getFactorValue(encoder, map, "road_access_private_factor", DEFAULT_PRIVATE_FACTOR, VEHICLE_PRIVATE_FACTOR);
         customersPenalty = getFactorValue(encoder, map, "road_access_customers_factor", DEFAULT_CUSTOMERS_FACTOR, VEHICLE_CUSTOMERS_FACTOR);
+        servicePenalty = getFactorValue(encoder, map, "highway_service_factor", DEFAULT_SERVICES_FACTOR, VEHICLE_SERVICES_FACTOR);
 
         roadAccessEnc = destinationPenalty > 1 || privatePenalty > 1 || customersPenalty > 1 ? encoder.getEnumEncodedValue(RoadAccess.KEY, RoadAccess.class) : null;
+        roadClassEnc = servicePenalty > 1 ? encoder.getEnumEncodedValue(RoadClass.KEY, RoadClass.class) : null;
     }
 
     static double getFactorValue(FlagEncoder encoder, PMap map, String key, double defaultFactor, double vehicleFactor) {
@@ -95,6 +105,12 @@ public class LimitedAccessWeighting extends AbstractAdjustedWeighting {
                 weight *= privatePenalty;
             else if (access == RoadAccess.CUSTOMERS)
                 weight *= customersPenalty;
+        }
+
+        if (roadClassEnc != null) {
+            RoadClass roadClass = edgeState.get(roadClassEnc);
+            if (roadClass == RoadClass.SERVICE)
+                weight *= servicePenalty;
         }
         return weight;
     }
