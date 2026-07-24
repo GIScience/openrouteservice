@@ -113,21 +113,23 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         return aLabel.weight <= bLabel.weight && aLabel.sinceRest <= bLabel.sinceRest;
     }
 
-    private double adjustWeightWithSinceRest(double tmpWeight, double nextEdgeWeight, EdgeIterator iter, double sinceRest) {
+    private double adjustWeightWithSinceRest(double tmpWeight, double edgeWeight, EdgeIterator iter, double sinceRest) {
         double edgeDistance = iter.getDistance();
         if (edgeHasRestPoint(iter)) {
             double distanceToRest = edgeDistance / 2; // TODO: precise point along edge instead of assuming in the middle
             double distanceFromRest = edgeDistance / 2;
-            return penaltyWeight(sinceRest, distanceToRest, nextEdgeWeight) + penaltyWeight(0, distanceFromRest, nextEdgeWeight) + tmpWeight;
+            double edgeWeightToRest = edgeWeight / 2;
+            double edgeWeightFromRest = edgeWeight / 2;
+            return penaltyWeight(sinceRest, distanceToRest, edgeWeightToRest) + penaltyWeight(0, distanceFromRest, edgeWeightFromRest) + tmpWeight;
         }
-        return penaltyWeight(sinceRest, edgeDistance, nextEdgeWeight) + tmpWeight;
+        return penaltyWeight(sinceRest, edgeDistance, edgeWeight) + tmpWeight;
     }
 
-    private double penaltyWeight(double sinceRest, double edgeDistance, double nextEdgeWeight) {
+    private double penaltyWeight(double sinceRest, double edgeDistance, double edgeWeight) {
         double beforeExcess = max(0.0, sinceRest - restThreshold);
         double afterExcess = max(0.0, sinceRest + edgeDistance - restThreshold);
         double newExcess = max(0.0, afterExcess - beforeExcess);
-        double weightPerMeter = edgeDistance == 0 ? 0 : nextEdgeWeight / edgeDistance;
+        double weightPerMeter = edgeDistance == 0 ? 0 : edgeWeight / edgeDistance;
         return newExcess * weightPerMeter * penalty;
     }
 
