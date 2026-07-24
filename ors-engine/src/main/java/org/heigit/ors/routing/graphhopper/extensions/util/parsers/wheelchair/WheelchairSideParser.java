@@ -8,7 +8,7 @@ import com.graphhopper.storage.IntsRef;
 import static org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes.*;
 import static org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor.KEY_ORS_SIDEWALK_SIDE;
 
-public class WheelchairSideParser extends WheelchairBaseParser {
+public class WheelchairSideParser extends WheelchairBaseParser<EnumEncodedValue<Side>> {
     public WheelchairSideParser(){
         this.encoder = WheelchairSide.create();
     }
@@ -26,7 +26,7 @@ public class WheelchairSideParser extends WheelchairBaseParser {
             }
         }
 
-        ((EnumEncodedValue<Side>) encoder).setEnum(false, edgeFlags, sideProp);
+        encoder.setEnum(false, edgeFlags, sideProp);
         return edgeFlags;
     }
 }
