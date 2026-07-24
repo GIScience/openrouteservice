@@ -63,8 +63,8 @@ public class WheelchairAttributes {
         return incline;
     }
 
-    public void setIncline(double incline) {
-        this.incline = (int) Math.round(incline);
+    public void setIncline(int incline) {
+        this.incline = incline;
         hasAttributes = true;
     }
 
