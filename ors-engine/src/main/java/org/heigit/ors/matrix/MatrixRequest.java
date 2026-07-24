@@ -201,25 +201,25 @@ public class MatrixRequest extends ServiceRequest {
         String encoderName = RoutingProfileType.getEncoderName(getProfileType());
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         PMap hintsMap = new PMap();
+        boolean hasTurnCosts = Boolean.TRUE.equals(routingProfile.getProfileProperties().getBuild().getEncoderOptions().getTurnCosts());
         ProfileTools.setWeightingMethod(hintsMap, getWeightingMethodOrDefault(), getProfileType(), false);
         ProfileTools.setWeighting(hintsMap, getWeightingMethodOrDefault(), getProfileType(), false);
-        String chProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
-        String coreProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), true);
+        String profileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), hasTurnCosts);
 
         //TODO Refactoring : probably remove MatrixAlgorithmFactory alltogether as the checks for algorithm choice have to be performed here again. Or combine in a single check nicely
         try {
             // RPHAST
-            if (!getFlexibleMode() && gh.getCHPreparationHandler().isEnabled() && routingProfile.hasCHProfile(chProfileName)) {
-                return computeRPHASTMatrix(gh, flagEncoder, chProfileName);
+            if (!getFlexibleMode() && gh.getCHPreparationHandler().isEnabled() && routingProfile.hasCHProfile(profileName)) {
+                return computeRPHASTMatrix(gh, flagEncoder, profileName);
             }
             // Core
-            else if (getSearchParameters().getDynamicSpeeds() && routingProfile.getGraphhopper().isCoreAvailable(coreProfileName)) {
-                return computeCoreMatrix(gh, flagEncoder, hintsMap, coreProfileName, routingProfile);
+            else if (getSearchParameters().getDynamicSpeeds() && routingProfile.getGraphhopper().isCoreAvailable(profileName)) {
+                return computeCoreMatrix(gh, flagEncoder, hintsMap, profileName, routingProfile);
             }
             // Dijkstra
             else {
                 // use CHProfileName (w/o turn costs) since Dijkstra is node-based so turn restrictions are not used.
-                return computeDijkstraMatrix(gh, flagEncoder, hintsMap, chProfileName);
+                return computeDijkstraMatrix(gh, flagEncoder, hintsMap, profileName.replace("_with_turn_costs", ""));
             }
         } catch (PointNotFoundException e) {
             throw e;
