@@ -1,14 +1,14 @@
 package org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.SimpleBooleanEncodedValue;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.WheelchairSurfaceQualityKnown;
 import com.graphhopper.storage.IntsRef;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class WheelchairSurfaceQualityKnownParser extends WheelchairBaseParser {
+public class WheelchairSurfaceQualityKnownParser extends WheelchairBaseParser<BooleanEncodedValue> {
     public WheelchairSurfaceQualityKnownParser(){
         this.encoder = WheelchairSurfaceQualityKnown.create();
     }
@@ -24,7 +24,7 @@ public class WheelchairSurfaceQualityKnownParser extends WheelchairBaseParser {
         boolean left = false;
         boolean right = false;
 
-        for(String key : keys) {
+        for (String key : keys) {
             // Read center
             if (cleanedTags.containsKey(key)) {
                 center = markSurfaceQualityKnown;
@@ -40,7 +40,7 @@ public class WheelchairSurfaceQualityKnownParser extends WheelchairBaseParser {
 
         center = selectBooleanValueForSidewalkSide(way, center, left, right);
 
-        ((SimpleBooleanEncodedValue) encoder).setBool(false, edgeFlags, center);
+        encoder.setBool(false, edgeFlags, center);
         return edgeFlags;
     }
 }

@@ -11,7 +11,7 @@ public class WheelchairWidth {
 
     public static final String KEY = "wheelchair_width";
 
-    public static IntEncodedValue create() {
+    public static UnsignedDecimalEncodedValue create() {
         // 5 bits unsigned to store 0-300cm (0-3 meters) using 10 cm precision.
         return new UnsignedDecimalEncodedValue(KEY, 5, 10, 0.0, false);
     }

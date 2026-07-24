@@ -2,6 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair;
 
 import com.graphhopper.coll.GHLongObjectHashMap;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.ev.IntEncodedValue;
 import com.graphhopper.routing.ev.WheelchairKerb;
 import com.graphhopper.storage.IntsRef;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class WheelchairKerbHeightParser extends WheelchairBaseParser {
+public class WheelchairKerbHeightParser extends WheelchairBaseParser<IntEncodedValue> {
     public static final String TAG_NAME = "kerb_height";
     public static final int KERB_MAX_VALUE = 15;
 
@@ -62,7 +63,7 @@ public class WheelchairKerbHeightParser extends WheelchairBaseParser {
         int finalHeight = selectIntValueForSidewalkSide(way, heightC, heightL, heightR);
         finalHeight = Math.min(finalHeight, KERB_MAX_VALUE);
 
-        setInt(edgeFlags, finalHeight);
+        encoder.setInt(false, edgeFlags, Math.max(0, finalHeight));
 
         return edgeFlags;
     }
