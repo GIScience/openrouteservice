@@ -54,7 +54,7 @@ public class LimitedAccessWeighting extends AbstractAdjustedWeighting {
         FlagEncoder encoder = superWeighting.getFlagEncoder();
         if (!encoder.hasEncodedValue(RoadAccess.KEY))
             throw new IllegalArgumentException("road_access is not available");
-        if(!encoder.hasEncodedValue(RoadClass.KEY))
+        if (!encoder.hasEncodedValue(RoadClass.KEY))
             throw new IllegalArgumentException("road_class is not available");
 
         destinationPenalty = getFactorValue(encoder, map, "road_access_destination_factor", DEFAULT_DESTINATION_FACTOR, VEHICLE_DESTINATION_FACTOR);
@@ -105,12 +105,13 @@ public class LimitedAccessWeighting extends AbstractAdjustedWeighting {
                 weight *= privatePenalty;
             else if (access == RoadAccess.CUSTOMERS)
                 weight *= customersPenalty;
+        }
 
+        if (roadClassEnc != null) {
             RoadClass roadClass = edgeState.get(roadClassEnc);
             if (roadClass == RoadClass.SERVICE)
                 weight *= servicePenalty;
         }
-
         return weight;
     }
 

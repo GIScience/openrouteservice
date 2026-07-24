@@ -4793,6 +4793,7 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testServiceWayPenalty() {
+        // Route without service ways should be preferred even though being slightly longer.
         JSONArray coord1 = new JSONArray().put(8.679073).put(49.415723);
         JSONArray coord2 = new JSONArray().put(8.677970).put(49.415520);
         JSONArray coordinates = new JSONArray().put(coord1).put(coord2);
@@ -4814,9 +4815,9 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].summary.distance", is(closeTo(97.2, 1)))
                 .statusCode(200);
 
-        coord1 = new JSONArray().put(8.678027).put(49.416127);
-        coord2 = new JSONArray().put(8.678309).put(49.415561);
-        coordinates = new JSONArray().put(coord1).put(coord2);
+        // Service ways should still be used when absolutely necessary.
+        JSONArray coordVia = new JSONArray().put(8.6784911).put(49.4155591);
+        coordinates = new JSONArray().put(coord1).put(coordVia).put(coord2);
         body.put("coordinates", coordinates);
 
         given()
@@ -4829,7 +4830,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(86.0, 1)))
+                .body("routes[0].summary.distance", is(closeTo(95.0, 1)))
                 .statusCode(200);
     }
 
