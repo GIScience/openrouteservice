@@ -10,7 +10,7 @@ public class WheelchairInclineParser extends WheelchairBaseParser<IntEncodedValu
     public static final String TAG_NAME = "incline";
     public static final int INCLINE_MAX_VALUE = 15;
 
-    public WheelchairInclineParser(){
+    public WheelchairInclineParser() {
         this.encoder = WheelchairIncline.create();
     }
 
