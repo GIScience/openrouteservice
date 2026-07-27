@@ -143,7 +143,7 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
 
     private boolean edgeHasRestPoint(EdgeIterator iter) {
         FootFlagEncoder encoder = (FootFlagEncoder) weighting.getFlagEncoder();
-        return iter.get(encoder.getBooleanEncodedValue(encoder + "$" + Rest.KEY));
+        return iter.get(encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY)) != 0;
     }
 
     @Override
