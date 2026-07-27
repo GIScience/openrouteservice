@@ -3,7 +3,7 @@ package com.graphhopper.routing.ev;
 public class Rest {
     public static final String KEY = "rest";
 
-    public static BooleanEncodedValue create() {
-        return new SimpleBooleanEncodedValue(KEY, false);
+    public static DecimalEncodedValue create() {
+        return new UnsignedDecimalEncodedValue(KEY, 7, 0.01, false);
     }
 }

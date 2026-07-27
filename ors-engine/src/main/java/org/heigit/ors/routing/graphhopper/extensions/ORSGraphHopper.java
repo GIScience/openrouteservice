@@ -19,14 +19,12 @@ import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.gtfs.GraphHopperGtfs;
+import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
-import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.ev.HashMapSparseEncodedValue;
-import com.graphhopper.routing.ev.Rest;
-import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
@@ -39,6 +37,8 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.Snap;
+import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
@@ -351,7 +351,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
             if (encoder instanceof FootFlagEncoder footFlagEncoder) {
                 AtomicInteger imported = new AtomicInteger();
-                BooleanEncodedValue restEV = footFlagEncoder.getBooleanEncodedValue(footFlagEncoder + "$" + Rest.KEY);
+                DecimalEncodedValue restEV = footFlagEncoder.getDecimalEncodedValue(footFlagEncoder + "$" + Rest.KEY);
                 PMap hintsMap = new PMap();
                 ProfileTools.setWeightingMethod(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
                 ProfileTools.setWeighting(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
@@ -367,7 +367,27 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                             double lon = Double.parseDouble(line.get(1));
                             Snap snappedPoint = getLocationIndex().findClosest(lat, lon, edgeFilter);
                             if (snappedPoint.isValid()) {
-                                snappedPoint.getClosestEdge().set(restEV, true);
+                                // Because GH treats 0 as a special value, we need to add an offset (0.01) to the true values
+                                switch (snappedPoint.getSnappedPosition()) {
+                                    case TOWER -> {
+                                        if (snappedPoint.getClosestNode() == snappedPoint.getClosestEdge().getBaseNode())
+                                            snappedPoint.getClosestEdge().set(restEV, 0.01);
+                                        else
+                                            snappedPoint.getClosestEdge().set(restEV, 1.01);
+                                    }
+                                    default -> {
+                                        QueryGraph queryGraph = QueryGraph.create(getGraphHopperStorage().getBaseGraph(), snappedPoint);
+                                        EdgeIterator iter = queryGraph.createEdgeExplorer(edgeFilter).setBaseNode(snappedPoint.getClosestNode());
+                                        while (iter.next()) {
+                                            EdgeIteratorState closestEdge = snappedPoint.getClosestEdge();
+                                            if (iter.getAdjNode() == closestEdge.getBaseNode()) {
+                                                double distance = iter.getDistance() / closestEdge.getDistance();
+                                                snappedPoint.getClosestEdge().set(restEV, distance + 0.01);
+                                            }
+                                        }
+                                    }
+                                }
+
                             }
                             imported.getAndIncrement();
                         } catch (NumberFormatException e) {
