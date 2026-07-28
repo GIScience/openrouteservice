@@ -3,11 +3,15 @@ package org.heigit.ors.routing.algorithms;
 import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.ev.Rest;
+import com.graphhopper.routing.querygraph.QueryGraphHelper;
+import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphHelper;
 import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
 import org.apache.log4j.Logger;
 
@@ -17,6 +21,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import static java.lang.Math.max;
+import static org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder.REST_ENCODER_OFFSET;
 
 public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     public static final int INITIAL_CAPACITY = 2000;
@@ -67,11 +72,11 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
                     continue;
                 }
 
-                // TODO ORS (minor): MARQ24 WHY the heck the 'reverseDirection' is not used also for the traversal ID ???
                 int traversalId = traversalMode.createTraversalId(iter, false);
 
-                double sinceRest = calculateNewSinceRest(currentLabel, iter);
-                double adjustedWeight = adjustWeightWithSinceRest(tmpWeight, nextEdgeWeight, iter, currentLabel.sinceRest);
+                double edgeRestValue = getEdgeRestValue(iter);
+                double sinceRest = calculateNewSinceRest(currentLabel, iter, edgeRestValue);
+                double adjustedWeight = adjustWeightWithSinceRest(tmpWeight, nextEdgeWeight, iter, currentLabel.sinceRest, edgeRestValue);
 
                 Label nextLabel = new Label(iter.getEdge(), iter.getAdjNode(), adjustedWeight, sinceRest);
                 nextLabel.parent = currentLabel;
@@ -113,13 +118,15 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         return aLabel.weight <= bLabel.weight && aLabel.sinceRest <= bLabel.sinceRest;
     }
 
-    private double adjustWeightWithSinceRest(double tmpWeight, double edgeWeight, EdgeIterator iter, double sinceRest) {
+    private double adjustWeightWithSinceRest(double tmpWeight, double edgeWeight, EdgeIterator iter, double sinceRest, double edgeRestValue) {
         double edgeDistance = iter.getDistance();
-        if (edgeHasRestPoint(iter)) {
-            double distanceToRest = edgeDistance / 2; // TODO: precise point along edge instead of assuming in the middle
-            double distanceFromRest = edgeDistance / 2;
-            double edgeWeightToRest = edgeWeight / 2;
-            double edgeWeightFromRest = edgeWeight / 2;
+        if (edgeHasRestPoint(edgeRestValue)) {
+            double toRestFactor = edgeToRestFactor(edgeRestValue);
+            double fromRestFactor = 1 - toRestFactor;
+            double distanceToRest = edgeDistance * toRestFactor;
+            double distanceFromRest = edgeDistance * fromRestFactor;
+            double edgeWeightToRest = edgeWeight * toRestFactor;
+            double edgeWeightFromRest = edgeWeight * fromRestFactor;
             return penaltyWeight(sinceRest, distanceToRest, edgeWeightToRest) + penaltyWeight(0, distanceFromRest, edgeWeightFromRest) + tmpWeight;
         }
         return penaltyWeight(sinceRest, edgeDistance, edgeWeight) + tmpWeight;
@@ -133,17 +140,41 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         return newExcess * weightPerMeter * penalty;
     }
 
-    private double calculateNewSinceRest(Label currentLabel, EdgeIterator iter) {
-        if (edgeHasRestPoint(iter)) {
-            return iter.getDistance() / 2;
+    private double calculateNewSinceRest(Label currentLabel, EdgeIterator iter, double edgeRestValue) {
+        if (edgeHasRestPoint(edgeRestValue)) {
+            return iter.getDistance() * (1 - edgeToRestFactor(edgeRestValue));
         } else {
             return currentLabel.sinceRest + iter.getDistance();
         }
     }
 
-    private boolean edgeHasRestPoint(EdgeIterator iter) {
+    private double getEdgeRestValue(EdgeIterator iter) {
+        double edgeRestValue = 0;
         FootFlagEncoder encoder = (FootFlagEncoder) weighting.getFlagEncoder();
-        return iter.get(encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY)) != 0;
+        EdgeIteratorState originalEdge = QueryGraphHelper.getOriginalEdgeFromVirtualEdge(iter, graph);
+        if (originalEdge != null) {
+            double originalEdgeValue = originalEdge.get(encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY));
+            if (originalEdgeValue > 0) {
+                // WIP: if a rest point is on the original edge, we need to calculate if it is within the fraction represented by the virtual edge
+                // and calculate the edgeRestValue relative to the virtual edge.
+                boolean reverseVirtualEdge = iter.getAdjNode() == originalEdge.getBaseNode();
+                double fractionOfOriginalEdge = iter.getDistance() / originalEdge.getDistance();
+            }
+        } else {
+            edgeRestValue = iter.get(encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY));
+        }
+        if (edgeRestValue > 0 && GraphHelper.isReversed(iter)) {
+            edgeRestValue = 1 - edgeRestValue;
+        }
+        return edgeRestValue;
+    }
+
+    private boolean edgeHasRestPoint(double edgeRestValue) {
+        return edgeRestValue > 0;
+    }
+
+    private double edgeToRestFactor(double edgeRestValue) {
+        return edgeRestValue - REST_ENCODER_OFFSET;
     }
 
     @Override
