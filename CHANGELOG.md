@@ -25,10 +25,10 @@ RELEASING:
 Releasing is documented in RELEASE.md
 -->
 
-## [unreleased]
+## [9.10.0] - 2026-07-28
 
 ### Added
-- speedup zip packing and unpacking with Apache Commons parallel processes ([#2294](https://github.com/GIScience/openrouteservice/pull/2294))
+- speed up zip packing and unpacking with Apache Commons parallel processes ([#2294](https://github.com/GIScience/openrouteservice/pull/2294))
 - log the number of restricted nodes during core preparation ([#2317](https://github.com/GIScience/openrouteservice/pull/2317))
 
 ### Changed
@@ -38,19 +38,15 @@ Releasing is documented in RELEASE.md
 - migrate road access restrictions storage to a dedicated encoded value ([#2270](https://github.com/GIScience/openrouteservice/pull/2270))
 - update references to deprecated URL https://api.openrouteservice.org, update default attribution strings ([#2279](https://github.com/GIScience/openrouteservice/pull/2279))
 
-### Deprecated
-
-### Removed
-
 ### Fixed
 - check whether `mtb_scale` values are within the valid range before attempting to store them ([#2280](https://github.com/GIScience/openrouteservice/pull/2280))
 - update springdoc-openapi and swagger dependencies to address test suite errors ([#2290](https://github.com/GIScience/openrouteservice/pull/2290))
 - return status code 200, and issue a warning if extra info surface or waytype is requested but not available for the given profile ([#2296](https://github.com/GIScience/openrouteservice/pull/2296))
-- barrier node handling after graphhopper upgrade ([#2292](https://github.com/GIScience/openrouteservice/pull/2292))
+- barrier node handling after the GraphHopper upgrade ([#2292](https://github.com/GIScience/openrouteservice/pull/2292))
 - prevent the downloading of elevation data for OSM files preprocessed with `ele` node tags ([#2305](https://github.com/GIScience/openrouteservice/pull/2305))
-- handle CSV parsing exceptions in CsvGraphStorageBuilder gracefully ([#2312](https://github.com/GIScience/openrouteservice/pull/2312))
+- handle CSV parsing exceptions in `CsvGraphStorageBuilder` gracefully ([#2312](https://github.com/GIScience/openrouteservice/pull/2312))
 - handle the hierarchy of access restrictions properly in `AccessRestrictionsParser` ([#2311](https://github.com/GIScience/openrouteservice/pull/2311))
-- correctly resolve country borders from an PBF enriched with country tags ([#2314](https://github.com/GIScience/openrouteservice/pull/2314))
+- correctly resolve country borders from a PBF enriched with country tags ([#2314](https://github.com/GIScience/openrouteservice/pull/2314))
 - use direct mapping of node IDs to OSM IDs to correctly resolve node tags for edges containing cloned nodes ([#2319](https://github.com/GIScience/openrouteservice/pull/2319))
 
 ### Security
@@ -1095,7 +1091,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.9.0...HEAD
+[9.10.0]: https://github.com/GIScience/openrouteservice/compare/v9.9.0...v9.10.0
 [9.9.0]: https://github.com/GIScience/openrouteservice/compare/v9.8.0...v9.9.0
 [9.8.0]: https://github.com/GIScience/openrouteservice/compare/v9.7.1...v9.8.0
 [9.7.1]: https://github.com/GIScience/openrouteservice/compare/v9.7.0...v9.7.1
