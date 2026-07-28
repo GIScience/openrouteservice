@@ -149,22 +149,41 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     }
 
     private double getEdgeRestValue(EdgeIterator iter) {
-        double edgeRestValue = 0;
-        FootFlagEncoder encoder = (FootFlagEncoder) weighting.getFlagEncoder();
         EdgeIteratorState originalEdge = QueryGraphHelper.getOriginalEdgeFromVirtualEdge(iter, graph);
         if (originalEdge != null) {
-            double originalEdgeValue = originalEdge.get(encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY));
-            if (originalEdgeValue > 0) {
-                // WIP: if a rest point is on the original edge, we need to calculate if it is within the fraction represented by the virtual edge
-                // and calculate the edgeRestValue relative to the virtual edge.
-                boolean reverseVirtualEdge = iter.getAdjNode() == originalEdge.getBaseNode();
-                double fractionOfOriginalEdge = iter.getDistance() / originalEdge.getDistance();
-            }
+            return handleVirtualEdges(iter, originalEdge);
         } else {
-            edgeRestValue = iter.get(encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY));
+            return offsetRelativeToBaseNode(iter);
         }
+    }
+
+    private double handleVirtualEdges(EdgeIterator iter, EdgeIteratorState originalEdge) {
+        double originalEdgeDistance = originalEdge.getDistance();
+        double originalEdgeValue = offsetRelativeToBaseNode(iter);
+        double restPointDistance = edgeToRestFactor(originalEdgeValue) * originalEdgeDistance;
+        double virtualEdgeDistance = iter.getDistance();
+        if (originalEdgeValue > 0) {
+            if (iter.getBaseNode() == originalEdge.getBaseNode()) {
+                // Before virtual node
+                if (virtualEdgeDistance > restPointDistance) {
+                    return restPointDistance / virtualEdgeDistance + REST_ENCODER_OFFSET;
+                }
+            } else {
+                // After virtual node
+                double otherVirtualEdgeDistance = originalEdgeDistance - virtualEdgeDistance;
+                if (otherVirtualEdgeDistance < restPointDistance) {
+                    return (restPointDistance - otherVirtualEdgeDistance) / virtualEdgeDistance + REST_ENCODER_OFFSET;
+                }
+            }
+        }
+        return 0;
+    }
+
+    private double offsetRelativeToBaseNode(EdgeIterator iter) {
+        FootFlagEncoder encoder = (FootFlagEncoder) weighting.getFlagEncoder();
+        double edgeRestValue = iter.get(encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY));
         if (edgeRestValue > 0 && GraphHelper.isReversed(iter)) {
-            edgeRestValue = 1 - edgeRestValue;
+            edgeRestValue = 1 + REST_ENCODER_OFFSET - edgeRestValue;
         }
         return edgeRestValue;
     }
