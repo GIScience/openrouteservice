@@ -68,7 +68,7 @@ class MultiLabelDijkstraAlgorithmTest {
 
         // This reproduces the current ORSGraphHopper import value for a bench
         // snapped exactly to the base node of an edge.
-        setStoredRestValue(secondEdge, 0);
+        markRestPoint(secondEdge, 0);
 
         Path path = createAlgorithm(graph, 100, 2).calcPath(0, 2);
 
