@@ -4,7 +4,6 @@ import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.ev.Rest;
 import com.graphhopper.routing.querygraph.QueryGraphHelper;
-import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -133,14 +132,14 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     }
 
     private double penaltyWeight(double sinceRest, double edgeDistance, double edgeWeight) {
-        double beforeExcess = max(0.0, sinceRest - restThreshold);
-        double afterExcess = max(0.0, sinceRest + edgeDistance - restThreshold);
-        double newExcess = max(0.0, afterExcess - beforeExcess);
+        double excessBeforeEdge = max(0.0, sinceRest - restThreshold);
+        double excessAfterEdge = max(0.0, sinceRest + edgeDistance - restThreshold);
+        double additionalExcess = max(0.0, excessAfterEdge - excessBeforeEdge);
         double weightPerMeter = edgeDistance == 0 ? 0 : edgeWeight / edgeDistance;
-        return newExcess * weightPerMeter * penalty;
+        return additionalExcess * weightPerMeter * penalty;
     }
 
-    private double calculateNewSinceRest(Label currentLabel, EdgeIterator iter, double edgeRestValue) {
+    private static double calculateNewSinceRest(Label currentLabel, EdgeIterator iter, double edgeRestValue) {
         if (edgeHasRestPoint(edgeRestValue)) {
             return iter.getDistance() * (1 - edgeToRestFactor(edgeRestValue));
         } else {
@@ -162,7 +161,7 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         double originalEdgeValue = offsetRelativeToBaseNode(iter);
         double restPointDistance = edgeToRestFactor(originalEdgeValue) * originalEdgeDistance;
         double virtualEdgeDistance = iter.getDistance();
-        if (originalEdgeValue > 0) {
+        if (edgeHasRestPoint(originalEdgeValue)) {
             if (iter.getBaseNode() == originalEdge.getBaseNode()) {
                 // Before virtual node
                 if (virtualEdgeDistance > restPointDistance) {
@@ -188,11 +187,11 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         return edgeRestValue;
     }
 
-    private boolean edgeHasRestPoint(double edgeRestValue) {
+    private static boolean edgeHasRestPoint(double edgeRestValue) {
         return edgeRestValue > 0;
     }
 
-    private double edgeToRestFactor(double edgeRestValue) {
+    private static double edgeToRestFactor(double edgeRestValue) {
         return edgeRestValue - REST_ENCODER_OFFSET;
     }
 
