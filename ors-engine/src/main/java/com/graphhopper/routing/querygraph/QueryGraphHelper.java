@@ -9,7 +9,8 @@ public class QueryGraphHelper {
         if (iter instanceof VirtualEdgeIterator virtualEdge) {
             EdgeIteratorState currentEdge = graph.getEdgeIteratorStateForKey(virtualEdge.getEdgeKey());
             if (currentEdge instanceof VirtualEdgeIteratorState virtualEdgeState) {
-                return graph.getEdgeIteratorState(virtualEdgeState.getOriginalEdge(), virtualEdgeState.getAdjNode());
+                EdgeIteratorState originalEdgeIteratorState = graph.getEdgeIteratorStateForKey(virtualEdgeState.getOriginalEdgeKey());
+                return originalEdgeIteratorState;
             }
         }
         return null;
