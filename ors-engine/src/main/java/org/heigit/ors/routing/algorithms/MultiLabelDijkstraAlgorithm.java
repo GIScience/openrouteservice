@@ -182,7 +182,7 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         FootFlagEncoder encoder = (FootFlagEncoder) weighting.getFlagEncoder();
         double edgeRestValue = iter.get(encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY));
         if (edgeRestValue > 0 && GraphHelper.isReversed(iter)) {
-            edgeRestValue = 1 + REST_ENCODER_OFFSET - edgeRestValue;
+            edgeRestValue = 1 + 2*REST_ENCODER_OFFSET - edgeRestValue;
         }
         return edgeRestValue;
     }
