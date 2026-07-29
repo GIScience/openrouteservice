@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import static java.lang.Math.max;
-import static org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder.REST_ENCODER_OFFSET;
 
 public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     public static final int INITIAL_CAPACITY = 2000;
@@ -116,10 +115,9 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         return aLabel.weight <= bLabel.weight && aLabel.sinceRest <= bLabel.sinceRest;
     }
 
-    private double adjustWeightWithSinceRest(double tmpWeight, double edgeWeight, EdgeIterator iter, double sinceRest, double edgeRestValue) {
+    private double adjustWeightWithSinceRest(double tmpWeight, double edgeWeight, EdgeIterator iter, double sinceRest, double toRestFactor) {
         double edgeDistance = iter.getDistance();
-        if (edgeHasRestPoint(edgeRestValue)) {
-            double toRestFactor = edgeToRestFactor(edgeRestValue);
+        if (edgeHasRestPoint(toRestFactor)) {
             double fromRestFactor = 1 - toRestFactor;
             double distanceToRest = edgeDistance * toRestFactor;
             double distanceFromRest = edgeDistance * fromRestFactor;
@@ -140,7 +138,7 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
 
     private static double calculateNewSinceRest(Label currentLabel, EdgeIterator iter, double edgeRestValue) {
         if (edgeHasRestPoint(edgeRestValue)) {
-            return iter.getDistance() * (1 - edgeToRestFactor(edgeRestValue));
+            return iter.getDistance() * (1 - edgeRestValue);
         } else {
             return currentLabel.sinceRest + iter.getDistance();
         }
@@ -158,19 +156,19 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     private double handleVirtualEdges(EdgeIterator iter, EdgeIteratorState originalEdge) {
         double originalEdgeDistance = originalEdge.getDistance();
         double originalEdgeValue = offsetRelativeToBaseNode(iter);
-        double restPointDistance = edgeToRestFactor(originalEdgeValue) * originalEdgeDistance;
+        double restPointDistance = originalEdgeValue * originalEdgeDistance;
         double virtualEdgeDistance = iter.getDistance();
         if (edgeHasRestPoint(originalEdgeValue)) {
             if (iter.getBaseNode() == originalEdge.getBaseNode()) {
                 // Before virtual node
                 if (virtualEdgeDistance > restPointDistance) {
-                    return restPointDistance / virtualEdgeDistance + REST_ENCODER_OFFSET;
+                    return restPointDistance / virtualEdgeDistance;
                 }
             } else {
                 // After virtual node
                 double otherVirtualEdgeDistance = originalEdgeDistance - virtualEdgeDistance;
                 if (otherVirtualEdgeDistance < restPointDistance) {
-                    return (restPointDistance - otherVirtualEdgeDistance) / virtualEdgeDistance + REST_ENCODER_OFFSET;
+                    return (restPointDistance - otherVirtualEdgeDistance) / virtualEdgeDistance;
                 }
             }
         }
@@ -180,18 +178,14 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     private double offsetRelativeToBaseNode(EdgeIterator iter) {
         FootFlagEncoder encoder = (FootFlagEncoder) weighting.getFlagEncoder();
         double edgeRestValue = iter.get(encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY));
-        if (edgeRestValue > 0 && GraphHelper.isReversed(iter)) {
-            edgeRestValue = 1 + 2*REST_ENCODER_OFFSET - edgeRestValue;
+        if (edgeHasRestPoint(edgeRestValue) && GraphHelper.isReversed(iter)) {
+            edgeRestValue = 1 - edgeRestValue;
         }
         return edgeRestValue;
     }
 
     private static boolean edgeHasRestPoint(double edgeRestValue) {
-        return edgeRestValue > 0;
-    }
-
-    private static double edgeToRestFactor(double edgeRestValue) {
-        return edgeRestValue - REST_ENCODER_OFFSET;
+        return edgeRestValue != -1;
     }
 
     @Override
