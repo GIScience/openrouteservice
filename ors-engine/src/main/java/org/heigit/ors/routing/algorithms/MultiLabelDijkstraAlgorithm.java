@@ -62,28 +62,9 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
             int currNode = currentLabel.nodeId;
             EdgeIterator iter = edgeExplorer.setBaseNode(currNode);
             while (iter.next()) {
-                if (!accept(iter, currentLabel.edgeId))
-                    continue;
-
-                double nextEdgeWeight = GHUtility.calcWeightWithTurnWeightWithAccess(weighting, iter, false, currentLabel.edgeId);
-                double tmpWeight = nextEdgeWeight + currentLabel.weight;
-                if (Double.isInfinite(tmpWeight)) {
-                    continue;
-                }
-
-                int traversalId = traversalMode.createTraversalId(iter, false);
-
-                double edgeRestValue = getEdgeRestValue(iter);
-                double sinceRest = calculateNewSinceRest(currentLabel, iter, edgeRestValue);
-                double adjustedWeight = adjustWeightWithSinceRest(tmpWeight, nextEdgeWeight, iter, currentLabel.sinceRest, edgeRestValue);
-
-                Label nextLabel = new Label(iter.getEdge(), iter.getAdjNode(), adjustedWeight, sinceRest);
-                nextLabel.parent = currentLabel;
-                checkAndPrune(nextLabel, traversalId);
+                if (accept(iter, currentLabel.edgeId))
+                    processEdge(iter);
             }
-            if (queue.isEmpty())
-                break;
-
             currentLabel = queue.poll();
             while (currentLabel != null && !currentLabel.isActive()) { // get next Label that is not set to active=false
                 currentLabel = queue.poll();
@@ -91,6 +72,24 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
             if (currentLabel == null)
                 break;
         }
+    }
+
+    private void processEdge(EdgeIterator iter) {
+        double nextEdgeWeight = GHUtility.calcWeightWithTurnWeightWithAccess(weighting, iter, false, currentLabel.edgeId);
+        double tmpWeight = nextEdgeWeight + currentLabel.weight;
+        if (Double.isInfinite(tmpWeight)) {
+            return;
+        }
+
+        int traversalId = traversalMode.createTraversalId(iter, false);
+
+        double edgeRestValue = getEdgeRestValue(iter);
+        double sinceRest = calculateNewSinceRest(currentLabel, iter, edgeRestValue);
+        double adjustedWeight = adjustWeightWithSinceRest(tmpWeight, nextEdgeWeight, iter, currentLabel.sinceRest, edgeRestValue);
+
+        Label nextLabel = new Label(iter.getEdge(), iter.getAdjNode(), adjustedWeight, sinceRest);
+        nextLabel.parent = currentLabel;
+        checkAndPrune(nextLabel, traversalId);
     }
 
     private void checkAndPrune(Label nextLabel, int traversalId) {
