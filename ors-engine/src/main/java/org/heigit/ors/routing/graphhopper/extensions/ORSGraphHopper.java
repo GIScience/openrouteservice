@@ -81,8 +81,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder.REST_ENCODER_OFFSET;
-
 
 public class ORSGraphHopper extends GraphHopperGtfs {
     private static final Logger LOGGER = LoggerFactory.getLogger(ORSGraphHopper.class);
@@ -369,11 +367,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                             double lon = Double.parseDouble(line.get(1));
                             Snap snappedPoint = getLocationIndex().findClosest(lat, lon, edgeFilter);
                             if (snappedPoint.isValid()) {
-                                // Because GH treats 0 as a special value, we need to add an offset (0.01) to the true values
                                 EdgeIteratorState closestEdge = snappedPoint.getClosestEdge();
                                 switch (snappedPoint.getSnappedPosition()) {
                                     case TOWER -> {
-                                        closestEdge.set(restEV, snappedPoint.getClosestNode() == closestEdge.getBaseNode() ? 0 : 1 + REST_ENCODER_OFFSET);
+                                        closestEdge.set(restEV, snappedPoint.getClosestNode() == closestEdge.getBaseNode() ? 0 : 1);
                                     }
                                     default -> {
                                         QueryGraph queryGraph = QueryGraph.create(getGraphHopperStorage().getBaseGraph(), snappedPoint);
@@ -381,7 +378,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                                         while (iter.next()) {
                                             if (iter.getAdjNode() == closestEdge.getBaseNode()) {
                                                 double distance = iter.getDistance() / closestEdge.getDistance();
-                                                closestEdge.set(restEV, distance + REST_ENCODER_OFFSET);
+                                                closestEdge.set(restEV, distance);
                                                 break;
                                             }
                                         }

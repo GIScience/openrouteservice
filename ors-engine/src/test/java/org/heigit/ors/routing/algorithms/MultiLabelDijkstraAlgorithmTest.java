@@ -31,7 +31,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.List;
 
-import static org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder.REST_ENCODER_OFFSET;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -314,7 +313,7 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     private void markRestPoint(EdgeIteratorState edge, double position) {
-        setStoredRestValue(edge, position + REST_ENCODER_OFFSET);
+        setStoredRestValue(edge, position);
     }
 
     private void setStoredRestValue(
