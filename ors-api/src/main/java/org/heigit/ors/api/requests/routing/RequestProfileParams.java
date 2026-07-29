@@ -104,7 +104,7 @@ public class RequestProfileParams {
         hasAllowUnsuitable = true;
     }
 
-    public int getRestThreshold() {
+    public Integer getRestThreshold() {
         return restThreshold;
     }
 
