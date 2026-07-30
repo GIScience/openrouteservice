@@ -40,7 +40,7 @@ public final class OrsUnsignedDecimalEncodedValue extends UnsignedIntEncodedValu
     }
 
     @Override
-    public final void setDecimal(boolean reverse, IntsRef ints, double value) {
+    public void setDecimal(boolean reverse, IntsRef ints, double value) {
         if (!isInitialized())
             throw new IllegalStateException("Call init before usage for EncodedValue " + toString());
         if (useMaximumAsInfinity && Double.isInfinite(value)) {
@@ -60,7 +60,7 @@ public final class OrsUnsignedDecimalEncodedValue extends UnsignedIntEncodedValu
     }
 
     @Override
-    public final double getDecimal(boolean reverse, IntsRef ref) {
+    public double getDecimal(boolean reverse, IntsRef ref) {
         int value = getInt(reverse, ref);
         if (useMaximumAsInfinity && value == maxValue)
             return Double.POSITIVE_INFINITY;
@@ -72,6 +72,7 @@ public final class OrsUnsignedDecimalEncodedValue extends UnsignedIntEncodedValu
         return (maxValue - 1) * factor;
     }
 
+    @SuppressWarnings("java:S1206")
     @Override
     public boolean equals(Object o) {
         if (!super.equals(o)) return false;

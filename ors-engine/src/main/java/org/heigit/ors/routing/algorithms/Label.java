@@ -4,7 +4,7 @@ import com.graphhopper.util.EdgeIterator;
 import lombok.Getter;
 import lombok.Setter;
 
-public class Label implements Cloneable, Comparable<Label> {
+public class Label implements Comparable<Label> {
     public int edgeId;
     public int nodeId;
     public double weight;
@@ -22,36 +22,12 @@ public class Label implements Cloneable, Comparable<Label> {
         this.sinceRest = sinceRest;
     }
 
+
     public static Label createStartLabel(int nodeId) {
         return new Label(EdgeIterator.NO_EDGE, nodeId, 0, 0);
     }
 
-    /**
-     * This method returns the weight to the origin e.g. to the start for the forward SPT and to the
-     * destination for the backward SPT. Where the variable 'weight' is used to let heap select
-     * smallest *full* weight (from start to destination).
-     */
-    public double getWeightOfVisitedPath() {
-        return weight;
-    }
-
-    @Override
-    public Label clone() {
-        return new Label(edgeId, nodeId, weight, sinceRest);
-    }
-
-    public Label cloneFull() {
-        Label de = clone();
-        Label tmpPrev = parent;
-        Label cl = de;
-        while (tmpPrev != null) {
-            cl.parent = tmpPrev.clone();
-            cl = cl.parent;
-            tmpPrev = tmpPrev.parent;
-        }
-        return de;
-    }
-
+    @SuppressWarnings("java:S1210")
     @Override
     public int compareTo(Label o) {
         if (weight < o.weight)
