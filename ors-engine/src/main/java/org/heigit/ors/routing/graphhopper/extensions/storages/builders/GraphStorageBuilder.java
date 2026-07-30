@@ -32,7 +32,7 @@ public interface GraphStorageBuilder extends Plugin {
 
     void processEdge(ReaderWay way, EdgeIteratorState edge);
 
-    void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords);
+    void processEdge(ReaderWay way, EdgeIteratorState edge, Map<Integer, Map<String, String>> nodeTags);
 
     void setParameters(ExtendedStorageProperties parameters);
 

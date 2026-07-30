@@ -25,20 +25,38 @@ RELEASING:
 Releasing is documented in RELEASE.md
 -->
 
-## [unreleased]
+## [9.10.0] - 2026-07-28
 
 ### Added
+- speed up zip packing and unpacking with Apache Commons parallel processes ([#2294](https://github.com/GIScience/openrouteservice/pull/2294))
+- log the number of restricted nodes during core preparation ([#2317](https://github.com/GIScience/openrouteservice/pull/2317))
 
 ### Changed
-
-### Deprecated
-
-### Removed
+- replace tollways storage with a corresponding encoded value from GraphHopper ([#2257](https://github.com/GIScience/openrouteservice/pull/2257))
+- migrate hill index storage to a dedicated encoded value ([#2267](https://github.com/GIScience/openrouteservice/pull/2267))
+- migrate trail difficulty storage to `sac_scale`, `mtb_scale`, and `mtb_scale_uphill` encoded values ([#2277](https://github.com/GIScience/openrouteservice/pull/2277))
+- migrate road access restrictions storage to a dedicated encoded value ([#2270](https://github.com/GIScience/openrouteservice/pull/2270))
+- update references to deprecated URL https://api.openrouteservice.org, update default attribution strings ([#2279](https://github.com/GIScience/openrouteservice/pull/2279))
 
 ### Fixed
+- check whether `mtb_scale` values are within the valid range before attempting to store them ([#2280](https://github.com/GIScience/openrouteservice/pull/2280))
+- update springdoc-openapi and swagger dependencies to address test suite errors ([#2290](https://github.com/GIScience/openrouteservice/pull/2290))
+- return status code 200, and issue a warning if extra info surface or waytype is requested but not available for the given profile ([#2296](https://github.com/GIScience/openrouteservice/pull/2296))
+- barrier node handling after the GraphHopper upgrade ([#2292](https://github.com/GIScience/openrouteservice/pull/2292))
+- prevent the downloading of elevation data for OSM files preprocessed with `ele` node tags ([#2305](https://github.com/GIScience/openrouteservice/pull/2305))
+- handle CSV parsing exceptions in `CsvGraphStorageBuilder` gracefully ([#2312](https://github.com/GIScience/openrouteservice/pull/2312))
+- handle the hierarchy of access restrictions properly in `AccessRestrictionsParser` ([#2311](https://github.com/GIScience/openrouteservice/pull/2311))
+- correctly resolve country borders from a PBF enriched with country tags ([#2314](https://github.com/GIScience/openrouteservice/pull/2314))
+- use direct mapping of node IDs to OSM IDs to correctly resolve node tags for edges containing cloned nodes ([#2319](https://github.com/GIScience/openrouteservice/pull/2319))
 
 ### Security
 - update postcss to 8.5.12
+- update org.postgresql:postgresql to 42.7.11 due to [CVE-2025-49146](https://www.cve.org/CVERecord?id=CVE-2025-49146) and [CVE-2026-42198](https://www.cve.org/CVERecord?id=CVE-2026-42198)
+- update mermaid to 11.15.0
+- update uuid to 14.0.0 due to [CVE-2026-41907](https://www.cve.org/CVERecord?id=CVE-2026-41907) and [CVE-2026-41988](https://www.cve.org/CVERecord?id=CVE-2026-41988)
+- update dompurify to 3.4.12
+- update spring-boot-parent to 3.5.15
+- update jackson-databind to 2.18.9 due to [CVE-2026-54515](https://www.cve.org/CVERecord?id=CVE-2026-54515)
 
 
 ## [9.9.0] - 2026-04-29
@@ -1073,7 +1091,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.9.0...HEAD
+[9.10.0]: https://github.com/GIScience/openrouteservice/compare/v9.9.0...v9.10.0
 [9.9.0]: https://github.com/GIScience/openrouteservice/compare/v9.8.0...v9.9.0
 [9.8.0]: https://github.com/GIScience/openrouteservice/compare/v9.7.1...v9.8.0
 [9.7.1]: https://github.com/GIScience/openrouteservice/compare/v9.7.0...v9.7.1

@@ -104,18 +104,10 @@ public class GraphProcessContext {
         }
     }
 
-    public void processEdge(ReaderWay way, EdgeIteratorState edge) {
+    public void processEdge(ReaderWay way, EdgeIteratorState edge, Map<Integer, Map<String, String>> tags) {
         if (arrStorageBuilders != null) {
             for (GraphStorageBuilder builder : arrStorageBuilders) {
-                builder.processEdge(way, edge);
-            }
-        }
-    }
-
-    public void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords) {
-        if (arrStorageBuilders != null) {
-            for (GraphStorageBuilder builder : arrStorageBuilders) {
-                builder.processEdge(way, edge, coords);
+                builder.processEdge(way, edge, tags);
             }
         }
     }

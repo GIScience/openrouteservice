@@ -49,6 +49,12 @@ public class RouteExtraInfo {
         }
     }
 
+    public RouteExtraInfo(String name, boolean usedForWarnings) {
+        this.name = name;
+        this.usedForWarnings = usedForWarnings;
+        segments = new ArrayList<>();
+    }
+
     public String getName() {
         return name;
     }
@@ -127,5 +133,13 @@ public class RouteExtraInfo {
 
     public WarningGraphExtension getWarningGraphExtension() {
         return warningGraphExtension;
+    }
+
+    public boolean generatesWarning(int referenceValue) {
+        for (RouteSegmentItem item : segments) {
+            if (item.getValue() != -1 && item.getValue() != referenceValue)
+                return true;
+        }
+        return false;
     }
 }

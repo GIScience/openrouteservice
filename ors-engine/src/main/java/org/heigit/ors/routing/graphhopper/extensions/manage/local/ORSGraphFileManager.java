@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.util.Helper;
-import com.graphhopper.util.Unzipper;
 import lombok.NoArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
@@ -20,9 +19,13 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRunti
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphBuildInfo;
 import org.heigit.ors.util.AppInfo;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
 import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @NoArgsConstructor
 public class ORSGraphFileManager implements ORSGraphFolderStrategy {
@@ -335,13 +339,40 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         try {
             LOGGER.info("[%s] Extracting downloaded graph file to %s".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
             long start = System.currentTimeMillis();
-            (new Unzipper()).unzip(graphDownloadFileAbsPath, extractionDirectoryAbsPath, true);
+            double compressedMB = graphDownloadFile.length() / (1024.0 * 1024.0);
+            try (ZipFile zipFile = ZipFile.builder().setFile(graphDownloadFile).get()) {
+                List<ZipArchiveEntry> entries = Collections.list(zipFile.getEntries())
+                        .stream().filter(e -> !e.isDirectory()).toList();
+                List<IOException> extractErrors = Collections.synchronizedList(new ArrayList<>());
+                entries.parallelStream().forEach(entry -> {
+                    try {
+                        Path relative = Path.of(entry.getName()).normalize();
+                        Path targetPath = extractionDirectory.toPath().resolve(relative).normalize();
+                        if (!targetPath.startsWith(extractionDirectory.toPath())) {
+                            throw new IOException("Refusing to extract entry outside target dir: " + relative);
+                        }
+                        Path parent = targetPath.getParent();
+                        if (parent != null) {
+                            Files.createDirectories(parent);
+                        }
+                        try (InputStream is = zipFile.getInputStream(entry)) {
+                            Files.copy(is, targetPath, REPLACE_EXISTING);
+                        }
+                    } catch (IOException e) {
+                        extractErrors.add(e);
+                    }
+                });
+                if (!extractErrors.isEmpty()) {
+                    extractErrors.stream().skip(1).forEach(e ->
+                            LOGGER.error("[%s] Additional extraction error: %s".formatted(getProfileDescriptiveName(), e.getMessage())));
+                    throw extractErrors.get(0);
+                }
+            }
             long end = System.currentTimeMillis();
-
-            LOGGER.debug("[%s] Extraction of downloaded graph file finished after %d ms, deleting downloaded graph file %s".formatted(
-                    getProfileDescriptiveName(),
-                    end - start,
-                    graphDownloadFileAbsPath));
+            double elapsedS = (end - start) / 1000.0;
+            double throughputMBs = elapsedS > 0 ? compressedMB / elapsedS : 0;
+            LOGGER.info("[%s] Extracted %s (%.1f MB) in %.1fs (%.1f MB/s) using parallel ZipFile (commons-compress).".formatted(
+                    getProfileDescriptiveName(), graphDownloadFile.getName(), compressedMB, elapsedS, throughputMBs));
             deleteFileWithLogging(graphDownloadFile,
                     "[%s] Deleted downloaded graph file %s".formatted(getProfileDescriptiveName(), graphDownloadFileAbsPath),
                     "Error deleting downloaded graph file: %s");

@@ -20,6 +20,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.CHConfig;
 import com.graphhopper.storage.GraphHopperStorage;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.GraphProcessContext;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
@@ -84,8 +85,8 @@ public class CorePreparationHandler extends CHPreparationHandler {
 
     private EdgeFilter createCoreEdgeFilter(CHConfig chProfile, GraphHopperStorage gs, GraphProcessContext processContext) {
         EncodingManager encodingManager = gs.getEncodingManager();
-
-        int routingProfileCategory = RoutingProfileCategory.getFromEncoder(encodingManager);
+        int routingProfile = EncoderNameEnum.getFromEncoderName(chProfile.getWeighting().getFlagEncoder().toString());
+        int routingProfileCategory = RoutingProfileCategory.getFromRouteProfile(routingProfile);
 
         /* Initialize edge filter sequence */
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
@@ -97,7 +98,7 @@ public class CorePreparationHandler extends CHPreparationHandler {
 
         /* Avoid features */
         if ((routingProfileCategory & (RoutingProfileCategory.DRIVING | RoutingProfileCategory.CYCLING | RoutingProfileCategory.WALKING | RoutingProfileCategory.WHEELCHAIR)) != 0) {
-            edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(gs, routingProfileCategory));
+            edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(gs, routingProfile));
         }
 
         /* Avoid borders */

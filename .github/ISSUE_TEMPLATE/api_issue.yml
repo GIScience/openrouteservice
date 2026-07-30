@@ -43,7 +43,7 @@ body:
     attributes:
       label: Request URL
       description: Please paste the request URL.
-      placeholder: "https://api.openrouteservice.org/v2/..."
+      placeholder: "https://api.heigit.org/openrouteservice/v2/..."
     validations:
       required: true
 

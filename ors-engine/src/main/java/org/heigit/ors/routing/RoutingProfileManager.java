@@ -101,7 +101,7 @@ public class RoutingProfileManager {
             if (LOGGER.isInfoEnabled())
                 printStatistics();
         } catch (Exception ex) {
-            fail("Exception at RoutingProfileManager initialization: " + ex.getClass() + ": " + ex.getMessage());
+            fail("Exception at RoutingProfileManager initialization: " + ex.getMessage());
             Thread.currentThread().interrupt();
         }
         return this;

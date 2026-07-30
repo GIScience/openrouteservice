@@ -7,7 +7,7 @@ ors:
   endpoints:
     matrix:
       maximum_routes: 200
-      maximum_visited_nodes: 60000
+      maximum_visited_nodes: 65300
     isochrones:
       maximum_intervals: 10
     snap:

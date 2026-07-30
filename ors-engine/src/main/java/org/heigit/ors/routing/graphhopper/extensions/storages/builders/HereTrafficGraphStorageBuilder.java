@@ -180,11 +180,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
     @Override
     public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-        throw new UnsupportedOperationException("Call without coords parameter Not supported.");
-    }
-
-    @Override
-    public void processEdge(ReaderWay way, EdgeIteratorState edge, org.locationtech.jts.geom.Coordinate[] coords) {
         if (enabled) {
             short converted = TrafficRelevantWayType.getHereTrafficClassFromOSMRoadType((short) trafficWayType);
             storage.setOrsRoadProperties(edge.getEdge(), TrafficGraphStorage.Property.ROAD_TYPE, converted);

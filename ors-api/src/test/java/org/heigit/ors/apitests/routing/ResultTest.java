@@ -1026,7 +1026,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].way_points", hasItems(0, 237, 436))
+                .body("routes[0].way_points", hasItems(0, 229, 426))
                 .statusCode(200);
     }
 
@@ -1126,8 +1126,8 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
                 .body("routes[0].extras.surface.values.size()", is(32))
-                .body("routes[0].extras.surface.values[18][1]", is(245))
-                .body("routes[0].extras.suitability.values[18][0]", is(367))
+                .body("routes[0].extras.surface.values[18][1]", is(237))
+                .body("routes[0].extras.suitability.values[18][0]", is(359))
                 .body("routes[0].extras.containsKey('steepness')", is(true))
                 .statusCode(200);
 
@@ -1179,7 +1179,7 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].extras.traildifficulty.values[0][2]", is(2))
                 .body("routes[0].extras.traildifficulty.values[1][0]", is(2))
                 .body("routes[0].extras.traildifficulty.values[1][1]", is(4))
-                .body("routes[0].extras.traildifficulty.values[1][2]", is(1))
+                .body("routes[0].extras.traildifficulty.values[1][2]", is(3))
                 .statusCode(200);
 
         checkExtraConsistency(response);
@@ -1417,6 +1417,30 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].warnings[0].code", is(4))
                 .body("routes[0].warnings[0].message", is("Extra info requested but not available: tollways, osmid, roadaccessrestrictions, countryinfo"))
                 .statusCode(200);
+    }
+
+    @Test
+    void testMissingSurfaceWayTypeYieldsWarning() {
+        JSONObject body = new JSONObject();
+        body.put("preference", "recommended");
+        body.put("coordinates", new JSONArray("[[8.682386, 49.417412],[8.690583, 49.413347]]"));
+        body.put("extra_info", new JSONArray("[\"surface\",\"waytype\"]"));
+
+        given()
+                .headers(CommonHeaders.jsonContent)
+                .body(body.toString())
+                .when()
+                // Profile 'driving-car-no-preparations' has no 'ext_storage's
+                .post(getEndPointPath() + "/driving-car-no-preparations/json")
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('extras')", is(false))
+                .body("routes[0].warnings.size()", is(1))
+                .body("routes[0].warnings[0].code", is(4))
+                .body("routes[0].warnings[0].message", is("Extra info requested but not available: surface, waytype, roadaccessrestrictions"))
+        ;
     }
 
     @Test
@@ -2134,6 +2158,30 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(false))
                 .body("error.code", is(RoutingErrorCodes.ROUTE_NOT_FOUND))
                 .statusCode(404);
+    }
+
+    @Test
+    void testBordersAtBarriers() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", HelperFunctions.constructCoords("8.682567,49.406522|8.68275,49.406215"));
+        body.put("preference", "shortest");
+        body.put("instructions", false);
+        body.put("units", "m");
+
+        body.put("options", new JSONObject().put("avoid_borders", "all"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(44, 1)))
+                .statusCode(200);
     }
 
     @Test

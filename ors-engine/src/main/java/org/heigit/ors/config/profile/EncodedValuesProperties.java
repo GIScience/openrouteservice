@@ -55,6 +55,18 @@ public class EncodedValuesProperties {
     private Boolean maxWeight;
     @JsonProperty(MaxWidth.KEY)
     private Boolean maxWidth;
+    @JsonProperty(AccessRestriction.KEY)
+    private Boolean accessRestriction;
+    @JsonProperty(Toll.KEY)
+    private Boolean toll;
+    @JsonProperty(HillIndex.KEY)
+    private Boolean hillIndex;
+    @JsonProperty(SacScale.KEY)
+    private Boolean sacScale;
+    @JsonProperty(MtbScale.KEY)
+    private Boolean mtbScale;
+    @JsonProperty(MtbScaleUphill.KEY)
+    private Boolean mtbScaleUphill;
 
     public EncodedValuesProperties() {
     }
@@ -85,6 +97,12 @@ public class EncodedValuesProperties {
         properties.put(MaxLength.KEY, maxLength);
         properties.put(MaxWeight.KEY, maxWeight);
         properties.put(MaxWidth.KEY, maxWidth);
+        properties.put(AccessRestriction.KEY, accessRestriction);
+        properties.put(Toll.KEY, toll);
+        properties.put(HillIndex.KEY, hillIndex);
+        properties.put(SacScale.KEY, sacScale);
+        properties.put(MtbScale.KEY, mtbScale);
+        properties.put(MtbScaleUphill.KEY, mtbScaleUphill);
 
         return properties;
     }
@@ -121,5 +139,11 @@ public class EncodedValuesProperties {
         maxLength = ofNullable(this.maxLength).orElse(other.maxLength);
         maxWeight = ofNullable(this.maxWeight).orElse(other.maxWeight);
         maxWidth = ofNullable(this.maxWidth).orElse(other.maxWidth);
+        accessRestriction = ofNullable(this.accessRestriction).orElse(other.accessRestriction);
+        toll = ofNullable(this.toll).orElse(other.toll);
+        hillIndex = ofNullable(this.hillIndex).orElse(other.hillIndex);
+        sacScale = ofNullable(this.sacScale).orElse(other.sacScale);
+        mtbScale = ofNullable(this.mtbScale).orElse(other.mtbScale);
+        mtbScaleUphill = ofNullable(this.mtbScaleUphill).orElse(other.mtbScaleUphill);
     }
 }

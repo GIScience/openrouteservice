@@ -11,11 +11,17 @@ import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -74,6 +80,18 @@ class PrepareGeneratedGraphForUploadTest {
         assertTrue(result, "Preparation should return true on success");
         assertTrue(Files.exists(archive), "Archive file should be created on success");
         assertFalse(Files.exists(profileDir), "Source profile directory should be deleted after successful archive");
+
+        URI zipUri = URI.create("jar:" + archive.toUri());
+        try (var zipFs = FileSystems.newFileSystem(zipUri, Map.of())) {
+            List<String> entries;
+            try (Stream<Path> walk = Files.walk(zipFs.getPath("/"))) {
+                entries = walk.filter(p -> !Files.isDirectory(p)).map(Path::toString).toList();
+            }
+            assertEquals(2, entries.size(), "archive should contain exactly the 2 source files");
+            assertTrue(entries.stream().anyMatch(e -> e.endsWith("graph_build_info.yml")));
+            assertTrue(entries.stream().anyMatch(e -> e.endsWith("data.bin")));
+            assertEquals("payload", Files.readString(zipFs.getPath("data.bin"), StandardCharsets.UTF_8));
+        }
     }
 
     @Test

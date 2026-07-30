@@ -38,6 +38,7 @@ import com.graphhopper.util.PMap;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import org.geotools.feature.SchemaException;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
@@ -48,6 +49,7 @@ import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
+import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
@@ -111,7 +113,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         this.engineProperties = engineProperties;
         this.profileProperties = profileProperties;
         setEncodedValueFactory(new OrsEncodedValueFactory());
-        setTagParserFactory(new OrsTagParserFactory());
+        int profileType = RoutingProfileType.getFromEncoderName(profileProperties.getEncoderName().toString());
+        setTagParserFactory(new OrsTagParserFactory(profileType));
     }
 
     public ORSGraphHopper() {
@@ -121,6 +124,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     @Override
     public GraphHopper init(GraphHopperConfig ghConfig) {
         GraphHopper ret = super.init(ghConfig);
+
+        if (processContext.getElevationFromPreprocessedData()) {
+            ret.setElevationProvider(new PbfElevationProvider());
+        }
 
         if (ghConfig instanceof ORSGraphHopperConfig orsConfig) {
             corePreparationHandler.init(orsConfig);
@@ -413,7 +420,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     private List<LMConfig> createCoreLMConfigs(List<LMProfile> lmProfiles) {
         CoreLMOptions coreLMOptions = coreLMPreparationHandler.getCoreLMOptions();
-        coreLMOptions.createRestrictionFilters(getGraphHopperStorage());
 
         List<LMConfig> lmConfigs = new ArrayList<>();
         for (LMProfile lmProfile : lmProfiles) {
@@ -424,7 +430,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             if (isTrafficEnabled()) {
                 ORSWeightingFactory.addTrafficSpeedCalculator(weighting, getGraphHopperStorage());
             }
-            for (LMEdgeFilterSequence edgeFilter : coreLMOptions.getFilters()) {
+            int profileType = EncoderNameEnum.getFromEncoderName(profile.getVehicle());
+            for (LMEdgeFilterSequence edgeFilter : coreLMOptions.createRestrictionFilters(getGraphHopperStorage(), profileType)) {
                 lmConfigs.add(new CoreLMConfig(profile.getName(), weighting).setEdgeFilter(edgeFilter));
             }
         }

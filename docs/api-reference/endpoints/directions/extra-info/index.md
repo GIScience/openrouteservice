@@ -2,7 +2,7 @@
 
 When requesting routes, there are a number of "extra info" items that can be requested to give you more information about the route. 
 This info could be things like the road surface, track type, or OpenStreetMap way ID. 
-The list below details which extra info items are available for each profile in the routing provided by https://api.openrouteservice.org.
+The list below details which extra info items are available for each profile in the routing provided by https://api.heigit.org/openrouteservice.
 
 ## Specify Extra Info in Request
 

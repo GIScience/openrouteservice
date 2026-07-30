@@ -20,6 +20,7 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
+import com.graphhopper.routing.ev.HillIndex;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.EncodingManager.AcceptWay;
@@ -35,11 +36,13 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.PedestrianWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
+import org.heigit.ors.routing.util.HillIndexCalculator;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.graphhopper.reader.osm.OSMNodeData.isPillarNode;
 import static com.graphhopper.reader.osm.OSMNodeData.isTowerNode;
@@ -57,12 +60,18 @@ public class ORSOSMReader extends OSMReader {
     private boolean processSimpleGeom = false;
     private boolean processWholeGeom = false;
     private boolean detachSidewalksFromRoad = false;
+    private HillIndexCalculator hillIndexCalculator = null;
 
     private final List<OSMFeatureFilter> filtersToApply = new ArrayList<>();
 
     private final HashSet<String> extraTagKeys;
     private final Set<String> nodeTagsToStore;
     private final GHLongObjectHashMap<Map<String, Object>> osmNodeTagValues;
+
+    private final AtomicInteger barrierNodesTotal = new AtomicInteger(
+            0);
+    private final AtomicInteger barrierNodesSkipped = new AtomicInteger(
+            0);
 
     public ORSOSMReader(GraphHopperStorage storage, OSMReaderConfig osmReaderConfig, GraphProcessContext procCntx) {
         super(storage, osmReaderConfig);
@@ -78,6 +87,7 @@ public class ORSOSMReader extends OSMReader {
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
             if (b instanceof BordersGraphStorageBuilder) {
+                this.processNodeTags = true;
                 this.countries = new HashMap<>();
                 this.processGeom = true;
             }
@@ -99,22 +109,15 @@ public class ORSOSMReader extends OSMReader {
                 extraTagKeys.add("kerb:left:height");
                 extraTagKeys.add("kerb:right:height");
             }
-
-            if (b instanceof RoadAccessRestrictionsGraphStorageBuilder) {
-                this.processNodeTags = true;
-                extraTagKeys.add("access");
-                extraTagKeys.add("bicycle");
-                extraTagKeys.add("foot");
-                extraTagKeys.add("horse");
-                extraTagKeys.add("motor_vehicle");
-                extraTagKeys.add("motorcar");
-                extraTagKeys.add("motorcycle");
-            }
         }
 
         if (procCntx.isUseSidewalks()) {
             detachSidewalksFromRoad = true;
             filtersToApply.add(new PedestrianWayFilter());
+        }
+
+        if (encodingManager.hasEncodedValue(HillIndex.KEY)) {
+            hillIndexCalculator = new HillIndexCalculator();
         }
     }
 
@@ -369,14 +372,25 @@ public class ORSOSMReader extends OSMReader {
     @Override
     protected void onProcessEdge(ReaderWay way, EdgeIteratorState edge, IntsRef edgeFlags, EncodingManager.AcceptWay acceptWay) {
         try {
-            int baseNode = edge.getBaseNode();
-            int adjNode = edge.getAdjNode();
-            Coordinate [] coordinates = {
-                    new Coordinate(nodeAccess.getLon(baseNode), nodeAccess.getLat(baseNode)),
-                    new Coordinate(nodeAccess.getLon(adjNode), nodeAccess.getLat(adjNode))
-            };
+            Map<Integer, Map<String, String>> tags = new HashMap<>();
+            if (processNodeTags) {
+                for (int nodeId : new int[]{edge.getBaseNode(), edge.getAdjNode()}) {
+                    long osmId = nodeData.getOsmId(nodeId);
+                    Map<String, String> tagsForNode = nodeTags.get(osmId);
 
-            procCntx.processEdge(way, edge, coordinates);
+                    if (countries != null && countries.containsKey(osmId)) {
+                        if (tagsForNode == null)
+                            tagsForNode = new HashMap<>();
+                        tagsForNode.put(KEY_COUNTRY, countries.get(osmId));
+                    }
+
+                    if (tagsForNode != null) {
+                        tags.put(nodeId, tagsForNode);
+                    }
+                }
+            }
+
+            procCntx.processEdge(way, edge, tags);
 
             if (acceptWay.hasConditional()) {
                 storeConditionalAccess(acceptWay, edge);
@@ -414,9 +428,65 @@ public class ORSOSMReader extends OSMReader {
     }
 
     @Override
+    protected void setArtificialWayTags(PointList pointList, ReaderWay way) {
+        super.setArtificialWayTags(pointList, way);
+
+        if (hillIndexCalculator != null) {
+            calculateHillIndex(pointList, way);
+        }
+    }
+
+    private void calculateHillIndex(PointList pointList, ReaderWay way) {
+        byte hillIndexFwd = hillIndexCalculator.getHillIndex(pointList, false);
+        byte hillIndexBwd = hillIndexCalculator.getHillIndex(pointList, true);
+
+        way.setTag("ors:hill_index_fwd", hillIndexFwd);
+        way.setTag("ors:hill_index_bwd", hillIndexBwd);
+    }
+
+    @Override
     public void readGraph() throws IOException {
         super.readGraph();
         procCntx.finish();
+    }
+
+    /**
+     * We need to overwrite the basic barrier selection.
+     * <p>
+     * Split the topology if ANY encoder is blocked by this barrier. The barrier edge then
+     * carries per-encoder access (EncodingManager.handleNodeTags blocks only the encoders whose
+     * isBarrier() is true), so the encoders that can pass simply traverse a zero-length no-op
+     * edge. Skipping the split only when EVERY encoder can pass drops just the fully-passable
+     * no-op edges. The inverse ("skip if any can pass") would be a correctness bug on any
+     * multi-encoder graph. It would leak a blocked profile through. For ORS's single-encoder
+     * graphs the two are equivalent, but this formulation stays correct if that ever changes.
+     *
+     * @param node A ReaderNode that is validated against the FlagEncoder isBarrier function.
+     * @return Returns a boolean based on the isBarrierNode decision.
+     */
+    @Override
+    protected boolean isBarrierNode(ReaderNode node) {
+        if (!super.isBarrierNode(node))
+            return false;
+
+        barrierNodesTotal.incrementAndGet();
+
+        for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
+            if (encoder instanceof AbstractFlagEncoder abstractEncoder
+                    && abstractEncoder.isBarrier(node)) {
+                return true; // at least one encoder is blocked → topology split is required
+            }
+        }
+        barrierNodesSkipped.incrementAndGet();
+        return false; // passable for every encoder → no-op barrier edge, safe to skip
+    }
+
+    int getBarrierNodesTotal() {
+        return barrierNodesTotal.get();
+    }
+
+    int getBarrierNodesSkipped() {
+        return barrierNodesSkipped.get();
     }
 
 }

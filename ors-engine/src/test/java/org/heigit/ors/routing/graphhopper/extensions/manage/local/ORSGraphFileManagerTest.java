@@ -12,13 +12,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.DisplayName;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper.*;
@@ -204,6 +210,56 @@ class ORSGraphFileManagerTest {
 
         List<File> backups = orsGraphFileManager.findGraphBackupsSortedByName();
         assertEquals(0, backups.size());
+    }
+
+    @Test
+    @DisplayName("Given a .ghz archive containing a text file, when extractDownloadedGraph is called, then the file is extracted and the archive is deleted")
+    void extractDownloadedGraph_extractsTextFileFromGhzArchive() throws IOException {
+        setupORSGraphManager(managementPropsBuilder().build());
+        File ghzFile = new File(orsGraphFileManager.getDownloadedCompressedGraphFileAbsPath());
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(ghzFile))) {
+            zos.putNextEntry(new ZipEntry("hello.txt"));
+            zos.write("Hello, ORS!".getBytes(StandardCharsets.UTF_8));
+            zos.closeEntry();
+        }
+        assertTrue(orsGraphFileManager.hasGraphDownloadFile());
+
+        orsGraphFileManager.extractDownloadedGraph();
+
+        assertFalse(ghzFile.exists(), ".ghz archive should be deleted after extraction");
+        File extractedDir = orsGraphFileManager.getDownloadedExtractedGraphDirectory();
+        assertTrue(extractedDir.isDirectory(), "Extracted directory should exist");
+        File extractedText = new File(extractedDir, "hello.txt");
+        assertTrue(extractedText.exists(), "hello.txt should exist in the extracted directory");
+        assertEquals("Hello, ORS!", Files.readString(extractedText.toPath(), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    @DisplayName("Given a .ghz archive containing a path-traversal entry, when extractDownloadedGraph is called, then an exception is thrown and no file is written outside the extraction directory")
+    void extractDownloadedGraph_zipSlipEntry_throwsException() throws IOException {
+        setupORSGraphManager(managementPropsBuilder().build());
+        File ghzFile = new File(orsGraphFileManager.getDownloadedCompressedGraphFileAbsPath());
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(ghzFile))) {
+            zos.putNextEntry(new ZipEntry("../../traversal.txt"));
+            zos.write("evil".getBytes(StandardCharsets.UTF_8));
+            zos.closeEntry();
+        }
+
+        assertThrows(Exception.class, () -> orsGraphFileManager.extractDownloadedGraph());
+
+        assertFalse(tempDir.getParent().resolve("traversal.txt").toFile().exists());
+    }
+
+    @Test
+    @DisplayName("Given no .ghz archive exists, when extractDownloadedGraph is called, then nothing happens and no directory is created")
+    void extractDownloadedGraph_noGhzFile_doesNothing() throws IOException {
+        setupORSGraphManager(managementPropsBuilder().build());
+        assertFalse(orsGraphFileManager.hasGraphDownloadFile());
+
+        orsGraphFileManager.extractDownloadedGraph();
+
+        assertFalse(orsGraphFileManager.getDownloadedExtractedGraphDirectory().exists(),
+                "Extracted directory should not be created when no archive exists");
     }
 
 }

@@ -13,13 +13,13 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.routing.ev.Toll;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
 import org.heigit.ors.routing.pathprocessors.TollwayExtractor;
 
 public class AvoidFeaturesEdgeFilter implements EdgeFilter {
@@ -31,10 +31,9 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
         this.avoidFeatureType = searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.getProfileFlags(profileCategory);
 
         formerWayCategory = new FormerWayCategory(graphStorage, avoidFeatureType);
-
-        TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
-        if (extTollways != null)
-            tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getProfileType(), searchParams.getProfileParameters());
+        EncodingManager encodingManager = graphStorage.getEncodingManager();
+        if (encodingManager.hasEncodedValue(Toll.KEY))
+            tollwayExtractor = new TollwayExtractor(encodingManager.getEnumEncodedValue(Toll.KEY, Toll.class), searchParams.getProfileType());
     }
 
     public AvoidFeaturesEdgeFilter(GraphHopperStorage graphStorage, int avoidFeatureType) {
@@ -54,6 +53,6 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
     private boolean acceptProfileSpecificTollways(EdgeIteratorState iter) {
         return tollwayExtractor == null
                 || (avoidFeatureType & AvoidFeatureFlags.TOLLWAYS) == 0
-                || !tollwayExtractor.isProfileSpecificTollway(iter.getEdge());
+                || !tollwayExtractor.isProfileSpecificTollway(iter);
     }
 }
