@@ -1,6 +1,7 @@
 package com.graphhopper.storage;
 
-import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.EdgeIteratorState;
+
 
 public class GraphHelper {
 
@@ -8,11 +9,12 @@ public class GraphHelper {
         // prevent instantiation
     }
 
-    public static boolean isReversed(EdgeIterator iter) {
-        try {
-            return ((BaseGraph.EdgeIteratorImpl) iter).reverse;
-        } catch (ClassCastException e) {
-            return false;
+    public static boolean isReversed(EdgeIteratorState edgeIteratorState) {
+        if (edgeIteratorState instanceof BaseGraph.EdgeIteratorStateImpl edgeIteratorStateImpl) {
+            return edgeIteratorStateImpl.reverse;
+        }
+        else {
+            throw new IllegalArgumentException("EdgeIteratorState is not an instance of BaseGraph.EdgeIteratorStateImpl");
         }
     }
 }
