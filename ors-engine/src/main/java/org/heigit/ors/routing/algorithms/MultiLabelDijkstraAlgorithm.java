@@ -4,6 +4,7 @@ import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.ev.Rest;
 import com.graphhopper.routing.querygraph.QueryGraphHelper;
+import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
@@ -142,37 +143,38 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     }
 
     private double getEdgeRestValue(EdgeIterator iter) {
-        EdgeIteratorState originalEdge = QueryGraphHelper.getOriginalEdgeFromVirtualEdge(iter, graph);
-        if (originalEdge != null) {
-            return handleVirtualEdges(iter, originalEdge);
+        EdgeIteratorState edgeIteratorState = iter.detach(false);
+        if (edgeIteratorState instanceof VirtualEdgeIteratorState virtualEdgeIteratorState) {
+            return handleVirtualEdges(virtualEdgeIteratorState);
         } else {
-            return offsetRelativeToBaseNode(iter);
+            return offsetRelativeToBaseNode(edgeIteratorState);
         }
     }
 
-    private double handleVirtualEdges(EdgeIterator iter, EdgeIteratorState originalEdge) {
-        double originalEdgeDistance = originalEdge.getDistance();
-        double originalEdgeValue = offsetRelativeToBaseNode(iter);
-        double restPointDistance = originalEdgeValue * originalEdgeDistance;
-        double virtualEdgeDistance = iter.getDistance();
-        if (edgeHasRestPoint(originalEdgeValue)) {
-            if (iter.getBaseNode() == originalEdge.getBaseNode()) {
+    private double handleVirtualEdges(VirtualEdgeIteratorState virtualEdge) {
+        EdgeIteratorState originalEdge = QueryGraphHelper.getOriginalEdgeFromVirtualEdge(virtualEdge, graph);
+        double edgeRestValue = offsetRelativeToBaseNode(originalEdge);
+        if (edgeHasRestPoint(edgeRestValue)) {
+            double originalEdgeDistance = originalEdge.getDistance();
+            double virtualEdgeDistance = virtualEdge.getDistance();
+            double restPointDistance = edgeRestValue * originalEdgeDistance;
+            if (virtualEdge.getBaseNode() == originalEdge.getBaseNode()) {
                 // Before virtual node
-                if (virtualEdgeDistance > restPointDistance) {
+                if (restPointDistance < virtualEdgeDistance) {
                     return restPointDistance / virtualEdgeDistance;
                 }
             } else {
                 // After virtual node
-                double otherVirtualEdgeDistance = originalEdgeDistance - virtualEdgeDistance;
-                if (otherVirtualEdgeDistance < restPointDistance) {
-                    return (restPointDistance - otherVirtualEdgeDistance) / virtualEdgeDistance;
+                restPointDistance -= originalEdgeDistance - virtualEdgeDistance;
+                if (restPointDistance > 0) {
+                    return restPointDistance / virtualEdgeDistance;
                 }
             }
         }
-        return 0;
+        return -1;
     }
 
-    private double offsetRelativeToBaseNode(EdgeIterator iter) {
+    private double offsetRelativeToBaseNode(EdgeIteratorState iter) {
         FootFlagEncoder encoder = (FootFlagEncoder) weighting.getFlagEncoder();
         double edgeRestValue = iter.get(encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY));
         if (edgeHasRestPoint(edgeRestValue) && GraphHelper.isReversed(iter)) {
