@@ -579,8 +579,7 @@ public class RoutingRequest extends ServiceRequest {
                 req = new GHRequest(points);
             }
 
-            req.setProfile(searchCntx.profileName());
-            req.setEncoderName(searchCntx.getEncoder().toString());
+            req.setProfile(searchCntx.profileName()).setEncoderName(searchCntx.getEncoder().toString());
             req.getHints().putObject(Parameters.Algorithms.RoundTrip.DISTANCE, searchParams.getRoundTripLength());
             req.getHints().putObject(Parameters.Algorithms.RoundTrip.POINTS, searchParams.getRoundTripPoints());
 

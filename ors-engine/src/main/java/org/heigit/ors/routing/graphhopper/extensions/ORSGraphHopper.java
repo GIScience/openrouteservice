@@ -348,53 +348,59 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     private void processGraphDependentEVData() {
-        for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
+        for (FlagEncoder encoder : getEncodingManager().fetchEdgeEncoders()) {
             if (encoder instanceof FootFlagEncoder footFlagEncoder) {
-                AtomicInteger imported = new AtomicInteger();
-                DecimalEncodedValue restEV = footFlagEncoder.getDecimalEncodedValue(footFlagEncoder + "$" + Rest.KEY);
-                PMap hintsMap = new PMap();
-                ProfileTools.setWeightingMethod(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
-                ProfileTools.setWeighting(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
-                String localProfileName = ProfileTools.makeProfileName(encoder.toString(), hintsMap.getString("weighting", ""), false);
-                Weighting weighting = new ORSWeightingFactory(getGraphHopperStorage(), getEncodingManager()).createWeighting(getProfile(localProfileName), hintsMap, false);
-                EdgeFilter snapFilter = new DefaultSnapFilter(weighting, getGraphHopperStorage().getEncodingManager().getBooleanEncodedValue(Subnetwork.key(localProfileName)));
-                EdgeFilterSequence edgeFilter = new EdgeFilterSequence().add(snapFilter);
-                String filename = config.getString("foot_rest_data", null);
-                CSVUtility.readFile(filename).forEach(line -> {
-                    if (line.size() >= 2) {
-                        try {
-                            double lat = Double.parseDouble(line.get(0));
-                            double lon = Double.parseDouble(line.get(1));
-                            Snap snappedPoint = getLocationIndex().findClosest(lat, lon, edgeFilter);
-                            if (snappedPoint.isValid()) {
-                                EdgeIteratorState closestEdge = snappedPoint.getClosestEdge();
-                                switch (snappedPoint.getSnappedPosition()) {
-                                    case TOWER -> {
-                                        closestEdge.set(restEV, snappedPoint.getClosestNode() == closestEdge.getBaseNode() ? 0 : 1);
-                                    }
-                                    default -> {
-                                        QueryGraph queryGraph = QueryGraph.create(getGraphHopperStorage().getBaseGraph(), snappedPoint);
-                                        EdgeIterator iter = queryGraph.createEdgeExplorer(edgeFilter).setBaseNode(snappedPoint.getClosestNode());
-                                        while (iter.next()) {
-                                            if (iter.getAdjNode() == closestEdge.getBaseNode()) {
-                                                double distance = iter.getDistance() / closestEdge.getDistance();
-                                                closestEdge.set(restEV, distance);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
+                processFootRestData(footFlagEncoder);
+            }
+        }
+    }
 
-                            }
-                            imported.getAndIncrement();
-                        } catch (NumberFormatException e) {
-                            LOGGER.error("Invalid coordinates in foot_rest_data: " + line);
-                        }
-                    } else {
-                        LOGGER.error("Invalid line in foot_rest_data: " + line);
-                    }
-                });
-                LOGGER.debug("Imported " + imported.get() + " foot rest points from " + filename);
+    private void processFootRestData(FootFlagEncoder encoder) {
+        AtomicInteger imported = new AtomicInteger();
+        DecimalEncodedValue restEV = encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY);
+        PMap hintsMap = new PMap();
+        ProfileTools.setWeightingMethod(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
+        ProfileTools.setWeighting(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
+        String localProfileName = ProfileTools.makeProfileName(encoder.toString(), hintsMap.getString("weighting", ""), false);
+        Weighting weighting = new ORSWeightingFactory(getGraphHopperStorage(), getEncodingManager()).createWeighting(getProfile(localProfileName), hintsMap, false);
+        EdgeFilter snapFilter = new DefaultSnapFilter(weighting, getGraphHopperStorage().getEncodingManager().getBooleanEncodedValue(Subnetwork.key(localProfileName)));
+        EdgeFilterSequence edgeFilter = new EdgeFilterSequence().add(snapFilter);
+        String filename = config.getString("foot_rest_data", null);
+        CSVUtility.readFile(filename).forEach(line -> processLine(line, edgeFilter, restEV, imported));
+        LOGGER.debug("Imported %d foot rest points from %s".formatted(imported.get(), filename));
+    }
+
+    private void processLine(List<String> line, EdgeFilter edgeFilter, DecimalEncodedValue restEV, AtomicInteger imported) {
+        if (line.size() < 2) {
+            LOGGER.error("Invalid line in foot_rest_data: %s".formatted(line));
+            return;
+        }
+        try {
+            double lat = Double.parseDouble(line.get(0));
+            double lon = Double.parseDouble(line.get(1));
+            Snap snappedPoint = getLocationIndex().findClosest(lat, lon, edgeFilter);
+            if (snappedPoint.isValid()) {
+                processSnappedPoint(snappedPoint, restEV);
+                imported.getAndIncrement();
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid coordinates in foot_rest_data: %s".formatted(line));
+        }
+    }
+
+    private void processSnappedPoint(Snap snappedPoint, DecimalEncodedValue restEV) {
+        EdgeIteratorState closestEdge = snappedPoint.getClosestEdge();
+        if (Objects.requireNonNull(snappedPoint.getSnappedPosition()) == Snap.Position.TOWER) {
+            closestEdge.set(restEV, snappedPoint.getClosestNode() == closestEdge.getBaseNode() ? 0 : 1);
+        } else {
+            QueryGraph queryGraph = QueryGraph.create(getGraphHopperStorage().getBaseGraph(), snappedPoint);
+            EdgeIterator iter = queryGraph.createEdgeExplorer(new EdgeFilterSequence()).setBaseNode(snappedPoint.getClosestNode());
+            while (iter.next()) {
+                if (iter.getAdjNode() == closestEdge.getBaseNode()) {
+                    double distance = iter.getDistance() / closestEdge.getDistance();
+                    closestEdge.set(restEV, distance);
+                    break;
+                }
             }
         }
     }

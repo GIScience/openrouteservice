@@ -9,6 +9,11 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
 
 public class MultiLabelPathExtractor  {
+
+    private MultiLabelPathExtractor() {
+        // prevent instantiation
+    }
+
     public static Path extract(Graph graph, Weighting weighting, Label entry) {
         Path path = new Path(graph);
         if (entry == null) {

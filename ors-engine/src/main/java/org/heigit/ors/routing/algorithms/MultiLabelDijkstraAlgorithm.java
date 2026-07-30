@@ -53,21 +53,18 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
 
     protected void runAlgo() {
         LOGGER.debug("Running MultiLabelDijkstraAlgorithm...");
-        while (true) {
+        while (!finished() && !isMaxVisitedNodesExceeded()) {
             visitedNodes++;
-            if (isMaxVisitedNodesExceeded() || finished())
-                break;
 
-            int currNode = currentLabel.nodeId;
-            EdgeIterator iter = edgeExplorer.setBaseNode(currNode);
+            EdgeIterator iter = edgeExplorer.setBaseNode(currentLabel.nodeId);
             while (iter.next()) {
                 if (accept(iter, currentLabel.edgeId))
                     processEdge(iter);
             }
-            currentLabel = queue.poll();
-            while (currentLabel != null && !currentLabel.isActive()) { // get next Label that is not set to active=false
+            do {
                 currentLabel = queue.poll();
             }
+            while (currentLabel != null && !currentLabel.isActive());// get next Label that is not set to active=false
             if (currentLabel == null)
                 break;
         }
