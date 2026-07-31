@@ -2,6 +2,7 @@ package org.heigit.ors.routing.algorithms;
 
 import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.PathExtractor;
 import com.graphhopper.routing.ev.Rest;
 import com.graphhopper.routing.querygraph.QueryGraphHelper;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
@@ -57,9 +58,9 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         while (!finished() && !isMaxVisitedNodesExceeded()) {
             visitedNodes++;
 
-            EdgeIterator iter = edgeExplorer.setBaseNode(currentLabel.nodeId);
+            EdgeIterator iter = edgeExplorer.setBaseNode(currentLabel.adjNode);
             while (iter.next()) {
-                if (accept(iter, currentLabel.edgeId))
+                if (accept(iter, currentLabel.edge))
                     processEdge(iter);
             }
             do {
@@ -72,7 +73,7 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     }
 
     private void processEdge(EdgeIterator iter) {
-        double nextEdgeWeight = GHUtility.calcWeightWithTurnWeightWithAccess(weighting, iter, false, currentLabel.edgeId);
+        double nextEdgeWeight = GHUtility.calcWeightWithTurnWeightWithAccess(weighting, iter, false, currentLabel.edge);
         double tmpWeight = nextEdgeWeight + currentLabel.weight;
         if (Double.isInfinite(tmpWeight)) {
             return;
@@ -189,14 +190,14 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
 
     @Override
     protected boolean finished() {
-        return currentLabel.nodeId == to;
+        return currentLabel.adjNode == to;
     }
 
     @Override
     protected Path extractPath() {
         if (currentLabel == null || !finished())
             return createEmptyPath();
-        return MultiLabelPathExtractor.extract(graph, weighting, currentLabel);
+        return PathExtractor.extractPath(graph, weighting, currentLabel);
     }
 
     @Override
