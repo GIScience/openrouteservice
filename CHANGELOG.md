@@ -38,6 +38,7 @@ Releasing is documented in RELEASE.md
 ### Fixed
 
 ### Security
+- update postcss to 8.5.25
 
 
 ## [9.10.0] - 2026-07-28
@@ -65,7 +66,7 @@ Releasing is documented in RELEASE.md
 - use direct mapping of node IDs to OSM IDs to correctly resolve node tags for edges containing cloned nodes ([#2319](https://github.com/GIScience/openrouteservice/pull/2319))
 
 ### Security
-- update postcss to 8.5.12
+- update postcss to 8.5.12 due to [CVE-2026-45623](https://www.cve.org/CVERecord?id=CVE-2026-45623)
 - update org.postgresql:postgresql to 42.7.11 due to [CVE-2025-49146](https://www.cve.org/CVERecord?id=CVE-2025-49146) and [CVE-2026-42198](https://www.cve.org/CVERecord?id=CVE-2026-42198)
 - update mermaid to 11.15.0
 - update uuid to 14.0.0 due to [CVE-2026-41907](https://www.cve.org/CVERecord?id=CVE-2026-41907) and [CVE-2026-41988](https://www.cve.org/CVERecord?id=CVE-2026-41988)
