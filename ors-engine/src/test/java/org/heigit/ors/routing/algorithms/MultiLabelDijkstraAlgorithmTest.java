@@ -284,6 +284,111 @@ class MultiLabelDijkstraAlgorithmTest {
         assertEquals(100, path.getWeight(), 0.2);
     }
 
+    @Test
+    @Order(15)
+    @DisplayName("15. A virtual segment without the bench does not reset fatigue")
+    void virtualSegmentWithoutBenchDoesNotResetFatigue() {
+        GraphHopperStorage graph = createGraph();
+        graph.getNodeAccess().setNode(0, 0, 0);
+        graph.getNodeAccess().setNode(1, 0, 0.0018);
+        markRestPoint(addEdge(graph, 0, 1, 200), 0.75);
+        LocationIndexTree index = new LocationIndexTree(graph, new RAMDirectory());
+        index.prepareIndex();
+        Snap snap = index.findClosest(0, 0.00072, EdgeFilter.ALL_EDGES);
+        QueryGraph queryGraph = QueryGraph.create(graph, snap);
+
+        Path path = createAlgorithm(queryGraph, 40, 2)
+                .calcPath(0, snap.getClosestNode());
+
+        assertTrue(path.isFound());
+        assertEquals(80, path.getDistance(), 0.2);
+        assertEquals(160, path.getWeight(), 0.5);
+    }
+
+    @Test
+    @Order(16)
+    @DisplayName("16. A bench on the second virtual segment keeps its physical position")
+    void secondVirtualSegmentPreservesBenchPosition() {
+        GraphHopperStorage graph = createGraph();
+        graph.getNodeAccess().setNode(0, 0, 0);
+        graph.getNodeAccess().setNode(1, 0, 0.0018);
+        markRestPoint(addEdge(graph, 0, 1, 200), 0.75);
+        LocationIndexTree index = new LocationIndexTree(graph, new RAMDirectory());
+        index.prepareIndex();
+        Snap snap = index.findClosest(0, 0.00072, EdgeFilter.ALL_EDGES);
+        QueryGraph queryGraph = QueryGraph.create(graph, snap);
+
+        Path path = createAlgorithm(queryGraph, 40, 2)
+                .calcPath(snap.getClosestNode(), 1);
+
+        assertTrue(path.isFound());
+        assertEquals(120, path.getDistance(), 0.2);
+        assertEquals(200, path.getWeight(), 0.5);
+    }
+
+    @Test
+    @Order(17)
+    @DisplayName("17. Splitting an edge without rests leaves route cost unchanged")
+    void edgeSplittingWithoutRestsIsInvariant() {
+        GraphHopperStorage unsplit = createGraph();
+        addEdge(unsplit, 0, 3, 200);
+
+        GraphHopperStorage split = createGraph();
+        addEdge(split, 0, 1, 70);
+        addEdge(split, 1, 2, 30);
+        addEdge(split, 2, 3, 100);
+
+        Path unsplitPath = createAlgorithm(unsplit, 100, 2).calcPath(0, 3);
+        Path splitPath = createAlgorithm(split, 100, 2).calcPath(0, 3);
+
+        assertTrue(unsplitPath.isFound());
+        assertTrue(splitPath.isFound());
+        assertEquals(200, unsplitPath.getDistance(), EPSILON);
+        assertEquals(unsplitPath.getDistance(), splitPath.getDistance(), EPSILON);
+        assertEquals(400, unsplitPath.getWeight(), EPSILON);
+        assertEquals(unsplitPath.getWeight(), splitPath.getWeight(), EPSILON);
+    }
+
+    @Test
+    @Order(18)
+    @DisplayName("18. The fatigue penalty starts only after the exact threshold")
+    void thresholdBoundaryBelowEqualAndAbove() {
+        assertSingleEdgeWeight(99, 100, 2, 99);
+        assertSingleEdgeWeight(100, 100, 2, 100);
+        assertSingleEdgeWeight(101, 100, 2, 103);
+    }
+
+    @Test
+    @Order(19)
+    @DisplayName("19. Rest positions retain sentinel, endpoint, and encoded precision")
+    void restPositionEncodingContract() {
+        GraphHopperStorage graph = createGraph();
+        EdgeIteratorState edge = addEdge(graph, 0, 1, 100);
+
+        assertEquals(-1, edge.get(restEncodedValue), EPSILON);
+
+        markRestPoint(edge, 0);
+        assertEquals(0, edge.get(restEncodedValue), EPSILON);
+
+        markRestPoint(edge, 0.256);
+        assertEquals(0.26, edge.get(restEncodedValue), EPSILON);
+
+        markRestPoint(edge, 1);
+        assertEquals(1, edge.get(restEncodedValue), EPSILON);
+    }
+
+    private void assertSingleEdgeWeight(
+            double distance, double threshold, double penalty,
+            double expectedWeight) {
+        GraphHopperStorage graph = createGraph();
+        addEdge(graph, 0, 1, distance);
+
+        Path path = createAlgorithm(graph, threshold, penalty).calcPath(0, 1);
+
+        assertTrue(path.isFound());
+        assertEquals(expectedWeight, path.getWeight(), EPSILON);
+    }
+
     private GraphHopperStorage createChoiceGraph(RestPattern restPattern) {
         GraphHopperStorage graph = createGraph();
         EdgeIteratorState shortFirst = addEdge(graph, 0, 1, 80);
