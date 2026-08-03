@@ -1,20 +1,19 @@
 ors:
   engine:
     preparation_mode: true
-    preparation_type: ARCHIVE
     elevation:
       preprocessed: true
     profile_default:
       enabled: false
-      graph_path: graphs-apitests
+      graph_path: graphs-apitests-prepmode-folder
       build:
         source_file: ./src/test/files/heidelberg.test.pbf
     profiles:
-      driving-car-prepmode:
+      driving-car-prepmode-folder:
         enabled: true
         encoder_name: driving-car
         build:
-          profile_group: prepmodetest
+          profile_group: prepmodefoldertest
           graph_extent: heidelberg
           encoder_options:
             turn_costs: true
