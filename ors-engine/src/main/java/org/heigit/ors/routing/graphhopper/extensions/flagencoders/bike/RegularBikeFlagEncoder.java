@@ -17,7 +17,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike;
 
-import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
@@ -71,16 +70,6 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
 
     public double getMeanSpeed() {
         return MEAN_SPEED;
-    }
-
-    @Override
-    boolean isPushingSection(ReaderWay way) {
-        String highway = way.getTag("highway");
-        String trackType = way.getTag("tracktype");
-        return super.isPushingSection(way) || "track".equals(highway) && trackType != null
-                // MARQ24 MOD START - by Runge
-                && !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType));
-        // MARQ24 MOD END
     }
 
     @Override

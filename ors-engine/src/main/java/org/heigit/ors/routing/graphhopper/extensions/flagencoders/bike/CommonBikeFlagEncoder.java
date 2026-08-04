@@ -442,13 +442,15 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     int getSpeed(ReaderWay way) {
+        if (way.hasTag(KEY_HIGHWAY, KEY_STEPS)) {
+            return PUSHING_SECTION_SPEED / 2;
+        }
+
         int speed = Integer.MIN_VALUE;
         String highwayTag = way.getTag(KEY_HIGHWAY);
         SpeedValue highwaySpeed = highwaySpeeds.get(highwayTag);
 
         boolean isPushingWay = isPushingSection(way);
-        boolean isCyclewayLikeWay = false;
-        boolean isSteps = way.hasTag(KEY_HIGHWAY, KEY_STEPS);
 
         // Under certain conditions we need to increase the speed of pushing sections to the speed of a "highway=cycleway"
         // MARQ24 - so if this is a pushing section (like path, track or footway) BUT have additional bicycle attributes
@@ -460,72 +462,63 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
                                 || way.hasTag(KEY_BICYCLE, KEY_DESIGNATED)
                                 || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL)
                 )
-                && !isSteps
         ) {
-            isCyclewayLikeWay = true;
+            isPushingWay = false;
             highwaySpeed = getHighwaySpeed(KEY_CYCLEWAY);
         }
 
-        String s = way.getTag("surface");
-        if (!Helper.isEmpty(s)) {
-            SpeedValue surfaceSpeed = surfaceSpeeds.get(s);
-            if (surfaceSpeed != null && (!isPushingWay || isCyclewayLikeWay)) {
-                // ok if no specific highway speed is set we will use the surface speed...
-                if (highwaySpeed == null) {
-                    speed = surfaceSpeed.speed;
-                } else {
-                    speed = calcHighwaySpeedBasedOnSurface(highwaySpeed, surfaceSpeed);
-                }
-            }
-        } else {
-            // no SURFACE TAG present...
-            String tt = way.getTag("tracktype");
-            if (!Helper.isEmpty(tt)) {
-                SpeedValue tracktypeSpeed = trackTypeSpeeds.get(tt);
-                if (tracktypeSpeed != null && (!isPushingWay || isCyclewayLikeWay)) {
-                    if (highwaySpeed == null) {
-                        speed = tracktypeSpeed.speed;
-                    } else {
-                        speed = calcHighwaySpeedBasedOnSurface(highwaySpeed, tracktypeSpeed);
-                    }
-                }
+        if (!isPushingWay) {
+            speed = getSurfaceAndTrackTypeSpeed(way, highwaySpeed, speed);
+        }
+
+        // If the speed have not been set yet, utilize the highwaySpeed
+        if (speed == Integer.MIN_VALUE && highwaySpeed != null) {
+            if (!way.hasTag(KEY_SERVICE)) {
+                speed = highwaySpeed.speed;
+            } else {
+                // MARQ24: with other words any 'service' tagged ways will be
+                // considered as min "living street" speed (or slower)...
+                speed = Math.min(highwaySpeeds.get(KEY_LIVING_STREET).speed, highwaySpeed.speed);
             }
         }
 
-        // if the speed have not been set yet...
+        // If no speed was determined using highway/surface/tracktype tags, default to PUSHING_SECTION_SPEED
         if (speed == Integer.MIN_VALUE) {
-            if (highwaySpeed != null) {
-                if (!way.hasTag(KEY_SERVICE)) {
-                    speed = highwaySpeed.speed;
-                } else {
-                    // MARQ24: with other words any 'service' tagged ways will be
-                    // considered as min "living street" speed (or slower)...
-                    speed = Math.min(highwaySpeeds.get(KEY_LIVING_STREET).speed, highwaySpeed.speed);
-                }
-            } else {
-                speed = PUSHING_SECTION_SPEED;
-            }
+            speed = PUSHING_SECTION_SPEED;
         }
 
-        // MARQ24 MOD START
-        if (speed <= PUSHING_SECTION_SPEED) {
-            if (!isSteps) {
-                // MARQ24 if we are still on pushing section speed, then we at least double the speed in the case
-                // that the way is 'segregated' (but of course we sill ignore steps)...
-                // MARQ24 MOD END
-                // Increase speed in case of segregated
-                if (way.hasTag(KEY_SEGREGATED, "yes")) {
-                    speed = PUSHING_SECTION_SPEED * 2;
-                }
-                // MARQ24 MOD START
-            } else {
-                // MARQ24: make sure that steps will always get a very slow speed...
-                speed = PUSHING_SECTION_SPEED / 2;
-            }
+        if (speed <= PUSHING_SECTION_SPEED && way.hasTag(KEY_SEGREGATED, "yes")) {
+            // MARQ24 if we are still on pushing section speed, then we at least double the speed in the case
+            // that the way is 'segregated'.
+            speed = PUSHING_SECTION_SPEED * 2;
         }
-        // MARQ24 MOD END
 
         return speed;
+    }
+
+    private int getSurfaceAndTrackTypeSpeed(ReaderWay way, SpeedValue highwaySpeed, int speed) {
+        String s = way.getTag("surface");
+
+        SpeedValue otherSpeed = null;
+        if (!Helper.isEmpty(s)) {
+            otherSpeed = surfaceSpeeds.get(s);
+        } else {
+            String tt = way.getTag("tracktype");
+            if (!Helper.isEmpty(tt)) {
+                otherSpeed = trackTypeSpeeds.get(tt);
+            }
+        }
+
+        if (otherSpeed == null) {
+            return speed;
+        }
+
+        // if no specific highway speed is set we will use the surface or tracktype speed
+        if (highwaySpeed == null) {
+            return otherSpeed.speed;
+        } else {
+            return calcHighwaySpeedBasedOnSurface(highwaySpeed, otherSpeed);
+        }
     }
 
     /*
@@ -764,9 +757,11 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     boolean isPushingSection(ReaderWay way) {
-        // MARQ24 MOD START
-        return way.hasTag(KEY_HIGHWAY, pushingSectionsHighways) || way.hasTag(KEY_RAILWAY, "platform") || way.hasTag(KEY_BICYCLE, "dismount") || way.hasTag(KEY_ROUTE, ferries); // Runge
-        // MARQ24 MOD END
+        String highway = way.getTag("highway");
+        String trackType = way.getTag("tracktype");
+        return (way.hasTag(KEY_HIGHWAY, pushingSectionsHighways) || way.hasTag(KEY_RAILWAY, "platform") || way.hasTag(KEY_BICYCLE, "dismount"))
+                || "track".equals(highway) && trackType != null
+                && !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType));
     }
 
     protected void handleSpeed(IntsRef edgeFlags, ReaderWay way, double speed) {
