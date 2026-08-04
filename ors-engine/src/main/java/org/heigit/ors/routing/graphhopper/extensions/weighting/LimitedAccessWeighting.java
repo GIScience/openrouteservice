@@ -36,8 +36,8 @@ public class LimitedAccessWeighting extends AbstractAdjustedWeighting {
     public static final double VEHICLE_PRIVATE_FACTOR = 10;
     public static final double DEFAULT_CUSTOMERS_FACTOR = 1.2;
     public static final double VEHICLE_CUSTOMERS_FACTOR = 1.5;
-    public static final double DEFAULT_SERVICES_FACTOR = 1.2;
-    public static final double VEHICLE_SERVICES_FACTOR = 1.5;
+    public static final double DEFAULT_SERVICE_FACTOR = 1;
+    public static final double VEHICLE_SERVICE_FACTOR = 1.2;
 
     private final EnumEncodedValue<RoadAccess> roadAccessEnc;
     private final EnumEncodedValue<RoadClass> roadClassEnc;
@@ -60,7 +60,7 @@ public class LimitedAccessWeighting extends AbstractAdjustedWeighting {
         destinationPenalty = getFactorValue(encoder, map, "road_access_destination_factor", DEFAULT_DESTINATION_FACTOR, VEHICLE_DESTINATION_FACTOR);
         privatePenalty = getFactorValue(encoder, map, "road_access_private_factor", DEFAULT_PRIVATE_FACTOR, VEHICLE_PRIVATE_FACTOR);
         customersPenalty = getFactorValue(encoder, map, "road_access_customers_factor", DEFAULT_CUSTOMERS_FACTOR, VEHICLE_CUSTOMERS_FACTOR);
-        servicePenalty = getFactorValue(encoder, map, "highway_service_factor", DEFAULT_SERVICES_FACTOR, VEHICLE_SERVICES_FACTOR);
+        servicePenalty = getFactorValue(encoder, map, "highway_service_factor", DEFAULT_SERVICE_FACTOR, VEHICLE_SERVICE_FACTOR);
 
         roadAccessEnc = destinationPenalty > 1 || privatePenalty > 1 || customersPenalty > 1 ? encoder.getEnumEncodedValue(RoadAccess.KEY, RoadAccess.class) : null;
         roadClassEnc = servicePenalty > 1 ? encoder.getEnumEncodedValue(RoadClass.KEY, RoadClass.class) : null;
