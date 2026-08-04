@@ -58,6 +58,7 @@ Releasing is documented in RELEASE.md
 - correct speed assignment for HGVs and disable acceleration heuristic on motorways/-roads ([#2329](https://github.com/GIScience/openrouteservice/pull/2329))
 - pass branch through to the reusable Docker build workflow so CI actually builds the triggering commit instead of always `main` ([#2340](https://github.com/GIScience/openrouteservice/pull/2340))
 - declare the JAXB and javax.xml.bind dependencies explicitly ([#2388](https://github.com/GIScience/openrouteservice/pull/2388))
+- fix cycling-electric slower than cycling-regular ([#2328](https://github.com/GIScience/openrouteservice/pull/2328))
 
 ### Security
 - assess the two currently unfixable glibc findings of the slim image's distroless base in `openvex.json`: [CVE-2019-1010022](https://www.cve.org/CVERecord?id=CVE-2019-1010022) (disputed upstream, `unimportant` in Debian) and [CVE-2026-5450](https://www.cve.org/CVERecord?id=CVE-2026-5450) (`%mc` scanf overflow, not called from the image, `no-dsa` for Debian 13). Both are non fixed libc6 to update to, so they are documented as `not_affected`.
