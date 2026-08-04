@@ -36,6 +36,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- fix cycling-electric slower than cycling-regular ([#2328](https://github.com/GIScience/openrouteservice/pull/2328))
 
 ### Security
 - update postcss to 8.5.25
