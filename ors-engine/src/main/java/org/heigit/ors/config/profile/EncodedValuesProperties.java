@@ -31,6 +31,8 @@ public class EncodedValuesProperties {
     private Boolean wayType;
     @JsonProperty(RoadEnvironment.KEY)
     private Boolean roadEnvironment;
+    @JsonProperty(RoadClass.KEY)
+    private Boolean roadClass;
     @JsonProperty(AgriculturalAccess.KEY)
     private Boolean agriculturalAccess;
     @JsonProperty(BusAccess.KEY)
@@ -85,6 +87,7 @@ public class EncodedValuesProperties {
         properties.put(WaySurface.KEY, waySurface);
         properties.put(WayType.KEY, wayType);
         properties.put(RoadEnvironment.KEY, roadEnvironment);
+        properties.put(RoadClass.KEY, roadClass);
         properties.put(AgriculturalAccess.KEY, agriculturalAccess);
         properties.put(BusAccess.KEY, busAccess);
         properties.put(DeliveryAccess.KEY, deliveryAccess);
@@ -127,6 +130,7 @@ public class EncodedValuesProperties {
         waySurface = ofNullable(this.waySurface).orElse(other.waySurface);
         wayType = ofNullable(this.wayType).orElse(other.wayType);
         roadEnvironment = ofNullable(this.roadEnvironment).orElse(other.roadEnvironment);
+        roadClass = ofNullable(this.roadClass).orElse(other.roadClass);
         agriculturalAccess = ofNullable(this.agriculturalAccess).orElse(other.agriculturalAccess);
         busAccess = ofNullable(this.busAccess).orElse(other.busAccess);
         deliveryAccess = ofNullable(this.deliveryAccess).orElse(other.deliveryAccess);

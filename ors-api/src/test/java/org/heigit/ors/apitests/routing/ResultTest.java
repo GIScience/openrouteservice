@@ -4792,6 +4792,49 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testServiceWayPenalty() {
+        // Route without service ways should be preferred even though being slightly longer.
+        JSONArray coord1 = new JSONArray().put(8.679073).put(49.415723);
+        JSONArray coord2 = new JSONArray().put(8.677970).put(49.415520);
+        JSONArray coordinates = new JSONArray().put(coord1).put(coord2);
+
+        JSONObject body = new JSONObject()
+                .put("coordinates", coordinates)
+                .put("preference", "shortest");
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(97.2, 1)))
+                .statusCode(200);
+
+        // Service ways should still be used when absolutely necessary.
+        JSONArray coordVia = new JSONArray().put(8.6784911).put(49.4155591);
+        coordinates = new JSONArray().put(coord1).put(coordVia).put(coord2);
+        body.put("coordinates", coordinates);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(95.0, 1)))
+                .statusCode(200);
+    }
+
+    @Test
     void testSidewalkSurface() {
         JSONObject body = new JSONObject()
                 .put("coordinates", HelperFunctions.constructCoords("8.69840,49.408406|8.69816,49.408937"))
