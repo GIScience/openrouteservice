@@ -162,7 +162,9 @@ public class MountainBikeFlagEncoder extends CommonBikeFlagEncoder {
 
     @Override
     boolean isPushingSection(ReaderWay way) {
-        return way.hasTag(KEY_HIGHWAY, pushingSectionsHighways) || way.hasTag(KEY_RAILWAY, "platform") || way.hasTag(KEY_BICYCLE, "dismount");
+        return way.hasTag(KEY_HIGHWAY, pushingSectionsHighways)
+                || way.hasTag(KEY_RAILWAY, "platform")
+                || way.hasTag(KEY_BICYCLE, "dismount");
     }
 
     @Override
