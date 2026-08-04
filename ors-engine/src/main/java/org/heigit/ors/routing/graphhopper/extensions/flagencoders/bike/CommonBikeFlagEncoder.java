@@ -757,11 +757,17 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     boolean isPushingSection(ReaderWay way) {
-        String highway = way.getTag("highway");
+        String highway = way.getTag(KEY_HIGHWAY);
         String trackType = way.getTag("tracktype");
-        return (way.hasTag(KEY_HIGHWAY, pushingSectionsHighways) || way.hasTag(KEY_RAILWAY, "platform") || way.hasTag(KEY_BICYCLE, "dismount"))
-                || "track".equals(highway) && trackType != null
-                && !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType));
+        return (
+                way.hasTag(KEY_HIGHWAY, pushingSectionsHighways)
+                        || way.hasTag(KEY_RAILWAY, "platform")
+                        || way.hasTag(KEY_BICYCLE, "dismount")
+        ) || (
+                KEY_TRACK.equals(highway)
+                        && trackType != null
+                        && !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType))
+        );
     }
 
     protected void handleSpeed(IntsRef edgeFlags, ReaderWay way, double speed) {
