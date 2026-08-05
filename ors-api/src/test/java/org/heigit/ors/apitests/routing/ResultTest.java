@@ -1499,7 +1499,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(closeTo(1996.2, 1)))
+                .body("routes[0].summary.duration", is(closeTo(1964.4, 1)))
                 .statusCode(200);
     }
 
@@ -4432,7 +4432,7 @@ class ResultTest extends ServiceTest {
 
         JSONObject customModel = new JSONObject();
         customModel.put("priority", new JSONArray());
-        customModel.put("distance_influence", 150);
+        customModel.put("distance_influence", 160);
         body.put("custom_model", customModel);
 
         given()

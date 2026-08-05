@@ -225,7 +225,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             if (way.hasTag(KEY_ESTIMATED_DISTANCE)) {
                 if (way.hasTag(KEY_HIGHWAY, KEY_RESIDENTIAL)) {
                     speed = addResedentialPenalty(speed, way);
-                } else if (this.useAcceleration) {
+                } else if (this.useAcceleration && !way.hasTag(KEY_HIGHWAY, "motorway")) {
                     double estDist = way.getTag(KEY_ESTIMATED_DISTANCE, Double.MAX_VALUE);
                     speed = adjustSpeedForAcceleration(estDist, speed);
                 }
