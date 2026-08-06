@@ -30,14 +30,14 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
-- penalize routing through service ways ([#2313](https://github.com/GIScience/openrouteservice/pull/2313))
-- disable acceleration heuristic on motorways ([#2329](https://github.com/GIScience/openrouteservice/pull/2329))
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+- penalize routing through service ways ([#2313](https://github.com/GIScience/openrouteservice/pull/2313))
+- correct speed assignment for HGVs and disable acceleration heuristic on motorways/-roads ([#2329](https://github.com/GIScience/openrouteservice/pull/2329))
 
 ### Security
 - update postcss to 8.5.25
