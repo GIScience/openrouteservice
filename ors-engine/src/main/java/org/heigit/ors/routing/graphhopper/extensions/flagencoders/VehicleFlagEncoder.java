@@ -48,6 +48,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     private static final double ACCELERATION_SPEED_CUTOFF_MAX = 80.0;
     private static final double ACCELERATION_SPEED_CUTOFF_MIN = 20.0;
     public static final int AVERAGE_SECS_TO_100_KMPH = 10;
+    public static final double MAX_SPEED_FACTOR = 0.9;
     protected SpeedLimitHandler speedLimitHandler;
 
     private double accelerationModifier = 0.0;
@@ -371,7 +372,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     @Override
     protected double applyMaxSpeed(ReaderWay way, double speed) {
         double maxSpeed = this.getMaxSpeed(way);
-        return isValidSpeed(maxSpeed) ? maxSpeed * 0.9D : speed;
+        return isValidSpeed(maxSpeed) ? maxSpeed * MAX_SPEED_FACTOR : speed;
     }
 
     /**

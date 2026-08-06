@@ -136,11 +136,11 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         if (!isValidSpeed(maxSpeed)) {
             maxSpeed = super.getMaxSpeed(way);
             if (isValidSpeed(maxSpeed)) {
-                String highway = way.getTag(KEY_HIGHWAY);
+                String highway = getHighway(way);
                 if (!Helper.isEmpty(highway)) {
                     double defaultSpeed = speedLimitHandler.getSpeed(highway);
                     if (defaultSpeed < maxSpeed)
-                        maxSpeed = defaultSpeed;
+                        maxSpeed = Double.NaN;
                 }
             }
         }
@@ -245,7 +245,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         if (way.hasTag("hgv", VAL_DESIGNATED) || (way.hasTag("access", VAL_DESIGNATED) && (way.hasTag(VAL_GOODS, "yes") || way.hasTag("hgv", "yes") || way.hasTag("bus", "yes") || way.hasTag(VAL_AGRICULTURAL, "yes") || way.hasTag(VAL_FORESTRY, "yes"))))
             weightToPrioMap.put(100d, PriorityCode.BEST.getValue());
         else {
-            String highway = way.getTag(KEY_HIGHWAY);
+            String highway = getHighway(way);
             double maxSpeed = getMaxSpeed(way);
 
             if (!Helper.isEmpty(highway)) {
