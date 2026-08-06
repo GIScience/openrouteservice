@@ -1461,11 +1461,10 @@ class ResultTest extends ServiceTest {
     @Test
     void testMaximumSpeed() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", HelperFunctions.constructCoords("8.63348,49.41766|8.6441,49.4672"));
+        body.put("coordinates", getParameter("coordinatesCustom2"));
         body.put("preference", getParameter("preference"));
-        body.put("maximum_speed", 85);
 
-        //Test against default maximum speed lower bound setting
+        // Reference for driving-car
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
@@ -1476,12 +1475,10 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(closeTo(1682.6, 1)))
+                .body("routes[0].summary.duration", is(closeTo(524.4, 1)))
                 .statusCode(200);
 
-        //Test profile-specific maximum speed lower bound
-        body.put("maximum_speed", 75);
-
+        // Reference for driving-hgv
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
@@ -1492,7 +1489,37 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(closeTo(1966.0, 1)))
+                .body("routes[0].summary.duration", is(closeTo(667.5, 1)))
+                .statusCode(200);
+
+        // Test against default maximum speed lower bound setting
+        body.put("maximum_speed", 85);
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-car")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.duration", is(closeTo(540.4, 1)))
+                .statusCode(200);
+
+        // Test profile-specific maximum speed lower bound of 75 km/h for driving-hgv profile
+        body.put("maximum_speed", 75);
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.duration", is(closeTo(691.9, 1)))
                 .statusCode(200);
     }
 
