@@ -149,11 +149,6 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     }
 
     @Override
-    protected String getHighway(ReaderWay way) {
-        return way.getTag(KEY_HIGHWAY);
-    }
-
-    @Override
     public EncodingManager.Access getAccess(ReaderWay way) {
         String highwayValue = way.getTag(KEY_HIGHWAY);
         String[] restrictionValues = way.getFirstPriorityTagValues(restrictions);
@@ -257,6 +252,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
                 switch (highway) {
                     case "motorway":
                     case "motorway_link":
+                    case "motorroad":
                     case "trunk":
                     case "trunk_link":
                         weightToPrioMap.put(100d, PriorityCode.BEST.getValue());

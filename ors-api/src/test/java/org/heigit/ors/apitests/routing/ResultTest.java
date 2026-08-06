@@ -175,13 +175,6 @@ class ResultTest extends ServiceTest {
         coordinatesCustom3.put(coordinateCustom6);
         addParameter("coordinatesCustom3", coordinatesCustom3);
 
-//        8.6947238445282, 49.41176896906394
-//        8.7036609649658, 49.41281775942496
-
-        // 8.687862753868105, 49.41309522267728
-        // 8.691891431808473, 49.41331858818114
-
-
         JSONArray unreachableCoords = new JSONArray();
         JSONArray unreachableCoord1 = new JSONArray();
         unreachableCoord1.put(6.929281);
@@ -1483,7 +1476,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(closeTo(1710.7, 1)))
+                .body("routes[0].summary.duration", is(closeTo(1682.6, 1)))
                 .statusCode(200);
 
         //Test profile-specific maximum speed lower bound
@@ -1499,7 +1492,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(closeTo(1964.4, 1)))
+                .body("routes[0].summary.duration", is(closeTo(2004.7, 1)))
                 .statusCode(200);
     }
 
@@ -4432,7 +4425,7 @@ class ResultTest extends ServiceTest {
 
         JSONObject customModel = new JSONObject();
         customModel.put("priority", new JSONArray());
-        customModel.put("distance_influence", 160);
+        customModel.put("distance_influence", 175);
         body.put("custom_model", customModel);
 
         given()
@@ -4478,7 +4471,7 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(9746, 50f)))
-                .body("routes[0].summary.duration", is(closeTo(702f, 5f)))
+                .body("routes[0].summary.duration", is(closeTo(670.5, 5f)))
                 .statusCode(200);
     }
 
