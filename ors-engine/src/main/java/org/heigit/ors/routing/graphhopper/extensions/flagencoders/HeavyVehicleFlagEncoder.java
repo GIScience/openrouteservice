@@ -255,7 +255,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
                     case "motorroad":
                     case "trunk":
                     case "trunk_link":
-                        weightToPrioMap.put(100d, PriorityCode.BEST.getValue());
+                        weightToPrioMap.put(100d, PriorityCode.VERY_NICE.getValue());
                         break;
                     case "primary":
                     case "primary_link":
@@ -278,10 +278,10 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
                         }
                         break;
                     case "living_street":
-                        weightToPrioMap.put(100d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                        weightToPrioMap.put(100d, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
                         break;
                     case VAL_TRACK:
-                        weightToPrioMap.put(100d, PriorityCode.REACH_DEST.getValue());
+                        weightToPrioMap.put(100d, PriorityCode.WORST.getValue());
                         break;
                     default:
                         weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
