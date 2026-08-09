@@ -24,10 +24,7 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNam
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.PedestrianFlagEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.List;
 
@@ -36,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MultiLabelDijkstraAlgorithmTest {
     private static final double EPSILON = 1e-6;
 
@@ -58,7 +54,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(1)
     @DisplayName("1. A bench stored as zero at an edge base node resets fatigue")
     void baseNodeRestStoredAsZeroMustResetFatigue() {
         GraphHopperStorage graph = createGraph();
@@ -77,7 +72,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(2)
     @DisplayName("2. Penalty zero reproduces ordinary shortest routing")
     void penaltyZeroUsesOrdinaryShortestRoute() {
         Path path = createAlgorithm(
@@ -91,7 +85,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(3)
     @DisplayName("3. A low penalty keeps the shorter route")
     void lowPenaltyKeepsShorterRoute() {
         Path path = createAlgorithm(
@@ -104,7 +97,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(4)
     @DisplayName("4. A high penalty selects the longer rested route")
     void highPenaltyChoosesLongerRouteWithRestPoint() {
         Path path = createAlgorithm(
@@ -117,7 +109,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(5)
     @DisplayName("5. Without rest points, the shortest route remains optimal")
     void noRestPointsKeepsShortestRouteEvenWithHighPenalty() {
         Path path = createAlgorithm(
@@ -130,7 +121,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(6)
     @DisplayName("6. Rest points on every edge reduce routing to shortest distance")
     void restPointOnEveryEdgeReducesChoiceToShortestDistance() {
         Path path = createAlgorithm(
@@ -143,7 +133,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(7)
     @DisplayName("7. Excess distance is charged incrementally")
     void chargesOnlyNewlyAccumulatedExcessOnEachEdge() {
         GraphHopperStorage graph = createGraph();
@@ -157,7 +146,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(8)
     @DisplayName("8. The stored quarter-edge position controls fatigue and weight")
     void storedQuarterPositionControlsWeightAndSinceRest() {
         GraphHopperStorage graph = createGraph();
@@ -173,7 +161,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(9)
     @DisplayName("9. Incomparable labels survive until the better continuation is known")
     void keepsIncomparableLabelsAndChoosesBetterContinuation() {
         GraphHopperStorage graph = createGraph();
@@ -199,7 +186,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(10)
     @DisplayName("10. An equal candidate does not remove the surviving label")
     void equalCandidateDoesNotRemoveExistingLabel() {
         GraphHopperStorage graph = createGraph();
@@ -216,7 +202,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(11)
     @DisplayName("11. Inactive queue labels are skipped")
     void skipsInactiveLabelsWhenTheyAreOnlyQueueEntries() {
         GraphHopperStorage graph = createGraph();
@@ -235,7 +220,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(12)
     @DisplayName("12. An unreachable destination returns an empty path")
     void unreachableDestinationReturnsEmptyPath() {
         GraphHopperStorage graph = createGraph();
@@ -247,7 +231,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(13)
     @DisplayName("13. Reverse routing mirrors the stored bench position")
     void reverseRoutingMirrorsStoredBenchPosition() {
         GraphHopperStorage graph = createGraph();
@@ -262,7 +245,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(14)
     @DisplayName("14. Routing to an interior point preserves a bench on the first segment")
     void routeToInteriorPointUsesBenchOnFirstVirtualSegment() {
         GraphHopperStorage graph = createGraph();
@@ -285,7 +267,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(15)
     @DisplayName("15. A virtual segment without the bench does not reset fatigue")
     void virtualSegmentWithoutBenchDoesNotResetFatigue() {
         GraphHopperStorage graph = createGraph();
@@ -306,7 +287,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(16)
     @DisplayName("16. A bench on the second virtual segment keeps its physical position")
     void secondVirtualSegmentPreservesBenchPosition() {
         GraphHopperStorage graph = createGraph();
@@ -327,7 +307,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(17)
     @DisplayName("17. Splitting an edge without rests leaves route cost unchanged")
     void edgeSplittingWithoutRestsIsInvariant() {
         GraphHopperStorage unsplit = createGraph();
@@ -350,7 +329,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(18)
     @DisplayName("18. The fatigue penalty starts only after the exact threshold")
     void thresholdBoundaryBelowEqualAndAbove() {
         assertSingleEdgeWeight(99, 100, 2, 99);
@@ -359,7 +337,6 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
-    @Order(19)
     @DisplayName("19. Rest positions retain sentinel, endpoint, and encoded precision")
     void restPositionEncodingContract() {
         GraphHopperStorage graph = createGraph();

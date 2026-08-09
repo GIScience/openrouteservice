@@ -63,6 +63,7 @@ public class RequestProfileParams {
     @JsonIgnore
     private boolean hasAllowUnsuitable = false;
 
+    @Schema(name = PARAM_REST_THRESHOLD, hidden = true)
     @JsonProperty(PARAM_REST_THRESHOLD)
     private Integer restThreshold;
     @JsonIgnore
