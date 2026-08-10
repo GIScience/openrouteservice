@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- new optional parameter `ors.engine.preparation_type` (`FOLDER`/`ARCHIVE`) controlling whether `preparation_mode` leaves built graphs extracted or packs them into `.ghz` archives ([#2316](https://github.com/GIScience/openrouteservice/issues/2316))
 
 ### Changed
 
@@ -36,6 +37,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- `preparation_mode` no longer packs graphs and deletes the extracted graph folders by default, restoring the pre-9.6.0 behaviour needed for baking graphs into Docker images ([#2316](https://github.com/GIScience/openrouteservice/issues/2316))
 
 ### Security
 - update postcss to 8.5.25

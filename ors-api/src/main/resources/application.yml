@@ -117,6 +117,7 @@ ors:
   engine:
     init_threads: 1
     preparation_mode: false
+    preparation_type: FOLDER
     graphs_data_access: RAM_STORE
     graph_management:
       enabled: false

@@ -1,6 +1,7 @@
 package org.heigit.ors.config;
 
 import org.heigit.ors.common.EncoderNameEnum;
+import org.heigit.ors.common.PreparationType;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,6 +68,13 @@ class EnginePropertiesTest {
         carCustom2Profile.setEnabled(false);
         carCustom2Profile.setEncoderName(EncoderNameEnum.DRIVING_CAR);
         enginePropertiesTest.getProfiles().put("car-custom2", carCustom2Profile);
+    }
+
+    @Test
+    void testPreparationDefaults() {
+        EngineProperties defaults = new EngineProperties();
+        assertEquals(Boolean.FALSE, defaults.getPreparationMode());
+        assertEquals(PreparationType.FOLDER, defaults.getPreparationType());
     }
 
     @Test

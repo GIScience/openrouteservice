@@ -20,6 +20,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
 import lombok.Getter;
 import org.apache.log4j.Logger;
+import org.heigit.ors.common.PreparationType;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
@@ -161,7 +162,9 @@ public class RoutingProfile {
                 Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
         }
 
-        if (Boolean.TRUE.equals(engineProperties.getPreparationMode()) && !prepareGeneratedGraphForUpload(profileProperties, AppInfo.GRAPH_VERSION)) {
+        if (Boolean.TRUE.equals(engineProperties.getPreparationMode())
+                && engineProperties.getPreparationType() == PreparationType.ARCHIVE
+                && !prepareGeneratedGraphForUpload(profileProperties, AppInfo.GRAPH_VERSION)) {
             throw new IOException("Failed to prepare generated graph for upload for profile '%s'.".formatted(profileName));
         }
 
@@ -170,6 +173,8 @@ public class RoutingProfile {
 
     /**
      * Prepares the generated graph for upload when running in preparation mode.
+     * Only invoked when {@code preparation_type} is set to {@code ARCHIVE};
+     * with the default {@code FOLDER} the built graph is left extracted in place.
      *
      * <p>This is a static helper method which expects a fully-initialized {@link ProfileProperties}
      * instance and prepares the graph files located under {@code profileProperties.getGraphPath()/profileProperties.getProfileName()}.
