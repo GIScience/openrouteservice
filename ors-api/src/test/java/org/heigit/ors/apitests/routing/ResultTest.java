@@ -1155,6 +1155,39 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testDifferentRoutesForRegularAndElectricBikeProfiles() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", HelperFunctions.constructCoords("8.763442,49.388882|8.762927,49.397541"));
+        body.put("preference", getParameter("preference"));
+
+        given()
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "cycling-regular")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(1256.3f))
+                .body("routes[0].summary.duration", is(352.7f))
+                .statusCode(200);
+
+        given()
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "cycling-electric")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(1038.2f))
+                .body("routes[0].summary.duration", is(251.7f))
+                .statusCode(200);
+    }
+
+    @Test
     void testTrailDifficultyExtraDetails() { // route geometry needs to be checked, might be edge simplification issue
         JSONObject body = new JSONObject();
         body.put("coordinates", HelperFunctions.constructCoords("8.763442,49.388882|8.762927,49.397541"));
