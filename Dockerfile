@@ -1,4 +1,4 @@
-FROM docker.io/maven:3.9.11-amazoncorretto-21-alpine AS build
+FROM docker.io/maven:3.9.16-amazoncorretto-21-alpine AS build
 # ============================================================================
 # Build stage for Java-based ORS application
 # This stage is responsible for compiling and packaging the Java-based OpenRouteService (ORS) application.
@@ -32,15 +32,15 @@ COPY ors-engine /tmp/ors/ors-engine
 RUN ./mvnw -pl 'ors-api,ors-engine' \
     -q clean package -DskipTests -Dmaven.test.skip=true
 
-FROM docker.io/golang:1.25.4-alpine3.22 AS build-go
+FROM docker.io/golang:1.26.5-alpine3.24 AS build-go
 # ============================================================================
 # Build stage for Go-based tools
 # This stage is dedicated to building Go-based tools required in later stages.
 # ============================================================================
 
-RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.48.1
+RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.53.3
 
-FROM docker.io/amazoncorretto:21.0.9-alpine3.22 AS base
+FROM docker.io/amazoncorretto:21.0.12-alpine3.24 AS base
 # ============================================================================
 # Base image stage: common setup for all runtime stages
 # This stage sets up the foundational environment for running the OpenRouteService (ORS) application.
