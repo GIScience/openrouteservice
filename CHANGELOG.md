@@ -30,6 +30,7 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
+- replace Grype with Trivy for CI vulnerability scanning ([#2335](https://github.com/GIScience/openrouteservice/pull/2335))
 
 ### Deprecated
 
