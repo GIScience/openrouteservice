@@ -44,10 +44,11 @@ jobs:
     with:
       image_stage: publish
       docker_tag: local/openrouteservice:test
+      branch: ${{ github.event.pull_request.head.sha || github.sha }}
       build_amd64: true
       build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
       upload_image_as_artifact: true
-  
+
   build_slim_images:
     name: Build Docker images for both platforms - slim
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -55,6 +56,7 @@ jobs:
     with:
       image_stage: slim
       docker_tag: local/openrouteservice:test-slim
+      branch: ${{ github.event.pull_request.head.sha || github.sha }}
       build_amd64: true
       build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
       upload_image_as_artifact: true
