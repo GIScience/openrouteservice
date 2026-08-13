@@ -47,6 +47,7 @@ Releasing is documented in RELEASE.md
 - update dompurify to 3.4.13
 - update base docker images [#2336](https://github.com/GIScience/openrouteservice/pull/2336))
 - update yq to 4.53.3 [#2336](https://github.com/GIScience/openrouteservice/pull/2336))
+- update postgresql to 42.7.12 and jline to 4.2.1, add aircompressor dependency to fix [CVE-2025-67721](https://www.cve.org/CVERecord?id=CVE-2025-67721), [CVE-2026-56740](https://www.cve.org/CVERecord?id=CVE-2026-56740), [CVE-2026-56741](https://www.cve.org/CVERecord?id=CVE-2026-56741) and [CVE-2026-54291](https://www.cve.org/CVERecord?id=CVE-2026-54291) ([#2339](https://github.com/GIScience/openrouteservice/pull/2339))
 
 
 ## [9.10.0] - 2026-07-28
