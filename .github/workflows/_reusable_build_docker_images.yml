@@ -40,6 +40,14 @@ on:
         description: Path to the Dockerfile to use
         type: string
         default: 'Dockerfile'
+      repository:
+        description: GitHub repository to check out (owner/repo)
+        type: string
+        default: 'GIScience/openrouteservice'
+      branch:
+        description: Branch, tag, or SHA to check out
+        type: string
+        default: 'main'
     secrets:
       registry_username:
         description: Docker registry username (optional, for authentication)
