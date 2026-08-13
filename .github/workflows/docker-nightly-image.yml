@@ -83,6 +83,8 @@ jobs:
       push_by_digest: true
       docker_login: true
       docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
+      repository: ${{ inputs.repository }}
+      branch: ${{ inputs.branch }}
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
@@ -101,6 +103,8 @@ jobs:
       push_by_digest: true
       docker_login: true
       docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
+      repository: ${{ inputs.repository }}
+      branch: ${{ inputs.branch }}
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
