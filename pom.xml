@@ -63,10 +63,11 @@
         <typesafe-config.version>1.4.1</typesafe-config.version>
         <jts.version>1.20.0</jts.version>
         <org-json.version>20240303</org-json.version>
-        <postgresql.version>42.7.11</postgresql.version>
+        <postgresql.version>42.7.12</postgresql.version>
         <progressbar.version>0.10.0</progressbar.version>
         <guava.version>33.2.1-jre</guava.version>
-        <jline.version>3.26.3</jline.version>
+        <airlift.version>2.0.3</airlift.version>
+        <jline.version>4.2.1</jline.version>
         <jqwik.version>1.9.0</jqwik.version>
         <json-simple.version>1.1.1</json-simple.version>
         <hamcrest.version>2.2</hamcrest.version>
@@ -314,6 +315,12 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.airlift</groupId>
+                <artifactId>aircompressor</artifactId>
+                <version>${airlift.version}</version>
             </dependency>
 
             <dependency>
