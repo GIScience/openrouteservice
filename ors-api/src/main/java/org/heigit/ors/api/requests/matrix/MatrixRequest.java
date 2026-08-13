@@ -77,13 +77,13 @@ public class MatrixRequest extends APIRequest {
     @JsonIgnore
     private boolean hasMetrics = false;
 
-        @Schema(name = PARAM_PREFERENCE,
+    @Schema(name = PARAM_PREFERENCE,
             description = "Specifies the route preference used to compute matrix costs.",
             defaultValue = "recommended")
-        @JsonProperty(value = PARAM_PREFERENCE)
-        private APIEnums.RoutePreference routePreference;
-        @JsonIgnore
-        private boolean hasRoutePreference = false;
+    @JsonProperty(value = PARAM_PREFERENCE)
+    private APIEnums.RoutePreference routePreference;
+    @JsonIgnore
+    private boolean hasRoutePreference = false;
 
     @Schema(name = PARAM_RESOLVE_LOCATIONS, description = """
             Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in \
