@@ -44,6 +44,8 @@ Releasing is documented in RELEASE.md
 - update postcss to 8.5.25
 - update mermaid to 11.16.1 due to [CVE-2026-71437](https://www.cve.org/CVERecord?id=CVE-2026-71437), [CVE-2026-71438](https://www.cve.org/CVERecord?id=CVE-2026-71438), [CVE-2026-50159](https://www.cve.org/CVERecord?id=CVE-2026-50159), [CVE-2026-71436](https://www.cve.org/CVERecord?id=CVE-2026-71436) and [CVE-2026-71439](https://www.cve.org/CVERecord?id=CVE-2026-71439)
 - update dompurify to 3.4.13
+- update base docker images [#2336](https://github.com/GIScience/openrouteservice/pull/2336))
+- update yq to 4.53.3 [#2336](https://github.com/GIScience/openrouteservice/pull/2336))
 
 
 ## [9.10.0] - 2026-07-28
