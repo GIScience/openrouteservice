@@ -6,10 +6,6 @@ on:
     - cron: '15 1 * * *'
   workflow_dispatch:
     inputs:
-      repository:
-        description: 'GitHub repository to create image off.'
-        required: true
-        default: 'GIScience/openrouteservice'
       branch:
         description: 'GitHub branch to create image off.'
         required: true
@@ -41,7 +37,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
           ref: ${{ inputs.branch || 'main' }}
 
       - name: Check for new commits since 24 h ago
@@ -83,7 +78,6 @@ jobs:
       push_by_digest: true
       docker_login: true
       docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
-      repository: ${{ inputs.repository }}
       branch: ${{ inputs.branch }}
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
@@ -103,7 +97,6 @@ jobs:
       push_by_digest: true
       docker_login: true
       docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
-      repository: ${{ inputs.repository }}
       branch: ${{ inputs.branch }}
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
@@ -134,7 +127,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
           ref: ${{ inputs.branch || 'main' }}
       - name: Set up build environment
         uses: ./.github/actions/setup-build-environment

@@ -40,10 +40,6 @@ on:
         description: Path to the Dockerfile to use
         type: string
         default: 'Dockerfile'
-      repository:
-        description: GitHub repository to check out (owner/repo)
-        type: string
-        default: 'GIScience/openrouteservice'
       branch:
         description: Branch, tag, or SHA to check out
         type: string
@@ -112,8 +108,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with: # make sure we check out the configured repo and branch on manual trigger
-          repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
+        with: # make sure we check out the configured branch on manual trigger
           ref: ${{ inputs.branch || 'main' }}
 
       - name: Set up build environment
