@@ -46,9 +46,11 @@ Releasing is documented in RELEASE.md
 - update postcss to 8.5.25
 - update mermaid to 11.16.1 due to [CVE-2026-71437](https://www.cve.org/CVERecord?id=CVE-2026-71437), [CVE-2026-71438](https://www.cve.org/CVERecord?id=CVE-2026-71438), [CVE-2026-50159](https://www.cve.org/CVERecord?id=CVE-2026-50159), [CVE-2026-71436](https://www.cve.org/CVERecord?id=CVE-2026-71436) and [CVE-2026-71439](https://www.cve.org/CVERecord?id=CVE-2026-71439)
 - update dompurify to 3.4.13
-- update base docker images [#2336](https://github.com/GIScience/openrouteservice/pull/2336))
-- update yq to 4.53.3 [#2336](https://github.com/GIScience/openrouteservice/pull/2336))
+- update base docker images ([#2336](https://github.com/GIScience/openrouteservice/pull/2336))
+- update yq to 4.53.3 ([#2336](https://github.com/GIScience/openrouteservice/pull/2336))
 - update postgresql to 42.7.12 and jline to 4.2.1, add aircompressor dependency to fix [CVE-2025-67721](https://www.cve.org/CVERecord?id=CVE-2025-67721), [CVE-2026-56740](https://www.cve.org/CVERecord?id=CVE-2026-56740), [CVE-2026-56741](https://www.cve.org/CVERecord?id=CVE-2026-56741) and [CVE-2026-54291](https://www.cve.org/CVERecord?id=CVE-2026-54291) ([#2339](https://github.com/GIScience/openrouteservice/pull/2339))
+- update log4j to 2.25.5 due to [CVE-2026-49844](https://www.cve.org/CVERecord?id=CVE-2026-49844)
+- update httpclient5 to 5.6.3 due to [CVE-2026-71290](https://www.cve.org/CVERecord?id=CVE-2026-71290) and [CVE-2026-40542](https://www.cve.org/CVERecord?id=CVE-2026-40542)
 
 
 ## [9.10.0] - 2026-07-28
