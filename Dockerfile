@@ -32,14 +32,6 @@ COPY ors-engine /tmp/ors/ors-engine
 RUN ./mvnw -pl 'ors-api,ors-engine' \
     -q clean package -DskipTests -Dmaven.test.skip=true
 
-FROM docker.io/golang:1.26.5-alpine3.24 AS build-go
-# ============================================================================
-# Build stage for Go-based tools
-# This stage is dedicated to building Go-based tools required in later stages.
-# ============================================================================
-
-RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.53.3
-
 FROM docker.io/amazoncorretto:21.0.12-alpine3.24 AS base
 # ============================================================================
 # Base image stage: common setup for all runtime stages
@@ -109,29 +101,27 @@ FROM base AS publish
 
 # Build ARGS
 ARG OSM_FILE=./ors-api/src/test/files/heidelberg.test.pbf
+ARG TARGETARCH
+ARG YQ_VERSION=v4.53.3
 
 # Copy over the needed bits and pieces from the other stages.
 COPY --chown=ors:ors --chmod=755 ./$OSM_FILE /heidelberg.test.pbf
 COPY --chown=ors:ors --chmod=755 ./docker-entrypoint.sh /entrypoint.sh
-COPY --chown=ors:ors --from=build-go /go/bin/yq /bin/yq
 # Copy JAR from build stage with broader permissions
 COPY --chown=ors:ors --chmod=755 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
-
-
-# Setup additional packages for publish stage and allow read access to others
-RUN apk add --no-cache bash=~5 jq=~1 openssl=~3 && \
-    chmod -R o-rwx ${ORS_HOME}
-
 # Copy the example config files to the build folder
 COPY --chown=ors:ors --chmod=755 ./ors-config.yml /example-ors-config.yml
 COPY --chown=ors:ors --chmod=755 ./ors-config.env /example-ors-config.env
 
-# Rewrite the example config to use the right files in the container
-RUN yq -i -p=props -o=props \
+RUN wget -qO /bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETARCH}" && \
+    chmod +x /bin/yq && \
+    apk add --no-cache bash=~5 jq=~1 openssl=~3 && \
+    yq -i -p=props -o=props \
     '.ors.engine.profile_default.build.source_file="/home/ors/files/example-heidelberg.test.pbf"' \
     /example-ors-config.env && \
     yq -i e '.ors.engine.profile_default.build.source_file = "/home/ors/files/example-heidelberg.test.pbf"' \
-    /example-ors-config.yml
+    /example-ors-config.yml && \
+    chmod -R o-rwx ${ORS_HOME}
 
 ENV BUILD_GRAPHS="False"
 ENV REBUILD_GRAPHS="False"
