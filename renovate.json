@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "commitMessagePrefix": "chore(deps):",
+  "dockerfile": {
+    "managerFilePatterns": ["/^Dockerfile$/"]
+  },
+  "enabledManagers": ["dockerfile"],
+  "labels": ["dependencies", "docker"],
+  "pinDigests": true,
+  "prHourlyLimit": 6,
+  "rebaseWhen": "behind-base-branch"
+}
