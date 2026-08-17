@@ -98,7 +98,7 @@ runs:
 
     - name: Login to Docker registry
       if: inputs.with_docker == 'true' && inputs.docker_login == 'true'
-      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef #3.6.0
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
       with:
         username: ${{ inputs.docker_username }}
         password: ${{ inputs.docker_password }}
@@ -106,7 +106,7 @@ runs:
 
     - name: Login to additional Docker registry
       if: inputs.with_docker == 'true' && inputs.docker_login_additional == 'true'
-      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef #3.6.0
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
       with:
         registry: ${{ inputs.docker_additional_registry }}
         username: ${{ inputs.docker_additional_username }}
