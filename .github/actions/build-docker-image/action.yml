@@ -43,6 +43,22 @@ inputs:
     required: false
     type: string
     default: 'type=docker'
+  sbom:
+    description: >-
+      Attach an SBOM attestation to the image. Attestations are only supported by
+      the image/oci exporters, so this is forced off whenever the image is not
+      pushed (the scan path exports type=docker to a tarball).
+    required: false
+    type: string
+    default: 'true'
+  provenance:
+    description: >-
+      Provenance attestation mode ('mode=min', 'mode=max' or 'false'). Same
+      exporter restriction as `sbom`. Defaults to mode=max so the attestation
+      records the full build definition, including the digest-pinned base images.
+    required: false
+    type: string
+    default: 'mode=max'
 
 outputs:
   imageid:
@@ -72,3 +88,5 @@ runs:
         cache-from: type=${{ inputs.cache_from_type }}
         cache-to: type=${{ inputs.cache_to_type }}
         outputs: ${{ inputs.push_image && '' || inputs.output_type }}
+        sbom: ${{ inputs.push_image == 'true' && inputs.sbom == 'true' }}
+        provenance: ${{ inputs.push_image == 'true' && inputs.provenance || 'false' }}
