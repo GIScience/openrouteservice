@@ -34,6 +34,7 @@ Releasing is documented in RELEASE.md
 - replace Grype with Trivy for CI vulnerability scanning ([#2335](https://github.com/GIScience/openrouteservice/pull/2335))
 - fix Trivy CI scans to correctly detect jar/war vulnerabilities and add secret and Dockerfile misconfiguration scanning ([#2337](https://github.com/GIScience/openrouteservice/pull/2337))
 - scan all images arm/amd64 for publish/slim stages but only fail for critical and high on slim ([#2345](https://github.com/GIScience/openrouteservice/pull/2345))
+- pin dockerfile base images by digest ([#2346](https://github.com/GIScience/openrouteservice/pull/2346))
 
 ### Deprecated
 
