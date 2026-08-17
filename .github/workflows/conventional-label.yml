@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Add conventional release labels
-        uses: bcoe/conventional-release-labels@v1
+        uses: bcoe/conventional-release-labels@886f696738527c7be444262c327c89436dfb95a8 # v1
         with:
           type_labels: '{"feat": "feature", "fix": "fix", "docs": "documentation", "style": "style", "refactor": "refactor", "test": "test", "build": "build", "perf": "performance", "ci": "ci", "chore": "chore", "revert": "revert", "merge": "merge", "wip": "wip"}'
           ignored_types: '["chore"]'
