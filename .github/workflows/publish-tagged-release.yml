@@ -161,7 +161,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Create or update latest tag
-        uses: EndBug/latest-tag@7589411ebda7bc8f98deb2dbc37e3dc45828f7d0 # v1.6.2
+        uses: EndBug/latest-tag@8fcae8848c1e23fd8212258f69a9619bc62cad67 # v1.6.3
         with:
           ref: latest
           description: Latest release
