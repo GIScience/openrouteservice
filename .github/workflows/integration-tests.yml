@@ -80,7 +80,7 @@ jobs:
       - build_test_scenario_base_image
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up build environment
         uses: ./.github/actions/setup-build-environment
@@ -90,7 +90,7 @@ jobs:
 
       - name: Cache the graph
         id: cache_graph
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ors-test-scenarios/graphs-integrationtests
@@ -126,7 +126,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up build environment
         uses: ./.github/actions/setup-build-environment
@@ -135,7 +135,7 @@ jobs:
 
       - name: Restore cached graph
         id: restore-cached-image
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ors-test-scenarios/graphs-integrationtests
@@ -154,7 +154,7 @@ jobs:
           fi
 
       - name: Download runner ${{matrix.test-scenario}} artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: ${{ steps.identify-image-artifact-names.outputs.ARTIFACT_NAME }}
           path: ${{ runner.temp }}/

@@ -14,7 +14,7 @@ jobs:
     name: Run unit and integration tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
       - name: Setup build environment
@@ -24,7 +24,7 @@ jobs:
           java_version: 21
           with_docker: 'false'
       - name: Cache SonarCloud packages
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar-${{ hashFiles('**/pom.xml') }}
@@ -36,7 +36,7 @@ jobs:
           # Ensure test stability across graph reloads.
           ./mvnw -B verify -Papitests -T $(nproc) jacoco:report
       - name: 'Prepare Sonar analysis'
-        uses: evaristegalois11/sonar-fork-analysis@v1
+        uses: evaristegalois11/sonar-fork-analysis@9d67a15f17407c3bf39bb09c39a9d5d3794eeecd # v1
         with:
           distribution: 'temurin'
           java-version: '21'
