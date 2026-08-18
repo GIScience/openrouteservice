@@ -70,6 +70,9 @@ HEALTHCHECK --interval=3s --timeout=2s CMD ["sh", "-c", "wget --quiet --tries=1 
 
 LABEL org.opencontainers.image.source="https://github.com/GIScience/openrouteservice"
 LABEL org.opencontainers.image.licenses="LGPL-3.0-only"
+LABEL org.opencontainers.image.title="openrouteservice"
+LABEL org.opencontainers.image.description="Open-source route planning service based on OpenStreetMap data"
+LABEL org.opencontainers.image.documentation="https://giscience.github.io/openrouteservice"
 
 FROM base AS slim
 # ============================================================================
