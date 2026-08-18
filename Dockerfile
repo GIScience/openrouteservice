@@ -66,7 +66,7 @@ WORKDIR ${ORS_HOME}
 # Expose port
 EXPOSE 8082
 
-HEALTHCHECK --interval=3s --timeout=2s CMD ["sh", "-c", "wget --quiet --tries=1 --spider http://localhost:8082/ors/v2/health || exit 1"]
+HEALTHCHECK --start-period=60s --interval=30s --timeout=2s CMD ["sh", "-c", "wget --quiet --tries=1 --spider http://localhost:8082/ors/v2/health || exit 1"]
 
 LABEL org.opencontainers.image.source="https://github.com/GIScience/openrouteservice"
 LABEL org.opencontainers.image.licenses="LGPL-3.0-only"

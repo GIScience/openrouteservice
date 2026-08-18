@@ -42,6 +42,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- give the healthcheck a start-period so it survives longer graph loading ([#2365](https://github.com/GIScience/openrouteservice/pull/2365))
 - penalize routing through service ways ([#2313](https://github.com/GIScience/openrouteservice/pull/2313))
 - correct speed assignment for HGVs and disable acceleration heuristic on motorways/-roads ([#2329](https://github.com/GIScience/openrouteservice/pull/2329))
 - pass branch through to the reusable Docker build workflow so CI actually builds the triggering commit instead of always `main` ([#2340](https://github.com/GIScience/openrouteservice/pull/2340))
