@@ -48,6 +48,11 @@
       "allowedVersions": "!/-gt2/"
     },
     {
+      "description": "graphhopper-core is prebuilt against hppc 0.8.x (uses HashOrderMixing, removed in hppc 0.9). Bumping past 0.8.x breaks graph building at runtime unless graphhopper.version is upgraded too.",
+      "matchPackageNames": ["com.carrotsearch:hppc"],
+      "allowedVersions": "<0.9"
+    },
+    {
       "description": "All patch updates in one PR",
       "matchUpdateTypes": ["patch"],
       "groupName": "all patch dependencies",
