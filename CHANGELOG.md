@@ -68,6 +68,7 @@ Releasing is documented in RELEASE.md
 - migrate trail difficulty storage to `sac_scale`, `mtb_scale`, and `mtb_scale_uphill` encoded values ([#2277](https://github.com/GIScience/openrouteservice/pull/2277))
 - migrate road access restrictions storage to a dedicated encoded value ([#2270](https://github.com/GIScience/openrouteservice/pull/2270))
 - update references to deprecated URL https://api.openrouteservice.org, update default attribution strings ([#2279](https://github.com/GIScience/openrouteservice/pull/2279))
+- migrate wheelchair attributes storage to encoded values ([#2284](https://github.com/GIScience/openrouteservice/pull/2284))
 
 ### Fixed
 - check whether `mtb_scale` values are within the valid range before attempting to store them ([#2280](https://github.com/GIScience/openrouteservice/pull/2280))
