@@ -54,8 +54,8 @@ ARG ORS_HOME=/home/ors
 RUN addgroup ors -g ${GID} && \
     adduser -D -u ${UID} --system -G ors ors && \
     mkdir -p ${ORS_HOME}/logs ${ORS_HOME}/files ${ORS_HOME}/graphs ${ORS_HOME}/elevation_cache ${ORS_HOME}/app && \
-    chown -R ors:ors ${ORS_HOME} && \
-    chmod -R u+rwX,g+rwX ${ORS_HOME}
+    chown -R ors:0 ${ORS_HOME} && \
+    chmod -R u+rwX,g=u ${ORS_HOME}
 
 # Set the default language
 ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US' \
@@ -85,14 +85,15 @@ FROM base AS slim
 # - No config presets or example data
 # ============================================================================
 
-# Copy JAR from build stage
-COPY --chown=ors:ors --chmod=750 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
+# Copy JAR from build stage.
+# 644, not 750: `java -jar` only reads the archive.
+COPY --chown=ors:0 --chmod=644 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
 
 # Stdout/stderr only for the slim image. Can be overridden by setting LOGGING_FILE_NAME to a file path in the container.
 ENV LOGGING_FILE_NAME=""
 
-# Switch to non-root user
-USER ors
+# Switch to a non-root user, declared numerically and above 1000.
+USER 1001:0
 
 # Run Java jar directly as PID 1
 # Configuration via environment variables:
@@ -120,8 +121,9 @@ ARG OSM_FILE=./ors-api/src/test/files/heidelberg.test.pbf
 COPY --chown=ors:ors --chmod=755 ./$OSM_FILE /heidelberg.test.pbf
 COPY --chown=ors:ors --chmod=755 ./docker-entrypoint.sh /entrypoint.sh
 COPY --chown=ors:ors --from=build-go /go/bin/yq /bin/yq
-# Copy JAR from build stage with broader permissions
-COPY --chown=ors:ors --chmod=755 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
+# Copy JAR from build stage. Read-only data: docker-entrypoint.sh starts it with
+# `java -jar`, never by executing it, so no execute bit is needed here either.
+COPY --chown=ors:0 --chmod=644 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
 
 
 # Setup additional packages for publish stage and allow read access to others
