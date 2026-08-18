@@ -88,6 +88,9 @@ FROM base AS slim
 # Copy JAR from build stage
 COPY --chown=ors:ors --chmod=750 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
 
+# Stdout/stderr only for the slim image. Can be overridden by setting LOGGING_FILE_NAME to a file path in the container.
+ENV LOGGING_FILE_NAME=""
+
 # Switch to non-root user
 USER ors
 

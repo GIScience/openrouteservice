@@ -232,3 +232,40 @@ jobs:
             ${{ env.TEST_SLIM_IMAGE_NAME }}
           # Wait for graph build and health check (kubernetes image is non-interactive)
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-slim-test && exit 1)
+
+      - name: Stop graph-build test container
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        run: |
+          docker stop ors-slim-test
+          docker container prune -f
+
+      - name: Verify the slim image serves requests under a read-only root filesystem
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        run: |
+          # Reuses the graph from the previous step; elevation_cache is deliberately
+          # left off since it's only written to during a build. graphs (GraphHopper
+          # lock file) and tmpfs /tmp (GeoTools EPSG cache) must stay writable.
+          docker run -d --read-only --tmpfs /tmp -p 8080:8082 \
+            -u $UID:1000 \
+            -v graphs:/home/ors/graphs \
+            -e server.port=8082 \
+            -e ors.engine.profile_default.graph_path=/home/ors/graphs \
+            -e ors.engine.graphs_data_access=MMAP \
+            -e ors.engine.profiles.driving-car.enabled=true \
+            --name ors-slim-readonly-test \
+            ${{ env.TEST_SLIM_IMAGE_NAME }}
+          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-slim-readonly-test && exit 1)
+
+          response_code=$(curl -s -o /tmp/avoid-polygons-response.json -w "%{http_code}" -X POST \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -H "Accept: application/geo+json; charset=utf-8" \
+            --data '{"coordinates":[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]],"options":{"avoid_polygons":{"coordinates":[[[8.684881031827587,49.41768066444595],[8.684881031827587,49.41699648134178],[8.685816955915811,49.41699648134178],[8.685816955915811,49.41768066444595],[8.684881031827587,49.41768066444595]]],"type":"Polygon"}}}' \
+            http://127.0.0.1:8080/ors/v2/directions/driving-car/geojson)
+          if [ "${response_code}" != "200" ]; then
+            echo "FAIL: avoid_polygons request returned HTTP ${response_code}"
+            cat /tmp/avoid-polygons-response.json
+            docker logs ors-slim-readonly-test
+            exit 1
+          fi
+          docker exec ors-slim-readonly-test test -d /tmp/GeoTools || { echo "FAIL: GeoTools did not initialize its EPSG cache under tmpfs /tmp"; docker logs ors-slim-readonly-test; exit 1; }
+          echo "OK: read-only rootfs served avoid_polygons and initialized GeoTools' EPSG cache"
