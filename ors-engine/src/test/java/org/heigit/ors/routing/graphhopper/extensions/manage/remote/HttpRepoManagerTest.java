@@ -15,11 +15,11 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
-import org.testcontainers.containers.NginxContainer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
+import org.testcontainers.nginx.NginxContainer;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
@@ -42,14 +42,14 @@ class HttpRepoManagerTest {
     private static final String ENCODER_NAME = "driving-car";
 
     @Container
-    private static final NginxContainer<?> NGINX;
+    private static final NginxContainer NGINX;
     private static final String NGINX_URL;
     private static Path localGraphsRootPath;
 
     static {
         DockerImageName dockerImageName = DockerImageName.parse("nginx:1.23.4-alpine");
         MountableFile mountableFile = MountableFile.forHostPath("src/test/resources/test-filesystem-repos/");
-        NGINX = new NginxContainer<>(dockerImageName)
+        NGINX = new NginxContainer(dockerImageName)
                 .withCopyFileToContainer(mountableFile, "/usr/share/nginx/html")
                 .waitingFor(new HttpWaitStrategy());
         NGINX.start();

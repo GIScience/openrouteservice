@@ -1,7 +1,7 @@
 package org.heigit.ors.apitests.common;
 
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.sql.Connection;
@@ -13,7 +13,7 @@ public abstract class AbstractContainerBaseTest extends ServiceTest {
 
     static final PostgreSQLContainer POSTGIS;
     static {
-        POSTGIS = new PostgreSQLContainer<>(DockerImageName.parse("postgis/postgis:17-3.6-alpine")
+        POSTGIS = new PostgreSQLContainer(DockerImageName.parse("postgis/postgis:17-3.6-alpine")
                 .asCompatibleSubstituteFor("postgres"))
                 .withDatabaseName("featurestore")
                 .withUsername("ors")
