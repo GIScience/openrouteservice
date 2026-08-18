@@ -15,10 +15,17 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
+import com.graphhopper.GraphHopper;
 import com.graphhopper.gtfs.*;
+import com.graphhopper.routing.ev.Subnetwork;
+import com.graphhopper.routing.util.DefaultSnapFilter;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.ConditionalEdges;
+import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
 import com.graphhopper.util.shapes.GHPoint;
@@ -28,6 +35,7 @@ import org.heigit.ors.common.ServiceRequest;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.util.*;
 import org.locationtech.jts.geom.Coordinate;
@@ -422,7 +430,7 @@ public class RoutingRequest extends ServiceRequest {
     }
 
     private GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
-                                   double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile)
+                                    double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile)
             throws Exception {
 
         GHResponse resp;
@@ -714,7 +722,6 @@ public class RoutingRequest extends ServiceRequest {
         int nSegments = coords.length - 1;
         GHResponse prevResp = null;
         WayPointBearing[] bearings = (getContinueStraight() || searchParams.getBearings() != null) ? new WayPointBearing[2] : null;
-        String profileName = getSearchParameters().getProfileName();
         double[] radiuses = null;
 
         if (getSearchParameters().getAlternativeRoutesCount() > 1 && coords.length > 2) {
@@ -754,7 +761,37 @@ public class RoutingRequest extends ServiceRequest {
                 }
             }
 
-            GHResponse gr = computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, skipSegments.contains(i), searchParams, getGeometrySimplify(), rp);
+            GHResponse gr;
+            double lat0 = c0.y, lon0 = c0.x, lat1 = c1.y, lon1 = c1.x;
+
+            if (skipSegments.contains(i)) {
+                RouteSearchContext searchCntx = TemporaryUtilShelter.createSearchContext(searchParams, routingProfile);
+                String profileName = searchCntx.profileName();
+                GraphHopper gh = rp.getGraphhopper();
+                EncodingManager em = gh.getEncodingManager();
+                LocationIndex locationIndex = gh.getLocationIndex();
+                Weighting weighting = new ORSWeightingFactory(gh.getGraphHopperStorage(), em).createWeighting(gh.getProfile(profileName), new PMap(), false);
+                EdgeFilter defaultSnapFilter = new DefaultSnapFilter(weighting, em.getBooleanEncodedValue(Subnetwork.key(profileName)));
+
+                if (!(i == 1 || skipSegments.contains(i - 1))) {
+                    Snap qr = locationIndex.findClosest(lat0, lon0, defaultSnapFilter);
+                    lat0 = qr.getSnappedPoint().lat;
+                    lon0 = qr.getSnappedPoint().lon;
+                }
+                if (!(i == nSegments || skipSegments.contains(i + 1))) {
+                    Snap qr = locationIndex.findClosest(lat1, lon1, defaultSnapFilter);
+                    lat1 = qr.getSnappedPoint().lat;
+                    lon1 = qr.getSnappedPoint().lon;
+                }
+
+                GHRequest req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
+                req.setEncoderName(searchCntx.getEncoder().toString());
+                req.setProfile(profileName);
+
+                gr = new RouteResultBuilder().constructFreeHandRoute(req);
+            } else {
+                gr = computeRoute(lat0, lon0, lat1, lon1, bearings, radiuses, false, searchParams, getGeometrySimplify(), rp);
+            }
 
             if (gr.hasErrors()) {
                 if (!gr.getErrors().isEmpty()) {
