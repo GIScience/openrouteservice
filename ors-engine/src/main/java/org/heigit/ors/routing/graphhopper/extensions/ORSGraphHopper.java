@@ -19,14 +19,16 @@ import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.gtfs.GraphHopperGtfs;
+import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
-import com.graphhopper.routing.ev.HashMapSparseEncodedValue;
 import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
+import com.graphhopper.routing.util.DefaultSnapFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
@@ -34,6 +36,9 @@ import com.graphhopper.storage.CHConfig;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
+import com.graphhopper.storage.index.Snap;
+import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.TranslationMap;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
@@ -50,12 +55,14 @@ import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
@@ -64,12 +71,15 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTraff
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
 import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.util.CSVUtility;
+import org.heigit.ors.util.ProfileTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class ORSGraphHopper extends GraphHopperGtfs {
@@ -332,6 +342,67 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                 }
             }
         }
+        if (config.has("foot_rest_data")) {
+            processGraphDependentEVData();
+        }
+    }
+
+    private void processGraphDependentEVData() {
+        for (FlagEncoder encoder : getEncodingManager().fetchEdgeEncoders()) {
+            if (encoder instanceof FootFlagEncoder footFlagEncoder) {
+                processFootRestData(footFlagEncoder);
+            }
+        }
+    }
+
+    private void processFootRestData(FootFlagEncoder encoder) {
+        AtomicInteger imported = new AtomicInteger();
+        DecimalEncodedValue restEV = encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY);
+        PMap hintsMap = new PMap();
+        ProfileTools.setWeightingMethod(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
+        ProfileTools.setWeighting(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
+        String localProfileName = ProfileTools.makeProfileName(encoder.toString(), hintsMap.getString("weighting", ""), false);
+        Weighting weighting = new ORSWeightingFactory(getGraphHopperStorage(), getEncodingManager()).createWeighting(getProfile(localProfileName), hintsMap, false);
+        EdgeFilter snapFilter = new DefaultSnapFilter(weighting, getGraphHopperStorage().getEncodingManager().getBooleanEncodedValue(Subnetwork.key(localProfileName)));
+        EdgeFilterSequence edgeFilter = new EdgeFilterSequence().add(snapFilter);
+        String filename = config.getString("foot_rest_data", null);
+        CSVUtility.readFile(filename).forEach(line -> processLine(line, edgeFilter, restEV, imported));
+        LOGGER.debug("Imported %d foot rest points from %s".formatted(imported.get(), filename));
+    }
+
+    private void processLine(List<String> line, EdgeFilter edgeFilter, DecimalEncodedValue restEV, AtomicInteger imported) {
+        if (line.size() < 2) {
+            LOGGER.error("Invalid line in foot_rest_data: %s".formatted(line));
+            return;
+        }
+        try {
+            double lat = Double.parseDouble(line.get(0));
+            double lon = Double.parseDouble(line.get(1));
+            Snap snappedPoint = getLocationIndex().findClosest(lat, lon, edgeFilter);
+            if (snappedPoint.isValid()) {
+                processSnappedPoint(snappedPoint, restEV);
+                imported.getAndIncrement();
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid coordinates in foot_rest_data: %s".formatted(line));
+        }
+    }
+
+    private void processSnappedPoint(Snap snappedPoint, DecimalEncodedValue restEV) {
+        EdgeIteratorState closestEdge = snappedPoint.getClosestEdge();
+        if (Objects.requireNonNull(snappedPoint.getSnappedPosition()) == Snap.Position.TOWER) {
+            closestEdge.set(restEV, snappedPoint.getClosestNode() == closestEdge.getBaseNode() ? 0 : 1);
+        } else {
+            QueryGraph queryGraph = QueryGraph.create(getGraphHopperStorage().getBaseGraph(), snappedPoint);
+            EdgeIterator iter = queryGraph.createEdgeExplorer(new EdgeFilterSequence()).setBaseNode(snappedPoint.getClosestNode());
+            while (iter.next()) {
+                if (iter.getAdjNode() == closestEdge.getBaseNode()) {
+                    double distance = iter.getDistance() / closestEdge.getDistance();
+                    closestEdge.set(restEV, distance);
+                    break;
+                }
+            }
+        }
     }
 
     @Override
@@ -437,7 +508,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
         return lmConfigs;
     }
-
 
 
     protected void prepareCore(boolean closeEarly) {

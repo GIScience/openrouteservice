@@ -4915,6 +4915,28 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test
+    void testMultiLabelDijkstra() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesWalking"));
+        body.put("preference", "shortest");
+        JSONObject params = new JSONObject();
+        params.put("rest_threshold", 500);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().all()
+                .assertThat()
+                .statusCode(200);
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");
