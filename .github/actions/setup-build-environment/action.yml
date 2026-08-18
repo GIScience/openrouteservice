@@ -89,16 +89,16 @@ runs:
 
     - name: Set up QEMU
       if: inputs.with_docker == 'true' && inputs.with_qemu == 'true'
-      uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 #v3.7.0
+      uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
 
     - name: Set up Docker Buildx
       if: inputs.with_docker == 'true'
       id: buildx
-      uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+      uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
     - name: Login to Docker registry
       if: inputs.with_docker == 'true' && inputs.docker_login == 'true'
-      uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+      uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
       with:
         username: ${{ inputs.docker_username }}
         password: ${{ inputs.docker_password }}
@@ -106,7 +106,7 @@ runs:
 
     - name: Login to additional Docker registry
       if: inputs.with_docker == 'true' && inputs.docker_login_additional == 'true'
-      uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+      uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
       with:
         registry: ${{ inputs.docker_additional_registry }}
         username: ${{ inputs.docker_additional_username }}
