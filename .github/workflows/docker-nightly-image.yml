@@ -35,7 +35,7 @@ jobs:
       heigit_slim_image_tag: ${{ steps.image-tags.outputs.heigit_slim_image_tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ inputs.branch || 'main' }}
 
@@ -125,7 +125,7 @@ jobs:
             digest_arm64: ${{ needs.build_and_push_slim_images.outputs.image_digest_arm64 }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ inputs.branch || 'main' }}
       - name: Set up build environment
