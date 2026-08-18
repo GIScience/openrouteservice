@@ -29,6 +29,7 @@ Releasing is documented in RELEASE.md
 
 ### Added
 - add SBOM and provenance via docker buildx commands ([#2347](https://github.com/GIScience/openrouteservice/pull/2347))
+- add OCI title/description/documentation labels to base image ([#2364](https://github.com/GIScience/openrouteservice/pull/2364))
 
 ### Changed
 - replace Grype with Trivy for CI vulnerability scanning ([#2335](https://github.com/GIScience/openrouteservice/pull/2335))
