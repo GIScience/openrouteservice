@@ -8,8 +8,8 @@ on:
     branches: [ "main" ]
     paths:
       - '**/pom.xml'
-      - 'ors-api/main/**'
-      - 'ors-engine/main/**'
+      - 'ors-api/src/main/**'
+      - 'ors-engine/src/main/**'
       - 'ors-test-scenarios/**'
       - '.github/workflows/integration-tests.yml'
       - '.github/actions/setup-build-environment/**'
@@ -24,8 +24,8 @@ on:
       - ready_for_review
     paths:
       - '**/pom.xml'
-      - 'ors-api/main/**'
-      - 'ors-engine/main/**'
+      - 'ors-api/src/main/**'
+      - 'ors-engine/src/main/**'
       - 'ors-test-scenarios/**'
       - '.github/workflows/integration-tests.yml'
       - '.github/actions/setup-build-environment/**'

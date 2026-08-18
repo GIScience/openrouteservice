@@ -37,10 +37,6 @@
     <artifactId>ors-engine</artifactId>
     <name>ors-engine</name>
 
-    <properties>
-        <project.graphVersion>5</project.graphVersion>
-    </properties>
-
     <build>
         <finalName>ors</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
