@@ -68,7 +68,7 @@
         <org-json.version>20240303</org-json.version>
         <postgresql.version>42.7.13</postgresql.version>
         <progressbar.version>0.10.2</progressbar.version>
-        <guava.version>33.6.0-jre</guava.version>
+        <guava.version>33.7.1-jre</guava.version>
         <airlift.version>2.0.3</airlift.version>
         <jline.version>4.3.1</jline.version>
         <jqwik.version>1.10.1</jqwik.version>
