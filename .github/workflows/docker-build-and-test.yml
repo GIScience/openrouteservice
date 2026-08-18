@@ -250,6 +250,27 @@ jobs:
           # Wait for graph build and health check (kubernetes image is non-interactive)
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-slim-test && exit 1)
 
+      - name: Check slim image pins the hardened response settings
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        run: |
+          # These settings are provable by inspection rather than over the wire,
+          # which is the point of pinning them: `docker inspect` is the evidence.
+          env_json=$(docker inspect -f '{{json .Config.Env}}' ${{ env.TEST_SLIM_IMAGE_NAME }})
+          for expected in 'SERVER_SERVER_HEADER=' 'SERVER_ERROR_INCLUDE_STACKTRACE=never' \
+                          'SERVER_ERROR_INCLUDE_MESSAGE=never' 'SERVER_ERROR_INCLUDE_EXCEPTION=false' \
+                          'SERVER_ERROR_INCLUDE_BINDING_ERRORS=never' \
+                          'SERVER_MAX_HTTP_REQUEST_HEADER_SIZE=8KB'; do
+            if ! echo "${env_json}" | grep -q "\"${expected}"; then
+              echo "::error::${expected} missing from the slim image environment"
+              exit 1
+            fi
+          done
+          # And the one thing the pins are there to guarantee, checked on the wire.
+          if curl -sI http://127.0.0.1:8080/ors/v2/health | grep -i '^server:\|^x-powered-by:'; then
+            echo "::error::slim image leaks a Server or X-Powered-By response header"
+            exit 1
+          fi
+
       - name: Stop graph-build test container
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |

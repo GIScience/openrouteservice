@@ -92,6 +92,14 @@ COPY --chown=ors:0 --chmod=644 --from=build /tmp/ors/ors-api/target/ors.jar /ors
 # Stdout/stderr only for the slim image. Can be overridden by setting LOGGING_FILE_NAME to a file path in the container.
 ENV LOGGING_FILE_NAME=""
 
+# Apache Tomcat hardening: response settings pinned to their effective defaults
+ENV SERVER_SERVER_HEADER="" \
+    SERVER_ERROR_INCLUDE_STACKTRACE=never \
+    SERVER_ERROR_INCLUDE_MESSAGE=never \
+    SERVER_ERROR_INCLUDE_EXCEPTION=false \
+    SERVER_ERROR_INCLUDE_BINDING_ERRORS=never \
+    SERVER_MAX_HTTP_REQUEST_HEADER_SIZE=8KB
+
 # Switch to a non-root user, declared numerically and above 1000.
 USER 1001:0
 
