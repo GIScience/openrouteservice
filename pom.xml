@@ -57,6 +57,8 @@
         <snakeyaml.version>2.2</snakeyaml.version>
         <geotools.version>32.4</geotools.version>
         <fasterxml.jackson.version>2.22.1</fasterxml.jackson.version>
+        <!-- jackson-annotations dropped patch-level versioning as of 2.20; it has no 2.22.1 release -->
+        <fasterxml.jackson-annotations.version>2.22</fasterxml.jackson-annotations.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-logging.version>1.4.0</commons-logging.version>
         <commons-compress.version>1.28.0</commons-compress.version>
@@ -369,7 +371,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${fasterxml.jackson.version}</version>
+                <version>${fasterxml.jackson-annotations.version}</version>
             </dependency>
 
             <dependency>
