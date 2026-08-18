@@ -41,6 +41,7 @@ public abstract class ContainerInitializer {
     // @formatter:on
 
     private static final Path hostSharedGraphPath = Path.of("./graphs-integrationtests/").resolve("sharedGraphMount");
+    public static final String GRAPH_VERSION = System.getProperty("graph.version", "5");
     public static Duration defaultStartupTimeout = Duration.ofSeconds(180);
     private static boolean shareGraphsWithContainer = true;
     private static List<ContainerTestImageDefaults> selectedDefaultContainers = List.of();

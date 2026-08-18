@@ -104,7 +104,7 @@ public class TestContainersHelper {
     public static boolean waitForFailedGraphActivationInOrsLogs(GenericContainer<?> container, String profilePath, int maxWaitTimeInSeconds) {
         List<String> logPatterns = List.of(
                 "java.util.concurrent.ExecutionException: java.lang.IllegalStateException: Couldn't load from existing folder: " + profilePath + " but also cannot use file for DataReader as it wasn't specified!",
-                "ExecutionException while initializing RoutingProfileManager: java.lang.IllegalStateException: Couldn't load from existing folder: " + profilePath + " but also cannot use file for DataReader as it wasn't specified!"
+                "Exception at RoutingProfileManager initialization: java.lang.IllegalStateException: Couldn't load from existing folder: " + profilePath + " but also cannot use file for DataReader as it wasn't specified!"
         );
         return waitForLogPatterns(container, logPatterns, maxWaitTimeInSeconds, true);
     }
@@ -113,8 +113,8 @@ public class TestContainersHelper {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Checking for possible graph update from remote repository...",
                 "[" + profile + "] Checking latest graphBuildInfo in remote repository...",
-                "[driving-hgv] No graphBuildInfo found in remote repository: /tmp/wrong-filesystem-repo/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-hgv.yml",
-                "[" + profile + "] No graphBuildInfo found in remote repository: " + graphRepoName + "/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_" + encoderName + ".yml",
+                "[driving-hgv] No graphBuildInfo found in remote repository: /tmp/wrong-filesystem-repo/vendor-xyz/fastisochrones/heidelberg/" + ContainerInitializer.GRAPH_VERSION + "/fastisochrones_heidelberg_" + ContainerInitializer.GRAPH_VERSION + "_driving-hgv.yml",
+                "[" + profile + "] No graphBuildInfo found in remote repository: " + graphRepoName + "/vendor-xyz/fastisochrones/heidelberg/" + ContainerInitializer.GRAPH_VERSION + "/fastisochrones_heidelberg_" + ContainerInitializer.GRAPH_VERSION + "_" + encoderName + ".yml",
                 "[" + profile + "] No newer graph found in repository.",
                 "[" + profile + "] No downloaded graph to extract."
         );
@@ -129,7 +129,7 @@ public class TestContainersHelper {
                 "[" + profile + "] Checking for possible graph update from remote repository...",
                 "[" + profile + "] Checking latest graphBuildInfo in remote repository...",
                 "Scheduled graph activation check done: No downloaded graphs found, no graph activation required.",
-                "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoderName + ".yml...",
+                "[" + profile + "] Downloading fastisochrones_heidelberg_" + ContainerInitializer.GRAPH_VERSION + "_" + encoderName + ".yml...",
                 "[" + profile + "] No newer graph found in repository.",
                 "[" + profile + "] No downloaded graph to extract.",
                 "Scheduled repository check done"
@@ -142,12 +142,12 @@ public class TestContainersHelper {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Checking for possible graph update from remote repository...",
                 "[" + profile + "] Checking latest graphBuildInfo in remote repository...",
-                "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoderName + ".yml...",
-                "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoderName + ".ghz...",
+                "[" + profile + "] Downloading fastisochrones_heidelberg_" + ContainerInitializer.GRAPH_VERSION + "_" + encoderName + ".yml...",
+                "[" + profile + "] Downloading fastisochrones_heidelberg_" + ContainerInitializer.GRAPH_VERSION + "_" + encoderName + ".ghz...",
                 "[" + profile + "] Download of compressed graph file finished after",
                 "[" + profile + "] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/" + profile + "_new_incomplete",
-                "[" + profile + "] Extraction of downloaded graph file finished after",
-                "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_" + encoderName + ".ghz",
+                "[" + profile + "] Extracted vendor-xyz_fastisochrones_heidelberg_" + ContainerInitializer.GRAPH_VERSION + "_" + encoderName + ".ghz (",
+                "[" + profile + "] Deleted downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_" + ContainerInitializer.GRAPH_VERSION + "_" + encoderName + ".ghz",
                 "[" + profile + "] Renaming extraction directory to /home/ors/openrouteservice/graphs/" + profile + "_new",
                 "[" + profile + "] Downloaded graph was extracted and will be activated at next graph activation check or application start."
         );
@@ -170,7 +170,7 @@ public class TestContainersHelper {
                 "[" + profile + "] Scheduled graph activation check: Downloaded extracted graph available",
                 "Scheduled graph activation check done: Performing graph activation...",
                 "Using FileSystemGraphRepoClient for repoUri /tmp/test-filesystem-repo",
-                "[" + profile + "] Deleted graph-info download file from previous application run: /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_" + encoderName + ".yml",
+                "[" + profile + "] Deleted graph-info download file from previous application run: /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_" + ContainerInitializer.GRAPH_VERSION + "_" + encoderName + ".yml",
                 "[" + profile + "] Found local graph and extracted downloaded graph",
                 "[" + profile + "] Renamed old local graph directory /home/ors/openrouteservice/graphs/driving-car to /home/ors/openrouteservice/graphs/" + profile + "_",
                 "[" + profile + "] Activating extracted downloaded graph.",

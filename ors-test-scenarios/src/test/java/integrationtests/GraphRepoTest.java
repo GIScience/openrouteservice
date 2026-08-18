@@ -163,7 +163,7 @@ public class GraphRepoTest extends ContainerInitializer {
 
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/tmp/test-filesystem-repo", true);
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
-            OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.yml", true);
+            OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_" + GRAPH_VERSION + "_driving-car.yml", true);
 
             // Check that the graph was loaded
             OrsApiHelper.assertProfilesLoaded(container, new HashMap<>() {{
@@ -219,7 +219,7 @@ public class GraphRepoTest extends ContainerInitializer {
         @Execution(ExecutionMode.CONCURRENT)
         void testGrcStartupFailsWhenGraphMissingInRepo(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) {
             GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, null, false);
-            container.waitingFor(simpleLogMessageWaitStrategy("ExecutionException while initializing RoutingProfileManager: java.lang.IllegalStateException: Couldn't load from existing folder"));
+            container.waitingFor(simpleLogMessageWaitStrategy("Exception at RoutingProfileManager initialization: java.lang.IllegalStateException: Couldn't load from existing folder"));
             // @formatter:off
             Path config = grcConfig
                 .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
@@ -277,7 +277,7 @@ public class GraphRepoTest extends ContainerInitializer {
 
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/tmp/test-filesystem-repo", true);
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
-            OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.yml", true);
+            OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_" + GRAPH_VERSION + "_driving-car.yml", true);
 
             // Check that the graph was loaded
             OrsApiHelper.assertProfilesLoaded(container, new HashMap<>(new HashMap<>() {{
@@ -361,7 +361,7 @@ public class GraphRepoTest extends ContainerInitializer {
             // @formatter:on
             container.withCopyFileToContainer(forHostPath(config), containerConfigPath);
             container.addEnv("ORS_CONFIG_LOCATION", containerConfigPath);
-            container.waitingFor(simpleLogMessageWaitStrategy("ExecutionException while initializing RoutingProfileManager: java.lang.IllegalStateException: Couldn't load from existing folder: /home/ors/openrouteservice/graphs/driving-car but also cannot use file for DataReader as it wasn't specified!"));
+            container.waitingFor(simpleLogMessageWaitStrategy("Exception at RoutingProfileManager initialization: java.lang.IllegalStateException: Couldn't load from existing folder: /home/ors/openrouteservice/graphs/driving-car but also cannot use file for DataReader as it wasn't specified!"));
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(true);
