@@ -30,6 +30,7 @@ Releasing is documented in RELEASE.md
 ### Added
 - add SBOM and provenance via docker buildx commands ([#2347](https://github.com/GIScience/openrouteservice/pull/2347))
 - add OCI title/description/documentation labels to base image ([#2364](https://github.com/GIScience/openrouteservice/pull/2364))
+- disable file logging in the slim image so it can run with a read-only root filesystem given a tmpfs at `/tmp` for GeoTools' EPSG cache ([#2367](https://github.com/GIScience/openrouteservice/pull/2367))
 
 ### Changed
 - replace Grype with Trivy for CI vulnerability scanning ([#2335](https://github.com/GIScience/openrouteservice/pull/2335))
