@@ -36,6 +36,7 @@ Releasing is documented in RELEASE.md
 - fix Trivy CI scans to correctly detect jar/war vulnerabilities and add secret and Dockerfile misconfiguration scanning ([#2337](https://github.com/GIScience/openrouteservice/pull/2337))
 - scan all images arm/amd64 for publish/slim stages but only fail for critical and high on slim ([#2345](https://github.com/GIScience/openrouteservice/pull/2345))
 - pin dockerfile base images by digest ([#2346](https://github.com/GIScience/openrouteservice/pull/2346))
+- reduce the Docker `HEALTHCHECK` interval from 30s to 10s to match Kubernetes' default probe interval; Kubernetes does not consume Docker's `HEALTHCHECK` itself, so this timing only affects plain Docker/Podman/Swarm deployments ([#2369](https://github.com/GIScience/openrouteservice/pull/2369))
 
 ### Deprecated
 
