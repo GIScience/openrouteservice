@@ -45,6 +45,7 @@ Releasing is documented in RELEASE.md
 
 ### Fixed
 - give the healthcheck a start-period so it survives longer graph loading ([#2365](https://github.com/GIScience/openrouteservice/pull/2365))
+- let the slim image run under an arbitrary UID: own `ORS_HOME` as group 0 with the group bits mirroring the owner, copy the JAR read-only instead of `750`, and declare a numeric `USER 1001:0` that `runAsNonRoot` can resolve ([#2366](https://github.com/GIScience/openrouteservice/pull/2366))
 - penalize routing through service ways ([#2313](https://github.com/GIScience/openrouteservice/pull/2313))
 - correct speed assignment for HGVs and disable acceleration heuristic on motorways/-roads ([#2329](https://github.com/GIScience/openrouteservice/pull/2329))
 - pass branch through to the reusable Docker build workflow so CI actually builds the triggering commit instead of always `main` ([#2340](https://github.com/GIScience/openrouteservice/pull/2340))
