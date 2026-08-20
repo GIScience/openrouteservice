@@ -42,6 +42,7 @@ class ResultTest extends ServiceTest {
         // Making and HGV request results in the usage of fast isochrones, which are covered in their own tests.
         addParameter("cyclingProfile", "cycling-regular");
         addParameter("carProfile", "driving-car");
+        addParameter("footProfile", "foot-walking");
 
         JSONArray firstLocation = new JSONArray();
         firstLocation.put(8.684177);
@@ -113,7 +114,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testPolygon() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
@@ -142,7 +142,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testGroupIndices() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_2"));
         body.put("range", getParameter("ranges_400"));
@@ -165,7 +164,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testUnknownLocation() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1_unknown"));
         body.put("range", getParameter("ranges_400"));
@@ -184,7 +182,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testBoundingBox() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
@@ -206,7 +203,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testLocationType() {
-
         JSONArray locations = new JSONArray();
         JSONArray loc1 = new JSONArray();
         loc1.put(8.681495);
@@ -247,7 +243,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testReachfactorAndArea() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
@@ -271,7 +266,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testReachfactorAndAreaAreaUnitsM() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
@@ -296,7 +290,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testReachfactorAndAreaAreaUnitsKM() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
@@ -321,7 +314,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testAreaUnitsOverridesUnits() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
@@ -347,7 +339,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testReachfactorAndAreaAreaUnitsMI() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_1"));
         body.put("range", getParameter("ranges_400"));
@@ -444,7 +435,6 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testIntersections() {
-
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations_2"));
         body.put("range", getParameter("ranges_400"));
@@ -552,6 +542,76 @@ class ResultTest extends ServiceTest {
                 .body("metadata.engine.containsKey('build_date')", is(true))
                 .body("metadata.engine.containsKey('graph_date')", is(true))
                 .body("metadata.containsKey('system_message')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    void testIsocalores() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", getParameter("ranges_400"));
+        body.put("attributes", getParameter("attributesArea"));
+
+        //{"locations":[[8.684177,49.423034]],"range":[400],"attributes":["area"]}
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(509758, 1000)))
+                .statusCode(200);
+
+        body.put("options", new JSONObject().put("profile_params", new JSONObject().put("weightings", new JSONObject().put("csv_column", "less_than_0.5").put("csv_factor", 2))));
+
+        //{"locations":[[8.684177,49.423034]],"range":[400],"attributes":["area"],"options":{"profile_params":{"weightings":{"csv_column":"less_than_0.5", "csv_factor":2}}}}
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(228092, 1000)))
+                .statusCode(200);
+
+        body.put("options", new JSONObject().put("profile_params", new JSONObject().put("weightings", new JSONObject().put("csv_column", "less_than_0.5").put("csv_factor", 5))));
+
+        //{"locations":[[8.684177,49.423034]],"range":[400],"attributes":["area"],"options":{"profile_params":{"weightings":{"csv_column":"less_than_0.5", "csv_factor":5}}}}
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(91334, 1000)))
+                .statusCode(200);
+
+        body.put("options", new JSONObject().put("profile_params", new JSONObject().put("weightings", new JSONObject().put("csv_column", "greater_than_0.5").put("csv_factor", 2))));
+
+        //{"locations":[[8.684177,49.423034]],"range":[400],"attributes":["area"],"options":{"profile_params":{"weightings":{"csv_column":"greater_than_0.5", "csv_factor":2}}}}
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(57958, 1000)))
                 .statusCode(200);
     }
 }
