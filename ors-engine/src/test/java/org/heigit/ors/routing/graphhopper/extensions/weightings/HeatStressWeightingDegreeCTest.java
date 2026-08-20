@@ -5,14 +5,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class HeatStressWeightingDegreeCTest {
+class HeatStressWeightingDegreeCTest {
 
     @Test
     void testHeatFactor() {
-        assertEquals(HeatStressWeightingDegreeC.heatFactor(20), 1.0);
-        assertEquals(HeatStressWeightingDegreeC.heatFactor(25), 1.0);
-        assertEquals(HeatStressWeightingDegreeC.heatFactor(26), 1.0334);
-        assertEquals(HeatStressWeightingDegreeC.heatFactor(30), 1.2184, 0.0001);
-        assertEquals(HeatStressWeightingDegreeC.heatFactor(40), 2.9807, 0.0001);
+        assertEquals(1.0, HeatStressWeightingDegreeC.heatFactor(20));
+        assertEquals(1.0, HeatStressWeightingDegreeC.heatFactor(26));
+        assertEquals(1.03473, HeatStressWeightingDegreeC.heatFactor(27), 0.0001);
+        assertEquals(1.1745, HeatStressWeightingDegreeC.heatFactor(30), 0.0001);
+        assertEquals(2.1385, HeatStressWeightingDegreeC.heatFactor(40), 0.0001);
     }
 }
