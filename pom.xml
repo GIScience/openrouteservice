@@ -73,7 +73,7 @@
         <jline.version>4.3.1</jline.version>
         <jqwik.version>1.10.1</jqwik.version>
         <json-simple.version>1.1.1</json-simple.version>
-        <hamcrest.version>2.2</hamcrest.version>
+        <hamcrest.version>3.0</hamcrest.version>
         <hppc.version>0.8.2</hppc.version>
 
         <gson-fire-version>1.8.5</gson-fire-version>
