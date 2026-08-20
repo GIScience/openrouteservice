@@ -651,7 +651,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(closeTo(487751, 1000)))
+                .body("features[0].properties.area", is(closeTo(508065, 1000)))
                 .statusCode(200);
 
         body.put("options", new JSONObject().put("profile_params", new JSONObject().put("weightings", new JSONObject().put("csv_column", "greater_than_0.5").put("csv_degree_c", 25))));
@@ -667,7 +667,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(closeTo(440589, 1000)))
+                .body("features[0].properties.area", is(closeTo(464435, 1000)))
                 .statusCode(200);
 
         body.put("options", new JSONObject().put("profile_params", new JSONObject().put("weightings", new JSONObject().put("csv_column", "greater_than_0.5").put("csv_degree_c", 30))));
@@ -683,7 +683,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(closeTo(223952, 1000)))
+                .body("features[0].properties.area", is(closeTo(259535, 1000)))
                 .statusCode(200);
     }
 }

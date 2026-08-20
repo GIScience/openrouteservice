@@ -40,13 +40,15 @@ public class HeatStressWeightingDegreeC extends FastestWeighting {
         return 1.0;
     }
 
+    private static final double MEAN_ROUTE_LENGTH_M = 624.9;
+    private static final double LOW_STRESS_RATE = 21.7 / MEAN_ROUTE_LENGTH_M;
+    private static final double MIDDLE_STRESS_RATE = 44.0 / MEAN_ROUTE_LENGTH_M;
+    private static final double HIGH_STRESS_RATE = 64.3 / MEAN_ROUTE_LENGTH_M;
     public static double heatFactor(double utciCelsius) {
-        if (utciCelsius <= 25.0) {
-            return 1.0;
-        }
-        return Math.pow(1.0334, Math.min(utciCelsius, 29.0) - 25.0)
-                * Math.pow(1.0684, Math.max(0.0, Math.min(utciCelsius, 32.0) - 29.0))
-                * Math.pow(1.09997, Math.max(0.0, utciCelsius - 32.0));
+        if (utciCelsius <= 26f) return 1.0;
+        return 1.0 + LOW_STRESS_RATE * (Math.min(utciCelsius, 29.0) - 26.0)
+                + MIDDLE_STRESS_RATE * Math.max(0.0, Math.min(utciCelsius, 32.0) - 29.0)
+                + HIGH_STRESS_RATE * Math.max(0.0, utciCelsius - 32.0);
     }
 
     @Override
