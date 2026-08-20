@@ -86,7 +86,7 @@
         <surefire.version>3.5.6</surefire.version>
         <jupiter.version>6.0.1</jupiter.version>
         <mockito.version>5.23.0</mockito.version>
-        <rest-assured.version>5.5.7</rest-assured.version>
+        <rest-assured.version>6.0.1</rest-assured.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <javax.ws.rs-api-version>2.1.1</javax.ws.rs-api-version>
         <jsr311-api-version>1.1.1</jsr311-api-version>
