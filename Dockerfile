@@ -1,4 +1,4 @@
-FROM docker.io/maven:3.9.16-amazoncorretto-21-alpine@sha256:2d12b180966b0b68684a5e347a9ed287f06a65dbebf3388635b4ebbed0c5097c AS build
+FROM docker.io/maven:3.9.16-amazoncorretto-21@sha256:ae694e8f35dfdb3f74f70f5f5cb3290d64fc7179f11cd9f0d493851c024aec77 AS build
 # ============================================================================
 # Build stage for Java-based ORS application
 # This stage is responsible for compiling and packaging the Java-based OpenRouteService (ORS) application.
@@ -7,6 +7,13 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # hadolint ignore=DL3002
 USER root
+
+# binutils (objcopy) is required by jlink's --strip-debug; this stage is
+# discarded before the final image, so it never reaches its CVE surface.
+RUN dnf install -y binutils && \
+    jlink --add-modules java.se,jdk.unsupported,jdk.crypto.ec \
+    --strip-debug --no-man-pages --no-header-files --compress=zip-6 \
+    --output /javaruntime
 
 WORKDIR /tmp/ors
 
@@ -74,25 +81,36 @@ LABEL org.opencontainers.image.title="openrouteservice"
 LABEL org.opencontainers.image.description="Open-source route planning service based on OpenStreetMap data"
 LABEL org.opencontainers.image.documentation="https://giscience.github.io/openrouteservice"
 
-FROM base AS slim
+FROM registry.opencode.de/oci-community/images/zendis/base:main-minimal@sha256:2215fda5d0dcd91ca89341ba185052b55531af2e5015f243f0b1b4eb9420da0b AS slim
 # ============================================================================
 # K8s-ready image stage
-# This stage is optimized for Kubernetes deployment with:
+# This stage is optimized for Kubernetes and container deployments with:
 # - Java as PID 1 for proper signal handling
 # - Direct Logging to STDOUT/STDERR
 # - Non-root execution
 # - Absolute minimal footprint
 # - No config presets or example data
+# - Distroless, cosign-attested openCode base: no shell, no package manager,
+#   so nothing here can RUN; everything arrives via COPY.
 # ============================================================================
 
-# Copy JAR from build stage.
-# 644, not 750: `java -jar` only reads the archive.
-COPY --chown=ors:0 --chmod=644 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
+ARG ORS_HOME=/home/ors
 
-# Stdout/stderr only for the slim image. Can be overridden by setting LOGGING_FILE_NAME to a file path in the container.
-ENV LOGGING_FILE_NAME=""
+COPY --from=build --chown=1001:0 /javaruntime /opt/java
+# HEALTHCHECK probe binary
+COPY --from=ghcr.io/tarampampam/microcheck:1.4.0@sha256:c9f79cd408626de7c10f2d487d67339f49adf0ba61dde96ede65343269db1f85 \
+    --chown=1001:0 --chmod=755 /bin/httpcheck /usr/bin/httpcheck
+# zendis/base ships libc/libm/libgcc_s but not libstdc++, which libjvm.so needs
+COPY --from=build --chown=1001:0 /lib64/libstdc++.so.6 /opt/java-libs/libstdc++.so.6
+COPY --from=base --chown=1001:0 ${ORS_HOME} ${ORS_HOME}
+COPY --chown=1001:0 --chmod=644 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
 
-# Apache Tomcat hardening: pinned response settings, shorter connector timeout, no Swagger UI or OpenAPI document
+ENV PATH="/opt/java/bin:${PATH}" \
+    LD_LIBRARY_PATH="/opt/java-libs" \
+    LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US' \
+    ORS_HOME=${ORS_HOME} \
+    LOGGING_FILE_NAME=""
+
 ENV SERVER_SERVER_HEADER="" \
     SERVER_ERROR_INCLUDE_STACKTRACE=never \
     SERVER_ERROR_INCLUDE_MESSAGE=never \
@@ -103,14 +121,16 @@ ENV SERVER_SERVER_HEADER="" \
     SPRINGDOC_SWAGGER_UI_ENABLED=false \
     SPRINGDOC_API_DOCS_ENABLED=false
 
-# Switch to a non-root user, declared numerically and above 1000.
+WORKDIR ${ORS_HOME}
+
+EXPOSE 8082
+
+HEALTHCHECK --start-period=60s --interval=30s --timeout=8s CMD ["/usr/bin/httpcheck", \
+    "--port-env", "SERVER_PORT", "--timeout-env", "ORS_HEALTHCHECK_TIMEOUT", \
+    "--connect-timeout", "1", "http://localhost:8082/ors/v2/health"]
+
 USER 1001:0
 
-# Run Java jar directly as PID 1
-# Configuration via environment variables:
-# - JDK_JAVA_OPTIONS: additional JVM options
-# - Server settings via Spring properties (e.g., server.port, server.servlet.context-path)
-# - Logging via Spring properties (logging.level.*, logging.pattern.*)
 ENTRYPOINT ["java", "-jar", "/ors.jar"]
 
 FROM base AS publish
