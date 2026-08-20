@@ -614,4 +614,76 @@ class ResultTest extends ServiceTest {
                 .body("features[0].properties.area", is(closeTo(57958, 1000)))
                 .statusCode(200);
     }
+
+    @Test
+    void testIsocaloresDegreesC() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", getParameter("ranges_400"));
+        body.put("attributes", getParameter("attributesArea"));
+
+        body.put("options", new JSONObject().put("profile_params", new JSONObject().put("weightings", new JSONObject().put("csv_column", "less_than_0.5").put("csv_degree_c", 20))));
+
+        //{"locations":[[8.684177,49.423034]],"range":[400],"attributes":["area"],"options":{"profile_params":{"weightings":{"csv_column":"less_than_0.5", "csv_degree_c":20}}}}
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(509758, 1000)))
+                .statusCode(200);
+
+        body.put("options", new JSONObject().put("profile_params", new JSONObject().put("weightings", new JSONObject().put("csv_column", "less_than_0.5").put("csv_degree_c", 25))));
+
+        //{"locations":[[8.684177,49.423034]],"range":[400],"attributes":["area"],"options":{"profile_params":{"weightings":{"csv_column":"less_than_0.5", "csv_degree_c":25}}}}
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(487751, 1000)))
+                .statusCode(200);
+
+        body.put("options", new JSONObject().put("profile_params", new JSONObject().put("weightings", new JSONObject().put("csv_column", "greater_than_0.5").put("csv_degree_c", 25))));
+
+        //{"locations":[[8.684177,49.423034]],"range":[400],"attributes":["area"],"options":{"profile_params":{"weightings":{"csv_column":"greater_than_0.5", "csv_degree_c":25}}}}
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(440589, 1000)))
+                .statusCode(200);
+
+        body.put("options", new JSONObject().put("profile_params", new JSONObject().put("weightings", new JSONObject().put("csv_column", "greater_than_0.5").put("csv_degree_c", 30))));
+
+        //{"locations":[[8.684177,49.423034]],"range":[400],"attributes":["area"],"options":{"profile_params":{"weightings":{"csv_column":"greater_than_0.5", "csv_degree_c":30}}}}
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .body("features[0].properties.area", is(closeTo(223952, 1000)))
+                .statusCode(200);
+    }
 }
