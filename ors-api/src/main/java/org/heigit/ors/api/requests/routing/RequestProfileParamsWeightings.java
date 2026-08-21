@@ -29,6 +29,7 @@ public class RequestProfileParamsWeightings {
     public static final String PARAM_GREEN_INDEX = "green";
     public static final String PARAM_QUIETNESS = "quiet";
     private static final String PARAM_CSV_FACTOR = "csv_factor";
+    private static final String PARAM_CSV_DEGREE_C = "csv_degree_c";
     private static final String PARAM_CSV_COLUMN = "csv_column";
     public static final String PARAM_SHADOW_INDEX = "shadow";
 
@@ -74,6 +75,12 @@ public class RequestProfileParamsWeightings {
     @Schema(name = PARAM_CSV_FACTOR, description = "Specifies the factor of csv-column (range 0 to 1)", hidden = true)
     @JsonProperty(PARAM_CSV_FACTOR)
     private Float csvFactor;
+
+    @Schema(name = PARAM_CSV_DEGREE_C, description = "Specifies the temperature in degrees C", hidden = true)
+    @JsonProperty(PARAM_CSV_DEGREE_C)
+    private Float csvDegreeC;
+    @JsonIgnore
+    private boolean hasCsvDegreeC = false;
 
     @Schema(name = PARAM_CSV_COLUMN, description = "Specifies the csv column name", hidden = true)
     @JsonProperty(PARAM_CSV_COLUMN)
@@ -128,6 +135,19 @@ public class RequestProfileParamsWeightings {
     public void setCsvFactor(Float csvFactor) {
         this.csvFactor = csvFactor;
         hasCsv = true;
+    }
+
+    public Float getCsvDegreeC() {
+        return csvDegreeC;
+    }
+
+    public void setCsvDegreeC(Float csvDegreeC) {
+        this.csvDegreeC = csvDegreeC;
+        hasCsvDegreeC = true;
+    }
+
+    public boolean hasCsvDegreeC() {
+        return this.hasCsvDegreeC;
     }
 
     public String getCsvColumn() {

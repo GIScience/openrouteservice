@@ -1,6 +1,6 @@
 ors:
   cors:
-    allowed_origins: https://example.org, https://test.com, http://localhost:8080, http://127.0.0.1:8082
+    allowed_origins: "*"
     allowed_headers: Content-Type, X-Tested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
     preflight_max_age: 12345
 
