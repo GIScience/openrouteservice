@@ -21,7 +21,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
       - name: yq - portable yaml processor
-        uses: mikefarah/yq@1b9b4ac5187171d2e5e3129be0cfa827c7f9d53d # v4.53.3
+        uses: mikefarah/yq@ce7026e3195aceac6b6a56a6b81fca4e8e466e36 # v4.53.4
         with:
           cmd: yq --version
       - name: validate application.yml
