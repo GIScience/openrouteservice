@@ -13,7 +13,8 @@ USER root
 RUN dnf install -y binutils && \
     jlink --add-modules java.se,jdk.unsupported,jdk.crypto.ec \
     --strip-debug --no-man-pages --no-header-files --compress=zip-6 \
-    --output /javaruntime
+    --output /javaruntime && \
+    dnf clean all
 
 WORKDIR /tmp/ors
 
