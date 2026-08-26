@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.16</version>
+        <version>4.1.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -51,8 +51,9 @@
         <lombok.version>1.18.46</lombok.version>
         <slf4j.version>2.0.18</slf4j.version>
         <log4j.version>2.26.1</log4j.version>
-        <springdoc-openapi-starter.version>2.9.0</springdoc-openapi-starter.version>
-        <swagger-core.version>2.2.54</swagger-core.version>
+        <springdoc-openapi-starter.version>3.1.0</springdoc-openapi-starter.version>
+        <!-- pinned to match the swagger-core version springdoc-openapi 3.1.0 itself uses -->
+        <swagger-core.version>2.2.52</swagger-core.version>
         <swagger-parser.version>2.1.47</swagger-parser.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <geotools.version>32.4</geotools.version>

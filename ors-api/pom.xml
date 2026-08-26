@@ -167,12 +167,6 @@
         </dependency>
 
         <!-- Spring dependencies -->
-        <!-- The following dependency is needed for the Spring Boot Actuator and validates beans -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jcl</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
@@ -235,6 +229,20 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- TestRestTemplate moved out of spring-boot-test into its own module in Spring Boot 4;
+             spring-boot-restclient provides the RestTemplateBuilder autoconfiguration it needs -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-resttestclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-restclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>io.swagger.parser.v3</groupId>
             <artifactId>swagger-parser</artifactId>
@@ -257,9 +265,24 @@
 
         <!-- TODO: according dependency:analyze this
         is not used, but build fails when not declared -->
+        <!-- Temporary Jackson 2 bridge (Spring Boot 4 migration): exclude the Jackson 3
+             module springdoc pulls in transitively and use spring-boot-jackson2 below instead,
+             so Spring MVC keeps using our Jackson 2 ObjectMapper bean while GraphHopper is
+             still Jackson-2-only. Dropped once GraphHopper's Jackson 3 release is adopted. -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-jackson</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-jackson2</artifactId>
         </dependency>
 
         <dependency>
@@ -267,10 +290,11 @@
             <artifactId>commons-compiler</artifactId>
         </dependency>
 
+        <!-- ORSEnvironmentPostProcessor needs org.apache.commons.logging.Log directly;
+             spring-jcl (which used to re-export it transitively) was removed in Spring Framework 7 -->
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
