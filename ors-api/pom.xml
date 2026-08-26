@@ -297,13 +297,6 @@
             <artifactId>jackson-annotations</artifactId>
         </dependency>
 
-        <!-- used by ConfigOutputTest to parse the engine's generated YAML config output -->
-        <dependency>
-            <groupId>tools.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
