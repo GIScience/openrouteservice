@@ -1,8 +1,5 @@
 package org.heigit.ors.api.responses.export.topojson;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.Pair;
 import org.heigit.ors.export.ExportResult;
 import org.junit.jupiter.api.Assertions;
@@ -10,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -74,15 +73,15 @@ class TopoJsonExportResponseTest {
     }
 
     @Test
-    void testTopoJsonSerialization() throws JsonProcessingException {
+    void testTopoJsonSerialization() {
         // Serialization with jackson
-        ObjectMapper objectMapper = new ObjectMapper();
+        JsonMapper objectMapper = JsonMapper.builder().build();
 
         String jsonString = objectMapper.writeValueAsString(topoJsonExportResponse);
 
         // Test the serialization
         JsonNode jsonNode = objectMapper.readTree(jsonString);
-        Assertions.assertEquals(jsonNode.get("type").asText(), topoJsonExportResponse.getType());
+        Assertions.assertEquals(jsonNode.get("type").asString(), topoJsonExportResponse.getType());
         for (int i = 0; i < topoJsonExportResponse.getBbox().size(); i++) {
             Assertions.assertEquals(jsonNode.get("bbox").get(i).asDouble(), topoJsonExportResponse.getBbox().get(i));
         }
@@ -94,20 +93,20 @@ class TopoJsonExportResponseTest {
             }
         }
         Assertions.assertEquals(1, jsonNode.get("objects").size());
-        Assertions.assertEquals(jsonNode.get("objects").get("network").get("type").asText(), topoJsonExportResponse.getObjects().getNetwork().getType());
+        Assertions.assertEquals(jsonNode.get("objects").get("network").get("type").asString(), topoJsonExportResponse.getObjects().getNetwork().getType());
         for (int j = 0; j < topoJsonExportResponse.getObjects().getNetwork().getGeometries().size(); j++) {
-            Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("type").asText(), topoJsonExportResponse.getObjects().getNetwork().getGeometries().get(j).getType());
+            Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("type").asString(), topoJsonExportResponse.getObjects().getNetwork().getGeometries().get(j).getType());
             for (int k = 0; k < topoJsonExportResponse.getObjects().getNetwork().getGeometries().get(j).getArcs().size(); k++) {
                 Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("arcs").get(k).asInt(), topoJsonExportResponse.getObjects().getNetwork().getGeometries().get(j).getArcs().get(k));
             }
-            Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("properties").get("osm_id").asText(), topoJsonExportResponse.getObjects().getNetwork().getGeometries().get(j).getProperties().getOsmId().toString());
+            Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("properties").get("osm_id").asString(), topoJsonExportResponse.getObjects().getNetwork().getGeometries().get(j).getProperties().getOsmId().toString());
         }
     }
 
     @Test
-    void testEmptyTopoJsonObjectSerialization() throws JsonProcessingException {
+    void testEmptyTopoJsonObjectSerialization() {
         TopoJsonExportResponse emptyTopoJsonExportResponse = TopoJsonExportResponse.builder().build();
-        ObjectMapper objectMapper = new ObjectMapper();
+        JsonMapper objectMapper = JsonMapper.builder().build();
         String jsonString = objectMapper.writeValueAsString(emptyTopoJsonExportResponse);
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         Assertions.assertEquals("Topology", emptyTopoJsonExportResponse.getType());

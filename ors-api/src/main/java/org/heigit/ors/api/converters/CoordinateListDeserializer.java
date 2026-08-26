@@ -15,14 +15,14 @@
 
 package org.heigit.ors.api.converters;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.heigit.ors.api.requests.common.CoordinateListWrapper;
 import org.locationtech.jts.geom.Coordinate;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,8 +34,8 @@ public class CoordinateListDeserializer extends StdDeserializer<CoordinateListWr
     }
 
     @Override
-    public CoordinateListWrapper deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        JsonNode node = jsonParser.getCodec().readTree(jsonParser);
+    public CoordinateListWrapper deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+        JsonNode node = jsonParser.readValueAsTree();
         List<Coordinate> convertedCoords = new ArrayList<>();
 
         if (node.isArray()) {
@@ -49,7 +49,7 @@ public class CoordinateListDeserializer extends StdDeserializer<CoordinateListWr
         try {
             return new CoordinateListWrapper(convertedCoords);
         } catch (Exception e) {
-            throw new IOException(e.getMessage());
+            throw DatabindException.from(deserializationContext, e.getMessage(), e);
         }
     }
 }

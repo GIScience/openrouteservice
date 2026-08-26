@@ -265,24 +265,9 @@
 
         <!-- TODO: according dependency:analyze this
         is not used, but build fails when not declared -->
-        <!-- Temporary Jackson 2 bridge (Spring Boot 4 migration): exclude the Jackson 3
-             module springdoc pulls in transitively and use spring-boot-jackson2 below instead,
-             so Spring MVC keeps using our Jackson 2 ObjectMapper bean while GraphHopper is
-             still Jackson-2-only. Dropped once GraphHopper's Jackson 3 release is adopted. -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-jackson</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-jackson2</artifactId>
         </dependency>
 
         <dependency>
@@ -298,23 +283,25 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
+        </dependency>
+
+        <!-- used by ConfigOutputTest to parse the engine's generated YAML config output -->
+        <dependency>
+            <groupId>tools.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

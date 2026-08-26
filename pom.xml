@@ -47,7 +47,7 @@
 
         <!-- switch graphhopper versions to enable debugging -->
         <!--<graphhopper.version>4.15-SNAPSHOT</graphhopper.version>-->
-        <graphhopper.version>v4.14.1</graphhopper.version>
+        <graphhopper.version>v4.15.0-RC1</graphhopper.version>
         <lombok.version>1.18.46</lombok.version>
         <slf4j.version>2.0.18</slf4j.version>
         <log4j.version>2.26.1</log4j.version>
@@ -60,6 +60,9 @@
         <fasterxml.jackson.version>2.22.2</fasterxml.jackson.version>
         <!-- jackson-annotations dropped patch-level versioning as of 2.20; it has no 2.22.1 release -->
         <fasterxml.jackson-annotations.version>2.22</fasterxml.jackson-annotations.version>
+        <!-- tools.jackson.core:jackson-core/jackson-databind themselves are pinned by
+             spring-boot-dependencies; this must track whatever version that resolves to -->
+        <jackson3.version>3.1.5</jackson3.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-logging.version>1.4.0</commons-logging.version>
         <commons-compress.version>1.28.0</commons-compress.version>
@@ -348,6 +351,12 @@
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${fasterxml.jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>tools.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${jackson3.version}</version>
             </dependency>
 
             <dependency>

@@ -1,15 +1,14 @@
 package org.heigit.ors.api.responses.export.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 
-public class WeightSerializer<T> extends JsonSerializer<T> {
+public class WeightSerializer<T> extends ValueSerializer<T> {
     @Override
-    public void serialize(Object o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(Object o, JsonGenerator jsonGenerator, SerializationContext serializationContext) {
         jsonGenerator.writeString(new DecimalFormat("#.###").format(o));
     }
 }

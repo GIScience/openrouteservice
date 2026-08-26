@@ -2,9 +2,9 @@ package org.heigit.ors.api.responses.export.json;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.common.Pair;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.util.Map;
 
