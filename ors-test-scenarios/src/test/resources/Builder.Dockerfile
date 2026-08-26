@@ -7,7 +7,7 @@
 ARG CONTAINER_BUILD_DIR=/build
 ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
-FROM docker.io/maven:3.9.9-amazoncorretto-21-alpine AS ors-test-scenarios-builder
+FROM docker.io/maven:3.9.16-eclipse-temurin-25-alpine AS ors-test-scenarios-builder
 
 RUN apk add --no-cache bash~=5 yq~=4 zip~=3 && \
     rm -rf /var/cache/apk/*
@@ -59,10 +59,10 @@ RUN yq -i '\
     ' "$CONTAINER_BUILD_DIR"/ors-config.yml
 
 
-FROM docker.io/tomcat:10.1.30-jdk21-temurin-jammy AS ors-test-scenarios-war-builder
+FROM docker.io/tomcat:10.1.59-jdk25-temurin-jammy AS ors-test-scenarios-war-builder
 # Build: docker build --target ors-test-scenarios-war-bare --tag ors-test-scenarios-war-bare:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
 
-RUN apt-get update && apt-get install -y --no-install-recommends unzip=6.0-26ubuntu3 zip=3.0-12build2 && \
+RUN apt-get update && apt-get install -y --no-install-recommends unzip=6.0-26ubuntu3 zip=3.0-12build2 wget=1.21.2-2ubuntu1.5 && \
     wget https://github.com/mikefarah/yq/releases/download/v4.44.5/yq_linux_amd64.tar.gz -O - |\
     tar xz && mv yq_linux_amd64 /usr/bin/yq && chmod +x /usr/bin/yq && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -104,7 +104,7 @@ RUN mv "$CONTAINER_WORK_DIR"/ors-config.yml "$CONTAINER_WORK_DIR"/ors-config.yml
 
 ENV JAVA_OPTS="-Xmx350M"
 
-FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS ors-test-scenarios-jar-builder
+FROM docker.io/eclipse-temurin:25-alpine-3.24 AS ors-test-scenarios-jar-builder
 # Build: docker build --target ors-test-scenarios-jar-bare --tag ors-test-scenarios-jar-bare:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
 RUN apk add --no-cache bash~=5 yq~=4 zip~=3
 
@@ -117,5 +117,3 @@ COPY --from=ors-test-scenarios-builder $CONTAINER_BUILD_DIR/ors-api/target/ors.j
 COPY --from=ors-test-scenarios-builder $CONTAINER_BUILD_DIR/ors-config.yml "$CONTAINER_WORK_DIR"/ors-config.yml.deactivated
 COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heidelberg.test.pbf
 COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
-
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
