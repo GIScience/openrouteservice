@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.16</version>
+        <version>4.1.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -51,14 +51,18 @@
         <lombok.version>1.18.46</lombok.version>
         <slf4j.version>2.0.18</slf4j.version>
         <log4j.version>2.26.1</log4j.version>
-        <springdoc-openapi-starter.version>2.9.0</springdoc-openapi-starter.version>
-        <swagger-core.version>2.2.54</swagger-core.version>
+        <springdoc-openapi-starter.version>3.1.0</springdoc-openapi-starter.version>
+        <!-- pinned to match the swagger-core version springdoc-openapi 3.1.0 itself uses -->
+        <swagger-core.version>2.2.52</swagger-core.version>
         <swagger-parser.version>2.1.47</swagger-parser.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <geotools.version>32.4</geotools.version>
         <fasterxml.jackson.version>2.22.2</fasterxml.jackson.version>
         <!-- jackson-annotations dropped patch-level versioning as of 2.20; it has no 2.22.1 release -->
         <fasterxml.jackson-annotations.version>2.22</fasterxml.jackson-annotations.version>
+        <!-- tools.jackson.core:jackson-core/jackson-databind themselves are pinned by
+             spring-boot-dependencies; this must track whatever version that resolves to -->
+        <jackson3.version>3.1.5</jackson3.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-logging.version>1.4.0</commons-logging.version>
         <commons-compress.version>1.28.0</commons-compress.version>
@@ -347,6 +351,12 @@
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${fasterxml.jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>tools.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${jackson3.version}</version>
             </dependency>
 
             <dependency>

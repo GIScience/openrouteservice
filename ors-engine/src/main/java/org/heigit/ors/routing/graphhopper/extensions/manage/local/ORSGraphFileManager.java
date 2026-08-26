@@ -1,9 +1,5 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.util.Helper;
 import lombok.NoArgsConstructor;
@@ -18,6 +14,11 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphBuildInfo;
 import org.heigit.ors.util.AppInfo;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.dataformat.yaml.YAMLFactory;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
@@ -36,9 +37,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
-import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static tools.jackson.core.StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN;
+import static tools.jackson.dataformat.yaml.YAMLWriteFeature.*;
 
 @NoArgsConstructor
 public class ORSGraphFileManager implements ORSGraphFolderStrategy {
@@ -262,26 +263,27 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return new GraphBuildInfo().setLocalDirectory(graphDirectory).setPersistedGraphBuildInfo(graphBuildInfo);
     }
 
-    static ObjectMapper getYamlMapper() {
-        YAMLFactory yf = new YAMLFactory()
+    static YAMLMapper getYamlMapper() {
+        YAMLFactory yf = YAMLFactory.builder()
                 .disable(WRITE_DOC_START_MARKER)
                 .disable(SPLIT_LINES)
                 .disable(USE_NATIVE_TYPE_ID)
                 .enable(INDENT_ARRAYS_WITH_INDICATOR)
-                .enable(MINIMIZE_QUOTES);
-        ObjectMapper mapper = new ObjectMapper(yf);
-        mapper.configure(WRITE_BIGDECIMAL_AS_PLAIN, true);
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, false);
-        return mapper;
+                .enable(MINIMIZE_QUOTES)
+                .build();
+        return YAMLMapper.builder(yf)
+                .enable(WRITE_BIGDECIMAL_AS_PLAIN)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .build();
     }
 
     public PersistedGraphBuildInfo readOrsGraphBuildInfo(File graphBuildInfoFile) throws ORSGraphFileManagerException {
         try {
             return getYamlMapper()
                     .readValue(graphBuildInfoFile, PersistedGraphBuildInfo.class);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Error reading ORS graph info: %s".formatted(e.getMessage()));
             throw new ORSGraphFileManagerException("Error reading ORS graph info: ", e);
         }
@@ -291,7 +293,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         try {
             getYamlMapper()
                     .writeValue(outputFile, persistedGraphBuildInfo);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Could not write file %s".formatted(outputFile.getAbsolutePath()));
             throw new ORSGraphFileManagerException("Could not write file: ", e);
         }
