@@ -35,7 +35,7 @@ on:
       java_version:
         description: Java version to use for Maven builds
         type: string
-        default: '21'
+        default: '25'
       dockerfile_path:
         description: Path to the Dockerfile to use
         type: string

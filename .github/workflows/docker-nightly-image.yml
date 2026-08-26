@@ -72,7 +72,7 @@ jobs:
     with:
       dockerfile_path: 'Dockerfile'
       image_stage: 'publish'
-      java_version: 21
+      java_version: 25
       build_amd64: true
       build_arm64: true
       push_by_digest: true
@@ -91,7 +91,7 @@ jobs:
     with:
       dockerfile_path: 'Dockerfile'
       image_stage: 'slim'
-      java_version: 21
+      java_version: 25
       build_amd64: true
       build_arm64: true
       push_by_digest: true
