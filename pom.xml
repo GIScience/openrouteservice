@@ -57,6 +57,10 @@
         <swagger-parser.version>2.1.47</swagger-parser.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <geotools.version>32.4</geotools.version>
+        <!-- ors-engine/ors-api are fully on Jackson 3 (see tools.jackson.* below); this Jackson 2
+             pin remains only for ors-test-scenarios and ors-benchmark, standalone tool modules
+             that don't depend on ors-engine/ors-api or run through Spring MVC and were kept on
+             Jackson 2 as out of scope for the Spring Boot 4 migration -->
         <fasterxml.jackson.version>2.22.2</fasterxml.jackson.version>
         <!-- jackson-annotations dropped patch-level versioning as of 2.20; it has no 2.22.1 release -->
         <fasterxml.jackson-annotations.version>2.22</fasterxml.jackson-annotations.version>
@@ -329,18 +333,6 @@
                 <groupId>com.googlecode.json-simple</groupId>
                 <artifactId>json-simple</artifactId>
                 <version>${json-simple.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${fasterxml.jackson.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jts</artifactId>
-                <version>${fasterxml.jackson.version}</version>
             </dependency>
 
             <dependency>
