@@ -222,6 +222,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
+            <exclusions>
+                <!-- pulls in Logback transitively via spring-boot-starter, which then competes
+                     with spring-boot-starter-log4j2 as the active SLF4J provider; Logback wins
+                     and fails to parse application.yml's Log4j2-specific %style/%highlight
+                     console pattern, printing the literal pattern instead of formatted output -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
