@@ -1,4 +1,4 @@
-FROM docker.io/maven:3.9.16-amazoncorretto-25-alpine@sha256:222ee47b804183591267121aaa472d257a40380bb12ba4a61eed34a930695047 AS build
+FROM docker.io/maven:3.9.16-amazoncorretto-25@sha256:98295c180adc4b5c0a52b830e00c387c862d5827d395cd7737d8205170428785 AS build
 # ============================================================================
 # Build stage for Java-based ORS application
 # This stage is responsible for compiling and packaging the Java-based OpenRouteService (ORS) application.
@@ -7,6 +7,17 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # hadolint ignore=DL3002
 USER root
+
+# The `slim` stage has no JDK of its own. Its base ships the native libraries a
+# JVM needs but no JVM. So the runtime is built here and copied in.
+# /empty-tmp exists because the distroless base ships no /tmp at all and COPY
+# cannot create a directory.
+RUN dnf install -y binutils tar && \
+    jlink --add-modules java.se,jdk.unsupported,jdk.crypto.ec \
+    --strip-debug --no-man-pages --no-header-files --compress=zip-6 \
+    --output /javaruntime && \
+    mkdir -m 1777 /empty-tmp && \
+    dnf clean all
 
 WORKDIR /tmp/ors
 
@@ -74,23 +85,36 @@ LABEL org.opencontainers.image.title="openrouteservice"
 LABEL org.opencontainers.image.description="Open-source route planning service based on OpenStreetMap data"
 LABEL org.opencontainers.image.documentation="https://giscience.github.io/openrouteservice"
 
-FROM base AS slim
+FROM gcr.io/distroless/cc-debian13:nonroot@sha256:c31ff9abcb1910f3ab25c7957bdaf0bfe12a01eb546e8df2282f1c8f682b606c AS slim
 # ============================================================================
 # K8s-ready image stage
-# This stage is optimized for Kubernetes deployment with:
+# This stage is optimized for Kubernetes and container deployments with:
 # - Java as PID 1 for proper signal handling
 # - Direct Logging to STDOUT/STDERR
 # - Non-root execution
 # - Absolute minimal footprint
 # - No config presets or example data
+# - Distroless, cosign-attested Debian 13 base: no shell, no package manager,
+#   so nothing here can RUN; everything arrives via COPY.
 # ============================================================================
 
-# Copy JAR from build stage.
-# 644, not 750: `java -jar` only reads the archive.
-COPY --chown=ors:0 --chmod=644 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
+ARG ORS_HOME=/home/ors
 
-# Stdout/stderr only for the slim image. Can be overridden by setting LOGGING_FILE_NAME to a file path in the container.
-ENV LOGGING_FILE_NAME=""
+COPY --from=build --chown=1001:0 /javaruntime /opt/java
+# HEALTHCHECK probe. Preferred over copying curl or busybox in, which drag a general
+# purpose download tool or an entire shell back into a deliberately shell-less
+# base.
+COPY --from=ghcr.io/tarampampam/microcheck:1.4.0@sha256:c9f79cd408626de7c10f2d487d67339f49adf0ba61dde96ede65343269db1f85 \
+    --chown=1001:0 --chmod=755 /bin/httpcheck /usr/bin/httpcheck
+COPY --from=base --chown=1001:0 ${ORS_HOME} ${ORS_HOME}
+COPY --chown=1001:0 --chmod=644 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
+COPY --from=build --chown=1001:0 --chmod=1777 /empty-tmp /tmp
+
+ENV PATH="/opt/java/bin:${PATH}" \
+    LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US' \
+    ORS_HOME=${ORS_HOME} \
+    LOGGING_FILE_NAME="" \
+    XDG_CACHE_HOME=/tmp
 
 # Apache Tomcat hardening: pinned response settings, shorter connector timeout, no Swagger UI or OpenAPI document
 ENV SERVER_SERVER_HEADER="" \
@@ -102,6 +126,16 @@ ENV SERVER_SERVER_HEADER="" \
     SERVER_TOMCAT_CONNECTION_TIMEOUT=20s \
     SPRINGDOC_SWAGGER_UI_ENABLED=false \
     SPRINGDOC_API_DOCS_ENABLED=false
+
+WORKDIR ${ORS_HOME}
+
+EXPOSE 8082
+
+# We need a custom health check as the base image comes without any binaries.
+# httpcheck is one of the emerging standard tools.
+HEALTHCHECK --start-period=60s --interval=30s --timeout=8s CMD ["/usr/bin/httpcheck", \
+    "--port-env", "SERVER_PORT", "--timeout-env", "ORS_HEALTHCHECK_TIMEOUT", \
+    "--connect-timeout", "1", "http://localhost:8082/ors/v2/health"]
 
 # Switch to a non-root user, declared numerically and above 1000.
 USER 1001:0
