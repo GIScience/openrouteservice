@@ -213,38 +213,17 @@ jobs:
         run: |
           docker load --input ${{ runner.temp }}/${{ matrix.artifact_name }}
 
-      - name: Get and save the UID
-        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
-        run: |
-          echo "UID=$(id -u)" >> $GITHUB_ENV
-
-      - name: Verify the slim image is not bound to a specific user ID
-        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
-        run: |
-          # A UID without an /etc/passwd entry gets GID 0, which is how Kubernetes injects
-          # injects its own user. Group 0 must therefore carry the owner's
-          # rights on both the JAR and ORS_HOME. This guards two regressions that are
-          # invisible in a Dockerfile diff: copying the JAR with --chmod=750 again, and
-          # chowning ORS_HOME back to ors:ors.
-          docker run --rm --user 1234567:0 --entrypoint sh ${{ env.TEST_SLIM_IMAGE_NAME }} -c '
-            set -eu
-            id
-            [ -r /ors.jar ] || { echo "FAIL: /ors.jar is not readable under an arbitrary UID"; exit 1; }
-            touch /home/ors/graphs/.uid-probe || { echo "FAIL: ORS_HOME is not writable under an arbitrary UID"; exit 1; }
-            echo "OK: arbitrary UID can read /ors.jar and write ORS_HOME"'
-
-      - name: Test slim image with graph build
+      - name: Test slim image with graph build under an arbitrary UID
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |
           mkdir -p $(pwd)/ors-docker/elevation_cache
-          chown -R $UID $(pwd)/ors-docker/elevation_cache
           # Place cached elevation file
           cp ors-api/src/test/files/elevation/srtm_38_03.gh $(pwd)/ors-docker/elevation_cache
-          # Start kubernetes image with graph build configured via environment variables
-          # GID 0, not 1000: the runner's UID plus GID 1000 would pass through the `ors`
-          # group and hide the fact that an injected UID only ever lands in group 0.
+          # Set appropriate permissions for the elevation_cache directory to be writable by the arbitrary UID used in the test container.
+          chmod -R a+rwX $(pwd)/ors-docker/elevation_cache
+          # Start the container with the test image and the raw docker run command, using an arbitrary UID (1234567) to ensure that the image can run under non-root conditions.
           docker run -it -d -p 8080:8082 \
-            -u $UID:0 \
+            -u 1234567:0 \
             -v graphs:/home/ors/graphs \
             -v $(pwd)/ors-docker/elevation_cache:/home/ors/elevation_cache \
             -v $(pwd)/ors-api/src/test/files/heidelberg.test.pbf:/home/ors/files/heidelberg.test.pbf:ro \
@@ -258,7 +237,7 @@ jobs:
             -e ors.engine.profiles.driving-car.enabled=true \
             --name ors-slim-test \
             ${{ env.TEST_SLIM_IMAGE_NAME }}
-          # Wait for graph build and health check (kubernetes image is non-interactive)
+          # Wait for graph build and health check
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-slim-test && exit 1)
 
       - name: Test slim image does not expose Swagger UI or the OpenAPI document
@@ -307,14 +286,15 @@ jobs:
           docker stop ors-slim-test
           docker container prune -f
 
-      - name: Verify the slim image serves requests under a read-only root filesystem
+      - name: Verify the slim image can load a pre-build graph and serves requests under a read-only root filesystem
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |
-          # Reuses the graph from the previous step; elevation_cache is deliberately
-          # left off since it's only written to during a build. graphs (GraphHopper
-          # lock file) and tmpfs /tmp (GeoTools EPSG cache) must stay writable.
-          docker run -d --read-only --tmpfs /tmp -p 8080:8082 \
-            -u $UID:1000 \
+          mkdir -p "${RUNNER_TEMP}/ors-slim-tmp"
+          chmod 1777 "${RUNNER_TEMP}/ors-slim-tmp"
+          # Group 0, like the graph-build test above. The image grants write
+          # through the group alone.
+          docker run -d --read-only -v "${RUNNER_TEMP}/ors-slim-tmp:/tmp" -p 8080:8082 \
+            -u 1234567:0 \
             -v graphs:/home/ors/graphs \
             -e server.port=8082 \
             -e ors.engine.profile_default.graph_path=/home/ors/graphs \
@@ -335,5 +315,14 @@ jobs:
             docker logs ors-slim-readonly-test
             exit 1
           fi
-          docker exec ors-slim-readonly-test test -d /tmp/GeoTools || { echo "FAIL: GeoTools did not initialize its EPSG cache under tmpfs /tmp"; docker logs ors-slim-readonly-test; exit 1; }
+          # Read from the runner side of the bind mount; nothing is executed in the
+          # container. Under a read-only rootfs this directory is the only place
+          # GeoTools can put its EPSG database, so its presence is what proves the
+          # image is actually usable read-only rather than merely starting.
+          if [ ! -d "${RUNNER_TEMP}/ors-slim-tmp/GeoTools" ]; then
+            echo "FAIL: GeoTools did not initialize its EPSG cache under a writable /tmp"
+            ls -la "${RUNNER_TEMP}/ors-slim-tmp" || true
+            docker logs ors-slim-readonly-test
+            exit 1
+          fi
           echo "OK: read-only rootfs served avoid_polygons and initialized GeoTools' EPSG cache"
