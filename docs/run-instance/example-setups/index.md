@@ -20,4 +20,4 @@ The following examples are (currently) available:
 
 | Setup                    | Description                                                        | Difficulty | Link                                                                           |
 |--------------------------|--------------------------------------------------------------------|------------|--------------------------------------------------------------------------------|
-| Tomcat 10 - Ubuntu 22.04 | Setup openrouteservice with Tomcat 10 and Java 17 on Ubuntu 22.04. | Medium     | [English](en_tomcat-10-ubuntu_22_04) <br/> [German](de_tomcat-10-ubuntu_22_04) |
+| Tomcat 10 - Ubuntu 22.04 | Setup openrouteservice with Tomcat 10 and Java 25 on Ubuntu 22.04. | Medium     | [English](en_tomcat-10-ubuntu_22_04) <br/> [German](de_tomcat-10-ubuntu_22_04) |

@@ -15,7 +15,7 @@ To run the tests you need the following prerequisites:
 
 - Docker
 - Maven
-- Java 17+
+- Java 25+
 
 ## General
 

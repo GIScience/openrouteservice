@@ -8,7 +8,7 @@ following instructions are useful to get you set up to start modifying the code.
 ## Prerequisites
 
 The following documentation assumes you are running an Ubuntu 20.04 system (also generally works with newer Ubuntu versions). Depending on your environment, you might need to adjust certain details. You will also need to make sure to have the following installed: 
-* [java](https://www.java.com/en/) 17 (or higher) should be available, preferably as default Java environment.
+* [java](https://www.java.com/en/) 25 (or higher) should be available, preferably as default Java environment.
 * [maven](https://maven.apache.org/) should be installed on your system.
 * [git](https://github.com/git-guides/install-git) should be available on your system if you want to download the source code conveniently.
 

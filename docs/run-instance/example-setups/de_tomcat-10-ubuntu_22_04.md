@@ -1,6 +1,6 @@
 # Einrichtung von ORS v9 mit Tomcat 10 auf Ubuntu 22.04
 
-Dieses Tutorial zeigt dir, wie du openrouteservice v9 mit Java 17 und Tomcat 10 einrichtest.
+Dieses Tutorial zeigt dir, wie du openrouteservice v9 mit Java 25 und Tomcat 10 einrichtest.
 
 ::: info
 Zur [englischen Version](en_tomcat-10-ubuntu_22_04) dieses Tutorials.
@@ -10,7 +10,7 @@ Zur [englischen Version](en_tomcat-10-ubuntu_22_04) dieses Tutorials.
 
 - Ubuntu 22.04 mit aktiviertem Systemd (Systemd ist standardmäßig aktiviert)
 - Tomcat 10
-- Java 17 oder höher
+- Java 25 oder höher
 
 ## Annahmen
 
@@ -22,20 +22,20 @@ Zur [englischen Version](en_tomcat-10-ubuntu_22_04) dieses Tutorials.
 
 Die folgenden Schritte helfen dir, die Umgebung für Tomcat 10 vorzubereiten.
 
-### Java 17 installieren
+### Java 25 installieren
 
-Openrouteservice v9 benötigt Java 17 oder höher.
+Openrouteservice v9 benötigt Java 17 oder höher, wir empfehlen Java 25 (LTS).
 Der Grund dafür ist die Einführung von Tomcat 10.
 Du kannst auch eine neuere Version von Java verwenden, falls verfügbar.
 
 ```shell
 # Aktualisiere den Paketindex
 > sudo apt-get update
-# Installiere Java 17 oder höher, curl und nano
-> sudo apt-get install openjdk-17-jre-headless curl nano
+# Installiere Java 25 oder höher, curl und nano
+> sudo apt-get install openjdk-25-jre-headless curl nano
 ```
 
-- `openjdk-17-jre-headless` ist das Java-17-Laufzeitpaket ohne grafische Oberfläche.
+- `openjdk-25-jre-headless` ist das Java-25-Laufzeitpaket ohne grafische Oberfläche.
   Für openrouteservice wird keine grafische Benutzeroberfläche benötigt.
 - `curl` ist ein Befehlszeilentool zum Herunterladen von Dateien aus dem Web und wird verwendet, um bestimmte Ressourcen
   herunterzuladen.
@@ -44,7 +44,7 @@ Du kannst auch eine neuere Version von Java verwenden, falls verfügbar.
 Liste die verfügbaren Java-Versionen auf.
 
 ```shell
-# Zeige verfügbare Optionen an und kopiere den Pfad zur Java-17-Installation
+# Zeige verfügbare Optionen an und kopiere den Pfad zur Java-25-Installation
 sudo update-alternatives --list java
 ```
 
@@ -52,20 +52,20 @@ Die Ausgabe sollte in etwa so aussehen:
 
 ```shell
 [...]
-/usr/lib/jvm/java-17-openjdk-amd64/
+/usr/lib/jvm/java-25-openjdk-amd64/
 [...]
 ```
 
-Aktualisiere die Standard-Java-Version auf Java 17 oder die installierte Version.
+Aktualisiere die Standard-Java-Version auf Java 25 oder die installierte Version.
 
 ```shell
-# Setze die Standard-Java-Version auf Java 17
-> sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+# Setze die Standard-Java-Version auf Java 25
+> sudo update-alternatives --set java /usr/lib/jvm/java-25-openjdk-amd64/bin/java
 ```
 
 ::: info
-**Hinweis:** Der Pfad zur Java-17-Installation kann je nach System unterschiedlich sein. \
-**Hinweis:** Ab jetzt wird der Pfad zur Java-17-Installation als `JAVA_HOME` bezeichnet.
+**Hinweis:** Der Pfad zur Java-25-Installation kann je nach System unterschiedlich sein. \
+**Hinweis:** Ab jetzt wird der Pfad zur Java-25-Installation als `JAVA_HOME` bezeichnet.
 :::
 
 ### Einen neuen Benutzer für Tomcat 10 erstellen
@@ -139,7 +139,7 @@ Group=tomcat
 RestartSec=10
 Restart=always
 
-Environment="JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/"
+Environment="JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64/"
 Environment="JAVA_OPTS=-Djava.security.egd=file:///dev/urandom"
 Environment="CATALINA_OPTS=-server -XX:+UseParallelGC"
 
@@ -170,7 +170,7 @@ sehen.
 
 ## Vorbereitung der openrouteservice-Umgebung
 
-Da Tomcat 10 nun eingerichtet ist, können wir auch openrouteservice mit Java 17 einrichten.
+Da Tomcat 10 nun eingerichtet ist, können wir auch openrouteservice mit Java 25 einrichten.
 
 ### Das openrouteservice WAR-File herunterladen
 
@@ -274,7 +274,7 @@ verfügt.
 
 ## openrouteservice ausführen
 
-Wenn du die oben genannten Schritte befolgt hast, sollte openrouteservice nun korrekt mit Tomcat 10 und Java 17
+Wenn du die oben genannten Schritte befolgt hast, sollte openrouteservice nun korrekt mit Tomcat 10 und Java 25
 eingerichtet sein.
 Die folgenden Schritte sind immer notwendig, wenn du die Konfiguration, die Ordnerstruktur oder die Graphen änderst:
 

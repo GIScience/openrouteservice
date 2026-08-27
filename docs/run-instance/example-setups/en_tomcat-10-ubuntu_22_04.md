@@ -1,6 +1,6 @@
 # Setup ORS v9 with Tomcat 10 on Ubuntu 22.04
 
-This guide will guide you how to set up openrouteservice v9 with Java 17 and Tomcat 10.
+This guide will guide you how to set up openrouteservice v9 with Java 25 and Tomcat 10.
 
 ::: info
 To the [german version](de_tomcat-10-ubuntu_22_04) of this tutorial.
@@ -10,7 +10,7 @@ To the [german version](de_tomcat-10-ubuntu_22_04) of this tutorial.
 
 - Ubuntu 22.04 with Systemd enabled (Systemd should be enabled by default)
 - Tomcat 10
-- Java 17+
+- Java 25+
 
 ## Assumptions
 
@@ -21,20 +21,20 @@ To the [german version](de_tomcat-10-ubuntu_22_04) of this tutorial.
 
 The following steps will guide you through the process of preparing the Tomcat 10 environment.
 
-### Install Java 17
+### Install Java 25
 
-Openrouteservice v9 requires Java 17 or higher to run.
+Openrouteservice v9 requires Java 17 or higher to run, we recommend Java 25 (LTS).
 The reason is the introduction of Tomcat 10.
 You can also use a higher version of Java if available.
 
 ```shell
 # Update the package index
 > sudo apt-get update
-# Install Java 17 or higher, curl and nano
-> sudo apt-get install openjdk-17-jre-headless curl nano
+# Install Java 25 or higher, curl and nano
+> sudo apt-get install openjdk-25-jre-headless curl nano
 ```
 
-- `openjdk-17-jre-headless` is the Java 17 runtime environment as a headless package. We don't need a graphical user
+- `openjdk-25-jre-headless` is the Java 25 runtime environment as a headless package. We don't need a graphical user
   interface for openrouteservice.
 - `curl` is a command-line utility for downloading files from the web and will be used to download certain resources.
 - `nano` is a simple text editor that will be used to edit certain files.
@@ -42,7 +42,7 @@ You can also use a higher version of Java if available.
 List your available Java versions.
 
 ```shell
-# List available options and copy the path to the Java 17 installation
+# List available options and copy the path to the Java 25 installation
 sudo update-alternatives --list java
 ```
 
@@ -50,20 +50,20 @@ The output should look like similar to this:
 
 ```shell
 [...]
-/usr/lib/jvm/java-17-openjdk-amd64/
+/usr/lib/jvm/java-25-openjdk-amd64/
 [...]
 ```
 
-Update the default Java version to use Java 17 or the version you installed.
+Update the default Java version to use Java 25 or the version you installed.
 
 ```shell
-# Set the default Java version to Java 17
-> sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+# Set the default Java version to Java 25
+> sudo update-alternatives --set java /usr/lib/jvm/java-25-openjdk-amd64/bin/java
 ```
 
 ::: info
-**Note:** The path to the Java 17 installation may vary depending on your system. \
-**Note:** From now on we will refer to the path to the Java 17 installation as `JAVA_HOME`.
+**Note:** The path to the Java 25 installation may vary depending on your system. \
+**Note:** From now on we will refer to the path to the Java 25 installation as `JAVA_HOME`.
 :::
 
 ### Create a new user for Tomcat 10
@@ -135,7 +135,7 @@ Group=tomcat
 RestartSec=10
 Restart=always
 
-Environment="JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/"
+Environment="JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64/"
 Environment="JAVA_OPTS=-Djava.security.egd=file:///dev/urandom"
 Environment="CATALINA_OPTS=-server -XX:+UseParallelGC"
 
@@ -165,7 +165,7 @@ Now navigate to [http://localhost:8080](http://localhost:8080) in your browser t
 
 ## Prepare the openrouteservice environment
 
-Since we have set up Tomcat 10, we can now set up openrouteservice with Java 17.
+Since we have set up Tomcat 10, we can now set up openrouteservice with Java 25.
 
 ### Download the openrouteservice WAR-File
 
@@ -262,7 +262,7 @@ Make sure you set up `-Xmx` to a value that fits your system and graph and that 
 
 ## Run openrouteservice
 
-If you followed the above steps, openrouteservice should now be correctly set up with Tomcat 10 and Java 17.
+If you followed the above steps, openrouteservice should now be correctly set up with Tomcat 10 and Java 25.
 The following steps are mandatory whenever you change the configuration, folder structure or graphs:
 
 ```shell
