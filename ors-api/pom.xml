@@ -156,6 +156,32 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
 
+        <!-- The GPX responses need a Jakarta XML Binding implementation, not just
+             the API above. It used to arrive transitively through gt-swing; once
+             that was dropped, /directions/*/gpx failed at runtime with
+             "Implementation of Jakarta XML Binding-API has not been found".
+             Version comes from the spring-boot parent. -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- springdoc's PolymorphicModelConverter introspects bean properties for
+             the pre-Jakarta javax.xml.bind annotations as well as the jakarta
+             ones this project actually uses. Without this on the classpath,
+             generating the OpenAPI document dies with
+             NoClassDefFoundError: javax/xml/bind/annotation/XmlElement
+             and /v3/api-docs returns an error instead of a spec. This too used
+             to arrive through gt-swing. Annotations only: no implementation and
+             no native code. -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+            <scope>runtime</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
