@@ -36,7 +36,7 @@
 
     <properties>
         <packagingValue>jar</packagingValue>
-        <java.version>17</java.version>
+        <java.version>25</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -46,8 +46,8 @@
         <project.graphVersion>5</project.graphVersion>
 
         <!-- switch graphhopper versions to enable debugging -->
-        <!--<graphhopper.version>4.15-SNAPSHOT</graphhopper.version>-->
-        <graphhopper.version>v4.14.1</graphhopper.version>
+        <!--<graphhopper.version>4.16-SNAPSHOT</graphhopper.version>-->
+        <graphhopper.version>v4.15.0</graphhopper.version>
         <lombok.version>1.18.46</lombok.version>
         <slf4j.version>2.0.18</slf4j.version>
         <log4j.version>2.26.1</log4j.version>
@@ -587,6 +587,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <!-- javac no longer auto-discovers annotation processors from the classpath as of JDK 23;
+                     Lombok must be declared explicitly or its @Getter/@Setter/etc. silently stop generating code -->
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
 
             <plugin>

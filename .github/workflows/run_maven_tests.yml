@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/setup-build-environment
         with:
           with_java: 'true'
-          java_version: 21
+          java_version: 25
           with_docker: 'false'
       - name: Cache SonarCloud packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
@@ -39,7 +39,7 @@ jobs:
         uses: evaristegalois11/sonar-fork-analysis@9d67a15f17407c3bf39bb09c39a9d5d3794eeecd # v1
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
           project-key: 'GIScience_openrouteservice'

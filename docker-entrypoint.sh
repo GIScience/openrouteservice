@@ -310,7 +310,6 @@ JAVA_OPTS="-Djava.awt.headless=true \
 -XX:SurvivorRatio=${survivor_ratio} \
 -XX:MaxTenuringThreshold=${max_tenuring_threshold} \
 -XX:+UseG1GC \
--XX:+ScavengeBeforeFullGC \
 -XX:ParallelGCThreads=${parallel_gc_threads} \
 -Xms${xms} \
 -Xmx${xmx} \

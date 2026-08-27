@@ -6,7 +6,7 @@ The openrouteservice provides tools for benchmarking API performance, allowing y
 
 To use the API benchmarking tools, you need:
 
-- Java 17+
+- Java 25+
 - Maven
 - An active openrouteservice instance (local or remote)
 - CSV files with coordinates for testing (can be generated using the [Coordinate Generation Tools](/technical-details/api-benchmarks/coordinate-generators.md))

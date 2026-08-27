@@ -4,7 +4,7 @@ Since version 8, openrouteservice can be built as a fat JAR file that contains a
 
 ## Prerequisites
 
-* [java](https://www.java.com/en/) 17 (or higher) should be available, preferably as default Java environment.
+* [java](https://www.java.com/en/) 25 (or higher) should be available, preferably as default Java environment.
 
 To run openrouteservice, you also need an OSM data file, e.g. from [Geofabrik](http://download.geofabrik.de). For more details, see chapter [Data](data.md).
 

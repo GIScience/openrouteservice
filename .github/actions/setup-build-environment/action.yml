@@ -10,7 +10,7 @@ inputs:
     description: Java version to install
     required: false
     type: number
-    default: 21
+    default: 25
   with_docker:
     description: Set up Docker (Buildx) for image builds
     required: false
