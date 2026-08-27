@@ -1,0 +1,9 @@
+# Checkpoints dockle should not report for any openrouteservice image stage.
+# Stage-specific suppressions belong in the workflow matrix (--ignore), not here.
+
+# CIS-DI-0005: "Enable Content trust for Docker".
+# Content Trust (Notary v1) is not the mechanism we use, and enabling it is a
+# property of the machine doing the pull, not of the image being inspected --
+# dockle raises it unconditionally on every image, ours included. Provenance for
+# these images is established with cosign signatures and attestations instead.
+CIS-DI-0005
