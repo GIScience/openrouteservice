@@ -209,6 +209,28 @@ FROM base AS publish
 # - Entrypoint scripts for easy startup
 # - Container configuration validations
 # - Informative/verbose container logging
+#
+# This stage deliberately has no USER instruction and therefore runs as root.
+# That is a decision, not an oversight, and image linters will flag it
+# (CIS-DI-0001, "Create a user for the container"). The reasoning:
+#
+# docker-entrypoint.sh does not drop privileges -- it runs as whatever user
+# Docker was given -- and it chowns ORS_HOME to that user during startup. Root
+# is what makes that chown succeed against a freshly created bind mount, which
+# is the normal self-hosting case. Measured against the published image:
+#
+#   --user 1000:1000, no volume            ORS_HOME writable, starts
+#   --user 1000:1000, root-owned volume    "ORS_HOME is not writable", exits
+#   default (root),   root-owned volume    ORS_HOME writable, starts
+#
+# So pinning a USER here would break `-v /some/host/dir:/home/ors` for every
+# self-hoster who had not chowned the directory first, to defend a boundary
+# that a self-hosted single-tenant container does not really have. Anyone who
+# wants a non-root container can pass --user, provided they own the volume.
+#
+# The `slim` stage is the opposite case and does pin USER 1001:0: it is the
+# Kubernetes-facing image, it has no entrypoint script, and it never chowns
+# anything, so it has no reason to start as root.
 # ============================================================================
 
 # Build ARGS
