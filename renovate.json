@@ -27,10 +27,10 @@
       "dependencyDashboardApproval": true
     },
     {
-      "description": "Runtime JDK stays on Corretto 21 LTS (pom targets Java 17)",
+      "description": "Runtime JDK stays on Corretto 25 LTS (pom targets Java 25)",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["docker.io/amazoncorretto"],
-      "allowedVersions": "<22"
+      "allowedVersions": "<26"
     },
     {
       "description": "Spring Boot stays on 3.x. Spring Boot 4 needs migration.",
