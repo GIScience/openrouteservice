@@ -85,7 +85,7 @@ We will call this user `tomcat`.
 
 ```shell
 # Set the Tomcat version
-> export TOMCAT_VERSION=10.1.33
+> export TOMCAT_VERSION=10.1.59
 # Download the Tomcat 10 tarball
 > curl -L https://dlcdn.apache.org/tomcat/tomcat-10/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz > apache-tomcat-$TOMCAT_VERSION.tar.gz
 # Extract the downloaded file
@@ -253,8 +253,7 @@ export JAVA_OPTS="$JAVA_OPTS \
 -Dors.engine.profile_default.graph_path=/opt/openrouteservice/graphs \
 -Dors.engine.profile_default.build.source_file=/opt/openrouteservice/data/andorra-latest.osm.pbf \
 -Dlogging.file.name=/opt/openrouteservice/logs/ors.log \
--Dors.engine.elevation.cache_path=/opt/openrouteservice/elevation_cache
-"
+-Dors.engine.elevation.cache_path=/opt/openrouteservice/elevation_cache"
 ```
 
 Set `ors.engine.graphs_data_access` to `RAM_STORE` if you want to use the RAM store instead of the MMAP store.
