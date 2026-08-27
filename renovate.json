@@ -20,6 +20,19 @@
     "org.heigit.ors:openrouteservice",
     "com.fasterxml.jackson.datatype:jackson-datatype-jts"
   ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Regex manager for Dockle image pinned in GitHub Actions workflow",
+      "managerFilePatterns": ["/^\\.github/workflows/vulnerability-scanning\\.yml$/"],
+      "matchStrings": [
+        "DOCKLE_IMAGE: goodwithtech/dockle:(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "depNameTemplate": "goodwithtech/dockle",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    }
+  ],
   "packageRules": [
     {
       "description": "Every major waits for a human tick on the Dependency Dashboard",
@@ -73,8 +86,8 @@
       "labels": ["dependencies", "container :whale:", "security"]
     },
     {
-      "description": "Workflow YAML is a different review surface than the POMs",
-      "matchManagers": ["github-actions"],
+      "description": "Workflow YAML is a different review surface than the POMs. custom.regex is here too because its only dependency is a CI tool image pinned in a workflow env var.",
+      "matchManagers": ["github-actions", "custom.regex"],
       "groupName": "github actions",
       "labels": ["dependencies", "ci"]
     },
