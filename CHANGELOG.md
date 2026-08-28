@@ -40,6 +40,7 @@ Releasing is documented in RELEASE.md
 - reduce the Docker `HEALTHCHECK` interval from 30s to 10s to match Kubernetes' default probe interval; Kubernetes does not consume Docker's `HEALTHCHECK` itself, so this timing only affects plain Docker/Podman/Swarm deployments ([#2369](https://github.com/GIScience/openrouteservice/pull/2369))
 - harden the embedded Tomcat of the slim image: pin the already-effective response settings, shorten the connector timeout to 20s and disable Swagger UI and the OpenAPI document ([#2368](https://github.com/GIScience/openrouteservice/pull/2368))
 - bump Java to 25 across build, CI and Docker images ([#2382](https://github.com/GIScience/openrouteservice/pull/2382))
+- base the slim image on distroless Debian 13 ([#2387](https://github.com/GIScience/openrouteservice/pull/2387))
 
 ### Deprecated
 
