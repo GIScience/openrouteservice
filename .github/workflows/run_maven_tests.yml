@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: [ "**" ]
 
+permissions:
+  contents: read
+
 jobs:
   run_tests:
     name: Run unit and integration tests

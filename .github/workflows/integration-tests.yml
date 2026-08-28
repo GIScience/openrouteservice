@@ -32,6 +32,9 @@ on:
       - '.github/workflows/_reusable_build_docker_images.yml'
       - 'ors-config.yml'
 
+permissions:
+  contents: read
+
 jobs:
   build_test_scenario_base_image:
     name: Build test scenario builder images

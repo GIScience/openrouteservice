@@ -10,6 +10,8 @@ env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
   TEST_SLIM_IMAGE_NAME: 'local/openrouteservice:test-slim'
 
+permissions:
+  contents: read
 
 jobs:
   prepare_environment:

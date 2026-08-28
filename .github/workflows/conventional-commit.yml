@@ -7,6 +7,9 @@ on:
   pull_request_target:
     types: [ edited, opened, ready_for_review, review_requested, reopened, closed, synchronize ]
 
+permissions:
+  contents: read
+
 jobs:
   convention_commit_check:
     name: Run conventional commit style check

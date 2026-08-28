@@ -24,6 +24,9 @@ on:
         required: false
         default: 'schedule'
 
+permissions:
+  contents: read
+
 jobs:
   setup-build-environment:
     runs-on: ubuntu-latest
