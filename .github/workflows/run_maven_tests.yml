@@ -9,8 +9,12 @@ on:
   pull_request:
     branches: [ "**" ]
 
+permissions: {}
+
 jobs:
   run_tests:
+    permissions:
+      contents: read
     name: Run unit and integration tests
     runs-on: ubuntu-latest
     steps:

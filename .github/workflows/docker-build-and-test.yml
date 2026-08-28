@@ -10,9 +10,12 @@ env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
   TEST_SLIM_IMAGE_NAME: 'local/openrouteservice:test-slim'
 
+permissions: {}
 
 jobs:
   prepare_environment:
+    permissions:
+      contents: read
     name: Prepare the environment variables
     runs-on: ubuntu-latest
     outputs:
@@ -38,6 +41,8 @@ jobs:
           echo " Is Draft: ${{ steps.check-draft.outputs.is_draft }}"
           echo " Build ARM64: ${{ steps.check-draft.outputs.build_arm64 }}"
   build_docker_images:
+    permissions:
+      contents: read
     name: Build Docker images for both platforms - publish
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     needs: prepare_environment
@@ -50,6 +55,8 @@ jobs:
       upload_image_as_artifact: true
 
   build_slim_images:
+    permissions:
+      contents: read
     name: Build Docker images for both platforms - slim
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     needs: prepare_environment
@@ -62,6 +69,8 @@ jobs:
       upload_image_as_artifact: true
 
   docker_image_tests:
+    permissions:
+      contents: read
     name: Test ${{ matrix.platform }} - publish image
     runs-on: ${{ matrix.runner }}
     needs:
@@ -160,6 +169,8 @@ jobs:
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 403 10
 
   slim_image_tests:
+    permissions:
+      contents: read
     name: Test ${{ matrix.platform }} - slim image
     runs-on: ${{ matrix.runner }}
     needs:

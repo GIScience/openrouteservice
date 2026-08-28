@@ -4,6 +4,9 @@ on:
     workflows: [ 'Java CI with Maven' ]
     types:
       - completed
+
+permissions: {}
+
 jobs:
   sonar:
     name: 'SonarCube Analysis'

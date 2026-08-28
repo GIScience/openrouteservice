@@ -32,8 +32,12 @@ on:
       - '.github/workflows/_reusable_build_docker_images.yml'
       - 'ors-config.yml'
 
+permissions: {}
+
 jobs:
   build_test_scenario_base_image:
+    permissions:
+      contents: read
     name: Build test scenario builder images
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     with:
@@ -46,6 +50,8 @@ jobs:
       upload_image_as_artifact: false
 
   build_test_scenario_jar_builder_image:
+    permissions:
+      contents: read
     name: Build test scenario jar builder image
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     needs:
@@ -60,6 +66,8 @@ jobs:
       upload_image_as_artifact: true
 
   build_test_scenario_war_builder_image:
+    permissions:
+      contents: read
     name: Build test scenario war builder image
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     needs:
@@ -74,6 +82,8 @@ jobs:
       upload_image_as_artifact: true
 
   cache-graph:
+    permissions:
+      contents: read
     name: Build and cache shared graph for integration tests
     runs-on: ubuntu-latest
     needs:
@@ -120,6 +130,8 @@ jobs:
           ONE_SHOT_GRAPH_BUILDER: true
 
   integration-tests:
+    permissions:
+      contents: read
     name: Integration tests
     runs-on: ubuntu-22.04
     needs:

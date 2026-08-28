@@ -7,8 +7,12 @@ on:
   pull_request_target:
     types: [ edited, opened, ready_for_review, review_requested, reopened, closed, synchronize ]
 
+permissions: {}
+
 jobs:
   convention_commit_check:
+    permissions:
+      contents: read
     name: Run conventional commit style check
     runs-on: ubuntu-latest
     steps:
