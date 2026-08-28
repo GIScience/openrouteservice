@@ -51,6 +51,7 @@ Releasing is documented in RELEASE.md
 - penalize routing through service ways ([#2313](https://github.com/GIScience/openrouteservice/pull/2313))
 - correct speed assignment for HGVs and disable acceleration heuristic on motorways/-roads ([#2329](https://github.com/GIScience/openrouteservice/pull/2329))
 - pass branch through to the reusable Docker build workflow so CI actually builds the triggering commit instead of always `main` ([#2340](https://github.com/GIScience/openrouteservice/pull/2340))
+- declare the JAXB and javax.xml.bind dependencies explicitly ([#2388](https://github.com/GIScience/openrouteservice/pull/2388))
 
 ### Security
 - update postcss to 8.5.25
