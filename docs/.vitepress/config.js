@@ -315,6 +315,12 @@ export default withMermaid(defineVersionedConfig({
         }
     },
 
+    vite: {
+        optimizeDeps: {
+            include: ['fastdom', 'fastdom/extensions/fastdom-promised.js']
+        }
+    },
+
     versioning: {
         latestVersion: `${process.env.npm_package_version} (latest)`,
         sidebars: {
