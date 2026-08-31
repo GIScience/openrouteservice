@@ -3,8 +3,12 @@ on:
   release:
     types: [published]
 
+permissions: {}
+
 jobs:
   check_version:
+    permissions:
+      contents: read
     name: Check if this is the latest semantic version
     runs-on: ubuntu-latest
     outputs:
@@ -24,6 +28,8 @@ jobs:
           current-tag: ${{ github.event.release.tag_name }}
 
   build_and_push_publish_images:
+    permissions:
+      contents: read
     name: Build and cache the Docker images with native runners
     needs: check_version
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -42,6 +48,8 @@ jobs:
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
   
   build_and_push_slim_images:
+    permissions:
+      contents: read
     name: Build and cache the slim Docker images with native runners
     needs: check_version
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -60,6 +68,8 @@ jobs:
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
   
   combine_and_push_images:
+    permissions:
+      contents: read
     name: Combine multi-arch manifest and push to DockerHub
     runs-on: ubuntu-latest
     if: success()

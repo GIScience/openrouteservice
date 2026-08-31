@@ -8,6 +8,8 @@ on:
     paths:
       - 'ors-api/src/main/resources/application.yml'
 
+permissions: {}
+
 jobs:
   sync_config:
     name: Synchronize changes in application.yml to ors-config.yml and ors-config.env

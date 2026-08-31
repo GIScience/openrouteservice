@@ -24,8 +24,12 @@ on:
         required: false
         default: 'schedule'
 
+permissions: {}
+
 jobs:
   setup-build-environment:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     outputs:
       new_commits: ${{ steps.check.outputs.NEW_COMMITS }}
@@ -65,6 +69,8 @@ jobs:
           echo "HeiGIT slim stage image tag: ${HEIGIT_BASE_TAG}-slim"
   
   build_and_push_publish_images:
+    permissions:
+      contents: read
     needs:
       - setup-build-environment
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -84,6 +90,8 @@ jobs:
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
   
   build_and_push_slim_images:
+    permissions:
+      contents: read
     needs:
       - setup-build-environment
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -103,6 +111,8 @@ jobs:
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
 
   combine_and_push_multi_arch_manifests:
+    permissions:
+      contents: read
     needs:
       - setup-build-environment
       - build_and_push_publish_images

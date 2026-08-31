@@ -7,10 +7,18 @@ on:
   pull_request_target:
     types: [ opened, edited ]
 
+permissions: {}
+
 jobs:
   add_conventional_release_labels:
     name: Add PR title conventional type to PR labels
     runs-on: ubuntu-latest
+    # Job-level permissions replace the top-level set rather than adding to it,
+    # so contents: read has to be repeated here. Writing labels onto the pull
+    # request is the entire purpose of this job.
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Add conventional release labels
         uses: bcoe/conventional-release-labels@886f696738527c7be444262c327c89436dfb95a8 # v1
