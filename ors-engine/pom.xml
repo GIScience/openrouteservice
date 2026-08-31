@@ -160,15 +160,6 @@
             <artifactId>gt-geojson</artifactId>
         </dependency>
 
-        <!-- TODO: according dependency:analyze this
-        is not used, but build fails when not
-        declared
-        -->
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-swing</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
