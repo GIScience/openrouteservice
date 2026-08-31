@@ -154,7 +154,7 @@ class CoordinateGeneratorSnappingTest {
 
         public TestCoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String[] profiles,
                 String baseUrl) {
-            super(numPoints, extent, radius, profiles, baseUrl);
+            super(numPoints, extent, radius, profiles, baseUrl, 1);
         }
 
         void setHttpClient(CloseableHttpClient client) {
