@@ -119,6 +119,10 @@ export default withMermaid(defineVersionedConfig({
                                                             link: '/api-reference/endpoints/directions/extra-info/waytype'
                                                         },
                                                         {
+                                                            text: 'CSV extra info',
+                                                            link: '/api-reference/endpoints/directions/extra-info/csv'
+                                                        },
+                                                        {
                                                             text: 'Difficulty IDs',
                                                             link: '/api-reference/endpoints/directions/extra-info/trail-difficulty'
                                                         },
