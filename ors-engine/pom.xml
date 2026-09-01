@@ -147,9 +147,8 @@
             <artifactId>gt-referencing</artifactId>
         </dependency>
 
-        <!-- TODO: according dependency:analyze this
-        is not used, but build fails when not declared
-        -->
+        <!-- Reported as unused by dependency:analyze, but required at runtime: this is the EPSG
+             CRS database, resolved via SPI rather than by any compile-time reference -->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-epsg-hsql</artifactId>
@@ -160,6 +159,9 @@
             <artifactId>gt-geojson</artifactId>
         </dependency>
 
+        <!-- Reported as unused by dependency:analyze, but required at runtime: HereTrafficReader
+             loads the configured Streets.shp through FileDataStoreFinder, which discovers this
+             datastore via SPI -->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
@@ -178,12 +180,6 @@
         <dependency>
             <groupId>me.tongfei</groupId>
             <artifactId>progressbar</artifactId>
-        </dependency>
-
-        <!-- Somehow the RoutingProfileLoader needs jline -->
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline</artifactId>
         </dependency>
 
         <dependency>
@@ -233,6 +229,10 @@
             <version>9.0.3</version>
         </dependency>
 
+        <!-- Reported as unused by dependency:analyze, but required at runtime: minio pulls in
+             com.squareup.okhttp3:okhttp, which since OkHttp 5 is an empty Kotlin-multiplatform
+             stub jar (0 classes) whose JVM content Maven cannot see, as it is declared only in
+             Gradle module metadata. This artifact carries the actual implementation. -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp-jvm</artifactId>

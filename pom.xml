@@ -78,20 +78,14 @@
         <org-json.version>20240303</org-json.version>
         <progressbar.version>0.10.2</progressbar.version>
         <guava.version>33.7.1-jre</guava.version>
-        <airlift.version>2.0.3</airlift.version>
-        <jline.version>4.3.1</jline.version>
         <jqwik.version>1.10.1</jqwik.version>
         <json-simple.version>1.1.1</json-simple.version>
         <hppc.version>0.8.2</hppc.version>
 
-        <jackson-databind-nullable-version>0.2.6</jackson-databind-nullable-version>
-
         <surefire.version>3.5.6</surefire.version>
         <rest-assured.version>6.0.1</rest-assured.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spotless.version>2.27.2</spotless.version>
         <gatling.version>3.15.1</gatling.version>
-        <gatling-maven-plugin.version>4.13.0</gatling-maven-plugin.version>
         <commons-cli.version>1.11.0</commons-cli.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -153,12 +147,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.apache.maven.surefire</groupId>
-                <artifactId>surefire-junit-platform</artifactId>
-                <version>${surefire.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>com.github.GIScience.graphhopper</groupId>
                 <artifactId>graphhopper-core</artifactId>
@@ -281,12 +269,6 @@
             </dependency>
 
             <dependency>
-                <groupId>io.airlift</groupId>
-                <artifactId>aircompressor</artifactId>
-                <version>${airlift.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>com.googlecode.json-simple</groupId>
                 <artifactId>json-simple</artifactId>
                 <version>${json-simple.version}</version>
@@ -332,24 +314,6 @@
                 <groupId>me.tongfei</groupId>
                 <artifactId>progressbar</artifactId>
                 <version>${progressbar.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.jline</groupId>
-                        <artifactId>jline</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jline</groupId>
-                <artifactId>jline</artifactId>
-                <version>${jline.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.jqwik</groupId>
-                <artifactId>jqwik</artifactId>
-                <version>${jqwik.version}</version>
             </dependency>
 
             <dependency>
@@ -397,12 +361,6 @@
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-geojson</artifactId>
-                <version>${geotools.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.geotools</groupId>
-                <artifactId>gt-swing</artifactId>
                 <version>${geotools.version}</version>
             </dependency>
 
