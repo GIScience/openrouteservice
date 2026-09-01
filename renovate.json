@@ -35,12 +35,7 @@
     {
       "description": "Spring Boot stays on 3.x. Spring Boot 4 needs migration.",
       "matchPackageNames": ["org.springframework.boot:spring-boot-starter-parent"],
-      "allowedVersions": "<4"
-    },
-    {
-      "description": "springdoc stays on 2.x. springdoc 3.x requires Spring Boot 4.",
-      "matchPackageNames": ["org.springdoc:springdoc-openapi-starter-webmvc-ui"],
-      "allowedVersions": "<3"
+      "allowedVersions": "<5"
     },
     {
       "description": "commons-cli 2.0-gt2-pre1 is a fork and a false positive. Not an Apache release.",
