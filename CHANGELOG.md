@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- documentation for CSV extra info from graph-build CSV files ([#1974](https://github.com/GIScience/openrouteservice/issues/1974))
 - add SBOM and provenance via docker buildx commands ([#2347](https://github.com/GIScience/openrouteservice/pull/2347))
 - add OCI title/description/documentation labels to base image ([#2364](https://github.com/GIScience/openrouteservice/pull/2364))
 - disable file logging in the slim image so it can run with a read-only root filesystem given a tmpfs at `/tmp` for GeoTools' EPSG cache ([#2367](https://github.com/GIScience/openrouteservice/pull/2367))
