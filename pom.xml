@@ -66,7 +66,16 @@
         <fasterxml.jackson-annotations.version>2.22</fasterxml.jackson-annotations.version>
         <!-- overrides spring-boot-dependencies' jackson-bom.version (3.1.5), which is affected by
              CVE-2026-19032 (unrestricted URI scheme in the java.nio.file.Path deserializer);
-             3.1.6 is the fix on Boot's own 3.1 line. Drop this override once Boot ships >= 3.1.6. -->
+             3.1.6 is the fix on Boot's own 3.1 line.
+
+             Deliberately behind graphhopper: the graphhopper.version pinned above was built against
+             Jackson 3.2.2, so its bytecode runs here on an older minor than it was compiled against.
+             Verified harmless - jdeps reports no unresolved tools.jackson class in graphhopper-core
+             or graphhopper-web-api against 3.1.6, and the full suite is green. Staying on Boot's 3.1
+             line is preferred over matching graphhopper, since Boot 4.1.1 is not tested against 3.2.
+
+             Once Boot ships jackson-bom.version >= 3.2.x, drop this override entirely: that clears the
+             CVE workaround and closes the skew with graphhopper in one step. -->
         <jackson-bom.version>3.1.6</jackson-bom.version>
         <commons-io.version>2.22.0</commons-io.version>
         <!-- deliberately ahead of spring-boot-dependencies' commons-logging.version (1.3.6);
