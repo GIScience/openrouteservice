@@ -54,7 +54,7 @@
         <log4j2.version>2.26.1</log4j2.version>
         <springdoc-openapi-starter.version>3.1.0</springdoc-openapi-starter.version>
         <!-- pinned to match the swagger-core version springdoc-openapi 3.1.0 itself uses -->
-        <swagger-core.version>2.2.52</swagger-core.version>
+        <swagger-core.version>2.2.54</swagger-core.version>
         <swagger-parser.version>2.1.47</swagger-parser.version>
         <geotools.version>32.4</geotools.version>
         <!-- ors-engine/ors-api are fully on Jackson 3 (see tools.jackson.* below); this Jackson 2

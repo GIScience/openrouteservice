@@ -91,7 +91,7 @@
       <plugin>
         <groupId>io.gatling</groupId>
         <artifactId>gatling-maven-plugin</artifactId>
-        <version>4.21.10</version>
+        <version>4.21.11</version>
       </plugin>
     </plugins>
   </build>
