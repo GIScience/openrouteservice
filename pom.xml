@@ -35,7 +35,6 @@
     </modules>
 
     <properties>
-        <packagingValue>jar</packagingValue>
         <java.version>25</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -135,24 +134,6 @@
             </snapshots>
         </repository>
     </repositories>
-
-    <profiles>
-        <profile>
-            <id>buildWar</id>
-            <properties>
-                <packagingValue>war</packagingValue>
-            </properties>
-        </profile>
-        <profile>
-            <id>buildFatJar</id>
-            <properties>
-                <packagingValue>jar</packagingValue>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-    </profiles>
 
     <dependencyManagement>
         <dependencies>
@@ -570,10 +551,6 @@
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire.version}</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>3.5.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>

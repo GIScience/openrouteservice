@@ -9,15 +9,9 @@ If you are an advanced user, have a look at the existing setup instructions:
 
 - [Running openrouteservice with Docker](/run-instance/running-with-docker.md)
 - [Running openrouteservice as JAR](/run-instance/running-jar.md)
-- [Running openrouteservice as WAR](/run-instance/running-war.md)
+
+There are currently no native setup examples available.
 
 ::: tip
-The examples are growing over time and only provide a small subset of possible setups. \
 If you are missing specific detailed setup instruction, **you are welcome to contribute** by creating a pull request.
 :::
-
-The following examples are (currently) available:
-
-| Setup                    | Description                                                        | Difficulty | Link                                                                           |
-|--------------------------|--------------------------------------------------------------------|------------|--------------------------------------------------------------------------------|
-| Tomcat 10 - Ubuntu 22.04 | Setup openrouteservice with Tomcat 10 and Java 25 on Ubuntu 22.04. | Medium     | [English](en_tomcat-10-ubuntu_22_04) <br/> [German](de_tomcat-10-ubuntu_22_04) |

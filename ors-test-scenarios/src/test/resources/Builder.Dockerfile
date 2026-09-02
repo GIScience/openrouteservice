@@ -38,10 +38,8 @@ COPY ors-api "$CONTAINER_BUILD_DIR"/ors-api
 COPY ors-engine "$CONTAINER_BUILD_DIR"/ors-engine
 COPY ors-report-aggregation "$CONTAINER_BUILD_DIR"/ors-report-aggregation
 
-# Build the projects war and jar files
-RUN ./mvnw clean package -q -DskipTests -Dmaven.test.skip=true -PbuildWar -pl \
-    '!:ors-test-scenarios,!:ors-report-aggregation,!:ors-benchmark' && \
-    ./mvnw package install -q -DskipTests -Dmaven.test.skip=true -PbuildJar -pl \
+# Build the project jar files
+RUN ./mvnw clean package install -q -DskipTests -Dmaven.test.skip=true -pl \
     '!:ors-test-scenarios,!:ors-report-aggregation,!:ors-benchmark'
 
 # Prepare the config file
@@ -57,29 +55,6 @@ RUN yq -i '\
     .ors.engine.profiles.public-transport.gtfs_file = "/home/ors/openrouteservice/files/vrn_gtfs_cut.zip" | \
     .ors.engine.profile_default.build.source_file = "/home/ors/openrouteservice/files/heidelberg.test.pbf"\
     ' "$CONTAINER_BUILD_DIR"/ors-config.yml
-
-
-FROM docker.io/tomcat:10.1.59-jdk25-temurin-jammy AS ors-test-scenarios-war-builder
-# Build: docker build --target ors-test-scenarios-war-bare --tag ors-test-scenarios-war-bare:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
-
-RUN apt-get update && apt-get install -y --no-install-recommends unzip=6.0-26ubuntu3 zip=3.0-12build2 wget=1.21.2-2ubuntu1.5 && \
-    wget https://github.com/mikefarah/yq/releases/download/v4.44.5/yq_linux_amd64.tar.gz -O - |\
-    tar xz && mv yq_linux_amd64 /usr/bin/yq && chmod +x /usr/bin/yq && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-ARG CONTAINER_WORK_DIR
-ARG CONTAINER_BUILD_DIR
-
-# Copy the test files
-COPY --from=ors-test-scenarios-builder $CONTAINER_BUILD_DIR/ors-api/target/ors.war /usr/local/tomcat/webapps/ors.war
-COPY --from=ors-test-scenarios-builder $CONTAINER_BUILD_DIR/ors-config.yml /home/ors/openrouteservice/ors-config.yml.deactivated
-COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heidelberg.test.pbf
-COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
-
-RUN echo 'export CATALINA_OPTS="$CATALINA_OPTS -server -XX:+UseParallelGC"' > /usr/local/tomcat/bin/setenv.sh
-
-# Set the working directory to Tomcat
-WORKDIR /usr/local/tomcat
 
 
 FROM ors-test-scenarios-builder AS ors-test-scenarios-maven-builder

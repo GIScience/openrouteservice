@@ -65,22 +65,6 @@ jobs:
       build_arm64: false
       upload_image_as_artifact: true
 
-  build_test_scenario_war_builder_image:
-    permissions:
-      contents: read
-    name: Build test scenario war builder image
-    uses: ./.github/workflows/_reusable_build_docker_images.yml
-    needs:
-      - build_test_scenario_base_image # It's faster when it can use the cache from the base image
-    with:
-      image_stage: ors-test-scenarios-war-builder
-      docker_tag: ors-test-scenarios-war-builder:latest
-      dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
-      branch: ${{ github.event.pull_request.head.sha || github.sha }}
-      build_amd64: true
-      build_arm64: false
-      upload_image_as_artifact: true
-
   cache-graph:
     permissions:
       contents: read
@@ -138,10 +122,9 @@ jobs:
       - build_test_scenario_base_image
       - cache-graph
       - build_test_scenario_jar_builder_image
-      - build_test_scenario_war_builder_image
     strategy:
       matrix:
-        test-scenario: [ "jar", "war" ]
+        test-scenario: [ "jar" ]
         test-class:
           - integrationtests.ConfigEnvironmentTest
           - integrationtests.ConfigFileTest
@@ -169,14 +152,7 @@ jobs:
       - name: Identify image artifact names
         id: identify-image-artifact-names
         run: |
-          if [ "${{ matrix.test-scenario }}" == "jar" ]; then
-            echo "ARTIFACT_NAME=${{ needs.build_test_scenario_jar_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
-          elif [ "${{ matrix.test-scenario }}" == "war" ]; then
-            echo "ARTIFACT_NAME=${{ needs.build_test_scenario_war_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
-          else
-            echo "Unknown test scenario: ${{ matrix.test-scenario }}"
-            exit 1
-          fi
+          echo "ARTIFACT_NAME=${{ needs.build_test_scenario_jar_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
 
       - name: Download runner ${{matrix.test-scenario}} artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8

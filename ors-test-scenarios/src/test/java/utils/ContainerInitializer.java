@@ -33,11 +33,6 @@ public abstract class ContainerInitializer {
             "server.port", "8080",
             "ors.engine.elevation.profile_default.build.elevation", "false"
     );
-    private static final Map<String, String> defaultEnvWarBare = Map.of(
-            "ors.engine.profile_default.graph_path", "/home/ors/openrouteservice/graphs",
-            "ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf",
-            "logging.file.name", "/home/ors/openrouteservice/logs/ors.log"
-    );
     // @formatter:on
 
     private static final Path hostSharedGraphPath = Path.of("./graphs-integrationtests/").resolve("sharedGraphMount");
@@ -57,10 +52,6 @@ public abstract class ContainerInitializer {
         shareGraphsWithContainer = Boolean.parseBoolean(System.getProperty("container.run.share_graphs", "true"));
         parentLogger.info("Share graphs with container: {}", shareGraphsWithContainer);
         switch (containerValue) {
-            case "war":
-                selectedDefaultContainers = List.of(ContainerTestImageDefaults.WAR_CONTAINER);
-                selectedBareContainers = List.of(ContainerTestImageBare.WAR_CONTAINER_BARE);
-                break;
             case "jar":
                 selectedDefaultContainers = List.of(ContainerTestImageDefaults.JAR_CONTAINER);
                 selectedBareContainers = List.of(ContainerTestImageBare.JAR_CONTAINER_BARE);
@@ -72,14 +63,12 @@ public abstract class ContainerInitializer {
             default:
                 // @formatter:off
                 selectedDefaultContainers = List.of(
-                        ContainerTestImageDefaults.WAR_CONTAINER,
                         ContainerTestImageDefaults.JAR_CONTAINER,
                         ContainerTestImageDefaults.MAVEN_CONTAINER
                 );
                 selectedBareContainers = List.of(
                         ContainerTestImageBare.JAR_CONTAINER_BARE,
-                        ContainerTestImageBare.MAVEN_CONTAINER_BARE,
-                        ContainerTestImageBare.WAR_CONTAINER_BARE
+                        ContainerTestImageBare.MAVEN_CONTAINER_BARE
                 );
                 // @formatter:on
                 break;
@@ -168,9 +157,7 @@ public abstract class ContainerInitializer {
         }
 
         String dockerFile = null;
-        if (containerTestImage == ContainerTestImageBare.WAR_CONTAINER_BARE || containerTestImage == ContainerTestImageDefaults.WAR_CONTAINER) {
-            dockerFile = "war.Dockerfile";
-        } else if (containerTestImage == ContainerTestImageBare.MAVEN_CONTAINER_BARE || containerTestImage == ContainerTestImageDefaults.MAVEN_CONTAINER) {
+        if (containerTestImage == ContainerTestImageBare.MAVEN_CONTAINER_BARE || containerTestImage == ContainerTestImageDefaults.MAVEN_CONTAINER) {
             dockerFile = "maven.Dockerfile";
         } else if (containerTestImage == ContainerTestImageBare.JAR_CONTAINER_BARE || containerTestImage == ContainerTestImageDefaults.JAR_CONTAINER) {
             dockerFile = "jar.Dockerfile";
@@ -187,10 +174,6 @@ public abstract class ContainerInitializer {
                 .withStartupAttempts(3)
                 .waitingFor(healthyOrsWaitStrategy());
         // @formatter:on
-
-        if (containerTestImage == ContainerTestImageBare.WAR_CONTAINER_BARE) {
-            container.withEnv(defaultEnvWarBare);
-        }
 
         // Set the graph mount path
         Path hostGraphPath = null;
@@ -223,18 +206,6 @@ public abstract class ContainerInitializer {
             List<CompletableFuture<Void>> buildFutures = new ArrayList<>();
 
             // Asynchronous start the rest with proper error handling for each
-            CompletableFuture<Void> warFuture = CompletableFuture
-                    .runAsync(() -> {
-                        parentLogger.info("Starting WAR builder image initialization");
-                        initBuilderImage(ContainterBuildStage.ORS_TEST_SCENARIO_WAR_BUILDER);
-                        parentLogger.info("WAR builder image initialized successfully");
-                    })
-                    .exceptionally(ex -> {
-                        parentLogger.error("Failed to initialize WAR builder image: {}", ex.getMessage(), ex);
-                        throw new RuntimeException("WAR builder initialization failed", ex);
-                    });
-            buildFutures.add(warFuture);
-
             CompletableFuture<Void> jarFuture = CompletableFuture
                     .runAsync(() -> {
                         parentLogger.info("Starting JAR builder image initialization");
@@ -295,11 +266,8 @@ public abstract class ContainerInitializer {
         } else if (containerValue.equals("maven")) {
             container = initContainer(ContainerTestImageBare.MAVEN_CONTAINER_BARE, false, hostSharedGraphPath.getFileName().toString(), false, Duration.ofSeconds(300));
             container.setCommand(ContainerTestImageBare.MAVEN_CONTAINER_BARE.getCommand("500M").toArray(new String[0]));
-        } else if (containerValue.equals("war")) {
-            container = initContainer(ContainerTestImageBare.WAR_CONTAINER_BARE, false, hostSharedGraphPath.getFileName().toString(), false, Duration.ofSeconds(300));
-            container.setCommand(ContainerTestImageBare.WAR_CONTAINER_BARE.getCommand("500M").toArray(new String[0]));
         } else {
-            parentLogger.error("Container scenario not set to either all, jar, maven or war. Exiting.");
+            parentLogger.error("Container scenario not set to either all, jar or maven. Exiting.");
         }
         container.addEnv("ors.engine.profile_default.enabled", "true");
         container.addEnv("ors.engine.profiles.public-transport.enabled", "false");
@@ -321,7 +289,6 @@ public abstract class ContainerInitializer {
      */
     @Getter
     public enum ContainerTestImageDefaults implements ContainerTestImage {
-        WAR_CONTAINER("ors-test-scenarios-war"),
         JAR_CONTAINER("ors-test-scenarios-jar"),
         MAVEN_CONTAINER("ors-test-scenarios-maven");
 
@@ -338,7 +305,6 @@ public abstract class ContainerInitializer {
      */
     @Getter
     public enum ContainerTestImageBare implements ContainerTestImage {
-        WAR_CONTAINER_BARE("ors-test-scenarios-war-bare"), // War works different. The default CMD is hardcoded to catalina.sh run.
         JAR_CONTAINER_BARE("ors-test-scenarios-jar-bare"),
         MAVEN_CONTAINER_BARE("ors-test-scenarios-maven-bare");
 
@@ -376,7 +342,6 @@ public abstract class ContainerInitializer {
     @Getter
     public enum ContainterBuildStage implements ContainerTestImage {
         ORS_TEST_SCENARIO_BUILDER("ors-test-scenarios-builder"),
-        ORS_TEST_SCENARIO_WAR_BUILDER("ors-test-scenarios-war-builder"),
         ORS_TEST_SCENARIO_JAR_BUILDER("ors-test-scenarios-jar-builder"),
         ORS_TEST_SCENARIO_MAVEN_BUILDER("ors-test-scenarios-maven-builder");
 

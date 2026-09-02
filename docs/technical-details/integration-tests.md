@@ -38,7 +38,6 @@ ors-test-scenarios/
         │   └── ors-test-scenarios/src/test/java/utils/ # Contains the helper classes for the tests.
         └── ors-test-scenarios/src/test/resources/
             ├── ors-test-scenarios/src/test/resources/Builder.Dockerfile # The Dockerfile to create the builder images.
-            ├── ors-test-scenarios/src/test/resources/war.Dockerfile # The Dockerfile to create war test images.
             ├── ors-test-scenarios/src/test/resources/jar.Dockerfile # The Dockerfile to create jar test images.
             ├── ors-test-scenarios/src/test/resources/maven.Dockerfile # The Dockerfile to create maven test images.
             ├── ors-test-scenarios/src/test/resources/junit-platform.properties # The config file for the JUnit platform.
@@ -51,8 +50,8 @@ ors-test-scenarios/
 ```shell
 # Execute all tests from the repo root with testcontainers.
 ./mvnw -pl ors-test-scenarios test -P integrationTests  
-# Execute only war tests
-./mvnw -pl ors-test-scenarios test -P integrationTests -Dcontainer.run.scenario=war
+# Execute only jar tests
+./mvnw -pl ors-test-scenarios test -P integrationTests -Dcontainer.run.scenario=jar
 ```
 
 ## Advanced test runs
@@ -62,7 +61,6 @@ The test module provides multiple properties to customize the test execution:
 - `container.run.scenario` - The scenario to run the tests against. Options are:
     - `maven`,
     - `jar`,
-    - `war`,
     - `all` (default).
 - `container.builder.use_prebuild` - Use the prebuild builder images. Default is `false`.
 - `container.run.share_graphs` - Share the graphs between the tests. Default is `true`. **Only change this if you know
@@ -78,12 +76,6 @@ This is mainly used in the workflows or for heavy local testing.
 
 ###### Examples:
 
-Run tests against the war/tomcat setup with builder images controlled by `testcontainers` and shared graphs.
-
-```shell
-./mvnw -pl ors-test-scenarios test -P integrationTests -Dcontainer.run.scenario=war
-```
-
 Build and run the tests with the custom builder images and maven setup
 
 ```shell
@@ -95,11 +87,11 @@ docker buildx build --target ors-test-scenarios-maven-builder -t ors-test-scenar
 
 ## Pre-Build builder images
 
-The dockerfiles used for the test scenarios instances (`{war,jar,maven}.Dockerfile`) and the builder dockerfile
+The dockerfiles used for the test scenarios instances (`{jar,maven}.Dockerfile`) and the builder dockerfile
 `Bulid.Dockerfile` are separated.
 This is also necessary at times because testcontainers own builder images caching strategy is not always optimal for CI.
 
-The scenario oriented dockerfiles `war.Dockerfile`, `jar.Dockerfile` and `maven.Dockerfile` is only for the final
+The scenario oriented dockerfiles `jar.Dockerfile` and `maven.Dockerfile` is only for the final
 stages.
 To be able to build it without testcontainers, the `Build.Dockerfile` must be executed first.
 
@@ -107,14 +99,13 @@ Choose one of the following targets:
 
 - ors-test-scenarios-maven-builder
 - ors-test-scenarios-jar-builder
-- ors-test-scenarios-war-builder
 
 ###### Examples:
 
 Execute the jar test scenario with a custom builder image:
 
 ```shell
-# Choose from: jar, war, maven.
+# Choose from: jar, maven.
 export TEST_SCENARIO=jar
 # Execute the jar setup with a custom builder image
 docker buildx build --target ors-test-scenarios-${TEST_SCENARIO}-builder -t ors-test-scenarios-${TEST_SCENARIO}-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
@@ -128,7 +119,6 @@ Execute all scenarios and tests with their custom builder images:
 ```shell
 # Execute all scenarios and tests with a custom builder image
 docker buildx build --target ors-test-scenarios-jar-builder -t ors-test-scenarios-jar-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
-docker buildx build --target ors-test-scenarios-war-builder -t ors-test-scenarios-war-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
 docker buildx build --target ors-test-scenarios-maven-builder -t ors-test-scenarios-maven-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
 
 ./mvnw -pl ors-test-scenarios test -P integrationTests \
@@ -143,49 +133,31 @@ Each test scenario can be run in a container. The following containers are avail
 
 - `ors-test-scenarios-maven`: Starts a fully functional ORS maven setup.
 - `ors-test-scenarios-jar`: Starts a fully functional ORS jar setup.
-- `ors-test-scenarios-war`: Starts a fully functional ORS `war/tomcat` setup.
 
 ###### Examples:
 
 ```shell
-# Fully functional ORS war/tomcat setup
+# Fully functional ORS jar setup
 # Build the custom builder image
-export TEST_SCENARIO=war
+export TEST_SCENARIO=jar
 docker buildx build --target ors-test-scenarios-${TEST_SCENARIO}-builder -t ors-test-scenarios-${TEST_SCENARIO}-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
 docker buildx build --target ors-test-scenarios-${TEST_SCENARIO} -t ors-test-scenarios-${TEST_SCENARIO}:latest -f ors-test-scenarios/src/test/resources/${TEST_SCENARIO}.Dockerfile .
 docker run -it --rm --name ors-test-scenarios-${TEST_SCENARIO} -p 8080:8080 ors-test-scenarios-${TEST_SCENARIO}
 ```
 
-Run the ORS war setup with a **custom PBF file**, **cache the graphs** and **activate the hgv profile**:
+Run the ORS jar setup with a **custom PBF file**, **cache the graphs** and **activate the hgv profile**:
 
 ```shell
 # Basic builder image setup.
-export TEST_SCENARIO=war
+export TEST_SCENARIO=jar
 docker buildx build --target ors-test-scenarios-${TEST_SCENARIO}-builder -t ors-test-scenarios-${TEST_SCENARIO}-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
 docker buildx build --target ors-test-scenarios-${TEST_SCENARIO} -t ors-test-scenarios-${TEST_SCENARIO}:latest -f ors-test-scenarios/src/test/resources/${TEST_SCENARIO}.Dockerfile .
-# Run the container with the custom war file and cache the graphs
+# Run the container with the custom pbf file and cache the graphs
 docker run --rm -it --name ors-test-scenarios-${TEST_SCENARIO} -p 8080:8080 \
   -v ./ors-api/src/test/files/heidelberg.test.pbf:/home/ors/openrouteservice/files/heidelberg.test.pbf \
   -v ./your-local-graph-${TEST_SCENARIO}:/home/ors/openrouteservice/graphs \
   -e "ors.engine.profiles.driving-hgv.enabled=true" \
   ors-test-scenarios-${TEST_SCENARIO}
-```
-
-Side load a custom war file for testing:
-
-```shell
-# Basic builder image setup.
-docker buildx build --target ors-test-scenarios-war-builder -t ors-test-scenarios-war-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
-docker buildx build --target ors-test-scenarios-war -t ors-test-scenarios-war:latest -f ors-test-scenarios/src/test/resources/war.Dockerfile .
-
-# Build the custom war file
-./mvnw clean package -DskipTests -PbuildWar
-
-# Run the container with the custom war file
-docker run --rm -it --name ors-test-scenarios-war -p 8080:8080 \
-  -v ./your-local-graph-war:/home/ors/openrouteservice/graphs \
-  -v ./ors-api/target/ors.war:/usr/local/tomcat/webapps/ors.war \
-  ors-test-scenarios-war
 ```
 
 Side load a custom jar file for testing:

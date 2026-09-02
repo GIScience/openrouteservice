@@ -197,11 +197,6 @@ jobs:
           ./mvnw -q clean package -DskipTests
           # Copy the JAR to the root directory
           cp ors-api/target/ors.jar ors.jar
-      - name: Build WAR
-        run: |
-          ./mvnw -q clean package -DskipTests -PbuildWar
-          # Copy the WAR to the root directory
-          cp ors-api/target/ors.war ors.war
       - name: Rewrite the docker-compose.yml image tag to the release tag
         run: |
           # Replace the image part
@@ -213,7 +208,6 @@ jobs:
           fail_on_unmatched_files: true
           files: |
             ./ors.jar
-            ./ors.war
             ./ors-config.yml
             ./ors-config.env
             ./docker-compose.yml

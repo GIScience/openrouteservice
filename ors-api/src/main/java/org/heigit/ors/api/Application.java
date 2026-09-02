@@ -9,7 +9,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.server.servlet.context.ServletComponentScan;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -21,7 +20,7 @@ import static org.heigit.ors.api.services.EngineService.SHUTDOWN_IMMEDIATELY;
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
-public class Application extends SpringBootServletInitializer {
+public class Application {
     private static final Logger LOG = Logger.getLogger(Application.class.getName());
 
     static {

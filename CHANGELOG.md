@@ -47,6 +47,7 @@ Releasing is documented in RELEASE.md
 ### Deprecated
 
 ### Removed
+- WAR/Tomcat packaging support ([#2398](https://github.com/GIScience/openrouteservice/pull/2398))
 
 ### Fixed
 - give the healthcheck a start-period so it survives longer graph loading ([#2365](https://github.com/GIScience/openrouteservice/pull/2365))
