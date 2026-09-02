@@ -1,0 +1,193 @@
+name: Trivy Scan
+description: >-
+  Scan a target with Trivy and report the result: table to the log and the job
+  summary, SARIF to the code scanning tab, and an optional hard failure.
+  Report-only unless one of the fail_on_* inputs is set.
+
+  Trivy names its target differently per scan type (input= for an image
+  tarball, image-ref= for an image in a registry or the local daemon, scan-ref=
+  for a path). scan_type selects which, so callers pass one `target` and don't
+  have to know the mapping.
+
+inputs:
+  scan_type:
+    description: >-
+      What `target` is: 'image-tar' (a docker-archive on disk), 'image-ref' (an
+      image reference resolved from a registry or the local daemon) or 'config'
+      (a Dockerfile or other IaC file).
+    required: true
+  target:
+    description: The tarball, image reference or file to scan
+    required: true
+  scanners:
+    description: Comma-separated Trivy scanners to run (vuln, secret, misconfig)
+    required: false
+    default: 'vuln'
+  summary_title:
+    description: Heading for the job summary section
+    required: true
+  sarif_category:
+    description: Code scanning category for vulnerability and misconfiguration results
+    required: false
+    default: ''
+  sarif_category_secrets:
+    description: >-
+      Code scanning category for secret findings, kept distinct from
+      vulnerabilities. Defaults to "<sarif_category>-Secrets"; pass it
+      explicitly where an existing category has to be preserved so its alerts
+      aren't orphaned.
+    required: false
+    default: ''
+  upload_sarif:
+    description: Upload SARIF to the code scanning (Security) tab. Requires security-events:write.
+    required: false
+    default: 'false'
+  vex_file:
+    description: >-
+      Repo-relative path to an OpenVEX document suppressing accepted-risk
+      findings. Only consulted when this scan gates something - a report-only
+      scan shows everything.
+    required: false
+    default: ''
+  fail_on_severity:
+    description: Comma-separated severities that fail the job (e.g. 'CRITICAL,HIGH'). Empty means report-only.
+    required: false
+    default: ''
+  fail_on_secrets:
+    description: Fail the job if the secret scanner found anything
+    required: false
+    default: 'false'
+  fail_on_misconfig:
+    description: Fail the job if the misconfiguration scanner found anything (no severity filter)
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Run Trivy scan
+      uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+      env:
+        TRIVY_VEX: ${{ inputs.vex_file }}
+        TRIVY_SHOW_SUPPRESSED: ${{ inputs.vex_file != '' }}
+      with:
+        scan-type: ${{ startsWith(inputs.scan_type, 'image') && 'image' || inputs.scan_type }}
+        # Exactly one of the three is set; the rest stay empty. Operands are
+        # ordered so the non-empty value sits in the && slot, since `a && '' || b`
+        # can never yield '' - the empty string is falsy and falls through.
+        input: ${{ inputs.scan_type == 'image-tar' && inputs.target || '' }}
+        image-ref: ${{ inputs.scan_type == 'image-ref' && inputs.target || '' }}
+        scan-ref: ${{ inputs.scan_type == 'config' && inputs.target || '' }}
+        scanners: ${{ inputs.scanners }}
+        format: json
+        output: results.json
+        # Reporting happens below; gating is a separate, explicit decision.
+        exit-code: '0'
+
+    # Converted once, then reused for both the log and the summary.
+    - name: Report results
+      shell: bash
+      env:
+        SCANNERS: ${{ inputs.scanners }}
+        SUMMARY_TITLE: ${{ inputs.summary_title }}
+      run: |
+        trivy convert --scanners "$SCANNERS" --format table results.json > trivy-table.txt
+        cat trivy-table.txt
+        {
+          echo "### ${SUMMARY_TITLE}"
+          echo '```'
+          cat trivy-table.txt
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Convert vulnerability results to SARIF
+      if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'vuln') }}
+      shell: bash
+      run: trivy convert --scanners vuln --format sarif --output vuln-results.sarif results.json
+
+    - name: Upload vulnerability report
+      if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'vuln') }}
+      uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
+      with:
+        sarif_file: vuln-results.sarif
+        category: ${{ inputs.sarif_category }}
+
+    - name: Convert misconfiguration results to SARIF
+      if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'misconfig') }}
+      shell: bash
+      run: trivy convert --scanners misconfig --format sarif --output misconfig-results.sarif results.json
+
+    - name: Upload misconfiguration report
+      if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'misconfig') }}
+      uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
+      with:
+        sarif_file: misconfig-results.sarif
+        category: ${{ inputs.sarif_category }}
+
+    - name: Convert secret scan results to SARIF
+      if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'secret') }}
+      shell: bash
+      run: trivy convert --scanners secret --format sarif --output secret-results.sarif results.json
+
+    - name: Upload secret scan report
+      if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'secret') }}
+      uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
+      with:
+        sarif_file: secret-results.sarif
+        category: ${{ inputs.sarif_category_secrets || format('{0}-Secrets', inputs.sarif_category) }}
+
+    # Each gate records its verdict instead of failing, so one run reports every
+    # class of problem rather than stopping at whichever was checked first. The
+    # final step turns the collected verdicts into the job's fate.
+    - name: Gate - vulnerabilities
+      id: gate-vuln
+      if: ${{ inputs.fail_on_severity != '' }}
+      shell: bash
+      env:
+        SEVERITY: ${{ inputs.fail_on_severity }}
+        TITLE: ${{ inputs.summary_title }}
+      run: |
+        if trivy convert --scanners vuln --severity "$SEVERITY" --exit-code 1 --format table results.json; then
+          echo "failed=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "failed=true" >> "$GITHUB_OUTPUT"
+          echo "::error::${TITLE} - gate failed on ${SEVERITY} vulnerabilities"
+          echo "- Gate failed - ${TITLE}: ${SEVERITY} vulnerabilities" >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Gate - misconfigurations
+      id: gate-misconfig
+      if: ${{ inputs.fail_on_misconfig == 'true' }}
+      shell: bash
+      env:
+        TITLE: ${{ inputs.summary_title }}
+      run: |
+        if trivy convert --scanners misconfig --exit-code 1 --format table results.json; then
+          echo "failed=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "failed=true" >> "$GITHUB_OUTPUT"
+          echo "::error::${TITLE} - gate failed on misconfigurations"
+          echo "- Gate failed - ${TITLE}: misconfigurations" >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Gate - secrets
+      id: gate-secret
+      if: ${{ inputs.fail_on_secrets == 'true' }}
+      shell: bash
+      env:
+        TITLE: ${{ inputs.summary_title }}
+      run: |
+        if trivy convert --scanners secret --exit-code 1 --format table results.json; then
+          echo "failed=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "failed=true" >> "$GITHUB_OUTPUT"
+          echo "::error::${TITLE} - gate failed on detected secrets"
+          echo "- Gate failed - ${TITLE}: detected secrets" >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Fail if any gate tripped
+      if: ${{ steps.gate-vuln.outputs.failed == 'true' || steps.gate-misconfig.outputs.failed == 'true' || steps.gate-secret.outputs.failed == 'true' }}
+      shell: bash
+      run: |
+        echo "One or more gates failed. See the annotations and the gate steps above."
+        exit 1

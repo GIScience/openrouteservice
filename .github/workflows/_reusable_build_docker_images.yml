@@ -1,5 +1,4 @@
 name: Build Docker Images (Reusable)
-description: Reusable workflow to build Docker images for multiple platforms and stages
 
 on:
   workflow_call:
@@ -44,6 +43,28 @@ on:
         description: Branch, tag, or SHA to check out
         type: string
         default: 'main'
+      scan_before_push:
+        description: >-
+          When true (and push_by_digest is true), scan the built image with
+          Trivy before it is pushed anywhere external.
+        type: boolean
+        default: false
+      fail_on_severity:
+        description: Comma-separated severities that fail the pre-push scan (e.g. 'CRITICAL,HIGH'). Empty means report-only.
+        type: string
+        default: ''
+      fail_on_secrets:
+        description: Fail the pre-push scan if the secret scanner finds anything
+        type: boolean
+        default: false
+      vex_file:
+        description: Repo-relative path to an OpenVEX document used to suppress accepted-risk findings in the pre-push scan
+        type: string
+        default: ''
+      upload_sarif:
+        description: Upload the pre-push scan's SARIF results to the code scanning (Security) tab. Requires the caller job to grant security-events:write.
+        type: boolean
+        default: false
     secrets:
       registry_username:
         description: Docker registry username (optional, for authentication)
@@ -73,39 +94,33 @@ on:
 
 jobs:
 
-  validate_input_parameters:
-    name: Validate input parameters
-    runs-on: ubuntu-latest
-    steps:
-      - name: Validate docker_login and push_by_digest
-        run: |
-          if [ "${{ inputs.push_by_digest }}" = "true" ] && [ "${{ inputs.docker_login }}" != "true" ]; then
-            echo "Error: docker_login must be true when push_by_digest is true."
-            exit 1
-          fi
-
   build_docker_image:
-    needs: validate_input_parameters
     strategy:
       matrix:
         include:
           - platform: linux/amd64
             runner: ubuntu-latest
-            build: ${{ fromJSON(inputs.build_amd64) }}
+            build: ${{ inputs.build_amd64 }}
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
-            build: ${{ fromJSON(inputs.build_arm64) }}
+            build: ${{ inputs.build_arm64 }}
     
     name: Build ${{ inputs.image_stage }} for ${{ matrix.platform }}
     runs-on: ${{ matrix.runner }}
     outputs:
-      image_hash_amd64: ${{ matrix.platform == 'linux/amd64' && steps.final-artifact.outputs.image_hash || '' }}
-      image_hash_arm64: ${{ matrix.platform == 'linux/arm64' && steps.final-artifact.outputs.image_hash || '' }}
-      artifact_name_amd64: ${{ matrix.platform == 'linux/amd64' && steps.final-artifact.outputs.artifact_name || '' }}
-      artifact_name_arm64: ${{ matrix.platform == 'linux/arm64' && steps.final-artifact.outputs.artifact_name || '' }}
+      image_hash_amd64: ${{ matrix.platform == 'linux/amd64' && steps.build-image.outputs.imageid || '' }}
+      image_hash_arm64: ${{ matrix.platform == 'linux/arm64' && steps.build-image.outputs.imageid || '' }}
+      artifact_name_amd64: ${{ matrix.platform == 'linux/amd64' && steps.build-image.outputs.artifact_name || '' }}
+      artifact_name_arm64: ${{ matrix.platform == 'linux/arm64' && steps.build-image.outputs.artifact_name || '' }}
       image_digest_amd64: ${{ matrix.platform == 'linux/amd64' && steps.build-image.outputs.digest || '' }}
       image_digest_arm64: ${{ matrix.platform == 'linux/arm64' && steps.build-image.outputs.digest || '' }}
     steps:
+      - name: Validate docker_login and push_by_digest
+        if: ${{ inputs.push_by_digest && !inputs.docker_login }}
+        run: |
+          echo "Error: docker_login must be true when push_by_digest is true."
+          exit 1
+
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with: # make sure we check out the configured branch on manual trigger
@@ -121,48 +136,6 @@ jobs:
           docker_username: ${{ secrets.registry_username }}
           docker_password: ${{ secrets.registry_password }}
 
-      - name: Generate Dockerfile hash
-        if: matrix.build == true
-        id: dockerfile-hash
-        env:
-          DOCKERFILE_PATH: ${{ inputs.dockerfile_path }}
-        run: |
-          HASH=$(sha256sum "$DOCKERFILE_PATH" | cut -d' ' -f1 | cut -c1-8)
-          echo "hash=$HASH" >> $GITHUB_OUTPUT
-
-      - name: Set artifact names and output type
-        if: matrix.build == true
-        id: artifact
-        env:
-          IMAGE_STAGE: ${{ inputs.image_stage }}
-          PLATFORM: ${{ matrix.platform }}
-          HASH: ${{ steps.dockerfile-hash.outputs.hash }}
-          RUNNER_TEMP: ${{ runner.temp }}
-          PUSH_BY_DIGEST: ${{ inputs.push_by_digest }}
-          DOCKER_TAG: ${{ inputs.docker_tag }}
-        run: |
-          PLATFORM_NAME=$(echo "$PLATFORM" | sed 's/\//_/g')
-          ARTIFACT_NAME="image-${PLATFORM_NAME}-${IMAGE_STAGE}-${HASH}.tar"
-          echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
-          ARTIFACT_PATH="$RUNNER_TEMP"
-          echo "artifact_path=$ARTIFACT_PATH" >> $GITHUB_OUTPUT
-          ARTIFACT_FULL_PATH="${ARTIFACT_PATH}/${ARTIFACT_NAME}"
-          echo "artifact_full_path=$ARTIFACT_FULL_PATH" >> $GITHUB_OUTPUT
-          
-          if [ "$PUSH_BY_DIGEST" = "true" ]; then
-            # Use push-by-digest for multi-arch manifest combining
-            OUTPUT_TYPE="push-by-digest=true,type=image"
-            CACHE_TO_TYPE='' # no cache-to needed when pushing
-            PUSH_IMAGE="true"
-          else
-            # Use docker output for artifact
-            OUTPUT_TYPE="type=docker,dest=${ARTIFACT_FULL_PATH}"
-            PUSH_IMAGE="false"
-          fi
-          echo "output_type=$OUTPUT_TYPE" >> $GITHUB_OUTPUT
-          echo "cache_to_type=$CACHE_TO_TYPE" >> $GITHUB_OUTPUT
-          echo "push_image=$PUSH_IMAGE" >> $GITHUB_OUTPUT
-
       - name: Build Docker image
         if: matrix.build == true
         id: build-image
@@ -172,37 +145,24 @@ jobs:
           image_stage: ${{ inputs.image_stage }}
           docker_tag: ${{ inputs.docker_tag }}
           platform: ${{ matrix.platform }}
-          push_image: ${{ steps.artifact.outputs.push_image == 'true' }}
-          output_type: ${{ steps.artifact.outputs.output_type }}
-          cache_to_type: ${{ steps.artifact.outputs.cache_to_type || 'gha' }}
+          push_image: ${{ inputs.push_by_digest }}
+          # Empty means "action picks the tarball location and reports it back".
+          output_type: ${{ inputs.push_by_digest && 'push-by-digest=true,type=image' || '' }}
+          scan_before_push: ${{ inputs.scan_before_push }}
+          fail_on_severity: ${{ inputs.fail_on_severity }}
+          fail_on_secrets: ${{ inputs.fail_on_secrets }}
+          vex_file: ${{ inputs.vex_file }}
+          upload_sarif: ${{ inputs.upload_sarif }}
 
       - name: Upload image artifact
-        id: upload-artifact
-        if: |
-          matrix.build == true && 
-          fromJSON(inputs.upload_image_as_artifact) &&
-          !fromJSON(inputs.push_by_digest)
+        if: ${{ matrix.build && inputs.upload_image_as_artifact && !inputs.push_by_digest }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ${{ steps.artifact.outputs.artifact_name }}
-          path: ${{ steps.artifact.outputs.artifact_path }}
+          name: ${{ steps.build-image.outputs.artifact_name }}
+          # The tarball itself, not the directory it sits in - RUNNER_TEMP holds
+          # other things and this is an uncompressed multi-GB upload.
+          path: ${{ steps.build-image.outputs.artifact_full_path }}
           retention-days: 1
           if-no-files-found: error
           compression-level: 0
           overwrite: true
-
-      - name: Set final artifact info
-        if: matrix.build == true
-        id: final-artifact
-        env:
-          ARTIFACT_FULL_PATH: ${{ steps.artifact.outputs.artifact_full_path }}
-          ARTIFACT_NAME: ${{ steps.artifact.outputs.artifact_name }}
-          IMAGE_ID: ${{ steps.build-image.outputs.imageid }}
-        run: |
-          if [ -f "$ARTIFACT_FULL_PATH" ]; then
-            echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
-            echo "image_hash=$IMAGE_ID" >> $GITHUB_OUTPUT
-          else
-            echo "Artifact not created, skipping upload."
-            echo "artifact_name=" >> $GITHUB_OUTPUT
-          fi
