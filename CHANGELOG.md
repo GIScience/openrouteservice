@@ -47,6 +47,7 @@ Releasing is documented in RELEASE.md
 ### Deprecated
 
 ### Removed
+- obsolete RPM packaging (`.rpm-packaging/`) ([#2397](https://github.com/GIScience/openrouteservice/pull/2397))
 
 ### Fixed
 - give the healthcheck a start-period so it survives longer graph loading ([#2365](https://github.com/GIScience/openrouteservice/pull/2365))
