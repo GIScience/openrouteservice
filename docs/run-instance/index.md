@@ -25,8 +25,6 @@ documentation regarding [System Requirements](system-requirements) and [Data](da
 | [Docker Image](running-with-docker.md) | [Download Docker Image](running-with-docker.md#running-prebuilt-images) | [Build Docker Image](running-with-docker.md#build-image) | [Run Docker Image](running-with-docker.md#running-prebuilt-images)  | [Configure Docker Image](running-with-docker.md#configure) | [Troubleshoot Docker Image](running-with-docker.md#troubleshoot) | 
 | [Source code](building-from-source.md) | [Download source code](building-from-source.md#download-source-code)    |                                                          | [Run source code](building-from-source.md#run-source-code-directly) | [Configure](building-from-source.md#configure)             |                                                                  | 
 
-[//]: # (TODO add row for rpm package once integrated)
-
 ::: tip
 We recommend to use the docker option for simplicity, or plain JAR if you do not want to install Docker.
 :::

@@ -12,7 +12,6 @@
   "separateMinorPatch": true,
   "minimumReleaseAge": "3 days",
   "ignorePaths": [
-    ".rpm-packaging/**",
     "ors-test-scenarios/src/test/resources/**",
     "**/node_modules/**"
   ],
