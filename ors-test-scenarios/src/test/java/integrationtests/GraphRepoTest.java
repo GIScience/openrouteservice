@@ -145,15 +145,8 @@ public class GraphRepoTest extends ContainerInitializer {
             String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
             container.withCopyFileToContainer(forHostPath(config), containerConfigPath);
             container.withCopyFileToContainer(MountableFile.forHostPath(tempDir.resolve("test-filesystem-repo") + "/"), "/tmp/test-filesystem-repo/");
-            if (ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER.equals(targetImage)) {
-                // The war container has another working directory /usr/lib/tomcat/.
-                // Tomcat therefore prints the config location as an absolute path to /home/ors/openrouteservice/ors-config.yml.
-                // The waiting strategy needs to be different.
-                container.waitingFor(orsCorrectConfigLoadedWaitStrategy(containerConfigPath));
-            } else {
-                // Jar and Maven both have the working directory /home/ors/openrouteservice/. Therefore, the config location is printed as ./ors-config.yml.
-                container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
-            }
+            // Jar and Maven both have the working directory /home/ors/openrouteservice/. Therefore, the config location is printed as ./ors-config.yml.
+            container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
@@ -263,11 +256,7 @@ public class GraphRepoTest extends ContainerInitializer {
             String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
             container.withCopyFileToContainer(forHostPath(config), containerConfigPath);
             container.withCopyFileToContainer(MountableFile.forHostPath(tempDir.resolve("test-filesystem-repo") + "/"), "/tmp/test-filesystem-repo/");
-            if (ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER.equals(targetImage)) {
-                container.waitingFor(orsCorrectConfigLoadedWaitStrategy(containerConfigPath));
-            } else {
-                container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
-            }
+            container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
@@ -324,11 +313,7 @@ public class GraphRepoTest extends ContainerInitializer {
             container = ContainerInitializer.initContainer(targetImage, false, null, false);
             container.withCopyFileToContainer(forHostPath(config), containerConfigPath);
             container.withCopyFileToContainer(MountableFile.forHostPath(tempDir.resolve("test-filesystem-repo") + "/"), "/tmp/test-filesystem-repo/");
-            if (ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER.equals(targetImage)) {
-                container.waitingFor(orsCorrectConfigLoadedWaitStrategy(containerConfigPath));
-            } else {
-                container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
-            }
+            container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, "/tmp/test-filesystem-repo", 6, true), "The expected log patterns were not found in the logs.");
@@ -434,11 +419,7 @@ public class GraphRepoTest extends ContainerInitializer {
             // @formatter:on
             container.withCopyFileToContainer(forHostPath(config), containerConfigPath);
             container.withCopyFileToContainer(MountableFile.forHostPath(tempDir.resolve("test-filesystem-repo") + "/"), "/tmp/test-filesystem-repo/");
-            if (ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER.equals(targetImage)) {
-                container.waitingFor(orsCorrectConfigLoadedWaitStrategy(containerConfigPath));
-            } else {
-                container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
-            }
+            container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");

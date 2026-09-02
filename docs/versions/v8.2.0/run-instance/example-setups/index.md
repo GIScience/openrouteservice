@@ -9,7 +9,7 @@ If you are an advanced user, have a look at the existing setup instructions:
 
 - [Running openrouteservice with Docker](/run-instance/running-with-docker.md)
 - [Running openrouteservice as JAR](/run-instance/running-jar.md)
-- [Running openrouteservice as WAR](/run-instance/running-war.md)
+- [Running openrouteservice as WAR](../running-war.md)
 
 ::: tip
 The examples are growing over time and only provide a small subset of possible setups. \

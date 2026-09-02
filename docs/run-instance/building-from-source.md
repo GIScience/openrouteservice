@@ -195,31 +195,12 @@ If you need to make adjustments to our forked and edited [GraphHopper repository
 When your source code is set up, you can generate a runnable openrouteservice fat JAR:
 
 ```shell
-./mvnw clean package -PbuildFatJar
-```
-
-Because JAR is the default, you can also run the command without `-PbuildFatJar`:
-
-```shell
 ./mvnw clean package
 ```
 
 You will find the fat JAR file in `ors-api/target/ors.jar`
 
 The chapter on [JAR](running-jar.md) artifact explains how to configure and run the JAR file.
-
-
-### Build WAR
-
-When your source code is set up, you can generate a deployable openrouteservice WAR:
-
-```shell
-./mvnw clean package -PbuildWar
-```
-
-You will find the WAR file in `ors-api/target/ors.war`
-
-The chapter on [WAR](running-war.md) artifact explains how to configure and deploy the WAR file.
 
 
 ### Build docker image

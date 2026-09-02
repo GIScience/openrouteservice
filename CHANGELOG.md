@@ -47,6 +47,7 @@ Releasing is documented in RELEASE.md
 ### Deprecated
 
 ### Removed
+- WAR/Tomcat packaging support ([#2398](https://github.com/GIScience/openrouteservice/pull/2398))
 - obsolete RPM packaging (`.rpm-packaging/`) ([#2397](https://github.com/GIScience/openrouteservice/pull/2397))
 
 ### Fixed

@@ -21,8 +21,7 @@ In this chapter we handle different dimensions of the configuration topic:
 
 The configuration of openrouteservice can be specified in different notations.
 Which format to best use in which scenario is documented in the config documentations for
-[JAR](/run-instance/running-jar.md), [WAR](/run-instance/running-war.md)
-and [Docker](/run-instance/running-with-docker.md).
+[JAR](/run-instance/running-jar.md) and [Docker](/run-instance/running-with-docker.md).
 
 * `.yml` is the default configuration format since version 8. You can find
   an [example configuration file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.yml) with all
@@ -205,8 +204,7 @@ Note, that there are different ways to define environment variables,
 e.g.
 in [docker compose files](/run-instance/running-with-docker.md#set-openrouteservice-properties-in-docker-compose-yml)
 or
-[env files](/run-instance/running-with-docker.md#set-openrouteservice-properties-in-an-environment-file)
-or in `setenv.sh` files in [tomcat setups](/run-instance/running-war.md#configure).
+[env files](/run-instance/running-with-docker.md#set-openrouteservice-properties-in-an-environment-file).
 
 ### JVM Program Arguments
 

@@ -170,7 +170,6 @@ export default withMermaid(defineVersionedConfig({
                                 {text: 'Data', link: '/run-instance/data'},
                                 {text: 'Running with Docker', link: '/run-instance/running-with-docker'},
                                 {text: 'Running JAR', link: '/run-instance/running-jar'},
-                                {text: 'Running WAR', link: '/run-instance/running-war'},
                                 {text: 'Building from Source', link: '/run-instance/building-from-source'},
                                 {
                                     text: 'Configuration', collapsed: true, link: '/run-instance/configuration/',
@@ -249,11 +248,7 @@ export default withMermaid(defineVersionedConfig({
                                     ]
                                 },
                                 {
-                                    text: 'Example Setups', collapsed: true, link: '/run-instance/example-setups',
-                                    items: [{
-                                        text: 'Tomcat 10 - Ubuntu 22.04',
-                                        link: '/run-instance/example-setups/en_tomcat-10-ubuntu_22_04'
-                                    }]
+                                    text: 'Example Setups', link: '/run-instance/example-setups'
                                 },
                             ]
                         },

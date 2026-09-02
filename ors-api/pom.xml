@@ -37,7 +37,7 @@
     <artifactId>ors-api</artifactId>
     <name>ors-api</name>
 
-    <packaging>${packagingValue}</packaging>
+    <packaging>jar</packaging>
 
     <build>
         <finalName>ors</finalName>
@@ -56,16 +56,6 @@
             </resource>
         </resources>
         <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <warSourceDirectory>WebContent</warSourceDirectory>
-                    <webXml>WebContent/WEB-INF/web.xml</webXml>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

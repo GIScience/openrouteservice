@@ -4,8 +4,8 @@ If you need to customize the behavior of openrouteservice or if the features or 
 sufficient for your needs, you can run your own openrouteservice instance on a server or your local computer. In an own
 instance, you can activate all endpoints, also those that are not available in our public API.
 
-There are different options to achieve this. The service can be built in the form of different artifact types: **WAR**,
-**JAR** or as **Docker Image**. In the first column of the table below you find a link to some basic information about
+There are different options to achieve this. The service can be built in the form of different artifact types: **JAR**
+or as **Docker Image**. In the first column of the table below you find a link to some basic information about
 each artifact type.
 
 No matter how you want to run your openrouteservice, you first need the corresponding artifact. The second and third
@@ -22,7 +22,6 @@ documentation regarding [System Requirements](system-requirements) and [Data](da
 | Artifact                               | Download                                                                | or build yourself                                        | Run                                                                 | Configure                                                  | Trouble shoot                                                    | 
 |----------------------------------------|-------------------------------------------------------------------------|----------------------------------------------------------|---------------------------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------------|
 | [JAR](running-jar.md)                  | [Download JAR](running-jar.md#download)                                 | [Build JAR](building-from-source.md#build-jar)           | [Run JAR](running-jar.md#run)                                       | [Configure JAR](running-jar.md#configure)                  | [Troubleshoot JAR](running-jar.md#troubleshoot)                  | 
-| [WAR](running-war.md)                  | [Download WAR](running-war.md#download)                                 | [Build WAR](building-from-source.md#build-war)           | [Run WAR](running-war.md#run)                                       | [Configure WAR](running-war.md#configure)                  | [Troubleshoot WAR](running-war.md#troubleshoot)                  | 
 | [Docker Image](running-with-docker.md) | [Download Docker Image](running-with-docker.md#running-prebuilt-images) | [Build Docker Image](running-with-docker.md#build-image) | [Run Docker Image](running-with-docker.md#running-prebuilt-images)  | [Configure Docker Image](running-with-docker.md#configure) | [Troubleshoot Docker Image](running-with-docker.md#troubleshoot) | 
 | [Source code](building-from-source.md) | [Download source code](building-from-source.md#download-source-code)    |                                                          | [Run source code](building-from-source.md#run-source-code-directly) | [Configure](building-from-source.md#configure)             |                                                                  | 
 

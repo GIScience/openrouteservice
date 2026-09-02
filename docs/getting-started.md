@@ -14,7 +14,6 @@ The fastest way to get to the info you are looking for is **the search bar above
   * [Data](run-instance/data) used by openrouteservice
   * [Running with Docker](run-instance/running-with-docker.md) artifact
   * [Running JAR](run-instance/running-jar.md) artifact
-  * [Running WAR](run-instance/running-war.md) artifact
   * [Building from Source](run-instance/building-from-source.md)
   * [Configuration](run-instance/configuration/index.md) of openrouteservice instances
 * [Contributing](contributing/index.md) contains info about contributing to openrouteservice, the OpenStreetMap and [translations](contributing/contributing-translations)
