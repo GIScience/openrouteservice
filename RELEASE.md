@@ -57,3 +57,27 @@
 7. Update version in POMs to X.Y.Z-SNAPSHOT using
    ./mvnw versions:set -DnewVersion=X.Y.Z-SNAPSHOT
 8. Check whether outreach, announcement, … is necessary and do so.
+
+## If a release fails its vulnerability gate
+
+If a finding has no upstream fix yet (or is a false positive / not reachable in our build), record
+it as an accepted risk in `openvex.json` at the repo root instead of ignoring the
+whole gate:
+
+1. Generate a CycloneDX SBOM of the image and copy the exact `purl` for the affected component -
+   a near-miss purl silently suppresses nothing:
+   ```
+   trivy image --format cyclonedx local/openrouteservice:test-slim | jq '.components[] | select(.name=="<lib>")'
+   ```
+2. Add one statement per `(CVE, subcomponent)` pair.
+3. `status: "not_affected"` requires a `justification` from Trivy's/OpenVEX's fixed enum (e.g.
+   `vulnerable_code_not_in_execute_path`, `vulnerable_code_not_present`). Add an `impact_statement`
+   explaining why.
+4. Set `timestamp` to the review date. VEX has no expiry of its own, so nothing forces a suppression to lapse.
+
+Verify a statement actually suppresses the finding before relying on it, with `--show-suppressed`:
+```
+trivy image --scanners vuln,secret --vex openvex.json --show-suppressed \
+  local/openrouteservice:test-slim
+```
+The finding should appear under "Suppressed Vulnerabilities" with your statement's justification.

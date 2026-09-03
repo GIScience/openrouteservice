@@ -126,7 +126,7 @@ jobs:
             exit 1
           fi
       
-      - name: Test 4 - Empty output_type returns no image and digest IDs
+      - name: Test 4 - Empty output_type makes the action choose the tarball location
         id: test4
         uses: ./.github/actions/build-docker-image
         with:
@@ -138,15 +138,21 @@ jobs:
       - name: Verify Test 4 outputs
         run: |
           echo "Image ID: ${{ steps.test4.outputs.imageid }}"
-          echo "Digest: ${{ steps.test4.outputs.digest }}"
-          
-          if [ -n '${{ steps.test4.outputs.imageid }}' ]; then
-            echo "Test 4 FAILED: Expected no imageid output with empty output_type"
+          echo "Artifact name: ${{ steps.test4.outputs.artifact_name }}"
+          echo "Artifact path: ${{ steps.test4.outputs.artifact_full_path }}"
+
+          if [ -z '${{ steps.test4.outputs.imageid }}' ]; then
+            echo "Test 4 FAILED: Expected an imageid when the action picks the exporter"
             exit 1
           fi
 
-          if [ -n '${{ steps.test4.outputs.digest }}' ]; then
-            echo "Test 4 FAILED: Expected no digest output with empty output_type"
+          if [ -z '${{ steps.test4.outputs.artifact_name }}' ]; then
+            echo "Test 4 FAILED: Expected artifact_name to be reported back"
+            exit 1
+          fi
+
+          if [ ! -f '${{ steps.test4.outputs.artifact_full_path }}' ]; then
+            echo "Test 4 FAILED: Expected the image tarball to exist at artifact_full_path"
             exit 1
           fi
       - name: Summary

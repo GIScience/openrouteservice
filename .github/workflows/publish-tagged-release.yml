@@ -1,12 +1,69 @@
 name: Build and publish the newest version and latest Docker image
 on:
   release:
-    types: [published]
+    types: [created, published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to dry-run the release scan against (never publishes anything)'
+        required: true
 
 permissions: {}
 
 jobs:
+  # ---------------------------------------------------------------------------
+  # Dry run: fires as soon as a draft release is saved (release: created), or
+  # manually. Builds both stages/arches, hard-gates on the same Trivy checks as
+  # the real release, and pushes nothing anywhere - so you see the verdict
+  # before ever clicking "Publish release". scan_before_push scans in-job and,
+  # since push_by_digest is false here, that scanned build already is the
+  # final artifact - there is no separate build step or scan job needed.
+  # ---------------------------------------------------------------------------
+  dry_run_scan_publish_images:
+    if: github.event.action == 'created' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+    name: "[Dry run] Build and scan publish images"
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    with:
+      upload_image_as_artifact: false
+      build_amd64: true
+      build_arm64: true
+      image_stage: 'publish'
+      docker_tag: local/openrouteservice:release-dry-run
+      dockerfile_path: 'Dockerfile'
+      branch: ${{ github.event.release.tag_name || inputs.tag }}
+      scan_before_push: true
+      fail_on_severity: ''
+      fail_on_secrets: true
+      vex_file: openvex.json
+
+  dry_run_scan_slim_images:
+    if: github.event.action == 'created' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+    name: "[Dry run] Build and scan slim images"
+    uses: ./.github/workflows/_reusable_build_docker_images.yml
+    with:
+      upload_image_as_artifact: false
+      build_amd64: true
+      build_arm64: true
+      image_stage: 'slim'
+      docker_tag: local/openrouteservice:release-dry-run-slim
+      dockerfile_path: 'Dockerfile'
+      branch: ${{ github.event.release.tag_name || inputs.tag }}
+      scan_before_push: true
+      fail_on_severity: 'CRITICAL,HIGH'
+      fail_on_secrets: true
+      vex_file: openvex.json
+
+  # ---------------------------------------------------------------------------
+  # Real release: fires when the release is actually published. Every job below
+  # scans before it pushes anywhere external - a failure means no per-arch
+  # digest reaches Docker Hub, so combine_and_push_images has nothing to tag.
+  # ---------------------------------------------------------------------------
   check_version:
+    if: github.event.action == 'published'
     permissions:
       contents: read
     name: Check if this is the latest semantic version
@@ -28,9 +85,10 @@ jobs:
           current-tag: ${{ github.event.release.tag_name }}
 
   build_and_push_publish_images:
+    if: github.event.action == 'published'
     permissions:
       contents: read
-    name: Build and cache the Docker images with native runners
+    name: Build, scan and push the Docker images with native runners
     needs: check_version
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     with:
@@ -43,14 +101,19 @@ jobs:
       docker_tag: 'openrouteservice/openrouteservice' # push_by_digest doesn't need a tag suffix
       dockerfile_path: 'Dockerfile'
       branch: ${{ github.event.release.tag_name }}
+      scan_before_push: true
+      fail_on_severity: ''
+      fail_on_secrets: true
+      vex_file: openvex.json
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
-  
+
   build_and_push_slim_images:
+    if: github.event.action == 'published'
     permissions:
       contents: read
-    name: Build and cache the slim Docker images with native runners
+    name: Build, scan and push the slim Docker images with native runners
     needs: check_version
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     with:
@@ -63,16 +126,20 @@ jobs:
       docker_tag: 'openrouteservice/openrouteservice' # push_by_digest doesn't need a tag suffix
       dockerfile_path: 'Dockerfile'
       branch: ${{ github.event.release.tag_name }}
+      scan_before_push: true
+      fail_on_severity: 'CRITICAL,HIGH'
+      fail_on_secrets: true
+      vex_file: openvex.json
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
-  
+
   combine_and_push_images:
     permissions:
       contents: read
     name: Combine multi-arch manifest and push to DockerHub
     runs-on: ubuntu-latest
-    if: success()
+    if: github.event.action == 'published' && success()
     needs:
       - check_version
       - build_and_push_publish_images
@@ -140,7 +207,7 @@ jobs:
             echo "ARM64: $DIGEST_ARM64"
             exit 1
           fi
-          
+
           echo "Create and push manifest list for ${{ matrix.image_stage }} - ${{ matrix.image_tag }}"
           docker buildx imagetools create \
             -t "$IMAGE_REPO" \
@@ -164,7 +231,7 @@ jobs:
       - combine_and_push_images
     permissions:
       contents: write
-    if: fromJSON(needs.check_version.outputs.is-latest)
+    if: github.event.action == 'published' && fromJSON(needs.check_version.outputs.is-latest)
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -178,8 +245,9 @@ jobs:
 
   build_and_publish_release_artifacts:
     runs-on: ubuntu-latest
+    if: github.event.action == 'published'
     needs: [check_version, combine_and_push_images]
-    permissions: 
+    permissions:
       contents: write
     steps:
       - name: Checkout
