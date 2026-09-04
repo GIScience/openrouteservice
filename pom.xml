@@ -90,7 +90,7 @@
         <json-simple.version>1.1.1</json-simple.version>
         <hppc.version>0.8.2</hppc.version>
 
-        <surefire.version>3.5.6</surefire.version>
+        <surefire.version>3.6.0</surefire.version>
         <rest-assured.version>6.0.1</rest-assured.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gatling.version>3.15.1</gatling.version>
@@ -512,7 +512,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.15.0</version>
+                    <version>3.16.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
