@@ -40,6 +40,29 @@ jobs:
           echo "Test Slim Image Name: ${{ env.TEST_SLIM_IMAGE_NAME }}"
           echo " Is Draft: ${{ steps.check-draft.outputs.is_draft }}"
           echo " Build ARM64: ${{ steps.check-draft.outputs.build_arm64 }}"
+
+  trivy_dockerfile_scan:
+    name: Trivy scan Dockerfile
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    needs: prepare_environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Scan the Dockerfile
+        uses: ./.github/actions/trivy-scan
+        with:
+          scan_type: config
+          target: Dockerfile
+          scanners: misconfig
+          summary_title: Trivy scan — Dockerfile misconfig
+          sarif_category: Trivy-Dockerfile-Misconfig
+          upload_sarif: ${{ github.event_name != 'pull_request' }}
+
   build_docker_images:
     permissions:
       contents: read
