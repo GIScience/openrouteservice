@@ -33,13 +33,12 @@ inputs:
     required: false
     type: string
     default: 'gha'
-  artifact_full_path:
-    description: Full path to save the artifact (for non-push builds)
-    required: false
-    type: string
-    default: ''
   output_type:
-    description: Docker output type (docker, or docker with dest).
+    description: >-
+      Docker output type. Leave empty on a non-push build to have the action
+      pick the tarball location itself and report it back through the
+      artifact_name / artifact_full_path outputs. 
+      Set it to pin the exporter explicitly.
     required: false
     type: string
     default: 'type=docker'
@@ -70,10 +69,44 @@ outputs:
   metadata:
     description: Metadata of the built image
     value: ${{ steps.build-image.outputs.metadata }}
+  artifact_name:
+    description: File name of the exported image tarball. Empty when the action didn't pick the location.
+    value: ${{ steps.layout.outputs.name }}
+  artifact_full_path:
+    description: Full path of the exported image tarball. Empty when the action didn't pick the location.
+    value: ${{ steps.layout.outputs.full_path }}
 
 runs:
   using: composite
   steps:
+    - name: Resolve build layout
+      id: layout
+      shell: bash
+      env:
+        IMAGE_STAGE: ${{ inputs.image_stage }}
+        PLATFORM: ${{ inputs.platform }}
+        DOCKERFILE_PATH: ${{ inputs.dockerfile_path }}
+        OUTPUT_TYPE: ${{ inputs.output_type }}
+        ARTIFACT_DIR: ${{ runner.temp }}
+      run: |
+        PLATFORM_NAME="${PLATFORM//\//_}"
+        HASH=$(sha256sum "$DOCKERFILE_PATH" | cut -d' ' -f1 | cut -c1-8)
+        NAME="image-${PLATFORM_NAME}-${IMAGE_STAGE}-${HASH}.tar"
+        FULL="${ARTIFACT_DIR}/${NAME}"
+
+        echo "cache_scope=${IMAGE_STAGE}-${PLATFORM_NAME}" >> "$GITHUB_OUTPUT"
+
+        # The tarball is the caller's artifact only when the caller left the
+        # exporter to us. With output_type pinned (the push path) there is no
+        # tarball, and these stay empty so nothing downstream tries to ship it.
+        if [ -z "$OUTPUT_TYPE" ]; then
+          {
+            echo "name=$NAME"
+            echo "full_path=$FULL"
+            echo "output_spec=type=docker,dest=$FULL"
+          } >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Build Docker image
       id: build-image
       uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
@@ -85,8 +118,9 @@ runs:
         load: false
         tags: ${{ inputs.docker_tag }}
         platforms: ${{ inputs.platform }}
-        cache-from: type=${{ inputs.cache_from_type }}
-        cache-to: type=${{ inputs.cache_to_type }}
-        outputs: ${{ inputs.push_image && '' || inputs.output_type }}
+        cache-from: type=${{ inputs.cache_from_type }},scope=${{ steps.layout.outputs.cache_scope }}
+        cache-to: type=${{ inputs.cache_to_type }},scope=${{ steps.layout.outputs.cache_scope }}
+        # output_spec is empty whenever the caller pinned output_type.
+        outputs: ${{ steps.layout.outputs.output_spec || inputs.output_type }}
         sbom: ${{ inputs.push_image == 'true' && inputs.sbom == 'true' }}
         provenance: ${{ inputs.push_image == 'true' && inputs.provenance || 'false' }}
