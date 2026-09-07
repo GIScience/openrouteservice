@@ -42,6 +42,13 @@ inputs:
     description: Upload SARIF to the code scanning (Security) tab. Requires security-events:write.
     required: false
     default: 'false'
+  vex_file:
+    description: >-
+      Repo-relative path to an OpenVEX document suppressing accepted-risk
+      findings. Only consulted when this scan gates something - a report-only
+      scan shows everything.
+    required: false
+    default: ''
   fail_on_severity:
     description: Comma-separated severities that fail the job (e.g. 'CRITICAL,HIGH'). Empty means report-only.
     required: false
@@ -60,6 +67,9 @@ runs:
   steps:
     - name: Run Trivy scan
       uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+      env:
+        TRIVY_VEX: ${{ inputs.vex_file }}
+        TRIVY_SHOW_SUPPRESSED: ${{ inputs.vex_file != '' }}
       with:
         scan-type: ${{ startsWith(inputs.scan_type, 'image') && 'image' || inputs.scan_type }}
         input: ${{ inputs.scan_type == 'image-tar' && inputs.target || '' }}

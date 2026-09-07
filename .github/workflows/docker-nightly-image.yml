@@ -89,6 +89,7 @@ jobs:
       scan_before_push: true
       fail_on_severity: '' # nightly is report-only, never gates
       fail_on_secrets: false
+      vex_file: openvex.json
       upload_sarif: true
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
@@ -115,6 +116,7 @@ jobs:
       scan_before_push: true
       fail_on_severity: '' # nightly is report-only, never gates
       fail_on_secrets: false
+      vex_file: openvex.json
       upload_sarif: true
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
