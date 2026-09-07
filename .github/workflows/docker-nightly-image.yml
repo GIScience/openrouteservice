@@ -180,3 +180,33 @@ jobs:
             "$IMAGE_REPO"
 
           echo "Successfully pushed multi-arch image: $HEIGIT_IMAGE_REPO"
+
+  scan_published_images:
+    name: Trivy scan published ${{ matrix.tag }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image_stage: publish
+            tag: latest
+          - image_stage: slim
+            tag: latest-slim
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Scan the published image
+        uses: ./.github/actions/trivy-scan
+        with:
+          scan_type: image-ref
+          target: docker.io/openrouteservice/openrouteservice:${{ matrix.tag }}
+          scanners: vuln,secret
+          summary_title: Trivy scan — published ${{ matrix.tag }} (report-only)
+          sarif_category: Trivy-Published-Image-${{ matrix.image_stage }}
+          sarif_category_secrets: Trivy-Published-Image-Secrets-${{ matrix.image_stage }}
+          upload_sarif: true
