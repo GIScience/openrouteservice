@@ -71,6 +71,7 @@ jobs:
   build_and_push_publish_images:
     permissions:
       contents: read
+      security-events: write
     needs:
       - setup-build-environment
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -85,13 +86,18 @@ jobs:
       docker_login: true
       docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
       branch: ${{ inputs.branch }}
+      scan_before_push: true
+      fail_on_severity: '' # nightly is report-only, never gates
+      fail_on_secrets: false
+      upload_sarif: true
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
-  
+
   build_and_push_slim_images:
     permissions:
       contents: read
+      security-events: write
     needs:
       - setup-build-environment
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -106,6 +112,10 @@ jobs:
       docker_login: true
       docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
       branch: ${{ inputs.branch }}
+      scan_before_push: true
+      fail_on_severity: '' # nightly is report-only, never gates
+      fail_on_secrets: false
+      upload_sarif: true
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}

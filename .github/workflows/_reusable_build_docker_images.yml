@@ -43,6 +43,24 @@ on:
         description: Branch, tag, or SHA to check out
         type: string
         default: 'main'
+      scan_before_push:
+        description: >-
+          When true (and push_by_digest is true), scan the built image with
+          Trivy before it is pushed anywhere external.
+        type: boolean
+        default: false
+      fail_on_severity:
+        description: Comma-separated severities that fail the pre-push scan (e.g. 'CRITICAL,HIGH'). Empty means report-only.
+        type: string
+        default: ''
+      fail_on_secrets:
+        description: Fail the pre-push scan if the secret scanner finds anything
+        type: boolean
+        default: false
+      upload_sarif:
+        description: Upload the pre-push scan's SARIF results to the code scanning (Security) tab. Requires the caller job to grant security-events:write.
+        type: boolean
+        default: false
     secrets:
       registry_username:
         description: Docker registry username (optional, for authentication)
@@ -126,6 +144,10 @@ jobs:
           push_image: ${{ inputs.push_by_digest }}
           # Empty means "action picks the tarball location and reports it back".
           output_type: ${{ inputs.push_by_digest && 'push-by-digest=true,type=image' || '' }}
+          scan_before_push: ${{ inputs.scan_before_push }}
+          fail_on_severity: ${{ inputs.fail_on_severity }}
+          fail_on_secrets: ${{ inputs.fail_on_secrets }}
+          upload_sarif: ${{ inputs.upload_sarif }}
 
       - name: Upload image artifact
         if: ${{ matrix.build && inputs.upload_image_as_artifact && !inputs.push_by_digest }}

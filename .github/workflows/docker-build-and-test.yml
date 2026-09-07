@@ -66,7 +66,8 @@ jobs:
   build_docker_images:
     permissions:
       contents: read
-    name: Build Docker images for both platforms - publish
+      security-events: write
+    name: Build and scan Docker images for both platforms - publish
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     needs: prepare_environment
     with:
@@ -76,11 +77,17 @@ jobs:
       build_amd64: true
       build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
       upload_image_as_artifact: true
+      # Scans the tarball this build already writes for the test jobs.
+      scan_before_push: true
+      fail_on_severity: ''
+      fail_on_secrets: false
+      upload_sarif: ${{ github.event_name != 'pull_request' }}
 
   build_slim_images:
     permissions:
       contents: read
-    name: Build Docker images for both platforms - slim
+      security-events: write
+    name: Build and scan Docker images for both platforms - slim
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     needs: prepare_environment
     with:
@@ -90,6 +97,10 @@ jobs:
       build_amd64: true
       build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
       upload_image_as_artifact: true
+      scan_before_push: true
+      fail_on_severity: ''
+      fail_on_secrets: false
+      upload_sarif: ${{ github.event_name != 'pull_request' }}
 
   docker_image_tests:
     permissions:

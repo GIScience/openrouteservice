@@ -37,8 +37,8 @@ inputs:
     description: >-
       Docker output type. Leave empty on a non-push build to have the action
       pick the tarball location itself and report it back through the
-      artifact_name / artifact_full_path outputs. 
-      Set it to pin the exporter explicitly.
+      artifact_name / artifact_full_path outputs, which is also what Trivy
+      scans in place. Set it to pin the exporter explicitly.
     required: false
     type: string
     default: 'type=docker'
@@ -58,17 +58,38 @@ inputs:
     required: false
     type: string
     default: 'mode=max'
+  scan_before_push:
+    description: >-
+      Scan the image before it goes anywhere external.
+    required: false
+    type: boolean
+    default: false
+  fail_on_severity:
+    description: Comma-separated severities that fail the pre-push scan (e.g. 'CRITICAL,HIGH'). Empty means report-only.
+    required: false
+    type: string
+    default: ''
+  fail_on_secrets:
+    description: Fail the pre-push scan if the secret scanner finds anything
+    required: false
+    type: boolean
+    default: false
+  upload_sarif:
+    description: Upload the pre-push scan's SARIF results to the code scanning (Security) tab. Requires security-events:write.
+    required: false
+    type: boolean
+    default: false
 
 outputs:
   imageid:
     description: Image ID of the built image. Only if output_type includes type=image or type=docker.
-    value: ${{ steps.build-image.outputs.imageid }}
+    value: ${{ steps.build-image.outputs.imageid || steps.build-for-scan.outputs.imageid }}
   digest:
     description: Digest of the built image. Only if output_type includes type=image or type=docker.
-    value: ${{ steps.build-image.outputs.digest }}
+    value: ${{ steps.build-image.outputs.digest || steps.build-for-scan.outputs.digest }}
   metadata:
     description: Metadata of the built image
-    value: ${{ steps.build-image.outputs.metadata }}
+    value: ${{ steps.build-image.outputs.metadata || steps.build-for-scan.outputs.metadata }}
   artifact_name:
     description: File name of the exported image tarball. Empty when the action didn't pick the location.
     value: ${{ steps.layout.outputs.name }}
@@ -94,11 +115,16 @@ runs:
         NAME="image-${PLATFORM_NAME}-${IMAGE_STAGE}-${HASH}.tar"
         FULL="${ARTIFACT_DIR}/${NAME}"
 
-        echo "cache_scope=${IMAGE_STAGE}-${PLATFORM_NAME}" >> "$GITHUB_OUTPUT"
+        # The scan always reads a tarball, so this is always defined.
+        {
+          echo "cache_scope=${IMAGE_STAGE}-${PLATFORM_NAME}"
+          echo "scan_tar=$FULL"
+          echo "scan_output_spec=type=docker,dest=$FULL"
+        } >> "$GITHUB_OUTPUT"
 
-        # The tarball is the caller's artifact only when the caller left the
-        # exporter to us. With output_type pinned (the push path) there is no
-        # tarball, and these stay empty so nothing downstream tries to ship it.
+        # That same tarball is the caller's artifact only when the caller left
+        # the exporter to us. With output_type pinned (the push path) it is
+        # scratch, and these stay empty so nothing downstream tries to ship it.
         if [ -z "$OUTPUT_TYPE" ]; then
           {
             echo "name=$NAME"
@@ -107,8 +133,43 @@ runs:
           } >> "$GITHUB_OUTPUT"
         fi
 
+    - name: Build image for scanning
+      id: build-for-scan
+      if: ${{ inputs.scan_before_push == 'true' }}
+      uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+      with:
+        context: .
+        file: ${{ inputs.dockerfile_path }}
+        target: ${{ inputs.image_stage }}
+        push: false
+        load: false
+        tags: ${{ inputs.docker_tag }}
+        platforms: ${{ inputs.platform }}
+        cache-from: type=${{ inputs.cache_from_type }},scope=${{ steps.layout.outputs.cache_scope }}
+        cache-to: type=${{ inputs.cache_to_type }},scope=${{ steps.layout.outputs.cache_scope }}
+        outputs: ${{ steps.layout.outputs.scan_output_spec }}
+        sbom: false
+        provenance: false
+
+    - name: Scan the image
+      if: ${{ inputs.scan_before_push == 'true' }}
+      uses: ./.github/actions/trivy-scan
+      with:
+        scan_type: image-tar
+        target: ${{ steps.layout.outputs.scan_tar }}
+        scanners: vuln,secret
+        summary_title: Trivy scan — ${{ inputs.image_stage }} / ${{ inputs.platform }}
+        sarif_category: Trivy-Docker-Image-${{ inputs.image_stage }}-${{ inputs.platform }}
+        sarif_category_secrets: Trivy-Docker-Image-Secrets-${{ inputs.image_stage }}-${{ inputs.platform }}
+        upload_sarif: ${{ inputs.upload_sarif }}
+        fail_on_severity: ${{ inputs.fail_on_severity }}
+        fail_on_secrets: ${{ inputs.fail_on_secrets }}
+
+    # Skipped in exactly one case: a scanned build that isn't pushing, where the
+    # scan build above already wrote the tarball which is then returned.
     - name: Build Docker image
       id: build-image
+      if: ${{ inputs.scan_before_push != 'true' || inputs.push_image == 'true' }}
       uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
       with:
         context: .
