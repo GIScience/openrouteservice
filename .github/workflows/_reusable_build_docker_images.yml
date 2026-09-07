@@ -57,6 +57,10 @@ on:
         description: Fail the pre-push scan if the secret scanner finds anything
         type: boolean
         default: false
+      vex_file:
+        description: Repo-relative path to an OpenVEX document used to suppress accepted-risk findings in the pre-push scan
+        type: string
+        default: ''
       upload_sarif:
         description: Upload the pre-push scan's SARIF results to the code scanning (Security) tab. Requires the caller job to grant security-events:write.
         type: boolean
@@ -147,6 +151,7 @@ jobs:
           scan_before_push: ${{ inputs.scan_before_push }}
           fail_on_severity: ${{ inputs.fail_on_severity }}
           fail_on_secrets: ${{ inputs.fail_on_secrets }}
+          vex_file: ${{ inputs.vex_file }}
           upload_sarif: ${{ inputs.upload_sarif }}
 
       - name: Upload image artifact
