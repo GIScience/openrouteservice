@@ -93,7 +93,6 @@ public class ConfigFileTest extends ContainerInitializer {
 
             // Add the config file to te container and overwrite the default config
             container.withCopyFileToContainer(forHostPath(testConfig), "/home/ors/openrouteservice/ors-config.yml");
-            container.withCopyFileToContainer(forHostPath(testConfig), "/usr/local/tomcat/ors-config.yml");
             container.waitingFor(waitStrategyWithLogMessage(
                     List.of(
                             "Configuration lookup started.",

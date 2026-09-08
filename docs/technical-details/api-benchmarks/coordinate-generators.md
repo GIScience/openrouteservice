@@ -6,7 +6,7 @@ The openrouteservice provides tools for generating test coordinates that can be 
 
 To use the coordinate generation tools, you need:
 
-- Java 17+
+- Java 25+
 - Maven
 - An active openrouteservice instance (local or remote)
 

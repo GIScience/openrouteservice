@@ -15,13 +15,11 @@
 
 package org.heigit.ors.api.converters;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.heigit.ors.api.requests.common.CoordinateListWrapper;
 import org.locationtech.jts.geom.Coordinate;
-
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 public class CoordinateListSerializer extends StdSerializer<CoordinateListWrapper> {
     public CoordinateListSerializer() {
@@ -33,7 +31,7 @@ public class CoordinateListSerializer extends StdSerializer<CoordinateListWrappe
     }
 
     @Override
-    public void serialize(CoordinateListWrapper listWrapper, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
+    public void serialize(CoordinateListWrapper listWrapper, JsonGenerator jsonGenerator, SerializationContext context) {
         jsonGenerator.writeStartArray();
 
         for (Coordinate coord : listWrapper.getCoordinates()) {

@@ -1,15 +1,13 @@
 package org.heigit.ors.api.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.heigit.ors.api.Application;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -23,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ConfigOutputTest {
 
     @Test
-    void testConfigOutputFile() throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    void testConfigOutputFile() {
+        YAMLMapper mapper = YAMLMapper.builder().build();
         JsonNode configOutput = mapper.readTree(new File("./target/config_output.yml"));
         assertTrue(configOutput.has("ors"));
         assertTrue(configOutput.has("logging"));

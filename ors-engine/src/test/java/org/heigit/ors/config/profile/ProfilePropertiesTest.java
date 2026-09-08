@@ -1,10 +1,9 @@
 package org.heigit.ors.config.profile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.file.Path;
 
@@ -12,15 +11,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ProfilePropertiesTest {
 
-    static ObjectMapper mapper;
+    static JsonMapper mapper;
 
     @BeforeAll
     static void setUp() {
-        mapper = new ObjectMapper();
+        mapper = JsonMapper.builder().build();
     }
 
     @Test
-    void testWithEmptyExtendedStorages() throws JsonProcessingException {
+    void testWithEmptyExtendedStorages() {
         String json = "{\"encoder_name\":\"driving-car\",\"build\":{\"ext_storages\":{}}}";
         ProfileProperties foo = mapper.readValue(json, ProfileProperties.class);
         assertEquals(EncoderNameEnum.DRIVING_CAR, foo.getEncoderName());

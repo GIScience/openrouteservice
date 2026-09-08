@@ -6,10 +6,6 @@ on:
     - cron: '15 1 * * *'
   workflow_dispatch:
     inputs:
-      repository:
-        description: 'GitHub repository to create image off.'
-        required: true
-        default: 'GIScience/openrouteservice'
       branch:
         description: 'GitHub branch to create image off.'
         required: true
@@ -28,8 +24,12 @@ on:
         required: false
         default: 'schedule'
 
+permissions: {}
+
 jobs:
   setup-build-environment:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     outputs:
       new_commits: ${{ steps.check.outputs.NEW_COMMITS }}
@@ -39,9 +39,8 @@ jobs:
       heigit_slim_image_tag: ${{ steps.image-tags.outputs.heigit_slim_image_tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
           ref: ${{ inputs.branch || 'main' }}
 
       - name: Check for new commits since 24 h ago
@@ -70,6 +69,9 @@ jobs:
           echo "HeiGIT slim stage image tag: ${HEIGIT_BASE_TAG}-slim"
   
   build_and_push_publish_images:
+    permissions:
+      contents: read
+      security-events: write
     needs:
       - setup-build-environment
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -77,17 +79,25 @@ jobs:
     with:
       dockerfile_path: 'Dockerfile'
       image_stage: 'publish'
-      java_version: 21
+      java_version: 25
       build_amd64: true
       build_arm64: true
       push_by_digest: true
       docker_login: true
       docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
+      branch: ${{ inputs.branch }}
+      scan_before_push: true
+      fail_on_severity: '' # nightly is report-only, never gates
+      fail_on_secrets: false
+      upload_sarif: true
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
-  
+
   build_and_push_slim_images:
+    permissions:
+      contents: read
+      security-events: write
     needs:
       - setup-build-environment
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -95,17 +105,24 @@ jobs:
     with:
       dockerfile_path: 'Dockerfile'
       image_stage: 'slim'
-      java_version: 21
+      java_version: 25
       build_amd64: true
       build_arm64: true
       push_by_digest: true
       docker_login: true
       docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
+      branch: ${{ inputs.branch }}
+      scan_before_push: true
+      fail_on_severity: '' # nightly is report-only, never gates
+      fail_on_secrets: false
+      upload_sarif: true
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
 
   combine_and_push_multi_arch_manifests:
+    permissions:
+      contents: read
     needs:
       - setup-build-environment
       - build_and_push_publish_images
@@ -128,9 +145,8 @@ jobs:
             digest_arm64: ${{ needs.build_and_push_slim_images.outputs.image_digest_arm64 }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
           ref: ${{ inputs.branch || 'main' }}
       - name: Set up build environment
         uses: ./.github/actions/setup-build-environment
@@ -174,3 +190,33 @@ jobs:
             "$IMAGE_REPO"
 
           echo "Successfully pushed multi-arch image: $HEIGIT_IMAGE_REPO"
+
+  scan_published_images:
+    name: Trivy scan published ${{ matrix.tag }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image_stage: publish
+            tag: latest
+          - image_stage: slim
+            tag: latest-slim
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Scan the published image
+        uses: ./.github/actions/trivy-scan
+        with:
+          scan_type: image-ref
+          target: docker.io/openrouteservice/openrouteservice:${{ matrix.tag }}
+          scanners: vuln,secret
+          summary_title: Trivy scan — published ${{ matrix.tag }} (report-only)
+          sarif_category: Trivy-Published-Image-${{ matrix.image_stage }}
+          sarif_category_secrets: Trivy-Published-Image-Secrets-${{ matrix.image_stage }}
+          upload_sarif: true

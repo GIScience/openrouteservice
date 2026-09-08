@@ -375,6 +375,12 @@ public class ApiService {
                 pw.addParameter(factorKey, weightings.getCsvFactor());
                 params.add(pw);
             }
+            if (weightings.hasCsvDegreeC()) {
+                ProfileWeighting pw = new ProfileWeighting("csv_degree_c");
+                pw.addParameter("column", weightings.getCsvColumn());
+                pw.addParameter("degree_c", weightings.getCsvDegreeC());
+                params.add(pw);
+            }
         } catch (InternalServerException e) {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "weightings");
 

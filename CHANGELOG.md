@@ -29,18 +29,46 @@ Releasing is documented in RELEASE.md
 
 ### Added
 - new optional parameter `ors.engine.preparation_type` (`FOLDER`/`ARCHIVE`) controlling whether `preparation_mode` leaves built graphs extracted or packs them into `.ghz` archives ([#2316](https://github.com/GIScience/openrouteservice/issues/2316))
+- documentation for CSV extra info from graph-build CSV files ([#1974](https://github.com/GIScience/openrouteservice/issues/1974))
+- add SBOM and provenance via docker buildx commands ([#2347](https://github.com/GIScience/openrouteservice/pull/2347))
+- add OCI title/description/documentation labels to base image ([#2364](https://github.com/GIScience/openrouteservice/pull/2364))
+- disable file logging in the slim image so it can run with a read-only root filesystem given a tmpfs at `/tmp` for GeoTools' EPSG cache ([#2367](https://github.com/GIScience/openrouteservice/pull/2367))
 
 ### Changed
+- replace Grype with Trivy for CI vulnerability scanning ([#2335](https://github.com/GIScience/openrouteservice/pull/2335))
+- fix Trivy CI scans to correctly detect jar/war vulnerabilities and add secret and Dockerfile misconfiguration scanning ([#2337](https://github.com/GIScience/openrouteservice/pull/2337))
+- scan all images arm/amd64 for publish/slim stages but only fail for critical and high on slim ([#2345](https://github.com/GIScience/openrouteservice/pull/2345))
+- pin dockerfile base images by digest ([#2346](https://github.com/GIScience/openrouteservice/pull/2346))
+- reduce the Docker `HEALTHCHECK` interval from 30s to 10s to match Kubernetes' default probe interval; Kubernetes does not consume Docker's `HEALTHCHECK` itself, so this timing only affects plain Docker/Podman/Swarm deployments ([#2369](https://github.com/GIScience/openrouteservice/pull/2369))
+- harden the embedded Tomcat of the slim image: pin the already-effective response settings, shorten the connector timeout to 20s and disable Swagger UI and the OpenAPI document ([#2368](https://github.com/GIScience/openrouteservice/pull/2368))
+- bump Java to 25 across build, CI and Docker images ([#2382](https://github.com/GIScience/openrouteservice/pull/2382))
+- base the slim image on distroless Debian 13 ([#2387](https://github.com/GIScience/openrouteservice/pull/2387))
+- update to Spring Boot 4 ([#2393](https://github.com/GIScience/openrouteservice/pull/2393))
 
 ### Deprecated
 
 ### Removed
+- WAR/Tomcat packaging support ([#2398](https://github.com/GIScience/openrouteservice/pull/2398))
+- obsolete RPM packaging (`.rpm-packaging/`) ([#2397](https://github.com/GIScience/openrouteservice/pull/2397))
 
 ### Fixed
 - `preparation_mode` no longer packs graphs and deletes the extracted graph folders by default, restoring the pre-9.6.0 behaviour needed for baking graphs into Docker images ([#2316](https://github.com/GIScience/openrouteservice/issues/2316))
+- give the healthcheck a start-period so it survives longer graph loading ([#2365](https://github.com/GIScience/openrouteservice/pull/2365))
+- let the slim image run under an arbitrary UID: own `ORS_HOME` as group 0 with the group bits mirroring the owner, copy the JAR read-only instead of `750`, and declare a numeric `USER 1001:0` that `runAsNonRoot` can resolve ([#2366](https://github.com/GIScience/openrouteservice/pull/2366))
+- penalize routing through service ways ([#2313](https://github.com/GIScience/openrouteservice/pull/2313))
+- correct speed assignment for HGVs and disable acceleration heuristic on motorways/-roads ([#2329](https://github.com/GIScience/openrouteservice/pull/2329))
+- pass branch through to the reusable Docker build workflow so CI actually builds the triggering commit instead of always `main` ([#2340](https://github.com/GIScience/openrouteservice/pull/2340))
+- declare the JAXB and javax.xml.bind dependencies explicitly ([#2388](https://github.com/GIScience/openrouteservice/pull/2388))
 
 ### Security
 - update postcss to 8.5.25
+- update mermaid to 11.16.1 due to [CVE-2026-71437](https://www.cve.org/CVERecord?id=CVE-2026-71437), [CVE-2026-71438](https://www.cve.org/CVERecord?id=CVE-2026-71438), [CVE-2026-50159](https://www.cve.org/CVERecord?id=CVE-2026-50159), [CVE-2026-71436](https://www.cve.org/CVERecord?id=CVE-2026-71436) and [CVE-2026-71439](https://www.cve.org/CVERecord?id=CVE-2026-71439)
+- update dompurify to 3.4.13
+- update base docker images ([#2336](https://github.com/GIScience/openrouteservice/pull/2336))
+- update yq to 4.53.3 ([#2336](https://github.com/GIScience/openrouteservice/pull/2336))
+- update postgresql to 42.7.12 and jline to 4.2.1, add aircompressor dependency to fix [CVE-2025-67721](https://www.cve.org/CVERecord?id=CVE-2025-67721), [CVE-2026-56740](https://www.cve.org/CVERecord?id=CVE-2026-56740), [CVE-2026-56741](https://www.cve.org/CVERecord?id=CVE-2026-56741) and [CVE-2026-54291](https://www.cve.org/CVERecord?id=CVE-2026-54291) ([#2339](https://github.com/GIScience/openrouteservice/pull/2339))
+- update log4j to 2.25.5 due to [CVE-2026-49844](https://www.cve.org/CVERecord?id=CVE-2026-49844)
+- update httpclient5 to 5.6.3 due to [CVE-2026-71290](https://www.cve.org/CVERecord?id=CVE-2026-71290) and [CVE-2026-40542](https://www.cve.org/CVERecord?id=CVE-2026-40542)
 
 
 ## [9.10.0] - 2026-07-28

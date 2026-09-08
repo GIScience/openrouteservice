@@ -1,4 +1,4 @@
-FROM docker.io/maven:3.9.11-amazoncorretto-21-alpine AS build
+FROM docker.io/maven:3.9.16-amazoncorretto-25@sha256:98295c180adc4b5c0a52b830e00c387c862d5827d395cd7737d8205170428785 AS build
 # ============================================================================
 # Build stage for Java-based ORS application
 # This stage is responsible for compiling and packaging the Java-based OpenRouteService (ORS) application.
@@ -7,6 +7,17 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # hadolint ignore=DL3002
 USER root
+
+# The `slim` stage has no JDK of its own. Its base ships the native libraries a
+# JVM needs but no JVM. So the runtime is built here and copied in.
+# /empty-tmp exists because the distroless base ships no /tmp at all and COPY
+# cannot create a directory.
+RUN dnf install -y binutils tar && \
+    jlink --add-modules java.se,jdk.unsupported,jdk.crypto.ec \
+    --strip-debug --no-man-pages --no-header-files --compress=zip-6 \
+    --output /javaruntime && \
+    mkdir -m 1777 /empty-tmp && \
+    dnf clean all
 
 WORKDIR /tmp/ors
 
@@ -32,15 +43,15 @@ COPY ors-engine /tmp/ors/ors-engine
 RUN ./mvnw -pl 'ors-api,ors-engine' \
     -q clean package -DskipTests -Dmaven.test.skip=true
 
-FROM docker.io/golang:1.25.4-alpine3.22 AS build-go
+FROM docker.io/golang:1.27.1-alpine3.24@sha256:3f6d04dc61331ee3c2fbbaad62d54412a84680f6a041d269a20a5270a078515b AS build-go
 # ============================================================================
 # Build stage for Go-based tools
 # This stage is dedicated to building Go-based tools required in later stages.
 # ============================================================================
 
-RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.48.1
+RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.53.3
 
-FROM docker.io/amazoncorretto:21.0.9-alpine3.22 AS base
+FROM docker.io/amazoncorretto:25.0.4-alpine3.24@sha256:2ad5f5cf03a3970f2478b130dc28f51b179ce13c58154fe3ec1a6fdeb3b86e3a AS base
 # ============================================================================
 # Base image stage: common setup for all runtime stages
 # This stage sets up the foundational environment for running the OpenRouteService (ORS) application.
@@ -54,8 +65,8 @@ ARG ORS_HOME=/home/ors
 RUN addgroup ors -g ${GID} && \
     adduser -D -u ${UID} --system -G ors ors && \
     mkdir -p ${ORS_HOME}/logs ${ORS_HOME}/files ${ORS_HOME}/graphs ${ORS_HOME}/elevation_cache ${ORS_HOME}/app && \
-    chown -R ors:ors ${ORS_HOME} && \
-    chmod -R u+rwX,g+rwX ${ORS_HOME}
+    chown -R ors:0 ${ORS_HOME} && \
+    chmod -R u+rwX,g=u ${ORS_HOME}
 
 # Set the default language
 ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US' \
@@ -66,27 +77,68 @@ WORKDIR ${ORS_HOME}
 # Expose port
 EXPOSE 8082
 
-HEALTHCHECK --interval=3s --timeout=2s CMD ["sh", "-c", "wget --quiet --tries=1 --spider http://localhost:8082/ors/v2/health || exit 1"]
+HEALTHCHECK --start-period=60s --interval=10s --timeout=2s CMD ["sh", "-c", "wget --quiet --tries=1 --spider http://localhost:8082/ors/v2/health || exit 1"]
 
 LABEL org.opencontainers.image.source="https://github.com/GIScience/openrouteservice"
 LABEL org.opencontainers.image.licenses="LGPL-3.0-only"
+LABEL org.opencontainers.image.title="openrouteservice"
+LABEL org.opencontainers.image.description="Open-source route planning service based on OpenStreetMap data"
+LABEL org.opencontainers.image.documentation="https://giscience.github.io/openrouteservice"
 
-FROM base AS slim
+FROM gcr.io/distroless/cc-debian13:nonroot@sha256:c31ff9abcb1910f3ab25c7957bdaf0bfe12a01eb546e8df2282f1c8f682b606c AS slim
 # ============================================================================
 # K8s-ready image stage
-# This stage is optimized for Kubernetes deployment with:
+# This stage is optimized for Kubernetes and container deployments with:
 # - Java as PID 1 for proper signal handling
 # - Direct Logging to STDOUT/STDERR
 # - Non-root execution
 # - Absolute minimal footprint
 # - No config presets or example data
+# - Distroless, cosign-attested Debian 13 base: no shell, no package manager,
+#   so nothing here can RUN; everything arrives via COPY.
 # ============================================================================
 
-# Copy JAR from build stage
-COPY --chown=ors:ors --chmod=750 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
+ARG ORS_HOME=/home/ors
 
-# Switch to non-root user
-USER ors
+COPY --from=build --chown=1001:0 /javaruntime /opt/java
+# HEALTHCHECK probe. Preferred over copying curl or busybox in, which drag a general
+# purpose download tool or an entire shell back into a deliberately shell-less
+# base.
+COPY --from=ghcr.io/tarampampam/microcheck:1.4.0@sha256:c9f79cd408626de7c10f2d487d67339f49adf0ba61dde96ede65343269db1f85 \
+    --chown=1001:0 --chmod=755 /bin/httpcheck /usr/bin/httpcheck
+COPY --from=base --chown=1001:0 ${ORS_HOME} ${ORS_HOME}
+COPY --chown=1001:0 --chmod=644 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
+COPY --from=build --chown=1001:0 --chmod=1777 /empty-tmp /tmp
+
+ENV PATH="/opt/java/bin:${PATH}" \
+    LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US' \
+    ORS_HOME=${ORS_HOME} \
+    LOGGING_FILE_NAME="" \
+    XDG_CACHE_HOME=/tmp
+
+# Apache Tomcat hardening: pinned response settings, shorter connector timeout, no Swagger UI or OpenAPI document
+ENV SERVER_SERVER_HEADER="" \
+    SERVER_ERROR_INCLUDE_STACKTRACE=never \
+    SERVER_ERROR_INCLUDE_MESSAGE=never \
+    SERVER_ERROR_INCLUDE_EXCEPTION=false \
+    SERVER_ERROR_INCLUDE_BINDING_ERRORS=never \
+    SERVER_MAX_HTTP_REQUEST_HEADER_SIZE=8KB \
+    SERVER_TOMCAT_CONNECTION_TIMEOUT=20s \
+    SPRINGDOC_SWAGGER_UI_ENABLED=false \
+    SPRINGDOC_API_DOCS_ENABLED=false
+
+WORKDIR ${ORS_HOME}
+
+EXPOSE 8082
+
+# We need a custom health check as the base image comes without any binaries.
+# httpcheck is one of the emerging standard tools.
+HEALTHCHECK --start-period=60s --interval=30s --timeout=8s CMD ["/usr/bin/httpcheck", \
+    "--port-env", "SERVER_PORT", "--timeout-env", "ORS_HEALTHCHECK_TIMEOUT", \
+    "--connect-timeout", "1", "http://localhost:8082/ors/v2/health"]
+
+# Switch to a non-root user, declared numerically and above 1000.
+USER 1001:0
 
 # Run Java jar directly as PID 1
 # Configuration via environment variables:
@@ -114,8 +166,9 @@ ARG OSM_FILE=./ors-api/src/test/files/heidelberg.test.pbf
 COPY --chown=ors:ors --chmod=755 ./$OSM_FILE /heidelberg.test.pbf
 COPY --chown=ors:ors --chmod=755 ./docker-entrypoint.sh /entrypoint.sh
 COPY --chown=ors:ors --from=build-go /go/bin/yq /bin/yq
-# Copy JAR from build stage with broader permissions
-COPY --chown=ors:ors --chmod=755 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
+# Copy JAR from build stage. Read-only data: docker-entrypoint.sh starts it with
+# `java -jar`, never by executing it, so no execute bit is needed here either.
+COPY --chown=ors:0 --chmod=644 --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
 
 
 # Setup additional packages for publish stage and allow read access to others

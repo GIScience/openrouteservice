@@ -15,20 +15,21 @@
 
 package org.heigit.ors.api.config;
 
-import com.bedatadriven.jackson.datatype.jts.JtsModule;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.graphhopper.jackson.geojson.JtsModule;
 import org.codehaus.commons.nullanalysis.NotNull;
 import org.heigit.ors.api.converters.APIRequestProfileConverter;
 import org.heigit.ors.api.converters.APIRequestSingleCoordinateConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.http.converter.HttpMessageConverters;
+import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 public class ApiConfig implements WebMvcConfigurer {
@@ -36,6 +37,18 @@ public class ApiConfig implements WebMvcConfigurer {
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new APIRequestSingleCoordinateConverter());
         registry.addConverter(new APIRequestProfileConverter());
+    }
+
+    /**
+     * Spring no longer auto-registers a JAXB message converter once a Jackson XML converter is
+     * present on the classpath - which, since GraphHopper's own (unused-by-ORS) GPX support pulls
+     * in Jackson's XML dataformat module transitively, is now always the case here. Our own
+     * GPXRouteResponse is JAXB-annotated, not Jackson-XML-annotated, so it needs an explicit,
+     * higher-priority JAXB converter to keep serializing application/gpx+xml correctly.
+     */
+    @Override
+    public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
+        builder.withXmlConverter(new Jaxb2RootElementHttpMessageConverter());
     }
 
     @Override
@@ -76,12 +89,11 @@ public class ApiConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
-        mapper.registerModule(new JtsModule());
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        return mapper;
+    public JsonMapper objectMapper() {
+        return JsonMapper.builder()
+                .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .addModule(new JtsModule())
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .build();
     }
 }

@@ -1,8 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import io.minio.*;
-import io.minio.errors.*;
-import io.minio.messages.Bucket;
+import io.minio.errors.MinioException;
+import io.minio.messages.ListAllMyBucketsResult;
 import io.minio.messages.Item;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,8 +24,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -63,11 +61,9 @@ class MinioRepoManagerTest {
                         minioClient.putObject(PutObjectArgs.builder()
                                 .bucket(BUCKET_NAME)
                                 .object(TESTFILE_ROOT.relativize(path).toString())
-                                .stream(new FileInputStream(path.toFile()), path.toFile().length(), -1)
+                                .stream(new FileInputStream(path.toFile()), path.toFile().length(), -1L)
                                 .build());
-                    } catch (ErrorResponseException | InsufficientDataException | InternalException |
-                             InvalidKeyException | InvalidResponseException | IOException | NoSuchAlgorithmException |
-                             ServerException | XmlParserException e) {
+                    } catch (MinioException | IOException e) {
                         throw new RuntimeException(e);
                     }
                 });
@@ -132,7 +128,7 @@ class MinioRepoManagerTest {
                 .endpoint(minioContainer.getS3URL())
                 .credentials(minioContainer.getUserName(), minioContainer.getPassword())
                 .build()) {
-            List<Bucket> buckets = minioClient.listBuckets();
+            List<ListAllMyBucketsResult.Bucket> buckets = minioClient.listBuckets();
             assertEquals(1, buckets.size());
             assertEquals(BUCKET_NAME, buckets.get(0).name());
             List<String> expected = List.of(

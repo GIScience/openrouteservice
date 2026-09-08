@@ -8,7 +8,6 @@ server:
   error:
     whitelabel:
       enabled: false
-  # Keep the context-path at / else the war file run with tomcat will have the context-path of /ors/v2 as well.
   servlet:
     context-path: /ors
   tomcat:

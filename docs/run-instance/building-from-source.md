@@ -8,7 +8,7 @@ following instructions are useful to get you set up to start modifying the code.
 ## Prerequisites
 
 The following documentation assumes you are running an Ubuntu 20.04 system (also generally works with newer Ubuntu versions). Depending on your environment, you might need to adjust certain details. You will also need to make sure to have the following installed: 
-* [java](https://www.java.com/en/) 17 (or higher) should be available, preferably as default Java environment.
+* [java](https://www.java.com/en/) 25 (or higher) should be available, preferably as default Java environment.
 * [maven](https://maven.apache.org/) should be installed on your system.
 * [git](https://github.com/git-guides/install-git) should be available on your system if you want to download the source code conveniently.
 
@@ -195,31 +195,12 @@ If you need to make adjustments to our forked and edited [GraphHopper repository
 When your source code is set up, you can generate a runnable openrouteservice fat JAR:
 
 ```shell
-./mvnw clean package -PbuildFatJar
-```
-
-Because JAR is the default, you can also run the command without `-PbuildFatJar`:
-
-```shell
 ./mvnw clean package
 ```
 
 You will find the fat JAR file in `ors-api/target/ors.jar`
 
 The chapter on [JAR](running-jar.md) artifact explains how to configure and run the JAR file.
-
-
-### Build WAR
-
-When your source code is set up, you can generate a deployable openrouteservice WAR:
-
-```shell
-./mvnw clean package -PbuildWar
-```
-
-You will find the WAR file in `ors-api/target/ors.war`
-
-The chapter on [WAR](running-war.md) artifact explains how to configure and deploy the WAR file.
 
 
 ### Build docker image

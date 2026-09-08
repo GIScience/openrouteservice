@@ -37,10 +37,6 @@
     <artifactId>ors-engine</artifactId>
     <name>ors-engine</name>
 
-    <properties>
-        <project.graphVersion>5</project.graphVersion>
-    </properties>
-
     <build>
         <finalName>ors</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -151,9 +147,8 @@
             <artifactId>gt-referencing</artifactId>
         </dependency>
 
-        <!-- TODO: according dependency:analyze this
-        is not used, but build fails when not declared
-        -->
+        <!-- Reported as unused by dependency:analyze, but required at runtime: this is the EPSG
+             CRS database, resolved via SPI rather than by any compile-time reference -->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-epsg-hsql</artifactId>
@@ -164,15 +159,9 @@
             <artifactId>gt-geojson</artifactId>
         </dependency>
 
-        <!-- TODO: according dependency:analyze this
-        is not used, but build fails when not
-        declared
-        -->
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-swing</artifactId>
-        </dependency>
-
+        <!-- Reported as unused by dependency:analyze, but required at runtime: HereTrafficReader
+             loads the configured Streets.shp through FileDataStoreFinder, which discovers this
+             datastore via SPI -->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
@@ -191,12 +180,6 @@
         <dependency>
             <groupId>me.tongfei</groupId>
             <artifactId>progressbar</artifactId>
-        </dependency>
-
-        <!-- Somehow the RoutingProfileLoader needs jline -->
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline</artifactId>
         </dependency>
 
         <dependency>
@@ -226,30 +209,34 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <groupId>tools.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
-            <version>8.6.0</version>
+            <version>9.0.3</version>
         </dependency>
 
+        <!-- Reported as unused by dependency:analyze, but required at runtime: minio pulls in
+             com.squareup.okhttp3:okhttp, which since OkHttp 5 is an empty Kotlin-multiplatform
+             stub jar (0 classes) whose JVM content Maven cannot see, as it is declared only in
+             Gradle module metadata. This artifact carries the actual implementation. -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp-jvm</artifactId>
-            <version>5.1.0</version>
+            <version>5.5.0</version>
         </dependency>
 
         <dependency>
@@ -289,19 +276,19 @@
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>nginx</artifactId>
+            <artifactId>testcontainers-nginx</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>minio</artifactId>
+            <artifactId>testcontainers-minio</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

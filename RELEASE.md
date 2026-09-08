@@ -29,7 +29,6 @@
     - ors-config.env
     - ors-config.yml
     - ors.jar
-    - ors.war
     - Source code (zip)
     - Source code (tar.gz)
 5. Check that docker images were created correctly:

@@ -2,10 +2,10 @@ package org.heigit.ors.api.responses.export.topojson;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
 import lombok.Getter;
 import org.heigit.ors.api.responses.export.json.WeightSerializer;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
 import java.util.List;

@@ -4,6 +4,9 @@ on:
     workflows: [ 'Java CI with Maven' ]
     types:
       - completed
+
+permissions: {}
+
 jobs:
   sonar:
     name: 'SonarCube Analysis'
@@ -13,10 +16,10 @@ jobs:
       actions: read # Required to download artifacts
     steps:
       - name: 'Sonar analysis'
-        uses: evaristegalois11/sonar-fork-analysis@v1
+        uses: evaristegalois11/sonar-fork-analysis@9d67a15f17407c3bf39bb09c39a9d5d3794eeecd # v1
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
           project-key: 'GIScience_openrouteservice'

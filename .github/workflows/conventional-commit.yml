@@ -7,13 +7,17 @@ on:
   pull_request_target:
     types: [ edited, opened, ready_for_review, review_requested, reopened, closed, synchronize ]
 
+permissions: {}
+
 jobs:
   convention_commit_check:
+    permissions:
+      contents: read
     name: Run conventional commit style check
     runs-on: ubuntu-latest
     steps:
       - name: Check the commit style against the 'conventional commit styling'
-        uses: MichaelsJP/action-conventional-commits@master
+        uses: MichaelsJP/action-conventional-commits@e3103bb78ba289d036762451bc121b25a9d56642 # master
         with:
           VALID_LABELS: '["feat","fix","docs","style","refactor","test","build","perf","ci","chore","revert","merge","wip"]'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

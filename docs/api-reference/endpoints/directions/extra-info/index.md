@@ -29,7 +29,7 @@ The following table lists the possible values for the request as well as the key
 |             green             | How "green" the parts of the route are (influenced by things like number of trees, parks, rivers etc.)                                       | `green`                              | 0 (minimal green-space) - 10 (a lot of green-space)       |
 |             noise             | How noisy the parts of the route are (influenced by things like proximity to highways)                                                       | `noise`                              | 0 (quiet) - 10 (noisy)                                    |
 |            shadow²            | How sunny the parts of the route are are                                                                                                     | `shadow`                             | 0 (completely in the shadow) - 10 (completely in the sun) |
-|             csv²              | Experimental feature: Generic extra information from provided csv file(s)                                                                    | `csv`                                | custom values                                             |
+|             csv²              | Experimental feature: Generic extra information from provided csv file(s)                                                                    | `csv`                                | [CSV extra info](csv.md)                                  |
 
 *¹ Note the different keys in request and response!*
 

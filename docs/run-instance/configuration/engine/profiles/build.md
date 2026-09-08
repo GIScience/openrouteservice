@@ -93,8 +93,8 @@ This information is made available as `extra_info` in a routing response.
 
 To do so, add a key from the list below.
 Leave its value empty, unless you want to specify further options (currently only available for
-[RoadAccessRestrictions](#roadaccessrestrictions), [Borders](#borders), [Wheelchair](#wheelchair)
-and [HeavyVehicle](#heavyvehicle)).
+[RoadAccessRestrictions](#roadaccessrestrictions), [Borders](#borders), [Wheelchair](#wheelchair),
+[HeavyVehicle](#heavyvehicle) and [Csv](#csv)).
 
 ::: warning
 In addition to providing the information in query response, data from `WayCategory` and `Tollways` storages is being
@@ -127,6 +127,7 @@ Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.ext_storages`:
 | TrailDifficulty        | object | Returns the trail difficulty in the route response, compatible with walking and cycling profiles                                                 |                                                   |
 | Wheelchair             | object | Wheelchair-specific attributes compatible only with that profile                                                                                 | [Wheelchair](#wheelchair)                         |
 | OsmId                  | object | Returns the OsmId of the way, compatible with any profile type                                                                                   |                                                   |
+| Csv                    | object | Experimental: generic extra information from a CSV file of OSM way ids, compatible with any profile type                                         | [Csv](#csv)                                       |
 
 Check [this table](/api-reference/endpoints/directions/extra-info/index.md#extra-info-availability) for extra
 info availability.
@@ -171,3 +172,17 @@ country borders, compatible with any profile type.
 | key          | type    | description                                                                                                                                                                                                                                                    | example value |
 |--------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
 | restrictions | boolean | Encode certain size and weight limits such as ones contained in `maxheight`, `maxlength`, `maxwidth`, `maxweight` and `maxaxleload` OSM way tags. Includes also access restrictions for vehicles carrying hazardous materials as provided by the `hazmat` tag. | `true`        |
+
+### `Csv`
+
+Experimental storage that attaches custom numeric attributes to OSM ways from a CSV file.
+Not available on the public HeiGIT instance.
+
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.ext_storages.Csv`:
+
+| key      | type   | description                                                                                          | example value            |
+|----------|--------|------------------------------------------------------------------------------------------------------|--------------------------|
+| filepath | string | Path to a CSV file. First column is the OSM way id; later columns are named float values in [-1, 1]. | `/data/heat_stress.csv`  |
+
+After the graph is built, request the values with `extra_info: ["csv"]` and `options.profile_params.weightings.csv_column` set to a header name. See [CSV extra info](/api-reference/endpoints/directions/extra-info/csv.md).
+

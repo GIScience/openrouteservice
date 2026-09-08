@@ -38,7 +38,6 @@ public class ConfigLookupTest extends ContainerInitializer {
         private static final String CONFIG_FILE_PATH_ETC = "/etc/openrouteservice/ors-config.yml";
         private static final String CONFIG_FILE_PATH_USERCONF = "/root/.config/openrouteservice/ors-config.yml";
         private static final String CONFIG_FILE_PATH_WORKDIR = "/home/ors/openrouteservice/ors-config.yml";
-        private static final String CONFIG_FILE_PATH_WORKDIR_WAR = "/usr/local/tomcat/ors-config.yml";
         private static final String CONFIG_FILE_PATH_TMP = "/tmp/ors-config-env.yml";
         private static final String CONFIG_FILE_PATH_ARG = "/tmp/ors-config-arg.yml";
 
@@ -134,12 +133,7 @@ public class ConfigLookupTest extends ContainerInitializer {
                     .build().toYAML(tempDir, "ors-config.yml");
             container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_ETC);
             container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_USERCONF);
-            if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE)) {
-                // Tomcat has another workdir in /usr/local/tomcat
-                container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_WORKDIR_WAR);
-            } else {
-                container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_WORKDIR);
-            }
+            container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_WORKDIR);
             container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
                     "Configuration file lookup by default locations.",
                     "Loaded file './ors-config.yml'.",
@@ -181,10 +175,6 @@ public class ConfigLookupTest extends ContainerInitializer {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void specifyYmlPreferArgOverLookup(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) {
-            if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE)) {
-                // This test is not applicable to the WAR container as it does not support command line arguments.
-                return;
-            }
             GenericContainer<?> container = initContainer(targetImage, false, "specifyYmlPreferArgOverLookup");
             ArrayList<String> command = targetImage.getCommand("200M");
 
@@ -222,10 +212,6 @@ public class ConfigLookupTest extends ContainerInitializer {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void specifyYmlPreferArgOverEnv(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) {
-            if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE)) {
-                // This test is not applicable to the WAR container as it does not support command line arguments.
-                return;
-            }
             GenericContainer<?> container = initContainer(targetImage, false, "specifyYmlPreferArgOverEnv");
             ArrayList<String> command = targetImage.getCommand("200M");
             container.setCommand(command.toArray(new String[0]));

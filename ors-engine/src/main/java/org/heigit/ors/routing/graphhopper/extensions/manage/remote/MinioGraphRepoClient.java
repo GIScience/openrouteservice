@@ -15,8 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -158,7 +156,7 @@ public class MinioGraphRepoClient extends AbstractGraphRepoClient implements ORS
                             .filename(localPath.toString())
                             .build()
             );
-        } catch (MinioException | IOException | NoSuchAlgorithmException | InvalidKeyException e) {
+        } catch (MinioException e) {
             LOGGER.warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e, repoPath.toFile().getAbsolutePath()));
             throw new IllegalArgumentException(e);
         }

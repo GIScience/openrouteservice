@@ -136,21 +136,16 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         if (!isValidSpeed(maxSpeed)) {
             maxSpeed = super.getMaxSpeed(way);
             if (isValidSpeed(maxSpeed)) {
-                String highway = way.getTag(KEY_HIGHWAY);
+                String highway = getHighway(way);
                 if (!Helper.isEmpty(highway)) {
                     double defaultSpeed = speedLimitHandler.getSpeed(highway);
                     if (defaultSpeed < maxSpeed)
-                        maxSpeed = defaultSpeed;
+                        maxSpeed = Double.NaN;
                 }
             }
         }
 
         return maxSpeed;
-    }
-
-    @Override
-    protected String getHighway(ReaderWay way) {
-        return way.getTag(KEY_HIGHWAY);
     }
 
     @Override
@@ -250,16 +245,17 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
         if (way.hasTag("hgv", VAL_DESIGNATED) || (way.hasTag("access", VAL_DESIGNATED) && (way.hasTag(VAL_GOODS, "yes") || way.hasTag("hgv", "yes") || way.hasTag("bus", "yes") || way.hasTag(VAL_AGRICULTURAL, "yes") || way.hasTag(VAL_FORESTRY, "yes"))))
             weightToPrioMap.put(100d, PriorityCode.BEST.getValue());
         else {
-            String highway = way.getTag(KEY_HIGHWAY);
+            String highway = getHighway(way);
             double maxSpeed = getMaxSpeed(way);
 
             if (!Helper.isEmpty(highway)) {
                 switch (highway) {
                     case "motorway":
                     case "motorway_link":
+                    case "motorroad":
                     case "trunk":
                     case "trunk_link":
-                        weightToPrioMap.put(100d, PriorityCode.BEST.getValue());
+                        weightToPrioMap.put(100d, PriorityCode.VERY_NICE.getValue());
                         break;
                     case "primary":
                     case "primary_link":
@@ -282,10 +278,10 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
                         }
                         break;
                     case "living_street":
-                        weightToPrioMap.put(100d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                        weightToPrioMap.put(100d, PriorityCode.AVOID_AT_ALL_COSTS.getValue());
                         break;
                     case VAL_TRACK:
-                        weightToPrioMap.put(100d, PriorityCode.REACH_DEST.getValue());
+                        weightToPrioMap.put(100d, PriorityCode.WORST.getValue());
                         break;
                     default:
                         weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());

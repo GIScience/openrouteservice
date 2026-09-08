@@ -8,8 +8,8 @@ on:
     branches: [ "main" ]
     paths:
       - '**/pom.xml'
-      - 'ors-api/main/**'
-      - 'ors-engine/main/**'
+      - 'ors-api/src/main/**'
+      - 'ors-engine/src/main/**'
       - 'ors-test-scenarios/**'
       - '.github/workflows/integration-tests.yml'
       - '.github/actions/setup-build-environment/**'
@@ -24,27 +24,34 @@ on:
       - ready_for_review
     paths:
       - '**/pom.xml'
-      - 'ors-api/main/**'
-      - 'ors-engine/main/**'
+      - 'ors-api/src/main/**'
+      - 'ors-engine/src/main/**'
       - 'ors-test-scenarios/**'
       - '.github/workflows/integration-tests.yml'
       - '.github/actions/setup-build-environment/**'
       - '.github/workflows/_reusable_build_docker_images.yml'
       - 'ors-config.yml'
 
+permissions: {}
+
 jobs:
   build_test_scenario_base_image:
+    permissions:
+      contents: read
     name: Build test scenario builder images
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     with:
       image_stage: ors-test-scenarios-builder
       docker_tag: ors-test-scenarios-builder:latest
       dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+      branch: ${{ github.event.pull_request.head.sha || github.sha }}
       build_amd64: true
       build_arm64: false
       upload_image_as_artifact: false
 
   build_test_scenario_jar_builder_image:
+    permissions:
+      contents: read
     name: Build test scenario jar builder image
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     needs:
@@ -53,31 +60,22 @@ jobs:
       image_stage: ors-test-scenarios-jar-builder
       docker_tag: ors-test-scenarios-jar-builder:latest
       dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
-      build_amd64: true
-      build_arm64: false
-      upload_image_as_artifact: true
-
-  build_test_scenario_war_builder_image:
-    name: Build test scenario war builder image
-    uses: ./.github/workflows/_reusable_build_docker_images.yml
-    needs:
-      - build_test_scenario_base_image # It's faster when it can use the cache from the base image
-    with:
-      image_stage: ors-test-scenarios-war-builder
-      docker_tag: ors-test-scenarios-war-builder:latest
-      dockerfile_path: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+      branch: ${{ github.event.pull_request.head.sha || github.sha }}
       build_amd64: true
       build_arm64: false
       upload_image_as_artifact: true
 
   cache-graph:
+    permissions:
+      contents: read
     name: Build and cache shared graph for integration tests
     runs-on: ubuntu-latest
     needs:
       - build_test_scenario_base_image
+      - build_test_scenario_jar_builder_image # The graph is built with the jar builder image
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up build environment
         uses: ./.github/actions/setup-build-environment
@@ -87,11 +85,23 @@ jobs:
 
       - name: Cache the graph
         id: cache_graph
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: |
             ors-test-scenarios/graphs-integrationtests
           key: ${{ runner.os }}-ors-test-scenarios-builder-images-${{ needs.build_test_scenario_base_image.outputs.image_hash_amd64 }}
+
+      - name: Download jar builder image artifact
+        if: steps.cache_graph.outputs.cache-hit != 'true'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: ${{ needs.build_test_scenario_jar_builder_image.outputs.artifact_name_amd64 }}
+          path: ${{ runner.temp }}/
+
+      - name: Load ors-test-scenarios-jar-builder image
+        if: steps.cache_graph.outputs.cache-hit != 'true'
+        run: |
+          docker load -i ${{ runner.temp }}/${{ needs.build_test_scenario_jar_builder_image.outputs.artifact_name_amd64 }}
 
       - name: Build shared graph
         if: steps.cache_graph.outputs.cache-hit != 'true'
@@ -104,16 +114,17 @@ jobs:
           ONE_SHOT_GRAPH_BUILDER: true
 
   integration-tests:
+    permissions:
+      contents: read
     name: Integration tests
     runs-on: ubuntu-22.04
     needs:
       - build_test_scenario_base_image
       - cache-graph
       - build_test_scenario_jar_builder_image
-      - build_test_scenario_war_builder_image
     strategy:
       matrix:
-        test-scenario: [ "jar", "war" ]
+        test-scenario: [ "jar" ]
         test-class:
           - integrationtests.ConfigEnvironmentTest
           - integrationtests.ConfigFileTest
@@ -123,7 +134,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up build environment
         uses: ./.github/actions/setup-build-environment
@@ -132,7 +143,7 @@ jobs:
 
       - name: Restore cached graph
         id: restore-cached-image
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: |
             ors-test-scenarios/graphs-integrationtests
@@ -141,17 +152,10 @@ jobs:
       - name: Identify image artifact names
         id: identify-image-artifact-names
         run: |
-          if [ "${{ matrix.test-scenario }}" == "jar" ]; then
-            echo "ARTIFACT_NAME=${{ needs.build_test_scenario_jar_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
-          elif [ "${{ matrix.test-scenario }}" == "war" ]; then
-            echo "ARTIFACT_NAME=${{ needs.build_test_scenario_war_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
-          else
-            echo "Unknown test scenario: ${{ matrix.test-scenario }}"
-            exit 1
-          fi
+          echo "ARTIFACT_NAME=${{ needs.build_test_scenario_jar_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
 
       - name: Download runner ${{matrix.test-scenario}} artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: ${{ steps.identify-image-artifact-names.outputs.ARTIFACT_NAME }}
           path: ${{ runner.temp }}/

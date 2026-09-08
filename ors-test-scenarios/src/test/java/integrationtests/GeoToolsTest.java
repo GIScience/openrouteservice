@@ -29,10 +29,7 @@ public class GeoToolsTest extends ContainerInitializer {
         void testAvoidAreaRequestAndGeoToolsPopulation(ContainerInitializer.ContainerTestImageDefaults targetImage) {
             GenericContainer<?> container = initContainer(targetImage, true, "testAvoidAreaRequestAndGeoToolsPopulation");
 
-            String geoToolsPath;
-            if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER))
-                geoToolsPath = "/usr/local/tomcat/temp/GeoTools";
-            else geoToolsPath = "/tmp/GeoTools";
+            String geoToolsPath = "/tmp/GeoTools";
 
             OrsContainerFileSystemCheck.assertDirectoryExists(container, geoToolsPath, false);
             checkAvoidAreaRequest("http://" + container.getHost() + ":" + container.getFirstMappedPort() + "/ors/v2/directions/driving-car/geojson", 200);

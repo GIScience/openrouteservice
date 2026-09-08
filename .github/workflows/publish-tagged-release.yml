@@ -3,8 +3,12 @@ on:
   release:
     types: [published]
 
+permissions: {}
+
 jobs:
   check_version:
+    permissions:
+      contents: read
     name: Check if this is the latest semantic version
     runs-on: ubuntu-latest
     outputs:
@@ -14,7 +18,7 @@ jobs:
       highest-version: ${{ steps.check.outputs.highest-version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
       - name: Check latest semver
@@ -24,6 +28,8 @@ jobs:
           current-tag: ${{ github.event.release.tag_name }}
 
   build_and_push_publish_images:
+    permissions:
+      contents: read
     name: Build and cache the Docker images with native runners
     needs: check_version
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -36,11 +42,14 @@ jobs:
       docker_login: true
       docker_tag: 'openrouteservice/openrouteservice' # push_by_digest doesn't need a tag suffix
       dockerfile_path: 'Dockerfile'
+      branch: ${{ github.event.release.tag_name }}
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
   
   build_and_push_slim_images:
+    permissions:
+      contents: read
     name: Build and cache the slim Docker images with native runners
     needs: check_version
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -53,11 +62,14 @@ jobs:
       docker_login: true
       docker_tag: 'openrouteservice/openrouteservice' # push_by_digest doesn't need a tag suffix
       dockerfile_path: 'Dockerfile'
+      branch: ${{ github.event.release.tag_name }}
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
       registry_password: ${{ secrets.DOCKER_PASSWORD }}
   
   combine_and_push_images:
+    permissions:
+      contents: read
     name: Combine multi-arch manifest and push to DockerHub
     runs-on: ubuntu-latest
     if: success()
@@ -97,7 +109,7 @@ jobs:
     steps:
       - name: Checkout
         if: matrix.publish_image
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Set up build environment
         if: matrix.publish_image
         uses: ./.github/actions/setup-build-environment
@@ -155,11 +167,11 @@ jobs:
     if: fromJSON(needs.check_version.outputs.is-latest)
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
       - name: Create or update latest tag
-        uses: EndBug/latest-tag@7589411ebda7bc8f98deb2dbc37e3dc45828f7d0 # v1.6.2
+        uses: EndBug/latest-tag@8fcae8848c1e23fd8212258f69a9619bc62cad67 # v1.6.3
         with:
           ref: latest
           description: Latest release
@@ -171,7 +183,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
       - name: Set up build environment
@@ -179,29 +191,23 @@ jobs:
         with:
           with_java: true
           with_docker: false
-          java_version: 21
+          java_version: 25
       - name: Build JAR
         run: |
           ./mvnw -q clean package -DskipTests
           # Copy the JAR to the root directory
           cp ors-api/target/ors.jar ors.jar
-      - name: Build WAR
-        run: |
-          ./mvnw -q clean package -DskipTests -PbuildWar
-          # Copy the WAR to the root directory
-          cp ors-api/target/ors.war ors.war
       - name: Rewrite the docker-compose.yml image tag to the release tag
         run: |
           # Replace the image part
           sed -i "s/local\/openrouteservice:latest/openrouteservice\/openrouteservice:${{ needs.check_version.outputs.tag }}/g" docker-compose.yml
       - name: Attach the files to the release
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         if: startsWith(github.ref, 'refs/tags/')
         with:
           fail_on_unmatched_files: true
           files: |
             ./ors.jar
-            ./ors.war
             ./ors-config.yml
             ./ors-config.env
             ./docker-compose.yml

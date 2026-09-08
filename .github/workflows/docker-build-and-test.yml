@@ -10,9 +10,12 @@ env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
   TEST_SLIM_IMAGE_NAME: 'local/openrouteservice:test-slim'
 
+permissions: {}
 
 jobs:
   prepare_environment:
+    permissions:
+      contents: read
     name: Prepare the environment variables
     runs-on: ubuntu-latest
     outputs:
@@ -37,29 +40,71 @@ jobs:
           echo "Test Slim Image Name: ${{ env.TEST_SLIM_IMAGE_NAME }}"
           echo " Is Draft: ${{ steps.check-draft.outputs.is_draft }}"
           echo " Build ARM64: ${{ steps.check-draft.outputs.build_arm64 }}"
+
+  trivy_dockerfile_scan:
+    name: Trivy scan Dockerfile
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    needs: prepare_environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Scan the Dockerfile
+        uses: ./.github/actions/trivy-scan
+        with:
+          scan_type: config
+          target: Dockerfile
+          scanners: misconfig
+          summary_title: Trivy scan — Dockerfile misconfig
+          sarif_category: Trivy-Dockerfile-Misconfig
+          upload_sarif: ${{ github.event_name != 'pull_request' }}
+
   build_docker_images:
-    name: Build Docker images for both platforms - publish
+    permissions:
+      contents: read
+      security-events: write
+    name: Build and scan Docker images for both platforms - publish
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     needs: prepare_environment
     with:
       image_stage: publish
       docker_tag: local/openrouteservice:test
+      branch: ${{ github.event.pull_request.head.sha || github.sha }}
       build_amd64: true
       build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
       upload_image_as_artifact: true
-  
+      # Scans the tarball this build already writes for the test jobs.
+      scan_before_push: true
+      fail_on_severity: ''
+      fail_on_secrets: false
+      upload_sarif: ${{ github.event_name != 'pull_request' }}
+
   build_slim_images:
-    name: Build Docker images for both platforms - slim
+    permissions:
+      contents: read
+      security-events: write
+    name: Build and scan Docker images for both platforms - slim
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     needs: prepare_environment
     with:
       image_stage: slim
       docker_tag: local/openrouteservice:test-slim
+      branch: ${{ github.event.pull_request.head.sha || github.sha }}
       build_amd64: true
       build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
       upload_image_as_artifact: true
+      scan_before_push: true
+      fail_on_severity: ''
+      fail_on_secrets: false
+      upload_sarif: ${{ github.event_name != 'pull_request' }}
 
   docker_image_tests:
+    permissions:
+      contents: read
     name: Test ${{ matrix.platform }} - publish image
     runs-on: ${{ matrix.runner }}
     needs:
@@ -82,7 +127,7 @@ jobs:
             artifact_name: ${{ needs.build_docker_images.outputs.artifact_name_arm64 }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup Build environment
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
@@ -101,7 +146,7 @@ jobs:
 
       - name: Download image artifact
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: ${{ matrix.artifact_name }}
           path: ${{ runner.temp }}/
@@ -158,6 +203,8 @@ jobs:
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 403 10
 
   slim_image_tests:
+    permissions:
+      contents: read
     name: Test ${{ matrix.platform }} - slim image
     runs-on: ${{ matrix.runner }}
     needs:
@@ -178,7 +225,7 @@ jobs:
             artifact_name: ${{ needs.build_slim_images.outputs.artifact_name_arm64 }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Check artifact availability
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
@@ -190,7 +237,7 @@ jobs:
 
       - name: Download image artifact
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: ${{ matrix.artifact_name }}
           path: ${{ runner.temp }}/
@@ -200,21 +247,17 @@ jobs:
         run: |
           docker load --input ${{ runner.temp }}/${{ matrix.artifact_name }}
 
-      - name: Get and save the UID
-        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
-        run: |
-          echo "UID=$(id -u)" >> $GITHUB_ENV
-
-      - name: Test slim image with graph build
+      - name: Test slim image with graph build under an arbitrary UID
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |
           mkdir -p $(pwd)/ors-docker/elevation_cache
-          chown -R $UID $(pwd)/ors-docker/elevation_cache
-          # Place cached elevation file 
+          # Place cached elevation file
           cp ors-api/src/test/files/elevation/srtm_38_03.gh $(pwd)/ors-docker/elevation_cache
-          # Start kubernetes image with graph build configured via environment variables
+          # Set appropriate permissions for the elevation_cache directory to be writable by the arbitrary UID used in the test container.
+          chmod -R a+rwX $(pwd)/ors-docker/elevation_cache
+          # Start the container with the test image and the raw docker run command, using an arbitrary UID (1234567) to ensure that the image can run under non-root conditions.
           docker run -it -d -p 8080:8082 \
-            -u $UID:1000 \
+            -u 1234567:0 \
             -v graphs:/home/ors/graphs \
             -v $(pwd)/ors-docker/elevation_cache:/home/ors/elevation_cache \
             -v $(pwd)/ors-api/src/test/files/heidelberg.test.pbf:/home/ors/files/heidelberg.test.pbf:ro \
@@ -228,5 +271,92 @@ jobs:
             -e ors.engine.profiles.driving-car.enabled=true \
             --name ors-slim-test \
             ${{ env.TEST_SLIM_IMAGE_NAME }}
-          # Wait for graph build and health check (kubernetes image is non-interactive)
+          # Wait for graph build and health check
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-slim-test && exit 1)
+
+      - name: Test slim image does not expose Swagger UI or the OpenAPI document
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        run: |
+          # The webjars path is included on purpose: it is the one that regresses
+          # silently, because it serves the UI without going through /swagger-ui.
+          for path in /ors/swagger-ui /ors/swagger-ui/index.html \
+                      /ors/webjars/swagger-ui/index.html /ors/v2/api-docs; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8080${path}")
+            echo "${path} -> ${code}"
+            if [[ "${code}" != "404" ]]; then
+              echo "::error::${path} answered ${code}, expected 404 - the slim image must not ship Swagger UI or api-docs"
+              exit 1
+            fi
+          done
+          # Routing must still work with springdoc switched off.
+          ./.github/utils/url_check.sh 127.0.0.1 8080 "/ors/v2/directions/driving-car?start=8.681495,49.41461&end=8.687872,49.420318" 200 1 \
+            || (docker logs ors-slim-test && exit 1)
+
+      - name: Check slim image pins the hardened response settings
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        run: |
+          # These settings are provable by inspection rather than over the wire,
+          # which is the point of pinning them: `docker inspect` is the evidence.
+          env_json=$(docker inspect -f '{{json .Config.Env}}' ${{ env.TEST_SLIM_IMAGE_NAME }})
+          for expected in 'SERVER_SERVER_HEADER=' 'SERVER_ERROR_INCLUDE_STACKTRACE=never' \
+                          'SERVER_ERROR_INCLUDE_MESSAGE=never' 'SERVER_ERROR_INCLUDE_EXCEPTION=false' \
+                          'SERVER_ERROR_INCLUDE_BINDING_ERRORS=never' 'SERVER_MAX_HTTP_REQUEST_HEADER_SIZE=8KB' \
+                          'SERVER_TOMCAT_CONNECTION_TIMEOUT=20s' 'SPRINGDOC_SWAGGER_UI_ENABLED=false' \
+                          'SPRINGDOC_API_DOCS_ENABLED=false'; do
+            if ! echo "${env_json}" | grep -q "\"${expected}"; then
+              echo "::error::${expected} missing from the slim image environment"
+              exit 1
+            fi
+          done
+          # And the one thing the pins are there to guarantee, checked on the wire.
+          if curl -sI http://127.0.0.1:8080/ors/v2/health | grep -i '^server:\|^x-powered-by:'; then
+            echo "::error::slim image leaks a Server or X-Powered-By response header"
+            exit 1
+          fi
+
+      - name: Stop graph-build test container
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        run: |
+          docker stop ors-slim-test
+          docker container prune -f
+
+      - name: Verify the slim image can load a pre-build graph and serves requests under a read-only root filesystem
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        run: |
+          mkdir -p "${RUNNER_TEMP}/ors-slim-tmp"
+          chmod 1777 "${RUNNER_TEMP}/ors-slim-tmp"
+          # Group 0, like the graph-build test above. The image grants write
+          # through the group alone.
+          docker run -d --read-only -v "${RUNNER_TEMP}/ors-slim-tmp:/tmp" -p 8080:8082 \
+            -u 1234567:0 \
+            -v graphs:/home/ors/graphs \
+            -e server.port=8082 \
+            -e ors.engine.profile_default.graph_path=/home/ors/graphs \
+            -e ors.engine.graphs_data_access=MMAP \
+            -e ors.engine.profiles.driving-car.enabled=true \
+            --name ors-slim-readonly-test \
+            ${{ env.TEST_SLIM_IMAGE_NAME }}
+          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-slim-readonly-test && exit 1)
+
+          response_code=$(curl -s -o /tmp/avoid-polygons-response.json -w "%{http_code}" -X POST \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -H "Accept: application/geo+json; charset=utf-8" \
+            --data '{"coordinates":[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]],"options":{"avoid_polygons":{"coordinates":[[[8.684881031827587,49.41768066444595],[8.684881031827587,49.41699648134178],[8.685816955915811,49.41699648134178],[8.685816955915811,49.41768066444595],[8.684881031827587,49.41768066444595]]],"type":"Polygon"}}}' \
+            http://127.0.0.1:8080/ors/v2/directions/driving-car/geojson)
+          if [ "${response_code}" != "200" ]; then
+            echo "FAIL: avoid_polygons request returned HTTP ${response_code}"
+            cat /tmp/avoid-polygons-response.json
+            docker logs ors-slim-readonly-test
+            exit 1
+          fi
+          # Read from the runner side of the bind mount; nothing is executed in the
+          # container. Under a read-only rootfs this directory is the only place
+          # GeoTools can put its EPSG database, so its presence is what proves the
+          # image is actually usable read-only rather than merely starting.
+          if [ ! -d "${RUNNER_TEMP}/ors-slim-tmp/GeoTools" ]; then
+            echo "FAIL: GeoTools did not initialize its EPSG cache under a writable /tmp"
+            ls -la "${RUNNER_TEMP}/ors-slim-tmp" || true
+            docker logs ors-slim-readonly-test
+            exit 1
+          fi
+          echo "OK: read-only rootfs served avoid_polygons and initialized GeoTools' EPSG cache"

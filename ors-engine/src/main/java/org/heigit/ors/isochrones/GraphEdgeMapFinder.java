@@ -19,13 +19,10 @@ import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.*;
-import com.graphhopper.routing.weighting.FastestWeighting;
-import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.shapes.GHPoint3D;
-import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.algorithms.DijkstraCostCondition;
@@ -50,8 +47,14 @@ public class GraphEdgeMapFinder {
         FlagEncoder encoder = searchCntx.getEncoder();
         GraphHopperStorage graph = gh.getGraphHopperStorage();
         EncodingManager encodingManager = gh.getEncodingManager();
-        Weighting weighting = new ORSWeightingFactory(graph, encodingManager).createIsochroneWeighting(searchCntx, parameters.getRangeType());
+        boolean shouldApplySoftWeightings = searchCntx.getProperties().getBool("custom_weightings", false);
+        Weighting weighting = new ORSWeightingFactory(graph, encodingManager).createIsochroneWeighting(searchCntx, parameters.getRangeType(), shouldApplySoftWeightings);
         String profileName = ProfileTools.makeProfileName(encoder.toString(), weighting.getName(), false);
+        if (shouldApplySoftWeightings) {
+            // Create a weighting from the superweighting to get the name. This is a bit convoluted, as the access is protected in GH code.
+            Weighting superNamedWeighting = new ORSWeightingFactory(graph, encodingManager).createIsochroneWeighting(searchCntx, parameters.getRangeType());
+            profileName = ProfileTools.makeProfileName(encoder.toString(), superNamedWeighting.getName(), false);
+        }
         EdgeFilter defaultSnapFilter = new DefaultSnapFilter(weighting, encodingManager.getBooleanEncodedValue(Subnetwork.key(profileName)));
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
         EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchCntx.getProperties(), encoder, graph, defaultSnapFilter);
