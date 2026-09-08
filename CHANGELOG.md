@@ -59,6 +59,7 @@ Releasing is documented in RELEASE.md
 - declare the JAXB and javax.xml.bind dependencies explicitly ([#2388](https://github.com/GIScience/openrouteservice/pull/2388))
 
 ### Security
+- assess the two currently unfixable glibc findings of the slim image's distroless base in `openvex.json`: [CVE-2019-1010022](https://www.cve.org/CVERecord?id=CVE-2019-1010022) (disputed upstream, `unimportant` in Debian) and [CVE-2026-5450](https://www.cve.org/CVERecord?id=CVE-2026-5450) (`%mc` scanf overflow, not called from the image, `no-dsa` for Debian 13). Both are non fixed libc6 to update to, so they are documented as `not_affected`.
 - update postcss to 8.5.25
 - update mermaid to 11.16.1 due to [CVE-2026-71437](https://www.cve.org/CVERecord?id=CVE-2026-71437), [CVE-2026-71438](https://www.cve.org/CVERecord?id=CVE-2026-71438), [CVE-2026-50159](https://www.cve.org/CVERecord?id=CVE-2026-50159), [CVE-2026-71436](https://www.cve.org/CVERecord?id=CVE-2026-71436) and [CVE-2026-71439](https://www.cve.org/CVERecord?id=CVE-2026-71439)
 - update dompurify to 3.4.13
