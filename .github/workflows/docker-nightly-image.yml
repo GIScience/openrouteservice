@@ -87,8 +87,7 @@ jobs:
       docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
       branch: ${{ inputs.branch }}
       scan_before_push: true
-      fail_on_severity: '' # nightly is report-only, never gates
-      fail_on_secrets: false
+      fail_on_severity: '' # nightly is report-only on vulnerability severity, never gates
       vex_file: openvex.json
       upload_sarif: true
     secrets:
@@ -114,8 +113,7 @@ jobs:
       docker_tag: openrouteservice/openrouteservice # push by digest needs no tag suffix
       branch: ${{ inputs.branch }}
       scan_before_push: true
-      fail_on_severity: '' # nightly is report-only, never gates
-      fail_on_secrets: false
+      fail_on_severity: '' # nightly is report-only on vulnerability severity, never gates
       vex_file: openvex.json
       upload_sarif: true
     secrets:

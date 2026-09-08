@@ -53,10 +53,6 @@ on:
         description: Comma-separated severities that fail the pre-push scan (e.g. 'CRITICAL,HIGH'). Empty means report-only.
         type: string
         default: ''
-      fail_on_secrets:
-        description: Fail the pre-push scan if the secret scanner finds anything
-        type: boolean
-        default: false
       vex_file:
         description: Repo-relative path to an OpenVEX document used to suppress accepted-risk findings in the pre-push scan
         type: string
@@ -150,7 +146,6 @@ jobs:
           output_type: ${{ inputs.push_by_digest && 'push-by-digest=true,type=image' || '' }}
           scan_before_push: ${{ inputs.scan_before_push }}
           fail_on_severity: ${{ inputs.fail_on_severity }}
-          fail_on_secrets: ${{ inputs.fail_on_secrets }}
           vex_file: ${{ inputs.vex_file }}
           upload_sarif: ${{ inputs.upload_sarif }}
 
