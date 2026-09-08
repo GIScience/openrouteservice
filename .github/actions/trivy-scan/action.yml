@@ -146,30 +146,44 @@ runs:
         FAIL_ON_SECRETS: ${{ inputs.fail_on_secrets }}
         TITLE: ${{ inputs.summary_title }}
       run: |
+        # `trivy convert --scanners X` does not filter which findings count
+        # toward --exit-code - per `trivy convert --help` it is "used only for
+        # rendering the summary table". A gate built on it trips on whatever the
+        # report contains overall, not on scanner X specifically: a vuln-only
+        # report exiting a misconfig/secret gate happened in production. Query
+        # results.json directly instead, so each gate only ever sees its own
+        # finding type.
         failures=()
 
-        # Prints the findings only when a check trips; the full,
-        # unfiltered table is already in the log and the job summary.
-        gate() {
-          local scanner="$1" label="$2"
-          shift 2
-          if trivy convert --scanners "$scanner" "$@" --exit-code 1 --format table results.json > gate.txt; then
-            return
-          fi
-          cat gate.txt
-          echo "::error::${TITLE} - gate failed on ${label}"
-          echo "- Gate failed - ${TITLE}: ${label}" >> "$GITHUB_STEP_SUMMARY"
-          failures+=("$label")
-        }
-
         if [ -n "$SEVERITY" ]; then
-          gate vuln "${SEVERITY} vulnerabilities" --severity "$SEVERITY"
+          sevs_json=$(printf '%s' "$SEVERITY" | tr ',' '\n' | jq -R . | jq -sc .)
+          count=$(jq --argjson sevs "$sevs_json" '[.Results[]?.Vulnerabilities[]? | select(.Severity as $s | $sevs | index($s))] | length' results.json)
+          if [ "$count" -gt 0 ]; then
+            jq --argjson sevs "$sevs_json" -r '.Results[]?.Vulnerabilities[]? | select(.Severity as $s | $sevs | index($s)) | "  \(.VulnerabilityID)\t\(.Severity)\t\(.PkgName)"' results.json
+            echo "::error::${TITLE} - gate failed on ${SEVERITY} vulnerabilities (${count})"
+            echo "- Gate failed - ${TITLE}: ${SEVERITY} vulnerabilities (${count})" >> "$GITHUB_STEP_SUMMARY"
+            failures+=("${SEVERITY} vulnerabilities")
+          fi
         fi
+
         if [ "$FAIL_ON_MISCONFIG" = 'true' ]; then
-          gate misconfig misconfigurations
+          count=$(jq '[.Results[]?.Misconfigurations[]? | select(.Status=="FAIL")] | length' results.json)
+          if [ "$count" -gt 0 ]; then
+            jq -r '.Results[]?.Misconfigurations[]? | select(.Status=="FAIL") | "  \(.ID)\t\(.Severity)\t\(.Title)"' results.json
+            echo "::error::${TITLE} - gate failed on misconfigurations (${count})"
+            echo "- Gate failed - ${TITLE}: misconfigurations (${count})" >> "$GITHUB_STEP_SUMMARY"
+            failures+=("misconfigurations")
+          fi
         fi
+
         if [ "$FAIL_ON_SECRETS" = 'true' ]; then
-          gate secret "detected secrets"
+          count=$(jq '[.Results[]?.Secrets[]?] | length' results.json)
+          if [ "$count" -gt 0 ]; then
+            jq -r '.Results[]?.Secrets[]? | "  \(.RuleID)\t\(.Title)"' results.json
+            echo "::error::${TITLE} - gate failed on detected secrets (${count})"
+            echo "- Gate failed - ${TITLE}: detected secrets (${count})" >> "$GITHUB_STEP_SUMMARY"
+            failures+=("detected secrets")
+          fi
         fi
 
         if [ ${#failures[@]} -gt 0 ]; then
