@@ -32,7 +32,6 @@ jobs:
       branch: ${{ github.event.release.tag_name || inputs.tag }}
       scan_before_push: true
       fail_on_severity: ''
-      fail_on_secrets: true
       vex_file: openvex.json
 
   dry_run_scan_slim_images:
@@ -51,7 +50,6 @@ jobs:
       branch: ${{ github.event.release.tag_name || inputs.tag }}
       scan_before_push: true
       fail_on_severity: 'CRITICAL,HIGH'
-      fail_on_secrets: true
       vex_file: openvex.json
 
   # ---------------------------------------------------------------------------
@@ -100,7 +98,6 @@ jobs:
       branch: ${{ github.event.release.tag_name }}
       scan_before_push: true
       fail_on_severity: ''
-      fail_on_secrets: true
       vex_file: openvex.json
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}
@@ -125,7 +122,6 @@ jobs:
       branch: ${{ github.event.release.tag_name }}
       scan_before_push: true
       fail_on_severity: 'CRITICAL,HIGH'
-      fail_on_secrets: true
       vex_file: openvex.json
     secrets:
       registry_username: ${{ secrets.DOCKER_USERNAME }}

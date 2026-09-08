@@ -1,8 +1,9 @@
 name: Trivy Scan
 description: >-
   Scan a target with Trivy and report the result: table to the log and the job
-  summary, SARIF to the code scanning tab, and an optional hard failure.
-  Report-only unless one of the fail_on_* inputs is set.
+  summary, SARIF to the code scanning tab, and an optional hard failure. Secrets
+  and misconfigurations gate by default; only the vulnerability severity gate
+  (fail_on_severity) is opt-in and report-only until set.
 
   Trivy names its target differently per scan type (input= for an image
   tarball, image-ref= for an image in a registry or the local daemon, scan-ref=
@@ -54,13 +55,16 @@ inputs:
     required: false
     default: ''
   fail_on_secrets:
-    description: Fail the job if the secret scanner found anything
+    description: >-
+      Fail the job if the secret scanner found anything. Defaults to true.
     required: false
-    default: 'false'
+    default: 'true'
   fail_on_misconfig:
-    description: Fail the job if the misconfiguration scanner found anything (no severity filter)
+    description: >-
+      Fail the job if the misconfiguration scanner found anything (no severity
+      filter). Defaults to true, see fail_on_secrets.
     required: false
-    default: 'false'
+    default: 'true'
 
 runs:
   using: composite

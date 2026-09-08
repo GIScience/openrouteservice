@@ -38,7 +38,9 @@ jobs:
             echo "is_draft=false" >> $GITHUB_OUTPUT
             BUILD_ARM64=true
           fi
-          # Release-prep branches (releases/vX.Y.Z) hard-gate on CVEs/secrets, arm64 included.
+          # Release-prep branches (releases/vX.Y.Z) hard-gate on vulnerability
+          # severity, arm64 included. Secrets and Dockerfile misconfigurations
+          # always gate, regardless of this flag.
           if [[ "$HEAD_REF" == releases/* || "$REF_NAME" == releases/* ]]; then
             echo "gate=true" >> $GITHUB_OUTPUT
             BUILD_ARM64=true
@@ -52,7 +54,7 @@ jobs:
           echo "Test Slim Image Name: ${{ env.TEST_SLIM_IMAGE_NAME }}"
           echo " Is Draft: ${{ steps.check-draft.outputs.is_draft }}"
           echo " Build ARM64: ${{ steps.check-draft.outputs.build_arm64 }}"
-          echo " Gate (hard-fail on CVEs/secrets): ${{ steps.check-draft.outputs.gate }}"
+          echo " Gate (hard-fail on vulnerability severity): ${{ steps.check-draft.outputs.gate }}"
 
   trivy_dockerfile_scan:
     name: Trivy scan Dockerfile
@@ -75,7 +77,6 @@ jobs:
           summary_title: Trivy scan — Dockerfile misconfig
           sarif_category: Trivy-Dockerfile-Misconfig
           upload_sarif: ${{ github.event_name != 'pull_request' }}
-          fail_on_misconfig: ${{ needs.prepare_environment.outputs.gate == 'true' }}
 
   build_docker_images:
     permissions:
@@ -94,7 +95,6 @@ jobs:
       # Scans the tarball this build already writes for the test jobs.
       scan_before_push: true
       fail_on_severity: ''
-      fail_on_secrets: ${{ needs.prepare_environment.outputs.gate == 'true' }}
       upload_sarif: ${{ github.event_name != 'pull_request' }}
       vex_file: openvex.json
 
@@ -114,7 +114,6 @@ jobs:
       upload_image_as_artifact: true
       scan_before_push: true
       fail_on_severity: ${{ needs.prepare_environment.outputs.gate == 'true' && 'CRITICAL,HIGH' || '' }}
-      fail_on_secrets: ${{ needs.prepare_environment.outputs.gate == 'true' }}
       upload_sarif: ${{ github.event_name != 'pull_request' }}
       vex_file: openvex.json
 
