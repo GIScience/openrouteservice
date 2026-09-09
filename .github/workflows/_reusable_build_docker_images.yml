@@ -88,6 +88,10 @@ on:
         description: Digest of the pushed image for linux/arm64 (when push_by_digest is true)
         value: ${{ jobs.build_docker_image.outputs.image_digest_arm64 || '' }}
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
 
   build_docker_image:

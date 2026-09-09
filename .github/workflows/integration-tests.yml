@@ -38,6 +38,7 @@ jobs:
   build_test_scenario_base_image:
     permissions:
       contents: read
+      security-events: write
     name: Build test scenario builder images
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     with:
@@ -52,6 +53,7 @@ jobs:
   build_test_scenario_jar_builder_image:
     permissions:
       contents: read
+      security-events: write
     name: Build test scenario jar builder image
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     needs:
