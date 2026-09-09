@@ -18,6 +18,10 @@ Settings for the isochrones endpoint.
 
 ## fastisochrones
 
+Range limits that apply only when a request uses the fast-isochrone algorithm.
+Graph preparation itself is configured per profile under
+[`ors.engine.profiles.<PROFILE-NAME>.build.preparation.methods.fastisochrones`](/run-instance/configuration/engine/profiles/build.md#methodsfastisochrones).
+
 Properties beneath `ors.endpoints.isochrones.fastisochrones` for fastisochrone only:
 
 | key                            | type   | description                                                                                        | default value |
