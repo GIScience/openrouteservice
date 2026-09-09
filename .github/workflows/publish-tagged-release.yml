@@ -2,6 +2,7 @@ name: Build and publish the newest version and latest Docker image
 on:
   release:
     types: [created, published]
+  # checkov:skip=CKV_GHA_7: not important for this workflow, which only builds and publishes images. The inputs are only used to determine whether the workflow runs and what tag to build.
   workflow_dispatch:
     inputs:
       tag:
@@ -20,6 +21,7 @@ jobs:
     if: github.event.action == 'created' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
+      security-events: write
     name: "[Dry run] Build and scan publish images"
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     with:
@@ -38,6 +40,7 @@ jobs:
     if: github.event.action == 'created' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
+      security-events: write
     name: "[Dry run] Build and scan slim images"
     uses: ./.github/workflows/_reusable_build_docker_images.yml
     with:
@@ -83,6 +86,7 @@ jobs:
     if: github.event.action == 'published'
     permissions:
       contents: read
+      security-events: write
     name: Build, scan and push the Docker images with native runners
     needs: check_version
     uses: ./.github/workflows/_reusable_build_docker_images.yml
@@ -107,6 +111,7 @@ jobs:
     if: github.event.action == 'published'
     permissions:
       contents: read
+      security-events: write
     name: Build, scan and push the slim Docker images with native runners
     needs: check_version
     uses: ./.github/workflows/_reusable_build_docker_images.yml

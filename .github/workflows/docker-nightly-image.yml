@@ -4,6 +4,7 @@ run-name: Build ${{ inputs.branch }} - ${{ inputs.user }}
 on:
   schedule:
     - cron: '15 1 * * *'
+  # checkov:skip=CKV_GHA_7: not relevant for this workflow, which only builds and publishes images. The inputs are only used to determine whether the workflow runs and what tag to build.
   workflow_dispatch:
     inputs:
       branch:

@@ -81,3 +81,18 @@ trivy image --scanners vuln,secret --vex openvex.json --show-suppressed \
   local/openrouteservice:test-slim
 ```
 The finding should appear under "Suppressed Vulnerabilities" with your statement's justification.
+
+## If the IaC scan fails
+
+The `IaC scanning` workflow runs Checkov over the whole repository.
+
+Reproduce a CI finding locally:
+```
+uvx --from checkov checkov -d . --compact --quiet --skip-path node_modules --skip-path target
+```
+
+Fix it if it is fixable. If the risk is accepted, record it in the source rather than loosening the
+gate, by putting a comment next to the flagged resource:
+```
+# checkov:skip=CKV_DOCKER_3: the Maven build needs root inside the builder; the image is never run as a service
+```
