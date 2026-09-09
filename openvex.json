@@ -1,0 +1,87 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://github.com/GIScience/openrouteservice/blob/main/openvex.json",
+  "author": "HeiGIT openrouteservice maintainers",
+  "timestamp": "2026-09-08T00:00:00Z",
+  "version": 2,
+  "statements": [
+    {
+      "timestamp": "2026-09-08T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2019-1010022",
+        "description": "glibc nptl: the stack guard can be bypassed by an attacker who already controls a stack buffer overflow"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_cannot_be_controlled_by_adversary",
+      "impact_statement": "glibc upstream treats it as a non-security bug and no real threat (sourceware bug 22850) and Debian records it as unimportant and permanently unfixed, so no libc6 update can ever clear this finding.",
+      "status_notes": "The product purl deliberately carries no version: Trivy reads that as any version of the package. The matching DEBIAN-CVE-2019-1010022 statement repeats this assessment for DevGuard, which keys its findings on the Debian OSV identifier rather than the CVE id."
+    },
+    {
+      "timestamp": "2026-09-08T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2019-1010022",
+        "description": "Debian OSV identifier for CVE-2019-1010022",
+        "aliases": ["CVE-2019-1010022"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_cannot_be_controlled_by_adversary",
+      "impact_statement": "Same assessment as CVE-2019-1010022 above, under the identifier DevGuard reports the finding as.",
+      "status_notes": "DevGuard matches a version-less product purl against nothing, so the version is expressed as the constraint >=0.0.0-0, which its purl matcher reads as any version including Debian's revision suffixes."
+    },
+    {
+      "timestamp": "2026-09-08T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-5450",
+        "description": "glibc: scanf family with %mc and an explicit field width above 1024 overflows the heap buffer by one byte (GLIBC-SA-2026-0009)"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The image runs a single Java application on the JVM; neither it nor anything else shipped in the slim image calls the scanf family with the %mc conversion, which is the only way to reach the overflow.",
+      "status_notes": "See the DEBIAN-CVE-2026-5450 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-09-08T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-5450",
+        "description": "Debian OSV identifier for CVE-2026-5450",
+        "aliases": ["CVE-2026-5450"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-5450 above, under the identifier DevGuard reports the finding as.",
+      "status_notes": "The version is expressed as the constraint >=0.0.0-0 so the statement keeps matching across libc6 updates; DevGuard does not match version-less product purls."
+    }
+  ]
+}

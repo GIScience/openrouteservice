@@ -3,7 +3,7 @@ on:
   pull_request:
     types: [ opened, synchronize, ready_for_review ]
   push:
-    branches: [ "main" ]
+    branches: [ "main", "releases/**" ]
   workflow_dispatch:
 
 env:
@@ -23,23 +23,38 @@ jobs:
       test_slim_image_name: ${{ env.TEST_SLIM_IMAGE_NAME }}
       is_draft: ${{ steps.check-draft.outputs.is_draft }}
       build_arm64: ${{ steps.check-draft.outputs.build_arm64 }}
+      gate: ${{ steps.check-draft.outputs.gate }}
     steps:
-      - name: Check if draft PR
+      - name: Check if draft PR / release-prep branch
         id: check-draft
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
           if [[ "${{ github.event_name }}" = "pull_request" && "${{ github.event.pull_request.draft }}" = "true" ]]; then
             echo "is_draft=true" >> $GITHUB_OUTPUT
-            echo "build_arm64=false" >> $GITHUB_OUTPUT
+            BUILD_ARM64=false
           else
             echo "is_draft=false" >> $GITHUB_OUTPUT
-            echo "build_arm64=true" >> $GITHUB_OUTPUT
+            BUILD_ARM64=true
           fi
+          # Release-prep branches (releases/vX.Y.Z) hard-gate on vulnerability
+          # severity, arm64 included. Secrets and Dockerfile misconfigurations
+          # always gate, regardless of this flag.
+          if [[ "$HEAD_REF" == releases/* || "$REF_NAME" == releases/* ]]; then
+            echo "gate=true" >> $GITHUB_OUTPUT
+            BUILD_ARM64=true
+          else
+            echo "gate=false" >> $GITHUB_OUTPUT
+          fi
+          echo "build_arm64=$BUILD_ARM64" >> $GITHUB_OUTPUT
       - run: |
           echo "Publish environment variables"
           echo "Test Image Name: ${{ env.TEST_IMAGE_NAME }}"
           echo "Test Slim Image Name: ${{ env.TEST_SLIM_IMAGE_NAME }}"
           echo " Is Draft: ${{ steps.check-draft.outputs.is_draft }}"
           echo " Build ARM64: ${{ steps.check-draft.outputs.build_arm64 }}"
+          echo " Gate (hard-fail on vulnerability severity): ${{ steps.check-draft.outputs.gate }}"
 
   trivy_dockerfile_scan:
     name: Trivy scan Dockerfile
@@ -80,8 +95,8 @@ jobs:
       # Scans the tarball this build already writes for the test jobs.
       scan_before_push: true
       fail_on_severity: ''
-      fail_on_secrets: false
       upload_sarif: ${{ github.event_name != 'pull_request' }}
+      vex_file: openvex.json
 
   build_slim_images:
     permissions:
@@ -98,9 +113,9 @@ jobs:
       build_arm64: ${{ fromJSON(needs.prepare_environment.outputs.build_arm64) }}
       upload_image_as_artifact: true
       scan_before_push: true
-      fail_on_severity: ''
-      fail_on_secrets: false
+      fail_on_severity: ${{ needs.prepare_environment.outputs.gate == 'true' && 'CRITICAL,HIGH' || '' }}
       upload_sarif: ${{ github.event_name != 'pull_request' }}
+      vex_file: openvex.json
 
   docker_image_tests:
     permissions:
