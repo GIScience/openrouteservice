@@ -1,0 +1,77 @@
+name: IaC scanning
+
+# Checkov over the whole repository. Checkov scans infrastructure as code (IaC) files for misconfigurations.
+#
+# The gate is hard on every trigger, pull requests included: any finding fails
+# the job. Findings that are accepted rather than fixed are documented in the
+# source with `# checkov:skip=<ID>:<reason>` comments.
+
+on:
+  pull_request:
+    types: [ opened, synchronize, ready_for_review ]
+  push:
+    branches: [ "main", "releases/**" ]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  checkov_scan:
+    name: Checkov IaC scan
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@f967808197a8d784d3e72919f38c3ff0cda7884e # v12.3122.0
+        with:
+          directory: .
+          quiet: true
+          compact: true
+          soft_fail: true
+          skip_path: node_modules,target
+          output_format: cli,sarif,json
+          output_file_path: console,results.sarif,results.json
+
+      - name: Report results
+        if: ${{ always() && hashFiles('results.json') != '' }}
+        run: |
+          {
+            echo "### Checkov IaC scan"
+            echo
+            echo "| Framework | Passed | Failed | Skipped |"
+            echo "|---|---:|---:|---:|"
+            jq -r 'if type == "array" then .[] else . end
+                   | "| \(.check_type) | \(.summary.passed) | \(.summary.failed) | \(.summary.skipped) |"' results.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Checkov report
+        # Pull requests from forks cannot write to the Security tab.
+        if: ${{ github.event_name != 'pull_request' && hashFiles('results.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
+        with:
+          sarif_file: results.sarif
+          category: Checkov-IaC
+
+      - name: Gate - misconfigurations
+        run: |
+          if [ ! -f results.json ]; then
+            echo "::error::Checkov produced no report; treating that as a failure rather than a pass"
+            exit 1
+          fi
+          failed=$(jq -r '[ (if type == "array" then .[] else . end) | .summary.failed ] | add' results.json)
+          if [ "$failed" -eq 0 ]; then
+            echo "Checkov found no unhandled misconfigurations."
+            exit 0
+          fi
+          jq -r '(if type == "array" then .[] else . end)
+                 | .results.failed_checks[]
+                 | "- \(.check_id) \(.file_path):\(.file_line_range[0]) - \(.check_name)"' results.json \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "::error::Checkov found ${failed} unhandled misconfiguration(s); fix them, or add a documented '# checkov:skip=<ID>:<reason>' comment if the risk is accepted"
+          exit 1
