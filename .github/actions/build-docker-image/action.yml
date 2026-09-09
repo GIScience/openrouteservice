@@ -73,7 +73,12 @@ inputs:
     description: Fail the pre-push scan if the secret scanner finds anything
     required: false
     type: boolean
-    default: false
+    default: true
+  vex_file:
+    description: Repo-relative path to an OpenVEX document used to suppress accepted-risk findings in the pre-push scan
+    required: false
+    type: string
+    default: ''
   upload_sarif:
     description: Upload the pre-push scan's SARIF results to the code scanning (Security) tab. Requires security-events:write.
     required: false
@@ -162,6 +167,7 @@ runs:
         sarif_category: Trivy-Docker-Image-${{ inputs.image_stage }}-${{ inputs.platform }}
         sarif_category_secrets: Trivy-Docker-Image-Secrets-${{ inputs.image_stage }}-${{ inputs.platform }}
         upload_sarif: ${{ inputs.upload_sarif }}
+        vex_file: ${{ inputs.vex_file }}
         fail_on_severity: ${{ inputs.fail_on_severity }}
         fail_on_secrets: ${{ inputs.fail_on_secrets }}
 

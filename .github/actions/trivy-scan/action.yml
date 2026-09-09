@@ -1,8 +1,12 @@
 name: Trivy Scan
 description: >-
   Scan a target with Trivy and report the result: table to the log and the job
-  summary, SARIF to the code scanning tab, and an optional hard failure.
-  Report-only unless one of the fail_on_* inputs is set.
+  summary, SARIF to the code scanning tab, and an optional hard failure. Secrets
+  and misconfigurations gate by default; only the vulnerability severity gate
+  (fail_on_severity) is opt-in and report-only until set.
+
+  Each requested scanner runs as its own Trivy invocation writing its own report
+  file. A shared report cannot be split afterwards.
 
   Trivy names its target differently per scan type (input= for an image
   tarball, image-ref= for an image in a registry or the local daemon, scan-ref=
@@ -42,44 +46,83 @@ inputs:
     description: Upload SARIF to the code scanning (Security) tab. Requires security-events:write.
     required: false
     default: 'false'
+  vex_file:
+    description: >-
+      Repo-relative path to an OpenVEX document suppressing accepted-risk
+      findings. Applies to the vulnerability scan only.
+    required: false
+    default: ''
   fail_on_severity:
     description: Comma-separated severities that fail the job (e.g. 'CRITICAL,HIGH'). Empty means report-only.
     required: false
     default: ''
   fail_on_secrets:
-    description: Fail the job if the secret scanner found anything
+    description: >-
+      Fail the job if the secret scanner found anything. Defaults to true.
     required: false
-    default: 'false'
+    default: 'true'
   fail_on_misconfig:
-    description: Fail the job if the misconfiguration scanner found anything (no severity filter)
+    description: >-
+      Fail the job if the misconfiguration scanner found anything (no severity
+      filter). Defaults to true, see fail_on_secrets.
     required: false
-    default: 'false'
+    default: 'true'
 
 runs:
   using: composite
   steps:
-    - name: Run Trivy scan
+    - name: Scan for vulnerabilities
+      if: ${{ contains(inputs.scanners, 'vuln') }}
+      uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+      env:
+        TRIVY_VEX: ${{ inputs.vex_file }}
+        TRIVY_SHOW_SUPPRESSED: ${{ inputs.vex_file != '' }}
+      with:
+        scan-type: ${{ startsWith(inputs.scan_type, 'image') && 'image' || inputs.scan_type }}
+        input: ${{ inputs.scan_type == 'image-tar' && inputs.target || '' }}
+        image-ref: ${{ inputs.scan_type == 'image-ref' && inputs.target || '' }}
+        scan-ref: ${{ inputs.scan_type == 'config' && inputs.target || '' }}
+        scanners: vuln
+        format: json
+        output: vuln.json
+        exit-code: '0'
+
+    - name: Scan for secrets
+      if: ${{ contains(inputs.scanners, 'secret') }}
       uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
       with:
         scan-type: ${{ startsWith(inputs.scan_type, 'image') && 'image' || inputs.scan_type }}
         input: ${{ inputs.scan_type == 'image-tar' && inputs.target || '' }}
         image-ref: ${{ inputs.scan_type == 'image-ref' && inputs.target || '' }}
         scan-ref: ${{ inputs.scan_type == 'config' && inputs.target || '' }}
-        scanners: ${{ inputs.scanners }}
+        scanners: secret
         format: json
-        output: results.json
-        # Reporting happens below; gating is a separate, explicit decision.
+        output: secret.json
         exit-code: '0'
 
-    # Converted once, then reused for both the log and the summary.
+    - name: Scan for misconfigurations
+      if: ${{ contains(inputs.scanners, 'misconfig') }}
+      uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+      with:
+        scan-type: ${{ startsWith(inputs.scan_type, 'image') && 'image' || inputs.scan_type }}
+        input: ${{ inputs.scan_type == 'image-tar' && inputs.target || '' }}
+        image-ref: ${{ inputs.scan_type == 'image-ref' && inputs.target || '' }}
+        scan-ref: ${{ inputs.scan_type == 'config' && inputs.target || '' }}
+        scanners: misconfig
+        format: json
+        output: misconfig.json
+        exit-code: '0'
+
     - name: Report results
       shell: bash
       env:
-        SCANNERS: ${{ inputs.scanners }}
         SUMMARY_TITLE: ${{ inputs.summary_title }}
       run: |
-        trivy convert --scanners "$SCANNERS" --format table results.json > trivy-table.txt
-        cat trivy-table.txt
+        : > trivy-table.txt
+        for report in vuln secret misconfig; do
+          [ -f "$report.json" ] || continue
+          trivy convert --format table "$report.json" | tee -a trivy-table.txt
+        done
         {
           echo "### ${SUMMARY_TITLE}"
           echo '```'
@@ -90,75 +133,65 @@ runs:
     - name: Convert vulnerability results to SARIF
       if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'vuln') }}
       shell: bash
-      run: trivy convert --scanners vuln --format sarif --output vuln-results.sarif results.json
+      run: trivy convert --format sarif --output vuln.sarif vuln.json
 
     - name: Upload vulnerability report
       if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'vuln') }}
       uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
       with:
-        sarif_file: vuln-results.sarif
+        sarif_file: vuln.sarif
         category: ${{ inputs.sarif_category }}
 
     - name: Convert misconfiguration results to SARIF
       if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'misconfig') }}
       shell: bash
-      run: trivy convert --scanners misconfig --format sarif --output misconfig-results.sarif results.json
+      run: trivy convert --format sarif --output misconfig.sarif misconfig.json
 
     - name: Upload misconfiguration report
       if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'misconfig') }}
       uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
       with:
-        sarif_file: misconfig-results.sarif
+        sarif_file: misconfig.sarif
         category: ${{ inputs.sarif_category }}
 
     - name: Convert secret scan results to SARIF
       if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'secret') }}
       shell: bash
-      run: trivy convert --scanners secret --format sarif --output secret-results.sarif results.json
+      run: trivy convert --format sarif --output secret.sarif secret.json
 
     - name: Upload secret scan report
       if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'secret') }}
       uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
       with:
-        sarif_file: secret-results.sarif
+        sarif_file: secret.sarif
         category: ${{ inputs.sarif_category_secrets || format('{0}-Secrets', inputs.sarif_category) }}
 
-    - name: Gate on findings
-      if: ${{ inputs.fail_on_severity != '' || inputs.fail_on_misconfig == 'true' || inputs.fail_on_secrets == 'true' }}
+    - name: Gate - vulnerabilities
+      id: gate-vuln
+      if: ${{ inputs.fail_on_severity != '' && contains(inputs.scanners, 'vuln') }}
       shell: bash
       env:
         SEVERITY: ${{ inputs.fail_on_severity }}
-        FAIL_ON_MISCONFIG: ${{ inputs.fail_on_misconfig }}
-        FAIL_ON_SECRETS: ${{ inputs.fail_on_secrets }}
+      run: trivy convert --severity "$SEVERITY" --exit-code 1 --format table vuln.json || echo "failed=true" >> "$GITHUB_OUTPUT"
+
+    - name: Gate - secrets
+      id: gate-secret
+      if: ${{ inputs.fail_on_secrets == 'true' && contains(inputs.scanners, 'secret') }}
+      shell: bash
+      run: trivy convert --exit-code 1 --format table secret.json || echo "failed=true" >> "$GITHUB_OUTPUT"
+
+    - name: Gate - misconfigurations
+      id: gate-misconfig
+      if: ${{ inputs.fail_on_misconfig == 'true' && contains(inputs.scanners, 'misconfig') }}
+      shell: bash
+      run: trivy convert --exit-code 1 --format table misconfig.json || echo "failed=true" >> "$GITHUB_OUTPUT"
+
+    - name: Fail if any gate tripped
+      if: ${{ steps.gate-vuln.outputs.failed == 'true' || steps.gate-secret.outputs.failed == 'true' || steps.gate-misconfig.outputs.failed == 'true' }}
+      shell: bash
+      env:
         TITLE: ${{ inputs.summary_title }}
       run: |
-        failures=()
-
-        # Prints the findings only when a check trips; the full,
-        # unfiltered table is already in the log and the job summary.
-        gate() {
-          local scanner="$1" label="$2"
-          shift 2
-          if trivy convert --scanners "$scanner" "$@" --exit-code 1 --format table results.json > gate.txt; then
-            return
-          fi
-          cat gate.txt
-          echo "::error::${TITLE} - gate failed on ${label}"
-          echo "- Gate failed - ${TITLE}: ${label}" >> "$GITHUB_STEP_SUMMARY"
-          failures+=("$label")
-        }
-
-        if [ -n "$SEVERITY" ]; then
-          gate vuln "${SEVERITY} vulnerabilities" --severity "$SEVERITY"
-        fi
-        if [ "$FAIL_ON_MISCONFIG" = 'true' ]; then
-          gate misconfig misconfigurations
-        fi
-        if [ "$FAIL_ON_SECRETS" = 'true' ]; then
-          gate secret "detected secrets"
-        fi
-
-        if [ ${#failures[@]} -gt 0 ]; then
-          echo "Gates failed: ${failures[*]}"
-          exit 1
-        fi
+        echo "::error::${TITLE} - a Trivy gate failed; see the Gate steps above"
+        echo "- Gate failed - ${TITLE}" >> "$GITHUB_STEP_SUMMARY"
+        exit 1
