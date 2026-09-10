@@ -5,7 +5,7 @@ ors:
       preprocessed: true
     profile_default:
       enabled: false
-      graph_path: graphs-apitests-prepmode-folder
+      graph_path: graphs-apitests
       build:
         source_file: ./src/test/files/heidelberg.test.pbf
     profiles:
