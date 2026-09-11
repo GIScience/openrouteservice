@@ -25,7 +25,7 @@ RELEASING:
 Releasing is documented in RELEASE.md
 -->
 
-## [unreleased]
+## [10.0.0] - 2026-09-11
 
 ### Added
 - documentation for CSV extra info from graph-build CSV files ([#1974](https://github.com/GIScience/openrouteservice/issues/1974))
@@ -44,8 +44,6 @@ Releasing is documented in RELEASE.md
 - bump Java to 25 across build, CI and Docker images ([#2382](https://github.com/GIScience/openrouteservice/pull/2382))
 - base the slim image on distroless Debian 13 ([#2387](https://github.com/GIScience/openrouteservice/pull/2387))
 - update to Spring Boot 4 ([#2393](https://github.com/GIScience/openrouteservice/pull/2393))
-
-### Deprecated
 
 ### Removed
 - WAR/Tomcat packaging support ([#2398](https://github.com/GIScience/openrouteservice/pull/2398))
@@ -1138,7 +1136,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.10.0...HEAD
+[10.0.0]: https://github.com/GIScience/openrouteservice/compare/v9.10.0...v10.0.0
 [9.10.0]: https://github.com/GIScience/openrouteservice/compare/v9.9.0...v9.10.0
 [9.9.0]: https://github.com/GIScience/openrouteservice/compare/v9.8.0...v9.9.0
 [9.8.0]: https://github.com/GIScience/openrouteservice/compare/v9.7.1...v9.8.0
