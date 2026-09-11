@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.DataAccessEnum;
+import org.heigit.ors.common.PreparationType;
 import org.heigit.ors.config.profile.ProfileProperties;
 
 import java.util.LinkedHashMap;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class EngineProperties {
     private Integer initThreads;
     private Boolean preparationMode = false;
+    private PreparationType preparationType = PreparationType.FOLDER;
     private String configOutput;
     private DataAccessEnum graphsDataAccess;
 
