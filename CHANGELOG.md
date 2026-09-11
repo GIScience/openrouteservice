@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- new optional parameter `ors.engine.preparation_type` (`FOLDER`/`ARCHIVE`) controlling whether `preparation_mode` leaves built graphs extracted or packs them into `.ghz` archives ([#2316](https://github.com/GIScience/openrouteservice/issues/2316))
 - documentation for CSV extra info from graph-build CSV files ([#1974](https://github.com/GIScience/openrouteservice/issues/1974))
 - add SBOM and provenance via docker buildx commands ([#2347](https://github.com/GIScience/openrouteservice/pull/2347))
 - add OCI title/description/documentation labels to base image ([#2364](https://github.com/GIScience/openrouteservice/pull/2364))
@@ -51,6 +52,7 @@ Releasing is documented in RELEASE.md
 - obsolete RPM packaging (`.rpm-packaging/`) ([#2397](https://github.com/GIScience/openrouteservice/pull/2397))
 
 ### Fixed
+- `preparation_mode` no longer packs graphs and deletes the extracted graph folders by default, restoring the pre-9.6.0 behaviour needed for baking graphs into Docker images ([#2316](https://github.com/GIScience/openrouteservice/issues/2316))
 - give the healthcheck a start-period so it survives longer graph loading ([#2365](https://github.com/GIScience/openrouteservice/pull/2365))
 - let the slim image run under an arbitrary UID: own `ORS_HOME` as group 0 with the group bits mirroring the owner, copy the JAR read-only instead of `750`, and declare a numeric `USER 1001:0` that `runAsNonRoot` can resolve ([#2366](https://github.com/GIScience/openrouteservice/pull/2366))
 - penalize routing through service ways ([#2313](https://github.com/GIScience/openrouteservice/pull/2313))
