@@ -70,6 +70,7 @@ Releasing is documented in RELEASE.md
 - update postgresql to 42.7.12 and jline to 4.2.1, add aircompressor dependency to fix [CVE-2025-67721](https://www.cve.org/CVERecord?id=CVE-2025-67721), [CVE-2026-56740](https://www.cve.org/CVERecord?id=CVE-2026-56740), [CVE-2026-56741](https://www.cve.org/CVERecord?id=CVE-2026-56741) and [CVE-2026-54291](https://www.cve.org/CVERecord?id=CVE-2026-54291) ([#2339](https://github.com/GIScience/openrouteservice/pull/2339))
 - update log4j to 2.25.5 due to [CVE-2026-49844](https://www.cve.org/CVERecord?id=CVE-2026-49844)
 - update httpclient5 to 5.6.3 due to [CVE-2026-71290](https://www.cve.org/CVERecord?id=CVE-2026-71290) and [CVE-2026-40542](https://www.cve.org/CVERecord?id=CVE-2026-40542)
+- force update tomcat-embed to 11.0.25 due to GHSA-9xv2-5v5q-p794, GHSA-gcx9-497g-6cp6 and GHSA-h3x4-894j-xpx5 ([#2413](https://github.com/GIScience/openrouteservice/pull/2413))
 
 
 ## [9.10.0] - 2026-07-28

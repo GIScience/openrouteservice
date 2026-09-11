@@ -4,6 +4,12 @@
 # Keeping them separate makes it impossible for testcontainers to change the build context for the builder images.
 # Look into the documentation under docs/technical-details/integration-tests.md for more information.
 
+# These are throwaway build images for the integration-test suite. They are built
+# on the runner, consumed by testcontainers and never pushed anywhere, so the
+# runtime-hardening checks that apply to the published image do not apply here.
+# checkov:skip=CKV_DOCKER_3: the Maven build needs root inside the builder; the image is never run as a service
+# checkov:skip=CKV_DOCKER_2: a builder has no service to health-check
+
 ARG CONTAINER_BUILD_DIR=/build
 ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
