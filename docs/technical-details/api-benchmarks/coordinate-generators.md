@@ -1,6 +1,10 @@
 # Coordinate Generation Tools
 
-The openrouteservice provides tools for generating test coordinates that can be used for benchmarking, testing, and development purposes. These tools allow you to create realistic coordinates that are compatible with the openrouteservice API and suited for different routing profiles.
+The openroutes| `-r, --snap-radius` | Search radius in meters for coordinate snapping. | 350 |
+| `-ma, --max-attempts` | Maximum number of attempts for coordinate generation. | 100 |vice provides tools for
+generating test coordinates that can be used for benchmarking, testing, and development purposes. These tools allow you
+to create realistic coordinates that are compatible with the openrouteservice API and suited for different routing
+profiles.
 
 ## Prerequisites
 
@@ -33,16 +37,18 @@ The tool generates random coordinates within a specified bounding box and then u
 
 ### Route Generator Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-n, --num-routes` | Number of routes to generate. | (required) |
-| `-e, --extent` | Bounding box (minLon,minLat,maxLon,maxLat).  Use <https://boundingbox.klokantech.com/> to generate your extents. | (required). |
-| `-p, --profiles` | Comma-separated routing profiles. | (required) |
-| `-u, --url` | ORS API base URL. | <http://localhost:8080/ors> |
-| `-o, --output` | Output CSV file path. | route_coordinates.csv |
-| `-d, --min-distance` | Minimum distance between start and endpoint in an a-to-b routing pair in meters. This is valid for all profiles. | 1 |
-| `-m, --max-distances` | Maximum distances in meters **per profile** between the start and endpoint. | (none) |
-| `-t, --threads` | Number of threads to use. | Available processors |
+| Option                | Description                                                                                                      | Default                     |
+|-----------------------|------------------------------------------------------------------------------------------------------------------|-----------------------------|
+| `-n, --num-routes`    | Number of routes to generate.                                                                                    | (required)                  |
+| `-e, --extent`        | Bounding box (minLon,minLat,maxLon,maxLat).  Use <https://boundingbox.klokantech.com/> to generate your extents. | (required).                 |
+| `-p, --profiles`      | Comma-separated routing profiles.                                                                                | (required)                  |
+| `-u, --url`           | ORS API base URL.                                                                                                | <http://localhost:8080/ors> |
+| `-o, --output`        | Output CSV file path.                                                                                            | route_coordinates.csv       |
+| `-d, --min-distance`  | Minimum distance between start and endpoint in an a-to-b routing pair in meters. This is valid for all profiles. | 1                           |
+| `-m, --max-distances` | Maximum distances in meters **per profile** between the start and endpoint.                                      | (none)                      |
+| `-t, --threads`       | Number of threads to use.                                                                                        | Available processors        |
+| `-sr, --snap-radius`  | Search radius in meters for coordinate snapping.                                                                 | 350                         |
+| `-ma, --max-attempts` | Maximum number of attempts for coordinate generation.                                                            | 100                         |
 
 ### Route Generator Examples
 
@@ -76,6 +82,8 @@ Generate 50 routes for both driving-car and cycling-regular profiles with differ
   --min-distance 2000 \
   --max-distances 5000,3000 \
   --threads 4 \
+  --snap-radius 1500 \
+  --max-attempts 1500 \
   --url http://localhost:8080/ors \
   --output routes.csv"
 ```
@@ -92,14 +100,15 @@ The tool generates random coordinates within a specified bounding box and then u
 
 ### Snapping Generator Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-n, --num-points` | Number of points to generate per profile. | (required) |
-| `-e, --extent` | Bounding box (minLon,minLat,maxLon,maxLat). | (required) |
-| `-p, --profiles` | Comma-separated list of routing profiles. | (required) |
-| `-r, --radius` | Search radius in meters. | 350 |
-| `-u, --url` | ORS API base URL. | <http://localhost:8080/ors> |
-| `-o, --output` | Output CSV file path. | snapped_coordinates.csv |
+| Option                | Description                                           | Default                     |
+|-----------------------|-------------------------------------------------------|-----------------------------|
+| `-n, --num-points`    | Number of points to generate per profile.             | (required)                  |
+| `-e, --extent`        | Bounding box (minLon,minLat,maxLon,maxLat).           | (required)                  |
+| `-p, --profiles`      | Comma-separated list of routing profiles.             | (required)                  |
+| `-sr, --snap-radius`  | Search radius in metersfor coordinate snapping.       | 350                         |
+| `-u, --url`           | ORS API base URL.                                     | <http://localhost:8080/ors> |
+| `-o, --output`        | Output CSV file path.                                 | snapped_coordinates.csv     |
+| `-ma, --max-attempts` | Maximum number of attempts for coordinate generation. | 100                         |
 
 ### Snapping Generator Examples
 
@@ -114,7 +123,7 @@ Generate 100 snapped points for the driving-car profile with a search radius of 
   -n 100 \
   -e 8.6,49.3,8.7,49.4 \
   -p driving-car \
-  -r 500 \
+  -sr 500 \
   -u http://localhost:8080/ors \
   -o snapped.csv"
 ```
@@ -130,7 +139,8 @@ Generate 50 snapped points for both driving-car and cycling-regular profiles:
   --num-points 50 \
   --extent 8.681495,49.411721,8.695485,49.419365 \
   --profiles driving-car,cycling-regular \
-  --radius 250 \
+  --snap-radius 250 \
+  --max-attempts 1500 \
   --url http://localhost:8080/ors \
   --output snapped.csv"
 ```

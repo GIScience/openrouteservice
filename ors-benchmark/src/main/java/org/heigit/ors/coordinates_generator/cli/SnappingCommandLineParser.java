@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class SnappingCommandLineParser extends CommandLineParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SnappingCommandLineParser.class);
+    private static final String OPT_MAX_ATTEMPTS = "max-attempts";
 
     public SnappingCommandLineParser(String[] args) {
         super(args);
@@ -35,8 +36,8 @@ public class SnappingCommandLineParser extends CommandLineParser {
                 .desc("Bounding box (minLon minLat maxLon maxLat)")
                 .build());
 
-        options.addOption(Option.builder("r")
-                .longOpt("radius")
+        options.addOption(Option.builder("sr")
+                .longOpt("snap-radius")
                 .hasArg()
                 .type(Number.class)
                 .desc("Search radius in meters (default: 350)")
@@ -59,6 +60,13 @@ public class SnappingCommandLineParser extends CommandLineParser {
                 .longOpt("output")
                 .hasArg()
                 .desc("Output CSV file path")
+                .build());
+
+        options.addOption(Option.builder("ma")
+                .longOpt(OPT_MAX_ATTEMPTS)
+                .hasArg()
+                .type(Number.class)
+                .desc("Maximum number of attempts for coordinate generation (default: 100)")
                 .build());
     }
 
@@ -86,14 +94,19 @@ public class SnappingCommandLineParser extends CommandLineParser {
         int numPoints = Integer.parseInt(cmd.getOptionValue("n"));
         double[] extent = parseExtent(cmd.getOptionValue("e"));
         String[] profiles = parseProfiles(cmd.getOptionValue("p"));
-        double radius = Double.parseDouble(cmd.getOptionValue("r", "350"));
+        double snapRadius = Double.parseDouble(cmd.getOptionValue("sr", "350"));
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
+        int maxAttempts = Integer.parseInt(
+                cmd.getOptionValue(OPT_MAX_ATTEMPTS, "100"));
 
         LOGGER.info(
-                "Creating CoordinateGeneratorSnapping with numPoints={}, extent={}, radius={}, profiles={}, baseUrl={}",
-                numPoints, extent, radius, profiles, baseUrl);
+                "Creating CoordinateGeneratorSnapping with numPoints={}, extent={}, snapRadius={}, profiles={}, baseUrl={}, maxAttempts={}",
+                numPoints, extent, snapRadius, profiles, baseUrl, maxAttempts);
 
-        return new CoordinateGeneratorSnapping(numPoints, extent, radius, profiles, baseUrl);
+        CoordinateGeneratorSnapping generator = new CoordinateGeneratorSnapping(numPoints, extent, snapRadius, profiles,
+                baseUrl, maxAttempts);
+        generator.generate();
+        return generator;
     }
 
     /**
