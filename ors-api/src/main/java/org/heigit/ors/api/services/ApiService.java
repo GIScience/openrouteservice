@@ -235,6 +235,10 @@ public class ApiService {
             applyWeightings(weightings, params);
         }
 
+        if (options.getProfileParams().hasRestThreshold()) {
+            params.setRestThreshold(options.getProfileParams().getRestThreshold());
+        }
+
         if (params instanceof WheelchairParameters wheelchairParameters) {
             if (options.getProfileParams().hasSurfaceQualityKnown()) {
                 wheelchairParameters.setSurfaceQualityKnown(options.getProfileParams().getSurfaceQualityKnown());

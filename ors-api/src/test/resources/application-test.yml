@@ -242,6 +242,7 @@ ors:
           encoder_options:
             block_fords: false
             enable_custom_models: true
+          foot_rest_data: ./src/test/files/foot_rest_data.csv
           ext_storages:
             GreenIndex:
               filepath: ./src/test/files/green_streets_hd.csv
