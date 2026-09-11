@@ -17,26 +17,18 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.util.WheelchairAttributesEncodedValues;
 
 public final class WheelchairCoreEdgeFilter implements EdgeFilter {
-    private final byte[] buffer;
-    private final WheelchairAttributesGraphStorage storage;
-    private final WheelchairAttributes attributes;
+    private final WheelchairAttributesEncodedValues encodedValues;
 
     public WheelchairCoreEdgeFilter(GraphHopperStorage graphStorage) {
-        buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
-        attributes = new WheelchairAttributes();
-        storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
+        encodedValues = new WheelchairAttributesEncodedValues(graphStorage.getEncodingManager());
     }
 
     @Override
     public boolean accept(EdgeIteratorState iter) {
-
-        storage.getEdgeValues(iter.getEdge(), attributes, buffer);
-
+        WheelchairAttributes attributes = encodedValues.getAttributes(iter.getFlags());
         return !attributes.hasValues();
-
     }
 }
