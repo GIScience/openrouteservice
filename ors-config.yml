@@ -42,6 +42,9 @@ ors:
 #      activated: true
 #    showExtensions: true
 #  api-docs:
+#    # springdoc enables this endpoint whenever the property is unset, but warns on every startup
+#    # until it is stated explicitly. Setting it here is a no-op behaviourally and silences that.
+#    enabled: true
 #    path: /v2/api-docs
 #    version: OPENAPI_3_0
 #  packages-to-scan: org.heigit.ors
