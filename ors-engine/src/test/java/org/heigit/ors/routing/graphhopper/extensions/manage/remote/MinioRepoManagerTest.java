@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.containers.MinIOContainer;
+import org.testcontainers.containers.OrsMinIOContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
 
@@ -40,10 +41,10 @@ class MinioRepoManagerTest {
     private static final String BUCKET_NAME = "vendor-xyz";
     private static final Path TESTFILE_ROOT = Path.of("src/test/resources/test-filesystem-repos/" + BUCKET_NAME);
     private static Path localGraphsRootPath;
-    private static MinIOContainer minioContainer;
+    private static OrsMinIOContainer minioContainer;
 
     static {
-        minioContainer = new MinIOContainer("minio/minio:RELEASE.2025-04-22T22-12-26Z");
+        minioContainer = new OrsMinIOContainer("chainguard/minio@sha256:f147b779e611d5587f471bdd20658139fb0e321188fbcadd579601aa185da2d9");
         minioContainer.start();
     }
 
