@@ -200,6 +200,11 @@ ors:
 #                weightings: fastest,shortest
 #                landmarks: 64
 #                lmsets: highways;allow_all
+#              fastisochrones:
+#                enabled: false
+#                threads: 1
+#                weightings: recommended,shortest
+#                maxcellnodes: 5000
 #          ext_storages:
 #            WayCategory:
 #            HeavyVehicle:
@@ -239,6 +244,11 @@ ors:
 #                weightings: recommended,shortest
 #                landmarks: 64
 #                lmsets: highways;allow_all
+#              fastisochrones:
+#                enabled: false
+#                threads: 1
+#                weightings: recommended,shortest
+#                maxcellnodes: 5000
 #          ext_storages:
 #            WayCategory:
 #            HeavyVehicle:

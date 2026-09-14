@@ -86,6 +86,19 @@ Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.preparation.methods
 | landmarks  | number  | Total number of precomputed landmarks, the subset used during the query is set in `execution.methods.core.active_landmarks` | `32`                                                        |
 | lmsets     | string  | Landmark sets tailored for specific avoid-filters enabled                                                                   | `highways,tollways;highways;tollways;country_193;allow_all` |
 
+### `methods.fastisochrones`
+
+Settings for preprocessing the [fast isochrones](/run-instance/configuration/endpoints/isochrones.md#fastisochrones) algorithm.
+
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.preparation.methods.fastisochrones`:
+
+| key          | type    | description                                                                 | example value          |
+|--------------|---------|-----------------------------------------------------------------------------|------------------------|
+| enabled      | boolean | Enables or disables fast-isochrone graph preparation                        | `true`                 |
+| threads      | number  | Number of parallel threads for computing the preparation                    | `1`                    |
+| weightings   | string  | Comma-separated list of weightings                                          | `recommended,shortest` |
+| maxcellnodes | number  | Maximum number of nodes allowed in a single isochrone cell; default `5000`  | `5000`                 |
+
 ## `ext_storages`
 
 It can be defined for each profile which auxiliary metadata should be included in the graph.
