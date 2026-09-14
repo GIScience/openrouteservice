@@ -56,6 +56,10 @@
         <swagger-core.version>2.2.55</swagger-core.version>
         <swagger-parser.version>2.1.48</swagger-parser.version>
         <geotools.version>32.4</geotools.version>
+        <!-- not a dependency we pick ourselves: geotools drags EMF in transitively. Pinned only to
+             defuse the version ranges in EMF's own POMs - see the dependencyManagement entry below.
+             Keep in sync with geotools ${geotools.version}'s own eclipse.emf.version -->
+        <eclipse-emf.version>2.15.0</eclipse-emf.version>
         <!-- ors-engine/ors-api are fully on Jackson 3 (see tools.jackson.* below); this Jackson 2
              pin remains only for ors-test-scenarios and ors-benchmark, standalone tool modules
              that don't depend on ors-engine/ors-api or run through Spring MVC and were kept on
@@ -95,6 +99,9 @@
         <hppc.version>0.8.2</hppc.version>
 
         <surefire.version>3.6.0</surefire.version>
+        <!-- the fixed part of surefire's argLine, kept in a property so modules can prepend their own
+             flags (ors-engine adds the Mockito agent) without restating these -->
+        <surefire.base.argLine>-Duser.language=en -Duser.region=US</surefire.base.argLine>
         <rest-assured.version>6.0.1</rest-assured.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gatling.version>3.15.1</gatling.version>
@@ -420,6 +427,35 @@
                 <artifactId>commons-cli</artifactId>
                 <version>${commons-cli.version}</version>
             </dependency>
+
+            <!-- geotools pulls EMF 2.15.0 in transitively (gt-metadata -> net.opengis.ows), and the
+                 EMF POMs declare their own transitive dependencies as ranges - org.eclipse.emf.ecore.xmi
+                 wants org.eclipse.emf.ecore:[2.15.0,3.0.0), which wants org.eclipse.emf.common:[2.15.0,3.0.0).
+                 geotools' own dependencyManagement pins don't reach into this reactor, so the ranges survive,
+                 and resolving a range makes Maven fetch maven-metadata.xml from *every* configured repository.
+                 repo.heigit.org's maven-public group only serves HeiGIT's own artifacts and answers 403 for
+                 everything else, so each build emitted ~50 [WARNING] lines about it.
+
+                 Managing the versions here replaces the ranges before resolution, so no metadata lookup
+                 happens. Versions are not a choice - they must match what geotools already resolves to.
+                 Do not turn these into exclusions: gt-metadata needs EMF on the classpath. -->
+            <dependency>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.common</artifactId>
+                <version>${eclipse-emf.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.ecore</artifactId>
+                <version>${eclipse-emf.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.emf</groupId>
+                <artifactId>org.eclipse.emf.ecore.xmi</artifactId>
+                <version>${eclipse-emf.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -459,7 +495,7 @@
                         <exclude>**/integrationtests/**</exclude>
                     </excludes>
                     <!--suppress UnresolvedMavenProperty -->
-                    <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>
+                    <argLine>${surefire.base.argLine} ${surefireArgLine}</argLine>
                 </configuration>
             </plugin>
 

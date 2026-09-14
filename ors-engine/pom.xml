@@ -52,6 +52,36 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <plugins>
+            <!-- exposes ${org.mockito:mockito-core:jar} (the resolved path of the jar) for the
+                 surefire argLine below; binds to the initialize phase by default -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>resolve-dependency-paths</id>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- ors-engine is the only module using Mockito. Without being pre-loaded as an
+                         agent, Mockito self-attaches via byte-buddy at runtime, which the JDK warns
+                         about and will disallow outright in a future release. mockito-core declares
+                         Premain-Class, so this is the maintainers' supported wiring.
+                         Overrides the parent's argLine; ${surefire.base.argLine} carries its content -->
+                    <!--suppress UnresolvedMavenProperty -->
+                    <argLine>${surefire.base.argLine} -javaagent:${org.mockito:mockito-core:jar} ${surefireArgLine}</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
