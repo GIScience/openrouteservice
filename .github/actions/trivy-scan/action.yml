@@ -137,7 +137,7 @@ runs:
 
     - name: Upload vulnerability report
       if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'vuln') }}
-      uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
+      uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
       with:
         sarif_file: vuln.sarif
         category: ${{ inputs.sarif_category }}
@@ -149,7 +149,7 @@ runs:
 
     - name: Upload misconfiguration report
       if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'misconfig') }}
-      uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
+      uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
       with:
         sarif_file: misconfig.sarif
         category: ${{ inputs.sarif_category }}
@@ -161,7 +161,7 @@ runs:
 
     - name: Upload secret scan report
       if: ${{ inputs.upload_sarif == 'true' && contains(inputs.scanners, 'secret') }}
-      uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
+      uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
       with:
         sarif_file: secret.sarif
         category: ${{ inputs.sarif_category_secrets || format('{0}-Secrets', inputs.sarif_category) }}
