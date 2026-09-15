@@ -59,7 +59,7 @@
         <!-- not a dependency we pick ourselves: geotools drags EMF in transitively. Pinned only to
              defuse the version ranges in EMF's own POMs - see the dependencyManagement entry below.
              Keep in sync with geotools ${geotools.version}'s own eclipse.emf.version -->
-        <eclipse-emf.version>2.15.0</eclipse-emf.version>
+        <eclipse-emf.version>2.46.0</eclipse-emf.version>
         <!-- ors-engine/ors-api are fully on Jackson 3 (see tools.jackson.* below); this Jackson 2
              pin remains only for ors-test-scenarios and ors-benchmark, standalone tool modules
              that don't depend on ors-engine/ors-api or run through Spring MVC and were kept on
