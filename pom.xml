@@ -55,11 +55,13 @@
         <!-- pinned to match the swagger-core version springdoc-openapi 3.1.0 itself uses -->
         <swagger-core.version>2.2.55</swagger-core.version>
         <swagger-parser.version>2.1.48</swagger-parser.version>
-        <geotools.version>32.4</geotools.version>
+        <geotools.version>34.0</geotools.version>
         <!-- not a dependency we pick ourselves: geotools drags EMF in transitively. Pinned only to
              defuse the version ranges in EMF's own POMs - see the dependencyManagement entry below.
              Keep in sync with geotools ${geotools.version}'s own eclipse.emf.version -->
-        <eclipse-emf.version>2.15.0</eclipse-emf.version>
+        <eclipse-emf.version.common>2.46.0</eclipse-emf.version.common>
+        <eclipse-emf.version.ecore>2.43.0</eclipse-emf.version.ecore>
+        <eclipse-emf.version.xmi>2.41.0</eclipse-emf.version.xmi>
         <!-- ors-engine/ors-api are fully on Jackson 3 (see tools.jackson.* below); this Jackson 2
              pin remains only for ors-test-scenarios and ors-benchmark, standalone tool modules
              that don't depend on ors-engine/ors-api or run through Spring MVC and were kept on
@@ -442,19 +444,19 @@
             <dependency>
                 <groupId>org.eclipse.emf</groupId>
                 <artifactId>org.eclipse.emf.common</artifactId>
-                <version>${eclipse-emf.version}</version>
+                <version>${eclipse-emf.version.common}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.eclipse.emf</groupId>
                 <artifactId>org.eclipse.emf.ecore</artifactId>
-                <version>${eclipse-emf.version}</version>
+                <version>${eclipse-emf.version.ecore}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.eclipse.emf</groupId>
                 <artifactId>org.eclipse.emf.ecore.xmi</artifactId>
-                <version>${eclipse-emf.version}</version>
+                <version>${eclipse-emf.version.xmi}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
