@@ -30,6 +30,7 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
+- Replace the MinIO test container with rustfs in the graph repo client tests, matching the production repository backend
 
 ### Deprecated
 
