@@ -44,6 +44,7 @@ Releasing is documented in RELEASE.md
 - bump Java to 25 across build, CI and Docker images ([#2382](https://github.com/GIScience/openrouteservice/pull/2382))
 - base the slim image on distroless Debian 13 ([#2387](https://github.com/GIScience/openrouteservice/pull/2387))
 - update to Spring Boot 4 ([#2393](https://github.com/GIScience/openrouteservice/pull/2393))
+- updated geotools to version 34.0 and pinned org.eclipse.emf dependencies to individual latest versions ([#2422](https://github.com/GIScience/openrouteservice/pull/2422))
 
 ### Deprecated
 
