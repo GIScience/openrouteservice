@@ -71,6 +71,7 @@ Releasing is documented in RELEASE.md
 - update log4j to 2.25.5 due to [CVE-2026-49844](https://www.cve.org/CVERecord?id=CVE-2026-49844)
 - update httpclient5 to 5.6.3 due to [CVE-2026-71290](https://www.cve.org/CVERecord?id=CVE-2026-71290) and [CVE-2026-40542](https://www.cve.org/CVERecord?id=CVE-2026-40542)
 - force update tomcat-embed to 11.0.25 due to GHSA-9xv2-5v5q-p794, GHSA-gcx9-497g-6cp6 and GHSA-h3x4-894j-xpx5 ([#2413](https://github.com/GIScience/openrouteservice/pull/2413))
+- update nanoid to 3.3.19 due to [CVE-2026-67213](https://www.cve.org/CVERecord?id=CVE-2026-67213)
 
 
 ## [9.10.0] - 2026-07-28
