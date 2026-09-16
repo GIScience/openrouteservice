@@ -15,16 +15,19 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
-import org.testcontainers.containers.MinIOContainer;
-import org.testcontainers.containers.OrsMinIOContainer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
+import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -40,19 +43,35 @@ class MinioRepoManagerTest {
     private static final String ENCODER_NAME = "driving-car";
     private static final String BUCKET_NAME = "vendor-xyz";
     private static final Path TESTFILE_ROOT = Path.of("src/test/resources/test-filesystem-repos/" + BUCKET_NAME);
+    private static final String ACCESS_KEY = "ors-test-access-key";
+    private static final String SECRET_KEY = "ors-test-secret-key";
+    private static final int RUSTFS_S3_PORT = 9000;
     private static Path localGraphsRootPath;
-    private static OrsMinIOContainer minioContainer;
 
-    static {
-        minioContainer = new OrsMinIOContainer("chainguard/minio@sha256:f147b779e611d5587f471bdd20658139fb0e321188fbcadd579601aa185da2d9");
-        minioContainer.start();
+    @Container
+    private static final GenericContainer<?> RUSTFS =
+            new GenericContainer<>(DockerImageName.parse("rustfs/rustfs:1.0.0"))
+                    .withExposedPorts(RUSTFS_S3_PORT)
+                    .withEnv("RUSTFS_ACCESS_KEY", ACCESS_KEY)
+                    .withEnv("RUSTFS_SECRET_KEY", SECRET_KEY)
+                    // no console needed for the S3 API tests; keeps port 9001 unbound
+                    .withEnv("RUSTFS_CONSOLE_ENABLE", "false")
+                    // empty => entrypoint routes server logs to stdout for Testcontainers to capture
+                    .withEnv("RUSTFS_OBS_LOG_DIRECTORY", "")
+                    .waitingFor(Wait.forHttp("/health")
+                            .forPort(RUSTFS_S3_PORT)
+                            .forStatusCode(200)
+                            .withStartupTimeout(Duration.ofSeconds(120)));
+
+    private static String s3Url() {
+        return "http://%s:%d".formatted(RUSTFS.getHost(), RUSTFS.getMappedPort(RUSTFS_S3_PORT));
     }
 
     @BeforeAll
     static void setupRepo() throws Exception {
         try (MinioClient minioClient = MinioClient.builder()
-                .endpoint(minioContainer.getS3URL())
-                .credentials(minioContainer.getUserName(), minioContainer.getPassword())
+                .endpoint(s3Url())
+                .credentials(ACCESS_KEY, SECRET_KEY)
                 .build()) {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(BUCKET_NAME).build());
 
@@ -113,9 +132,9 @@ class MinioRepoManagerTest {
 
     private static GraphManagementRuntimeProperties.Builder managementPropsBuilder() {
         return createGraphManagementRuntimePropertiesBuilder(localGraphsRootPath, LOCAL_PROFILE_NAME, ENCODER_NAME)
-                .withRepoBaseUri("minio:" + minioContainer.getS3URL())
-                .withRepoUser(minioContainer.getUserName())
-                .withRepoPass(minioContainer.getPassword());
+                .withRepoBaseUri("minio:" + s3Url())
+                .withRepoUser(ACCESS_KEY)
+                .withRepoPass(SECRET_KEY);
     }
 
     private void setupActiveGraphDirectory(Long osmDateLocal, ORSGraphFileManager orsGraphFileManager) {
@@ -126,8 +145,8 @@ class MinioRepoManagerTest {
     @Test
     void checkRepo() throws Exception {
         try (MinioClient minioClient = MinioClient.builder()
-                .endpoint(minioContainer.getS3URL())
-                .credentials(minioContainer.getUserName(), minioContainer.getPassword())
+                .endpoint(s3Url())
+                .credentials(ACCESS_KEY, SECRET_KEY)
                 .build()) {
             List<ListAllMyBucketsResult.Bucket> buckets = minioClient.listBuckets();
             assertEquals(1, buckets.size());
