@@ -258,6 +258,11 @@
             <artifactId>minio</artifactId>
             <version>9.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>2.54.20</version>
+        </dependency>
 
         <!-- Reported as unused by dependency:analyze, but required at runtime: minio pulls in
              com.squareup.okhttp3:okhttp, which since OkHttp 5 is an empty Kotlin-multiplatform
