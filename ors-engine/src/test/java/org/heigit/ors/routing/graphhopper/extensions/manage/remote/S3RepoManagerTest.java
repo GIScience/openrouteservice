@@ -97,10 +97,6 @@ class S3RepoManagerTest {
                             path
                     );
                 });
-            } catch(RuntimeException r) {
-                System.out.println("RE " + r);
-            } catch(Exception e) {
-                System.out.println("EX " + e);
             }
         }
     }
@@ -145,8 +141,11 @@ class S3RepoManagerTest {
     }
 
     private static GraphManagementRuntimeProperties.Builder managementPropsBuilder() {
+        return managementPropsBuilder("s3");
+    }
+    private static GraphManagementRuntimeProperties.Builder managementPropsBuilder(String scheme) {
         return createGraphManagementRuntimePropertiesBuilder(localGraphsRootPath, LOCAL_PROFILE_NAME, ENCODER_NAME)
-                .withRepoBaseUri("s3:" + s3Url())
+                .withRepoBaseUri(scheme + ":" + s3Url())
                 .withRepoUser(ACCESS_KEY)
                 .withRepoPass(SECRET_KEY);
     }
@@ -192,6 +191,18 @@ class S3RepoManagerTest {
     @Test
     void downloadGraphIfNecessary_downloadWhen_noLocalData_remoteDataExists() {
         OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build(), null);
+
+        orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
+
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
+        File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
+        assertTrue(downloadedGraphBuildInfoFile.exists());
+        assertTrue(downloadedCompressedGraphFile.exists());
+    }
+
+    @Test
+    void downloadGraphIfNecessary_scheme_minio_still_supported() {
+        OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder("minio").withGraphVersion(REPO_GRAPHS_VERSION).build(), null);
 
         orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 

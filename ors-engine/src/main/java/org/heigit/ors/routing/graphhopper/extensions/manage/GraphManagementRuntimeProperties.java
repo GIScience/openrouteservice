@@ -181,7 +181,7 @@ public class GraphManagementRuntimeProperties {
     }
 
     public enum GraphRepoType {
-        HTTP, FILESYSTEM, MINIO, S3, NULL
+        HTTP, FILESYSTEM, S3, NULL
     }
 
     private void deriveData() {
@@ -195,8 +195,9 @@ public class GraphManagementRuntimeProperties {
                     derivedRepoPath = Path.of(uri);
                     derivedRepoType = GraphRepoType.FILESYSTEM;
                 } else if (isSupportedMinioScheme(uri)) {
+                    //keep for backwards compatibility - map to s3
                     derivedRepoBaseUrl = toURL(toUri(uri.toString().substring(6)));
-                    derivedRepoType = GraphRepoType.MINIO;
+                    derivedRepoType = GraphRepoType.S3;
                 } else if (isSupportedS3Scheme(uri)) {
                     derivedRepoBaseUrl = toURL(toUri(uri.toString().substring(3)));
                     derivedRepoType = GraphRepoType.S3;
@@ -222,6 +223,7 @@ public class GraphManagementRuntimeProperties {
         return Objects.equals("file", uri.getScheme());
     }
 
+    //keep for backwards compatibility - map to s3
     private boolean isSupportedMinioScheme(URI uri) {
         if (uri == null) return false;
         return Objects.equals("minio", uri.getScheme());

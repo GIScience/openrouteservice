@@ -60,10 +60,6 @@ public class ORSGraphManager {
                 LOGGER.debug("Using FileSystemGraphRepoClient for repoUri %s".formatted(managementProps.getDerivedRepoPath()));
                 orsGraphRepoClient = new FileSystemGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
             }
-            case MINIO -> {
-                LOGGER.debug("Using MinioGraphRepoClient for repoUrl %s".formatted(managementProps.getDerivedRepoBaseUrl()));
-                orsGraphRepoClient = new MinioGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
-            }
             case S3 -> {
                 LOGGER.debug("Using S3GraphRepoClient for repoUrl %s".formatted(managementProps.getDerivedRepoBaseUrl()));
                 orsGraphRepoClient = new S3GraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
