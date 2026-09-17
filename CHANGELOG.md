@@ -30,7 +30,8 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
-- Replace the MinIO test container with rustfs in the graph repo client tests, matching the production repository backend ([#2427](https://github.com/GIScience/openrouteservice/issues/2427))
+- replace the MinIO test container with rustfs in the graph repo client tests, matching the production repository backend ([#2427](https://github.com/GIScience/openrouteservice/issues/2427))
+- replaced minio dependency with awssdk:s3 ([#2428](https://github.com/GIScience/openrouteservice/pull/2428))
 
 ### Deprecated
 
