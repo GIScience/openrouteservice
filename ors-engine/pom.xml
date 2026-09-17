@@ -315,11 +315,5 @@
             <artifactId>testcontainers-nginx</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers-minio</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>
