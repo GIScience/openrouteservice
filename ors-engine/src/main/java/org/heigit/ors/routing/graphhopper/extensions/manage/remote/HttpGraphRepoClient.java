@@ -14,11 +14,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @NoArgsConstructor
 public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
@@ -34,8 +33,24 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
         this.orsGraphFileManager = orsGraphFileManager;
     }
 
-    String getProfileDescriptiveName() {
-        return orsGraphFileManager.getProfileDescriptiveName();
+    @Override
+    ORSGraphFileManager getOrsGraphFileManager() {
+        return orsGraphFileManager;
+    }
+
+    @Override
+    ORSGraphRepoStrategy getOrsGraphRepoStrategy() {
+        return orsGraphRepoStrategy;
+    }
+
+    @Override
+    GraphManagementRuntimeProperties getGraphManagementRuntimeProperties() {
+        return managementProps;
+    }
+
+    @Override
+    Logger getLogger() {
+        return LOGGER;
     }
 
     public static String concatenateToUrlPath(String... values) {
@@ -64,19 +79,17 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
         }
     }
 
-    private void deleteFileWithLogging(File file, String successMessage, String errorMessage) {
-        try {
-            if (Files.deleteIfExists(file.toPath()))
-                LOGGER.debug(successMessage.formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
-        } catch (IOException e) {
-            LOGGER.error(errorMessage.formatted(e.getMessage()));
-        }
+    boolean isValidRepoConfig() {
+        return isNotBlank(managementProps.getRepoName()) &&
+                isNotBlank(managementProps.getRepoCoverage()) &&
+                isNotBlank(managementProps.getGraphVersion()) &&
+                isNotBlank(managementProps.getDerivedRepoBaseUrl().toString());
     }
 
     @Override
     public void downloadGraphIfNecessary() {
-        if (isNullOrEmpty(this.managementProps.getDerivedRepoBaseUrl().toString()) || isNullOrEmpty(this.managementProps.getRepoName()) || isNullOrEmpty(this.managementProps.getRepoCoverage()) || isNullOrEmpty(this.managementProps.getGraphVersion())) {
-            LOGGER.debug("[%s] ORSGraphManager is not configured - skipping check".formatted(getProfileDescriptiveName()));
+        if (! isValidRepoConfig()) {
+            LOGGER.debug("[%s] ORSGraphManager has no valid repo config - skipping check".formatted(getProfileDescriptiveName()));
             return;
         }
         if (orsGraphFileManager.isBusy()) {
@@ -86,18 +99,8 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
 
         LOGGER.debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
         try {
-            PersistedGraphBuildInfo previouslyDownloadedGraphBuildInfo = orsGraphFileManager.getDownloadedGraphBuildInfo();
-            File downloadedCompressedGraphFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
-            GraphBuildInfo activeGraphBuildInfo = orsGraphFileManager.getActiveGraphBuildInfo();
-            GraphBuildInfo downloadedExtractedGraphBuildInfo = orsGraphFileManager.getDownloadedExtractedGraphBuildInfo();
             GraphBuildInfo newlyDownloadedGraphBuildInfo = downloadGraphBuildInfoFromRepository();
-
-            if (!shouldDownloadGraph(
-                    getDateOrEpocStart(newlyDownloadedGraphBuildInfo),
-                    getDateOrEpocStart(activeGraphBuildInfo),
-                    getDateOrEpocStart(downloadedExtractedGraphBuildInfo),
-                    getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphBuildInfo))) {
-                LOGGER.info("[%s] No newer graph found in repository.".formatted(getProfileDescriptiveName()));
+            if (!shouldDownloadGraph(newlyDownloadedGraphBuildInfo)) {
                 return;
             }
 
@@ -152,7 +155,7 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
     public void downloadFile(URL downloadUrl, File outputFile) {
         File tempDownloadFile = orsGraphFileManager.asIncompleteFile(outputFile);
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), downloadUrl, outputFile.getAbsolutePath()));
+            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), downloadUrl, tempDownloadFile.getAbsolutePath()));
         } else {
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), downloadUrl));
         }
