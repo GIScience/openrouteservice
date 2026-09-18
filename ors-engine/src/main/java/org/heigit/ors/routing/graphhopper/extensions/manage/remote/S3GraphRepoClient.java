@@ -89,8 +89,8 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
             } else {
                 LOGGER.error("[%s] Invalid download path for compressed graph file: %s".formatted(getProfileDescriptiveName(), latestCompressedGraphInRepoPath));
             }
-        } catch (Exception e) {
-            LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), e);
+        } catch (Exception exception) {
+            LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), exception);
         }
     }
 
@@ -98,7 +98,7 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
         try {
             if (Files.deleteIfExists(file.toPath()))
                 LOGGER.debug("[%s] Deleted old downloaded graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
-        } catch (IOException e) {
+        } catch (IOException ioException) {
             LOGGER.error("[%s] Could not delete old downloaded graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
         }
     }
