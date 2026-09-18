@@ -96,7 +96,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     public boolean isBusy() {
         return asIncompleteFile(getDownloadedCompressedGraphFile()).exists() ||
-                minioDownloadTempFileExists(getDownloadedCompressedGraphFile()) ||
+                downloadTempFileExists(getDownloadedCompressedGraphFile()) ||
                 asIncompleteFile(getDownloadedGraphBuildInfoFile()).exists() ||
                 asIncompleteFile(getDownloadedExtractedGraphDirectory()).exists();
     }
@@ -104,7 +104,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     /*
      * If we find a MinIO temp file with the pattern <incompleteFileName>*.part.minio, we consider the download still ongoing
      * */
-    private boolean minioDownloadTempFileExists(File incompleteFile) {
+    private boolean downloadTempFileExists(File incompleteFile) {
         AtomicBoolean result = new AtomicBoolean(false);
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(incompleteFile.toPath().getParent(), incompleteFile.getName() + "*.part.minio")) {
             dirStream.forEach(path -> {
