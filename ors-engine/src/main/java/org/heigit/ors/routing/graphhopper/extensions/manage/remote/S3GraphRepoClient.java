@@ -140,13 +140,14 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
         return graphBuildInfoInRepo;
     }
 
-    public void downloadFile(Path repoPath, File localPath) {
-        if (repoPath == null || localPath == null) {
-            LOGGER.warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, localPath));
+    public void downloadFile(Path repoPath, File outputFile) {
+        if (repoPath == null || outputFile == null) {
+            LOGGER.warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, outputFile));
             return;
         }
+        File tempDownloadFile = orsGraphFileManager.asIncompleteFile(outputFile);
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath, localPath.getAbsolutePath()));
+            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath, tempDownloadFile.getAbsolutePath()));
         } else {
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath));
         }
@@ -165,11 +166,18 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
                     GetObjectRequest.builder()
                             .bucket(managementProps.getRepoName())
                             .key(repoPath.toString()).build(),
-                    Paths.get(localPath.toString())
+                    Paths.get(tempDownloadFile.toString())
             );
+            if (tempDownloadFile.renameTo(outputFile)) {
+                LOGGER.debug("[%s] Renamed temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+            } else {
+                LOGGER.error("[%s] Could not rename temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+            }
         } catch (URISyntaxException e) {
             LOGGER.warn("[%s] Caught %s when trying to use Url %s".formatted(getProfileDescriptiveName(), e, managementProps.getDerivedRepoBaseUrl()));
             throw new IllegalArgumentException(e);
+        } finally {
+            deleteFileWithLogging(tempDownloadFile, "[%s] Deleted temp download file: %s", "[%s] Could not delete temp download file: %s");
         }
     }
 }
