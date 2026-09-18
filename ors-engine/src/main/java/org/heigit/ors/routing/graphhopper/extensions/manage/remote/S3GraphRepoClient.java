@@ -1,8 +1,5 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
-import io.minio.DownloadObjectArgs;
-import io.minio.MinioClient;
-import io.minio.errors.MinioException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.ORSGraphFileManagerException;
@@ -10,25 +7,32 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphBuildInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-public class MinioGraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
+public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
 
-    private static final Logger LOGGER = Logger.getLogger(MinioGraphRepoClient.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(S3GraphRepoClient.class.getName());
     private final GraphManagementRuntimeProperties managementProps;
     private final ORSGraphFileManager orsGraphFileManager;
     private final ORSGraphRepoStrategy orsGraphRepoStrategy;
-    private MinioClient minioClient;
+    private S3Client s3Client;
 
-    public MinioGraphRepoClient(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
+    public S3GraphRepoClient(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         this.managementProps = managementProps;
         this.orsGraphRepoStrategy = orsGraphRepoStrategy;
         this.orsGraphFileManager = orsGraphFileManager;
@@ -85,8 +89,8 @@ public class MinioGraphRepoClient extends AbstractGraphRepoClient implements ORS
             } else {
                 LOGGER.error("[%s] Invalid download path for compressed graph file: %s".formatted(getProfileDescriptiveName(), latestCompressedGraphInRepoPath));
             }
-        } catch (Exception e) {
-            LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), e);
+        } catch (Exception exception) {
+            LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), exception);
         }
     }
 
@@ -94,7 +98,7 @@ public class MinioGraphRepoClient extends AbstractGraphRepoClient implements ORS
         try {
             if (Files.deleteIfExists(file.toPath()))
                 LOGGER.debug("[%s] Deleted old downloaded graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
-        } catch (IOException e) {
+        } catch (IOException _) {
             LOGGER.error("[%s] Could not delete old downloaded graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
         }
     }
@@ -141,23 +145,24 @@ public class MinioGraphRepoClient extends AbstractGraphRepoClient implements ORS
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath));
         }
         try {
-            if (minioClient == null) {
-                MinioClient.Builder builder = MinioClient.builder()
-                        .endpoint(managementProps.getDerivedRepoBaseUrl());
-                if (!isNullOrEmpty(managementProps.getRepoUser()) && !isNullOrEmpty(managementProps.getRepoPass())) {
-                    builder.credentials(managementProps.getRepoUser(), managementProps.getRepoPass());
-                }
-                minioClient = builder.build();
+            if (s3Client == null) {
+                s3Client = S3Client.builder()
+                        .endpointOverride(managementProps.getDerivedRepoBaseUrl().toURI())
+                        .region(Region.US_EAST_1) //RustFS default region
+                        .credentialsProvider(StaticCredentialsProvider.create(
+                                AwsBasicCredentials.create(managementProps.getRepoUser(), managementProps.getRepoPass())
+                        ))
+                        .forcePathStyle(true) // RustFS uses path-style URLs by default; virtual-host style requires RUSTFS_SERVER_DOMAINS
+                        .build();
             }
-            minioClient.downloadObject(
-                    DownloadObjectArgs.builder()
+            s3Client.getObject(
+                    GetObjectRequest.builder()
                             .bucket(managementProps.getRepoName())
-                            .object(repoPath.toString())
-                            .filename(localPath.toString())
-                            .build()
+                            .key(repoPath.toString()).build(),
+                    Paths.get(localPath.toString())
             );
-        } catch (MinioException e) {
-            LOGGER.warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e, repoPath.toFile().getAbsolutePath()));
+        } catch (URISyntaxException e) {
+            LOGGER.warn("[%s] Caught %s when trying to use Url %s".formatted(getProfileDescriptiveName(), e, managementProps.getDerivedRepoBaseUrl()));
             throw new IllegalArgumentException(e);
         }
     }

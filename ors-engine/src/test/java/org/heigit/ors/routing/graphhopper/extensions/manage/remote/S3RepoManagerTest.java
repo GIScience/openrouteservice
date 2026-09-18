@@ -1,9 +1,5 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
-import io.minio.*;
-import io.minio.errors.MinioException;
-import io.minio.messages.ListAllMyBucketsResult;
-import io.minio.messages.Item;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -21,10 +17,15 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import org.testcontainers.utility.DockerImageName;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -38,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers(disabledWithoutDocker = true)
 @ExtendWith(TestcontainersExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-class MinioRepoManagerTest {
+class S3RepoManagerTest {
     private static final String LOCAL_PROFILE_NAME = "driving-car";
     private static final String ENCODER_NAME = "driving-car";
     private static final String BUCKET_NAME = "vendor-xyz";
@@ -67,25 +68,34 @@ class MinioRepoManagerTest {
         return "http://%s:%d".formatted(RUSTFS.getHost(), RUSTFS.getMappedPort(RUSTFS_S3_PORT));
     }
 
+    private static S3Client createS3Client() {
+        return S3Client.builder()
+                .endpointOverride(URI.create(s3Url()))
+                .region(Region.US_EAST_1) // RustFS default region
+                .credentialsProvider(
+                        StaticCredentialsProvider.create(
+                                AwsBasicCredentials.create(ACCESS_KEY, SECRET_KEY)
+                        )
+                )
+                .forcePathStyle(true)
+                .build();
+    }
+
     @BeforeAll
     static void setupRepo() throws Exception {
-        try (MinioClient minioClient = MinioClient.builder()
-                .endpoint(s3Url())
-                .credentials(ACCESS_KEY, SECRET_KEY)
-                .build()) {
-            minioClient.makeBucket(MakeBucketArgs.builder().bucket(BUCKET_NAME).build());
+        try (S3Client s3Client = createS3Client()) {
+
+            s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
 
             try (Stream<Path> stream = Files.walk(TESTFILE_ROOT)) {
                 stream.filter(Files::isRegularFile).forEach(path -> {
-                    try {
-                        minioClient.putObject(PutObjectArgs.builder()
-                                .bucket(BUCKET_NAME)
-                                .object(TESTFILE_ROOT.relativize(path).toString())
-                                .stream(new FileInputStream(path.toFile()), path.toFile().length(), -1L)
-                                .build());
-                    } catch (MinioException | IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    s3Client.putObject(
+                            PutObjectRequest.builder()
+                                    .bucket(BUCKET_NAME)
+                                    .key(TESTFILE_ROOT.relativize(path).toString())
+                                    .build(),
+                            path
+                    );
                 });
             }
         }
@@ -127,12 +137,15 @@ class MinioRepoManagerTest {
 
     private ORSGraphRepoClient setupOrsGraphRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphFileManager orsGraphFileManager) {
         ORSGraphRepoStrategy repoStrategy = new NamedGraphsRepoStrategy(managementProps);
-        return new MinioGraphRepoClient(managementProps, repoStrategy, orsGraphFileManager);
+        return new S3GraphRepoClient(managementProps, repoStrategy, orsGraphFileManager);
     }
 
     private static GraphManagementRuntimeProperties.Builder managementPropsBuilder() {
+        return managementPropsBuilder("s3");
+    }
+    private static GraphManagementRuntimeProperties.Builder managementPropsBuilder(String scheme) {
         return createGraphManagementRuntimePropertiesBuilder(localGraphsRootPath, LOCAL_PROFILE_NAME, ENCODER_NAME)
-                .withRepoBaseUri("minio:" + s3Url())
+                .withRepoBaseUri(scheme + ":" + s3Url())
                 .withRepoUser(ACCESS_KEY)
                 .withRepoPass(SECRET_KEY);
     }
@@ -144,11 +157,8 @@ class MinioRepoManagerTest {
     @SneakyThrows
     @Test
     void checkRepo() throws Exception {
-        try (MinioClient minioClient = MinioClient.builder()
-                .endpoint(s3Url())
-                .credentials(ACCESS_KEY, SECRET_KEY)
-                .build()) {
-            List<ListAllMyBucketsResult.Bucket> buckets = minioClient.listBuckets();
+        try (S3Client s3Client = createS3Client()) {
+            List<Bucket> buckets = s3Client.listBuckets().buckets();
             assertEquals(1, buckets.size());
             assertEquals(BUCKET_NAME, buckets.get(0).name());
             List<String> expected = List.of(
@@ -157,9 +167,10 @@ class MinioRepoManagerTest {
                     "fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-hgv.ghz",
                     "fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-hgv.yml"
             );
+
             List<String> actual = new ArrayList<>();
-            for (Result<Item> itemResult : minioClient.listObjects(ListObjectsArgs.builder().bucket(BUCKET_NAME).prefix("fastisochrones/heidelberg/1/").build())) {
-                actual.add(itemResult.get().objectName());
+            for (S3Object itemResult : s3Client.listObjectsV2(ListObjectsV2Request.builder().bucket(BUCKET_NAME).build()).contents()) {
+                actual.add(itemResult.key());
             }
             assertTrue(actual.containsAll(expected) && expected.containsAll(actual));
         }
@@ -180,6 +191,18 @@ class MinioRepoManagerTest {
     @Test
     void downloadGraphIfNecessary_downloadWhen_noLocalData_remoteDataExists() {
         OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build(), null);
+
+        orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
+
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
+        File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
+        assertTrue(downloadedGraphBuildInfoFile.exists());
+        assertTrue(downloadedCompressedGraphFile.exists());
+    }
+
+    @Test
+    void downloadGraphIfNecessary_scheme_minio_still_supported() {
+        OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder("minio").withGraphVersion(REPO_GRAPHS_VERSION).build(), null);
 
         orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 

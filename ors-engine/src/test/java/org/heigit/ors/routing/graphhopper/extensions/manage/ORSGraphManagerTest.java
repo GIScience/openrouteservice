@@ -49,8 +49,11 @@ class ORSGraphManagerTest {
             "FileSystemGraphRepoClient, /absolute/path.txt",
             "FileSystemGraphRepoClient, ~/absolute/path",
             "FileSystemGraphRepoClient, ~/absolute/path.txt",
-            "MinioGraphRepoClient, minio:http://my.domain.com",
-            "MinioGraphRepoClient, minio:https://my.domain.com/",
+            "S3GraphRepoClient, s3:http://my.domain.com",
+            "S3GraphRepoClient, s3:https://my.domain.com/",
+            //Still supported for backwards compatibility:
+            "S3GraphRepoClient, minio:http://my.domain.com",
+            "S3GraphRepoClient, minio:https://my.domain.com/",
     })
     void getOrsGraphRepoClient(String className, String repoUri) {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
