@@ -3,7 +3,9 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.util.Helper;
 import lombok.NoArgsConstructor;
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -87,7 +89,11 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     }
 
     public File asIncompleteFile(File file) {
-        return new File(file.getAbsolutePath() + "." + INCOMPLETE_EXTENSION);
+        return asIncompleteFile(file, INCOMPLETE_EXTENSION);
+    }
+
+    public File asIncompleteFile(File file, String partialExtension) {
+        return new File(file.getAbsolutePath() + "." + partialExtension);
     }
 
     File asIncompleteDirectory(File directory) {
@@ -95,26 +101,13 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     }
 
     public boolean isBusy() {
-        return asIncompleteFile(getDownloadedCompressedGraphFile()).exists() ||
-                downloadTempFileExists(getDownloadedCompressedGraphFile()) ||
-                asIncompleteFile(getDownloadedGraphBuildInfoFile()).exists() ||
-                asIncompleteFile(getDownloadedExtractedGraphDirectory()).exists();
+        return partialDownloadFileExists(getDownloadedCompressedGraphFile()) ||
+                partialDownloadFileExists(getDownloadedGraphBuildInfoFile()) ||
+                partialDownloadFileExists(getDownloadedExtractedGraphDirectory());
     }
 
-    /*
-     * If we find a MinIO temp file with the pattern <incompleteFileName>*.part.minio, we consider the download still ongoing
-     * */
-    private boolean downloadTempFileExists(File incompleteFile) {
-        AtomicBoolean result = new AtomicBoolean(false);
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(incompleteFile.toPath().getParent(), incompleteFile.getName() + "*.part.minio")) {
-            dirStream.forEach(path -> {
-                LOGGER.debug("[%s] Found MinIO temporary download file: %s".formatted(getProfileDescriptiveName(), path.toAbsolutePath().toString()));
-                result.set(true);
-            });
-        } catch (IOException e) {
-            LOGGER.error("Error checking for MinIO temporary download files: %s".formatted(e.getMessage()));
-        }
-        return result.get();
+    private boolean partialDownloadFileExists(File file) {
+        return asIncompleteFile(file).exists();
     }
 
     /*
