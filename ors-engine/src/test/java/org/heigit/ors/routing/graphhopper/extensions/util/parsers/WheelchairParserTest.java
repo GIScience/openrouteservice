@@ -77,7 +77,7 @@ class WheelchairParserTest {
     }
 
     void addNodeTag(ReaderWay way, String key, String value, int node) {
-        GHLongObjectHashMap<Map<String, String>> tags = way.getTag("ors:node_tags", new GHLongObjectHashMap<>());
+        Map<Integer, Map<String, String>> tags = way.getTag("ors:node_tags", new HashMap<Integer, Map<String, String>>());
 
         if(!tags.containsKey(node)){
             tags.put(node, new HashMap<>());

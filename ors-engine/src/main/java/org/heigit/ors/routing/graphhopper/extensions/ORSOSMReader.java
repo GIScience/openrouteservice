@@ -290,7 +290,7 @@ public class ORSOSMReader extends OSMReader {
             }
 
             if (!tags.isEmpty()) {
-                way.setTag("ors:node_tags", nodeTags);
+                way.setTag("ors:node_tags", tags);
             }
         }
 
