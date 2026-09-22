@@ -300,7 +300,7 @@ jobs:
             --name ors-slim-test \
             ${{ env.TEST_SLIM_IMAGE_NAME }}
           # Wait for graph build and health check
-          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 300 || (docker logs ors-slim-test && exit 1)
+          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 300 2 10 ors-slim-test || (docker logs ors-slim-test && exit 1)
 
           version=$(./.github/utils/graph_version.sh 127.0.0.1 8080 60)
           echo "This build declares graph version ${version}"
@@ -384,7 +384,7 @@ jobs:
             -e ors.engine.profiles.driving-car.enabled=true \
             --name ors-slim-readonly-test \
             ${{ env.TEST_SLIM_IMAGE_NAME }}
-          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-slim-readonly-test && exit 1)
+          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 2 10 ors-slim-readonly-test || (docker logs ors-slim-readonly-test && exit 1)
 
           response_code=$(curl -s -o /tmp/avoid-polygons-response.json -w "%{http_code}" -X POST \
             -H "Content-Type: application/json; charset=utf-8" \
@@ -436,7 +436,7 @@ jobs:
             --name ors-released \
             "${RELEASED_IMAGE}"
 
-          if ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 300; then
+          if ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 300 2 10 ors-released; then
             loaded=true
             version=$(./.github/utils/graph_version.sh 127.0.0.1 8080 60)
           else
