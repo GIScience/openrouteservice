@@ -241,7 +241,7 @@ jobs:
             skip_graph_version_check: true
             artifact_name: ${{ needs.build_slim_images.outputs.artifact_name_arm64 }}
     env:
-      RELEASED_IMAGE: openrouteservice/openrouteservice:v9.10.0-slim
+      RELEASED_IMAGE: openrouteservice/openrouteservice:latest-slim
       GRAPHS_DIR: ${{ github.workspace }}/ors-docker/graphs
       PROFILES: driving-car driving-hgv cycling-regular foot-walking wheelchair
     steps:
