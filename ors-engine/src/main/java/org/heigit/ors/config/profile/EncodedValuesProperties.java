@@ -116,7 +116,7 @@ public class EncodedValuesProperties {
     }
 
     @JsonIgnore
-    public String toString() {
+    public String toEncodedValuesString() {
         return getProperties().entrySet().stream()
                 .filter(e -> Boolean.TRUE.equals(e.getValue()))
                 .map(Map.Entry::getKey)
