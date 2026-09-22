@@ -423,7 +423,8 @@ jobs:
             enable_args="${enable_args} -e ors.engine.profiles.${profile}.enabled=true"
           done
 
-          docker run -d -p 8080:8082 \
+          docker run -d --read-only --tmpfs /tmp -p 8080:8082 \
+            -u 1234567:0 \
             -v "${GRAPHS_DIR}":/home/ors/graphs \
             -v $(pwd)/ors-docker/elevation_cache:/home/ors/elevation_cache \
             -e JDK_JAVA_OPTIONS="-Xmx3g" \
