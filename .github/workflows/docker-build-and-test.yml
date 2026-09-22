@@ -232,12 +232,18 @@ jobs:
             runner: ubuntu-latest
             image_stage: slim
             skip_on_draft: false
+            skip_graph_version_check: false
             artifact_name: ${{ needs.build_slim_images.outputs.artifact_name_amd64 }}
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
             image_stage: slim
             skip_on_draft: true
+            skip_graph_version_check: true
             artifact_name: ${{ needs.build_slim_images.outputs.artifact_name_arm64 }}
+    env:
+      RELEASED_IMAGE: openrouteservice/openrouteservice:v9.10.0-slim
+      GRAPHS_DIR: ${{ github.workspace }}/ors-docker/graphs
+      PROFILES: driving-car driving-hgv cycling-regular foot-walking wheelchair
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -263,31 +269,58 @@ jobs:
           docker load --input ${{ runner.temp }}/${{ matrix.artifact_name }}
 
       - name: Test slim image with graph build under an arbitrary UID
+        id: graph_build
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
         run: |
-          mkdir -p $(pwd)/ors-docker/elevation_cache
+          mkdir -p $(pwd)/ors-docker/elevation_cache "${GRAPHS_DIR}"
           # Place cached elevation file
           cp ors-api/src/test/files/elevation/srtm_38_03.gh $(pwd)/ors-docker/elevation_cache
-          # Set appropriate permissions for the elevation_cache directory to be writable by the arbitrary UID used in the test container.
-          chmod -R a+rwX $(pwd)/ors-docker/elevation_cache
+          # Set appropriate permissions for the elevation_cache and graphs directories to be writable by the arbitrary UID used in the test container.
+          chmod -R a+rwX $(pwd)/ors-docker/elevation_cache "${GRAPHS_DIR}"
+
+          enable_args=""
+          for profile in ${PROFILES}; do
+            enable_args="${enable_args} -e ors.engine.profiles.${profile}.enabled=true"
+          done
+
           # Start the container with the test image and the raw docker run command, using an arbitrary UID (1234567) to ensure that the image can run under non-root conditions.
           docker run -it -d -p 8080:8082 \
             -u 1234567:0 \
-            -v graphs:/home/ors/graphs \
+            -v "${GRAPHS_DIR}":/home/ors/graphs \
             -v $(pwd)/ors-docker/elevation_cache:/home/ors/elevation_cache \
             -v $(pwd)/ors-api/src/test/files/heidelberg.test.pbf:/home/ors/files/heidelberg.test.pbf:ro \
-            -e JAVA_OPTS="-server -Xmx8g" \
+            -e JDK_JAVA_OPTIONS="-Xmx4g" \
             -e server.port=8082 \
             -e logging.level.org.heigit=DEBUG \
             -e ors.engine.profile_default.build.source_file=/home/ors/files/heidelberg.test.pbf \
             -e ors.engine.profile_default.graph_path=/home/ors/graphs \
             -e ors.engine.graphs_data_access=MMAP \
             -e ors.engine.elevation.cache_path=/home/ors/elevation_cache \
-            -e ors.engine.profiles.driving-car.enabled=true \
+            ${enable_args} \
             --name ors-slim-test \
             ${{ env.TEST_SLIM_IMAGE_NAME }}
           # Wait for graph build and health check
-          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 60 || (docker logs ors-slim-test && exit 1)
+          ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 300 || (docker logs ors-slim-test && exit 1)
+
+          version=$(./.github/utils/graph_version.sh 127.0.0.1 8080 60)
+          echo "This build declares graph version ${version}"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+
+      - name: Check a graph was built for every configured profile
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        run: |
+          for profile in ${PROFILES}; do
+            if [[ ! -d "${GRAPHS_DIR}/${profile}" ]]; then
+              echo "::error::No graph directory was built for profile ${profile}"
+              exit 1
+            fi
+            if [[ -z "$(ls -A "${GRAPHS_DIR}/${profile}")" ]]; then
+              echo "::error::Graph directory for profile ${profile} is empty"
+              exit 1
+            fi
+            echo "${profile}: $(ls -A "${GRAPHS_DIR}/${profile}" | wc -l) files"
+          done
+          echo "This build built a graph for every profile: ${PROFILES}"
 
       - name: Test slim image does not expose Swagger UI or the OpenAPI document
         if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
@@ -344,7 +377,7 @@ jobs:
           # through the group alone.
           docker run -d --read-only -v "${RUNNER_TEMP}/ors-slim-tmp:/tmp" -p 8080:8082 \
             -u 1234567:0 \
-            -v graphs:/home/ors/graphs \
+            -v "${GRAPHS_DIR}":/home/ors/graphs \
             -e server.port=8082 \
             -e ors.engine.profile_default.graph_path=/home/ors/graphs \
             -e ors.engine.graphs_data_access=MMAP \
@@ -375,3 +408,72 @@ jobs:
             exit 1
           fi
           echo "OK: read-only rootfs served avoid_polygons and initialized GeoTools' EPSG cache"
+
+      - name: Verify a released image can still load the graph this build produced
+        if: ${{ !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) && !matrix.skip_graph_version_check }}
+        env:
+          BUILD_VERSION: ${{ steps.graph_build.outputs.version }}
+        run: |
+          docker stop ors-slim-readonly-test || true
+          docker container prune -f
+          docker pull "${RELEASED_IMAGE}"
+
+          enable_args=""
+          for profile in ${PROFILES}; do
+            enable_args="${enable_args} -e ors.engine.profiles.${profile}.enabled=true"
+          done
+
+          docker run -d -p 8080:8082 \
+            -v "${GRAPHS_DIR}":/home/ors/graphs \
+            -v $(pwd)/ors-docker/elevation_cache:/home/ors/elevation_cache \
+            -e JDK_JAVA_OPTIONS="-Xmx3g" \
+            -e server.port=8082 \
+            -e logging.level.org.heigit=DEBUG \
+            -e ors.engine.profile_default.graph_path=/home/ors/graphs \
+            -e ors.engine.graphs_data_access=MMAP \
+            -e ors.engine.elevation.cache_path=/home/ors/elevation_cache \
+            ${enable_args} \
+            --name ors-released \
+            "${RELEASED_IMAGE}"
+
+          if ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 300; then
+            loaded=true
+            version=$(./.github/utils/graph_version.sh 127.0.0.1 8080 60)
+          else
+            # No API to ask once the load has failed. The startup banner is logged
+            # before graph loading begins, so the logs still carry the version.
+            loaded=false
+            docker logs ors-released
+            version=$(docker logs ors-released 2>&1 \
+              | grep -o '"graph_version":"[0-9]*"' | head -1 | cut -d'"' -f4)
+          fi
+
+          for candidate in "${BUILD_VERSION}" "${version}"; do
+            if ! [[ "${candidate}" =~ ^[0-9]+$ ]]; then
+              echo "::error::Refusing to compare non-numeric graph versions: this build='${BUILD_VERSION}', ${RELEASED_IMAGE}='${version}'"
+              exit 1
+            fi
+          done
+          echo "This build declares graph version ${BUILD_VERSION}, ${RELEASED_IMAGE} declares ${version}"
+
+          if [ "${BUILD_VERSION}" -lt "${version}" ]; then
+            echo "::error::Graph version comparison failed: this build declares graph version ${BUILD_VERSION}, which is lower than ${RELEASED_IMAGE}'s ${version}. <project.graphVersion> in pom.xml must never go backwards."
+            exit 1
+          fi
+
+          if [[ "${loaded}" == "true" ]]; then
+            if [ "${BUILD_VERSION}" -gt "${version}" ]; then
+              echo "${RELEASED_IMAGE} still loads this build's graph although the graph version was bumped from ${version} to ${BUILD_VERSION}; the bump may be unnecessary."
+            else
+              echo "${RELEASED_IMAGE} loads this build's graph unchanged at graph version ${BUILD_VERSION}."
+            fi
+            docker rm -f ors-released
+            exit 0
+          fi
+
+          if [ "${BUILD_VERSION}" -gt "${version}" ]; then
+            echo "${RELEASED_IMAGE} can no longer load this build's graph, which is what the bump from ${version} to ${BUILD_VERSION} is for."
+            exit 0
+          fi
+          echo "::error::Graph compatibility comparison failed: ${RELEASED_IMAGE} can no longer load a graph built by this build, but both declare graph version ${BUILD_VERSION}. Deployed instances on that release would break. Either revert the graph format change, or bump <project.graphVersion> in pom.xml so existing deployments are told to rebuild."
+          exit 1
