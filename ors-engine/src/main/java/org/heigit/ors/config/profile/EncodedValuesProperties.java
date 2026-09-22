@@ -15,6 +15,11 @@ import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
+/**
+ * /!\ Attention:
+ *     Changes in this class are highly likely to require
+ *     an increment of the graphVersion (top level pom.xml)
+ */
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
