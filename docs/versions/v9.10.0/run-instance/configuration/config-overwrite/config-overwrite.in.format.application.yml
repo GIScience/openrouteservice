@@ -1,0 +1,25 @@
+# internal defaults (values changed)
+ors:
+  engine:
+    profile_default:
+      service:
+        maximum_distance: 100000
+        maximum_waypoints: 10
+        # maximum_snapping_radius:
+    profiles:
+      driving-car:
+        service:
+          maximum_distance: 200000
+          # maximum_waypoints:
+          # maximum_snapping_radius:
+      driving-hgv:
+        service:
+          # maximum_distance:
+          # maximum_waypoints:
+          maximum_snapping_radius: 200
+      foot-walking:
+        service:
+        # maximum_distance:
+        # maximum_waypoints:
+        # maximum_snapping_radius:
+

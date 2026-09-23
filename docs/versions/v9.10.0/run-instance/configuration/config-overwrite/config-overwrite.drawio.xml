@@ -1,0 +1,217 @@
+<mxfile host="app.diagrams.net"
+        agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+        version="24.8.6" pages="2">
+    <diagram name="merge-files" id="y_EKqvawOfilsMlja-dO">
+        <mxGraphModel dx="2012" dy="2218" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1"
+                      page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-60"
+                        value="&lt;div style=&quot;background-color:#1e1f22;color:#bcbec4&quot;&gt;&lt;pre style=&quot;font-family:&#39;JetBrains Mono&#39;,monospace;font-size:11.3pt;&quot;&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;# internal defaults (values changed)&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;ors&lt;/span&gt;:&lt;br&gt;  &lt;span style=&quot;color:#cf8e6d;&quot;&gt;engine&lt;/span&gt;:&lt;br&gt;    &lt;span style=&quot;color:#cf8e6d;&quot;&gt;profile_default&lt;/span&gt;:&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 100000&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_waypoints&lt;/span&gt;: 10&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;        # maximum_snapping_radius: &lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;    &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;profiles&lt;/span&gt;:&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;driving-car&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 200000&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_waypoints: &lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_snapping_radius: &lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;      &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;driving-hgv&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_distance: &lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_waypoints: &lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 200        &lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;foot-walking&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_distance: &lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_waypoints: &lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_snapping_radius: &lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/pre&gt;&lt;/div&gt;"
+                        style="text;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="-1160" width="430" height="510" as="geometry"/>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-61"
+                        value="&lt;div style=&quot;background-color:#1e1f22;color:#bcbec4&quot;&gt;&lt;pre style=&quot;font-family:&#39;JetBrains Mono&#39;,monospace;font-size:11.3pt;&quot;&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;# result in memory after file merge&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;ors&lt;/span&gt;:&lt;br&gt;  &lt;span style=&quot;color:#cf8e6d;&quot;&gt;engine&lt;/span&gt;:&lt;br&gt;    &lt;span style=&quot;color:#cf8e6d;&quot;&gt;profile_default&lt;/span&gt;:&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 300000&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_waypoints&lt;/span&gt;: 10&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 300&lt;br&gt;    &lt;span style=&quot;color:#cf8e6d;&quot;&gt;profiles&lt;/span&gt;:&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;driving-car&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 400000&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_waypoints:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_snapping_radius:       &lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;      &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;driving-hgv&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_distance:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_waypoints&lt;/span&gt;: 40&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 200&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;foot-walking&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_distance:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_waypoints:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 400&lt;br&gt;&lt;br&gt;&lt;/pre&gt;&lt;/div&gt;"
+                        style="text;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="415" y="-1160" width="400" height="510" as="geometry"/>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-62"
+                        value="&lt;div style=&quot;background-color:#1e1f22;color:#bcbec4&quot;&gt;&lt;pre style=&quot;font-family:&#39;JetBrains Mono&#39;,monospace;font-size:11.3pt;&quot;&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;# user&#39;s ors-config.yml&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;ors&lt;/span&gt;:&lt;br&gt;  &lt;span style=&quot;color:#cf8e6d;&quot;&gt;engine&lt;/span&gt;:&lt;br&gt;    &lt;span style=&quot;color:#cf8e6d;&quot;&gt;profile_default&lt;/span&gt;:&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 300000&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;        # maximum_waypoints:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;        &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 300&lt;br&gt;    &lt;span style=&quot;color:#cf8e6d;&quot;&gt;profiles&lt;/span&gt;:&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;driving-car&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 400000&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_waypoints:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_snapping_radius:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;      &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;driving-hgv&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_distance:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_waypoints&lt;/span&gt;: 40&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_snapping_radius:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;      &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;foot-walking&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_distance:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_waypoints:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 400 &lt;br&gt;&lt;br&gt;&lt;/pre&gt;&lt;/div&gt;"
+                        style="text;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="802" y="-1160" width="400" height="510" as="geometry"/>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-63" value=""
+                        style="endArrow=classic;html=1;rounded=0;strokeWidth=2;shadow=1;strokeColor=#FFFF00;" edge="1"
+                        parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="865" y="-1040" as="sourcePoint"/>
+                        <mxPoint x="719.5" y="-1040" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-64" value=""
+                        style="endArrow=classic;html=1;rounded=0;strokeWidth=2;shadow=1;strokeColor=#FFFF00;" edge="1"
+                        parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="865" y="-1000" as="sourcePoint"/>
+                        <mxPoint x="755" y="-1000" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-65" value=""
+                        style="endArrow=classic;html=1;rounded=0;strokeWidth=2;shadow=1;strokeColor=#FFFF00;" edge="1"
+                        parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="885" y="-930" as="sourcePoint"/>
+                        <mxPoint x="745" y="-930" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-66" value=""
+                        style="endArrow=classic;html=1;rounded=0;strokeWidth=2;shadow=1;strokeColor=#FFFF00;" edge="1"
+                        parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="885" y="-820" as="sourcePoint"/>
+                        <mxPoint x="719.5" y="-820" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-67" value=""
+                        style="endArrow=classic;html=1;rounded=0;strokeWidth=2;shadow=1;strokeColor=#FFFF00;" edge="1"
+                        parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="882" y="-710" as="sourcePoint"/>
+                        <mxPoint x="772" y="-710" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-68" value=""
+                        style="endArrow=none;html=1;rounded=0;strokeWidth=2;shadow=1;startArrow=classic;startFill=1;endFill=0;fillColor=#f5f5f5;strokeColor=#FFFF00;exitX=0.175;exitY=0.275;exitDx=0;exitDy=0;exitPerimeter=0;"
+                        edge="1" parent="1" source="MQKT1eq1eg9iiz9oeUkT-61">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="435" y="-1020" as="sourcePoint"/>
+                        <mxPoint x="320" y="-1020" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-69" value=""
+                        style="endArrow=none;html=1;rounded=0;strokeWidth=2;shadow=1;startArrow=classic;startFill=1;endFill=0;fillColor=#fff2cc;strokeColor=#FFFF00;exitX=0.2;exitY=0.706;exitDx=0;exitDy=0;exitPerimeter=0;"
+                        edge="1" parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="495" y="-802.94" as="sourcePoint"/>
+                        <mxPoint x="400" y="-803" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-77" value=""
+                        style="endArrow=none;html=1;rounded=0;strokeWidth=2;shadow=1;startArrow=classic;startFill=1;endFill=0;fillColor=#f8cecc;strokeColor=#b85450;dashed=1;exitX=0.2;exitY=0.457;exitDx=0;exitDy=0;exitPerimeter=0;"
+                        edge="1" parent="1" source="MQKT1eq1eg9iiz9oeUkT-61">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="425" y="-927" as="sourcePoint"/>
+                        <mxPoint x="355.5" y="-927" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-78" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="408.86052631578946" y="-941" width="7.315789473684211" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-79" value=""
+                        style="endArrow=none;html=1;rounded=0;fillColor=#f8cecc;strokeColor=#CC0000;strokeWidth=4;"
+                        edge="1" parent="MQKT1eq1eg9iiz9oeUkT-78">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="7.315789473684211" y="30" as="sourcePoint"/>
+                        <mxPoint as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-80" value=""
+                        style="endArrow=none;html=1;rounded=0;fillColor=#f8cecc;strokeColor=#CC0000;strokeWidth=4;"
+                        edge="1" parent="MQKT1eq1eg9iiz9oeUkT-78">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint y="30" as="sourcePoint"/>
+                        <mxPoint x="7.315789473684211" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-70" value=""
+                        style="endArrow=none;html=1;rounded=0;strokeWidth=2;shadow=1;startArrow=classic;startFill=1;endFill=0;fillColor=#f8cecc;strokeColor=#b85450;dashed=1;exitX=0.15;exitY=0.235;exitDx=0;exitDy=0;exitPerimeter=0;"
+                        edge="1" parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="475" y="-1039.15" as="sourcePoint"/>
+                        <mxPoint x="350" y="-1039" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-74" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="385.59736842105264" y="-1054" width="9.421052631578947" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-72" value=""
+                        style="endArrow=none;html=1;rounded=0;fillColor=#f8cecc;strokeColor=#CC0000;strokeWidth=4;"
+                        edge="1" parent="MQKT1eq1eg9iiz9oeUkT-74">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="9.421052631578947" y="30" as="sourcePoint"/>
+                        <mxPoint as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MQKT1eq1eg9iiz9oeUkT-73" value=""
+                        style="endArrow=none;html=1;rounded=0;fillColor=#f8cecc;strokeColor=#CC0000;strokeWidth=4;"
+                        edge="1" parent="MQKT1eq1eg9iiz9oeUkT-74">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint y="30" as="sourcePoint"/>
+                        <mxPoint x="9.421052631578947" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="Qxk-Aqw3JU1mojN21NcM" name="merge-defaults">
+        <mxGraphModel dx="2056" dy="2311" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1"
+                      page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="60TFJxrtLtBkRwFBK2LV-1"
+                        value="&lt;div style=&quot;background-color:#1e1f22;color:#bcbec4&quot;&gt;&lt;pre style=&quot;font-family:&#39;JetBrains Mono&#39;,monospace;font-size:11.3pt;&quot;&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;# result in memory after file merge&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;ors&lt;/span&gt;:&lt;br&gt;  &lt;span style=&quot;color:#cf8e6d;&quot;&gt;engine&lt;/span&gt;:&lt;br&gt;    &lt;span style=&quot;color:#cf8e6d;&quot;&gt;profile_default&lt;/span&gt;:&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 300000&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_waypoints&lt;/span&gt;: 10&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 300&lt;br&gt;    &lt;span style=&quot;color:#cf8e6d;&quot;&gt;profiles&lt;/span&gt;:&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;driving-car&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 400000&lt;br&gt;          &lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;# maximum_waypoints:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_snapping_radius:     &lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;      &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;driving-hgv&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;          &lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;# maximum_distance:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_waypoints&lt;/span&gt;: 40&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 200        &lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;foot-walking&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_distance:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          # maximum_waypoints:&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;          &lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 400&lt;br&gt;&lt;br&gt;&lt;/pre&gt;&lt;/div&gt;"
+                        style="text;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="-1160" width="450" height="510" as="geometry"/>
+                </mxCell>
+                <mxCell id="60TFJxrtLtBkRwFBK2LV-2"
+                        value="&lt;div style=&quot;background-color:#1e1f22;color:#bcbec4&quot;&gt;&lt;pre style=&quot;font-family:&#39;JetBrains Mono&#39;,monospace;font-size:11.3pt;&quot;&gt;&lt;span style=&quot;color:#5f826b;font-style:italic;&quot;&gt;# result in memory after merging defaults &lt;br&gt;&lt;/span&gt;&lt;span style=&quot;color:#cf8e6d;&quot;&gt;ors&lt;/span&gt;:&lt;br&gt;  &lt;span style=&quot;color:#cf8e6d;&quot;&gt;engine&lt;/span&gt;:&lt;br&gt;    &lt;span style=&quot;color:#cf8e6d;&quot;&gt;profile_default&lt;/span&gt;:&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 300000&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_waypoints&lt;/span&gt;: 10&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 300&lt;br&gt;    &lt;span style=&quot;color:#cf8e6d;&quot;&gt;profiles&lt;/span&gt;:&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;driving-car&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 400000&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_waypoints&lt;/span&gt;: 10&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 300&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;driving-hgv&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 300000&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_waypoints&lt;/span&gt;: 40&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 200&lt;br&gt;      &lt;span style=&quot;color:#cf8e6d;&quot;&gt;foot-walking&lt;/span&gt;:&lt;br&gt;        &lt;span style=&quot;color:#cf8e6d;&quot;&gt;service&lt;/span&gt;:&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_distance&lt;/span&gt;: 300000&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_waypoints&lt;/span&gt;: 10&lt;br&gt;          &lt;span style=&quot;color:#cf8e6d;&quot;&gt;maximum_snapping_radius&lt;/span&gt;: 400&lt;br&gt;&lt;br&gt;&lt;/pre&gt;&lt;/div&gt;"
+                        style="text;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="450" y="-1160" width="400" height="510" as="geometry"/>
+                </mxCell>
+                <mxCell id="60TFJxrtLtBkRwFBK2LV-3" value=""
+                        style="endArrow=none;html=1;rounded=0;strokeWidth=2;shadow=1;startArrow=classic;startFill=1;endFill=0;fillColor=#fff2cc;strokeColor=#FFFF00;exitX=0.205;exitY=0.49;exitDx=0;exitDy=0;exitPerimeter=0;"
+                        parent="1" source="60TFJxrtLtBkRwFBK2LV-2" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="390.5" y="-1020" as="sourcePoint"/>
+                        <mxPoint x="324" y="-1020" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="450" y="-910"/>
+                            <mxPoint x="450" y="-1020"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="60TFJxrtLtBkRwFBK2LV-4" value=""
+                        style="endArrow=none;html=1;rounded=0;strokeWidth=2;shadow=1;startArrow=classic;startFill=1;endFill=0;fillColor=#fff2cc;strokeColor=#FFFF00;exitX=0.205;exitY=0.843;exitDx=0;exitDy=0;exitPerimeter=0;"
+                        parent="1" source="60TFJxrtLtBkRwFBK2LV-2" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="528.25" y="-910" as="sourcePoint"/>
+                        <mxPoint x="322.25" y="-1020" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="450" y="-730"/>
+                            <mxPoint x="450" y="-1020"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="60TFJxrtLtBkRwFBK2LV-5" value=""
+                        style="endArrow=none;html=1;rounded=0;strokeWidth=2;shadow=1;startArrow=classic;startFill=1;endFill=0;fillColor=#fff2cc;strokeColor=#FF00FF;exitX=0.205;exitY=0.804;exitDx=0;exitDy=0;exitPerimeter=0;"
+                        parent="1" source="60TFJxrtLtBkRwFBK2LV-2" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="540" y="-930" as="sourcePoint"/>
+                        <mxPoint x="334" y="-1040" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="470" y="-750"/>
+                            <mxPoint x="470" y="-1040"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="60TFJxrtLtBkRwFBK2LV-6" value=""
+                        style="endArrow=none;html=1;rounded=0;strokeWidth=2;shadow=1;startArrow=classic;startFill=1;endFill=0;fillColor=#fff2cc;strokeColor=#00FFFF;"
+                        parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="530" y="-890" as="sourcePoint"/>
+                        <mxPoint x="370" y="-1000" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="430" y="-890"/>
+                            <mxPoint x="430" y="-1000"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="60TFJxrtLtBkRwFBK2LV-7" value=""
+                        style="endArrow=none;html=1;rounded=0;strokeWidth=2;shadow=1;startArrow=classic;startFill=1;endFill=0;fillColor=#fff2cc;strokeColor=#FF00FF;exitX=0.205;exitY=0.627;exitDx=0;exitDy=0;exitPerimeter=0;"
+                        parent="1" source="60TFJxrtLtBkRwFBK2LV-2" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="536" y="-750" as="sourcePoint"/>
+                        <mxPoint x="340" y="-1040" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="470" y="-840"/>
+                            <mxPoint x="470" y="-1040"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
