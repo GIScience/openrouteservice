@@ -249,7 +249,7 @@ Stelle sicher, dass du den Wert von `-Xmx` an dein System und die Größe der ve
 Wenn du eine andere `OSM-Datei` erstellen möchtest, kannst du den Wert von source_file anpassen.
 
 Wenn du mehr über die neuen Konfigurationsoptionen in Version 9 erfahren möchtest, lies
-die [Konfigurationsdokumentation](/run-instance/configuration/index.md).
+die [Konfigurationsdokumentation](../configuration/index.md).
 
 **Beispiel `setenv.sh`-Datei für openrouteservice v9**
 

@@ -297,5 +297,5 @@ locally configured build parameters for the affected routing profile are overrid
 
 Therefore, the file `graph_build_info.yml` must not be edited!
 The content of this file is also used for repository lookups by
-the ([Graph Repo Client](/technical-details/graph-repo-client/index.md)). 
+the ([Graph Repo Client](../../technical-details/graph-repo-client/index.md)). 
 

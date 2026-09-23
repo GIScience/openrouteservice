@@ -7,8 +7,8 @@ The scope is broader from setting up dependencies to deploying the service.
 
 If you are an advanced user, have a look at the existing setup instructions:
 
-- [Running openrouteservice with Docker](/run-instance/running-with-docker.md)
-- [Running openrouteservice as JAR](/run-instance/running-jar.md)
+- [Running openrouteservice with Docker](../running-with-docker.md)
+- [Running openrouteservice as JAR](../running-jar.md)
 - [Running openrouteservice as WAR](../running-war.md)
 
 ::: tip

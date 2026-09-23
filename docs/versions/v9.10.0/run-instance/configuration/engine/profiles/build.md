@@ -6,8 +6,8 @@ graphs for the specified profile.
 | key                              | type    | description                                                                                                                                                                                                                                                                                                                                                       | default value                                |
 |----------------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
 | source_file                      | string  | The OSM file to be used, supported formats are `.osm`, `.osm.gz`, `.osm.zip` and `.pbf`                                                                                                                                                                                                                                                                           | `ors-api/src/test/files/heidelberg.test.pbf` |
-| graph_extent                     | string  | Used only in `preparation_mode` to determine the `graph_extent` part of the filename of the packed archive. See [graph repo client](/technical-details/graph-repo-client/) for more information.                                                                                                                                                                  | _NA_                                         |
-| profile_group                    | string  | Used only in `preparation_mode` to determine the `profile_group` part of the filename of the packed archive. See [graph repo client](/technical-details/graph-repo-client/) for more information.                                                                                                                                                                 | _NA_                                         |
+| graph_extent                     | string  | Used only in `preparation_mode` to determine the `graph_extent` part of the filename of the packed archive. See [graph repo client](../../../../technical-details/graph-repo-client/) for more information.                                                                                                                                                       | _NA_                                         |
+| profile_group                    | string  | Used only in `preparation_mode` to determine the `profile_group` part of the filename of the packed archive. See [graph repo client](../../../../technical-details/graph-repo-client/) for more information.                                                                                                                                                      | _NA_                                         |
 | elevation                        | boolean | Specifies whether to download and use elevation data. If true, `cache_path` and `provider` must be set in ors.engine.elevation as well.                                                                                                                                                                                                                           | `false`                                      |
 | elevation_smoothing              | boolean | Smooth out elevation data                                                                                                                                                                                                                                                                                                                                         | `false`                                      |
 | traffic                          | boolean | Use traffic data if available                                                                                                                                                                                                                                                                                                                                     | `false`                                      |
@@ -101,14 +101,14 @@ In addition to providing the information in query response, data from `WayCatego
 used to filter out certain roads via the
 [`options.avoid_features`](/api-reference/endpoints/directions/routing-options.md#options-avoid-features)
 query parameter, and `Borders` is necessary for the functionality behind
-[`options.avoid_borders`](/api-reference/endpoints/directions/routing-options.md#options-avoid-borders) and
-[`options.avoid_countries`](/api-reference/endpoints/directions/routing-options.md#options-avoid-countries)
+[`options.avoid_borders`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-borders) and
+[`options.avoid_countries`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-countries)
 query parameters. Options from
 [
-`options.profile_params.restrictions`](/api-reference/endpoints/directions/routing-options.md#options-profile-params-restrictions)
+`options.profile_params.restrictions`](../../../../api-reference/endpoints/directions/routing-options.md#options-profile-params-restrictions)
 require `HeavyVehicle` or `Wheelchair` storages being enabled. Furthermore, hgv profile-specific access restrictions
 specified in
-[`options.vehicle_type`](/api-reference/endpoints/directions/routing-options.md#options-vehicle-type)
+[`options.vehicle_type`](../../../../api-reference/endpoints/directions/routing-options.md#options-vehicle-type)
 parameter
 rely on the `HeavyVehicle` storage.
 :::
@@ -128,7 +128,7 @@ Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.ext_storages`:
 | Wheelchair             | object | Wheelchair-specific attributes compatible only with that profile                                                                                 | [Wheelchair](#wheelchair)                         |
 | OsmId                  | object | Returns the OsmId of the way, compatible with any profile type                                                                                   |                                                   |
 
-Check [this table](/api-reference/endpoints/directions/extra-info/index.md#extra-info-availability) for extra
+Check [this table](../../../../api-reference/endpoints/directions/extra-info/index.md#extra-info-availability) for extra
 info availability.
 The following table summarizes which storages are enabled for which profile by default.
 

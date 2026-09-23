@@ -240,7 +240,7 @@ Make sure to adjust the `-Xmx` value to a value that fits your system and graph.
 If you want to build another OSM-File, you can adjust the `source_file` value.
 
 If you want to learn more about the new configuration options in versions 8, check
-the [configuration documentation](/run-instance/configuration/index.md).
+the [configuration documentation](../configuration/index.md).
 
 **Example `setenv.sh` file for openrouteservice v8**
 

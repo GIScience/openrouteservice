@@ -21,7 +21,7 @@ ors:
 
 Graphs must be rebuilt after changing the file.
 
-See also [`ext_storages.Csv`](/run-instance/configuration/engine/profiles/build.md#csv).
+See also [`ext_storages.Csv`](../../../../run-instance/configuration/engine/profiles/build.md#csv).
 
 ## CSV file format
 

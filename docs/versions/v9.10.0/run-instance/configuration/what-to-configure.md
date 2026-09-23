@@ -28,7 +28,7 @@ Note, that the same properties can be defined in [different notations](how-to-co
 
 At the very least, openrouteservice needs the configuration to contain at least one
 enabled [profile](engine/profiles/index.md) and the
-reference to an [OSM data file](/run-instance/data.md#osm-data) to run properly. Therefore, the minimal valid
+reference to an [OSM data file](../data.md#osm-data) to run properly. Therefore, the minimal valid
 configuration
 would be, e.g.:
 

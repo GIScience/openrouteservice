@@ -21,7 +21,7 @@ In this chapter we handle different dimensions of the configuration topic:
 
 The configuration of openrouteservice can be specified in different notations.
 Which format to best use in which scenario is documented in the config documentations for
-[JAR](/run-instance/running-jar.md) and [Docker](/run-instance/running-with-docker.md).
+[JAR](../running-jar.md) and [Docker](../running-with-docker.md).
 
 * `.yml` is the default configuration format since version 8. You can find
   an [example configuration file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.yml) with all
@@ -184,7 +184,7 @@ java -jar ors.jar
 ```
 
 This is especially useful in contexts where you want to run
-openrouteservice in containers such as with [docker](/run-instance/running-with-docker.md).
+openrouteservice in containers such as with [docker](../running-with-docker.md).
 
 Every property also corresponds to an environment variable name in *uppercase letters* and with *underscores* replacing
 *dots*, so e.g.
@@ -202,9 +202,9 @@ Consequently, the following commands are equivalent to the last example above:
 
 Note, that there are different ways to define environment variables,
 e.g.
-in [docker compose files](/run-instance/running-with-docker.md#set-openrouteservice-properties-in-docker-compose-yml)
+in [docker compose files](../running-with-docker.md#set-openrouteservice-properties-in-docker-compose-yml)
 or
-[env files](/run-instance/running-with-docker.md#set-openrouteservice-properties-in-an-environment-file).
+[env files](../running-with-docker.md#set-openrouteservice-properties-in-an-environment-file).
 
 ### JVM Program Arguments
 
@@ -254,7 +254,7 @@ This is a more common way for configuring applications in docker containers,
 in contrast to applications running directly on the host system,
 because in the docker container there is a fresh and independent environment.
 
-[Running with Docker](/run-instance/running-with-docker.md#configure) describes in detail,
+[Running with Docker](../running-with-docker.md#configure) describes in detail,
 how openrouteservice can be configured in docker scenarios.
 
 ## Defining defaults for all routing profiles
@@ -295,5 +295,5 @@ locally configured build parameters for the affected routing profile are overrid
 
 Therefore, the file `graph_build_info.yml` must not be edited!
 The content of this file is also used for repository lookups by
-the ([Graph Repo Client](/technical-details/graph-repo-client/index.md)). 
+the ([Graph Repo Client](../../technical-details/graph-repo-client/index.md)). 
 
