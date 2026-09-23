@@ -9,6 +9,12 @@ import org.heigit.ors.config.utils.NonEmptyMapFilter;
 
 import static java.util.Optional.ofNullable;
 
+
+/**
+ * /!\ Attention:
+ *     Changes in this class are highly likely to require
+ *     an increment of the graphVersion (top level pom.xml)
+ */
 @Getter
 @Setter
 @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
