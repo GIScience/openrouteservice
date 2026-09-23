@@ -8,6 +8,8 @@ timeout=${5}
 sleep=${6:-2}
 # default to reporting every 10 executions
 report_every=${7:-10}
+# optional container to watch: give up as soon as it stops running.
+container=${8:-}
 
 function wait_for_url() {
   local url="$1"
@@ -15,6 +17,7 @@ function wait_for_url() {
   local expected_http_code="$3"
   local sleep="$4"
   local report_every="$5"
+  local container="$6"
 
   start_time=$(date +%s)
   turn=0
@@ -23,6 +26,10 @@ function wait_for_url() {
     if [[ "$response" == "${expected_http_code}" ]]; then
       echo "Request succeeded for ${url} with expected http code ${expected_http_code}"
       return 0
+    fi
+    if [[ -n "${container}" ]] && [[ "$(docker inspect -f '{{.State.Running}}' "${container}" 2>/dev/null)" != "true" ]]; then
+      echo "Container ${container} stopped after $(( $(date +%s) - start_time )) seconds without answering ${expected_http_code} for ${url} (exit code $(docker inspect -f '{{.State.ExitCode}}' "${container}" 2>/dev/null))"
+      return 1
     fi
     current_time=$(date +%s)
     elapsed_time=$((current_time - start_time))
@@ -39,4 +46,4 @@ function wait_for_url() {
   done
 }
 
-wait_for_url "$host:$port$path" "${timeout}" "${http_code}" "${sleep}" "${report_every}"
+wait_for_url "$host:$port$path" "${timeout}" "${http_code}" "${sleep}" "${report_every}" "${container}"
