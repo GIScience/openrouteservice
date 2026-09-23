@@ -29,7 +29,7 @@ Which format to best use in which scenario is documented in the config documenta
 * `.env` files for Docker setup. There is also
   an [example env file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.env) that you can download
   and customize.
-* `.json` config file: In the past openrouteservice was configured [via JSON file](json.md). This configuration method
+* `.json` config file: In the past openrouteservice was configured [via JSON file](./json.md). This configuration method
   has been **deprecated** and removed in ORS version 9. Therefore, we strongly discourage you from using it. If you
   have an old JSON config, please consider
   to [migrate to the new config](https://github.com/GIScience/ors-config-migration#usage).
@@ -70,7 +70,7 @@ and better readable than uppercase-underscore environment variable style.
 ## Internal Defaults
 
 openrouteservice has sensible defaults and can be started with a minimal configuration,
-see [What to configure](what-to-configure#minimal-configuration).
+see [What to configure](./what-to-configure#minimal-configuration).
 The internal default values are defined in the file
 [
 `ors-api/src/main/resources/application.yml`](https://github.com/GIScience/openrouteservice/blob/main/ors-api/src/main/resources/application.yml).
@@ -78,7 +78,7 @@ The internal default values are defined in the file
 Besides default values for most configuration properties,
 there are also **default routing profiles** for all supported modalities with sensible defaults for each of them.
 These default profiles have the names of their flag encoders.
-For more details see [profiles](engine/profiles/index.md).
+For more details see [profiles](./engine/profiles/index.md).
 
 The openrouteservice [releases](https://github.com/GIScience/openrouteservice/releases) also contain downloadable
 example `ors-config.yml` and `ors-config.env` files as release assets,
@@ -238,7 +238,7 @@ The merge result is shown in the middle.
 The red lines are examples for properties defined on both sides - the user config wins.
 The commented lines (green) are just included for better readability.
 
-![](config-overwrite/config-overwrite-merge-files.drawio.png )
+![](./config-overwrite/config-overwrite-merge-files.drawio.png )
 
 ## Docker Scenarios
 
@@ -272,7 +272,7 @@ and like all other properties in the hierarchical structure of configuration pro
 configuration sources.
 The final merge results of these properties are then the base for the internal logic of the defaults for profiles:
 
-![](config-overwrite/config-overwrite-merge-files.drawio.png )
+![](./config-overwrite/config-overwrite-merge-files.drawio.png )
 
 One side effect is, that properties of specific profiles, that are defined in the internal defaults,
 cannot be overridden by properties in the user's `profile_default`!
@@ -280,7 +280,7 @@ In the example above the user has defined `ors.engine.profile_default.maximum_sn
 but the profile foot-walking has an internal default `400` for this property.
 The internal value for the specific profile wins over the user's `profile_default`:
 
-![](config-overwrite/config-overwrite-merge-defaults.drawio.png)
+![](./config-overwrite/config-overwrite-merge-defaults.drawio.png)
 
 ## Graph build properties loaded from graph directories
 

@@ -23,6 +23,6 @@ to help you in the process and keep the repository clean and tidy.
 
 ## Other ways to contribute
 
-* [Contributing translations](contributing-translations)
-* [Contributing to this documentation](backend-documentation)
+* [Contributing translations](./contributing-translations)
+* [Contributing to this documentation](./backend-documentation)
 * [Updating OpenStreetMap](https://wiki.openstreetmap.org/wiki/Beginners%27_guide)

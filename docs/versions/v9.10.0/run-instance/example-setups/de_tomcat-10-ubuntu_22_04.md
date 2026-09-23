@@ -3,7 +3,7 @@
 Dieses Tutorial zeigt dir, wie du openrouteservice v9 mit Java 17 und Tomcat 10 einrichtest.
 
 ::: info
-Zur [englischen Version](en_tomcat-10-ubuntu_22_04) dieses Tutorials.
+Zur [englischen Version](./en_tomcat-10-ubuntu_22_04) dieses Tutorials.
 :::
 
 ## Voraussetzungen

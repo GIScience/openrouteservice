@@ -3,7 +3,7 @@
 This guide will guide you how to set up openrouteservice v8 with Java 17 and Tomcat 10.
 
 ::: info
-To the [german version](de_tomcat-10-ubuntu_22_04) of this tutorial.
+To the [german version](./de_tomcat-10-ubuntu_22_04) of this tutorial.
 :::
 
 ## Prerequisites

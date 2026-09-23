@@ -38,7 +38,7 @@ You should be able to run the application directly with
 or in your IDE (see below). This will start openrouteservice on port `8082` with the default configuration `ors-config.yml` in the project root directory
 and a small OSM data set from Heidelberg.
 
-In the [Configuration](configuration/index.md) section you find the options how you can use customised configurations.  
+In the [Configuration](./configuration/index.md) section you find the options how you can use customised configurations.  
 
 
 ### Running from within IDE
@@ -206,7 +206,7 @@ Because JAR is the default, you can also run the command without `-PbuildFatJar`
 
 You will find the fat JAR file in `ors-api/target/ors.jar`
 
-The chapter on [JAR](running-jar.md) artifact explains how to configure and run the JAR file.
+The chapter on [JAR](./running-jar.md) artifact explains how to configure and run the JAR file.
 
 
 ### Build WAR
@@ -219,7 +219,7 @@ When your source code is set up, you can generate a deployable openrouteservice 
 
 You will find the WAR file in `ors-api/target/ors.war`
 
-The chapter on [WAR](running-war.md) artifact explains how to configure and deploy the WAR file.
+The chapter on [WAR](./running-war.md) artifact explains how to configure and deploy the WAR file.
 
 
 ### Build docker image
@@ -227,7 +227,7 @@ The chapter on [WAR](running-war.md) artifact explains how to configure and depl
 ::: tip
 This chapter only describes how to _build_ a docker container locally.
 Before you _run_ your custom docker image the first time, 
-please read [running prebuilt images](running-with-docker.md#running-prebuilt-images) 
+please read [running prebuilt images](./running-with-docker.md#running-prebuilt-images) 
 to learn the preconditions and how the dockerized openrouteservice is operated.
 :::
 
