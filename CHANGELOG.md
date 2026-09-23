@@ -30,8 +30,6 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
-- replace the MinIO test container with rustfs in the graph repo client tests, matching the production repository backend ([#2427](https://github.com/GIScience/openrouteservice/issues/2427))
-- replaced minio dependency with awssdk:s3 ([#2420](https://github.com/GIScience/openrouteservice/issues/2420))
 
 ### Deprecated
 
@@ -41,6 +39,18 @@ Releasing is documented in RELEASE.md
 
 ### Security
 
+
+## [10.0.1] - 2026-09-23
+
+### Added
+- add workflow steps checking graph compatibility with latest release
+- add documentation of latest v9 version
+
+### Changed
+- replace the MinIO test container with rustfs in the graph repo client tests, matching the production repository backend ([#2427](https://github.com/GIScience/openrouteservice/issues/2427))
+- replace minio dependency with awssdk:s3 ([#2420](https://github.com/GIScience/openrouteservice/issues/2420))
+- increase graphVersion to 6 because graphs built with v9.10.0 (graphVersion=5) cannot be loaded
+- change indentation and numbering in RELEASE.md and add sentence about adding pinned documentation of previous latest release
 
 ## [10.0.0] - 2026-09-16
 
@@ -1156,7 +1166,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v10.0.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v10.0.1...HEAD
+[10.0.1]: https://github.com/GIScience/openrouteservice/compare/v10.0.0...v10.0.1
 [10.0.0]: https://github.com/GIScience/openrouteservice/compare/v9.10.0...v10.0.0
 [9.10.0]: https://github.com/GIScience/openrouteservice/compare/v9.9.0...v9.10.0
 [9.9.0]: https://github.com/GIScience/openrouteservice/compare/v9.8.0...v9.9.0

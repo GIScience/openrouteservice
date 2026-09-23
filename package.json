@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "version": "10.0.0",
+  "version": "10.0.1",
   "devDependencies": {
     "mermaid": "^11.16.1",
     "vitepress": "^1.6.3",
