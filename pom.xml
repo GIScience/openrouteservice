@@ -42,7 +42,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
-        <project.graphVersion>6</project.graphVersion>
+        <project.graphVersion>7</project.graphVersion>
 
         <!-- switch graphhopper versions to enable debugging -->
         <!--<graphhopper.version>4.17-SNAPSHOT</graphhopper.version>-->
