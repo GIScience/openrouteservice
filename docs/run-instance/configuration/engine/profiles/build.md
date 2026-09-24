@@ -6,8 +6,8 @@ graphs for the specified profile.
 | key                              | type    | description                                                                                                                                                                                                                                                                                                                                                       | default value                                |
 |----------------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
 | source_file                      | string  | The OSM file to be used, supported formats are `.osm`, `.osm.gz`, `.osm.zip` and `.pbf`                                                                                                                                                                                                                                                                           | `ors-api/src/test/files/heidelberg.test.pbf` |
-| graph_extent                     | string  | Used only in `preparation_mode` with `preparation_type: ARCHIVE` to determine the `graph_extent` part of the filename of the packed archive. See [graph repo client](/technical-details/graph-repo-client/) for more information.                                                                                                                                 | _NA_                                         |
-| profile_group                    | string  | Used only in `preparation_mode` with `preparation_type: ARCHIVE` to determine the `profile_group` part of the filename of the packed archive. See [graph repo client](/technical-details/graph-repo-client/) for more information.                                                                                                                                | _NA_                                         |
+| graph_extent                     | string  | Used only in `preparation_mode` with `preparation_type: ARCHIVE` to determine the `graph_extent` part of the filename of the packed archive. See [graph repo client](../../../../technical-details/graph-repo-client/) for more information.                                                                                                                      | _NA_                                         |
+| profile_group                    | string  | Used only in `preparation_mode` with `preparation_type: ARCHIVE` to determine the `profile_group` part of the filename of the packed archive. See [graph repo client](../../../../technical-details/graph-repo-client/) for more information.                                                                                                                     | _NA_                                         |
 | elevation                        | boolean | Specifies whether to download and use elevation data. If true, `cache_path` and `provider` must be set in ors.engine.elevation as well.                                                                                                                                                                                                                           | `false`                                      |
 | elevation_smoothing              | boolean | Smooth out elevation data                                                                                                                                                                                                                                                                                                                                         | `false`                                      |
 | traffic                          | boolean | Use traffic data if available                                                                                                                                                                                                                                                                                                                                     | `false`                                      |
@@ -36,7 +36,7 @@ Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.encoder_options`:
 | problematic_speed_factor | number  | wheelchair       | Travel speeds on edges classified as problematic for wheelchair users are multiplied by this factor, use to set slow traveling speeds on such ways                                                                                                                                                                                                                                                               | `0.7`         |
 | turn_costs               | boolean | car, hgv, bike-* | Should turn restrictions be respected                                                                                                                                                                                                                                                                                                                                                                            | `true`        |
 | use_acceleration         | boolean | car, hgv         | Models how a vehicle would accelerate on the road segment to the maximum allowed speed. In practice it reduces speed on shorter road segments such as ones between nearby intersections in a city                                                                                                                                                                                                                | `true`        |
-| enable_custom_models     | boolean | *                | Enables whether the profile is prepared to support custom models. Also see the corresponding parameter `allow_custom_models` in the [service properties](service.md).                                                                                                                                                                                                                                            | `false`       |
+| enable_custom_models     | boolean | *                | Enables whether the profile is prepared to support custom models. Also see the corresponding parameter `allow_custom_models` in the [service properties](./service.md).                                                                                                                                                                                                                                          | `false`       |
 
 ## `preparation`
 
@@ -99,16 +99,16 @@ Leave its value empty, unless you want to specify further options (currently onl
 ::: warning
 In addition to providing the information in query response, data from `WayCategory` and `Tollways` storages is being
 used to filter out certain roads via the
-[`options.avoid_features`](/api-reference/endpoints/directions/routing-options.md#options-avoid-features)
+[`options.avoid_features`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-features)
 query parameter, and `Borders` is necessary for the functionality behind
-[`options.avoid_borders`](/api-reference/endpoints/directions/routing-options.md#options-avoid-borders) and
-[`options.avoid_countries`](/api-reference/endpoints/directions/routing-options.md#options-avoid-countries)
+[`options.avoid_borders`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-borders) and
+[`options.avoid_countries`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-countries)
 query parameters. Options from
 [
-`options.profile_params.restrictions`](/api-reference/endpoints/directions/routing-options.md#options-profile-params-restrictions)
+`options.profile_params.restrictions`](../../../../api-reference/endpoints/directions/routing-options.md#options-profile-params-restrictions)
 require `HeavyVehicle` or `Wheelchair` storages being enabled. Furthermore, hgv profile-specific access restrictions
 specified in
-[`options.vehicle_type`](/api-reference/endpoints/directions/routing-options.md#options-vehicle-type)
+[`options.vehicle_type`](../../../../api-reference/endpoints/directions/routing-options.md#options-vehicle-type)
 parameter
 rely on the `HeavyVehicle` storage.
 :::
@@ -129,7 +129,7 @@ Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.ext_storages`:
 | OsmId                  | object | Returns the OsmId of the way, compatible with any profile type                                                                                   |                                                   |
 | Csv                    | object | Experimental: generic extra information from a CSV file of OSM way ids, compatible with any profile type                                         | [Csv](#csv)                                       |
 
-Check [this table](/api-reference/endpoints/directions/extra-info/index.md#extra-info-availability) for extra
+Check [this table](../../../../api-reference/endpoints/directions/extra-info/index.md#extra-info-availability) for extra
 info availability.
 The following table summarizes which storages are enabled for which profile by default.
 
@@ -184,5 +184,5 @@ Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.ext_storages.Csv`:
 |----------|--------|------------------------------------------------------------------------------------------------------|--------------------------|
 | filepath | string | Path to a CSV file. First column is the OSM way id; later columns are named float values in [-1, 1]. | `/data/heat_stress.csv`  |
 
-After the graph is built, request the values with `extra_info: ["csv"]` and `options.profile_params.weightings.csv_column` set to a header name. See [CSV extra info](/api-reference/endpoints/directions/extra-info/csv.md).
+After the graph is built, request the values with `extra_info: ["csv"]` and `options.profile_params.weightings.csv_column` set to a header name. See [CSV extra info](../../../../api-reference/endpoints/directions/extra-info/csv.md).
 

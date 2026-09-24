@@ -1,7 +1,7 @@
 # Building from Source
 
-If you need to customize your openrouteservice instance even further than what is possible by [configuration](configuration/index.md), you might need to make changes to the code.
-If you implement features that might be useful for others as well, consider [contributing](/contributing/index.md)! The
+If you need to customize your openrouteservice instance even further than what is possible by [configuration](./configuration/index.md), you might need to make changes to the code.
+If you implement features that might be useful for others as well, consider [contributing](../contributing/index.md)! The
 following instructions are useful to get you set up to start modifying the code.
 
 
@@ -38,7 +38,7 @@ You should be able to run the application directly with
 or in your IDE (see below). This will start openrouteservice on port `8082` with the default configuration `ors-config.yml` in the project root directory
 and a small OSM data set from Heidelberg.
 
-In the [Configuration](configuration/index.md) section you find the options how you can use customised configurations.  
+In the [Configuration](./configuration/index.md) section you find the options how you can use customised configurations.  
 
 
 ### Running from within IDE
@@ -200,7 +200,7 @@ When your source code is set up, you can generate a runnable openrouteservice fa
 
 You will find the fat JAR file in `ors-api/target/ors.jar`
 
-The chapter on [JAR](running-jar.md) artifact explains how to configure and run the JAR file.
+The chapter on [JAR](./running-jar.md) artifact explains how to configure and run the JAR file.
 
 
 ### Build docker image
@@ -208,7 +208,7 @@ The chapter on [JAR](running-jar.md) artifact explains how to configure and run 
 ::: tip
 This chapter only describes how to _build_ a docker container locally.
 Before you _run_ your custom docker image the first time, 
-please read [running prebuilt images](running-with-docker.md#running-prebuilt-images) 
+please read [running prebuilt images](./running-with-docker.md#running-prebuilt-images) 
 to learn the preconditions and how the dockerized openrouteservice is operated.
 :::
 
