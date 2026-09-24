@@ -133,13 +133,8 @@ public class BorderParser implements TagParser {
         return edgeFlags;
     }
 
-    private int idToTowerNode(int id) {
-        return -id - 3;
-    }
-
     private short getCountryIdForNode(int nodeId) {
-        int towerNode = idToTowerNode(nodeId);
-        String countryCode = nodeTags.getOrDefault(towerNode, new HashMap<>()).getOrDefault(TAG_KEY_COUNTRY, "");
+        String countryCode = nodeTags.getOrDefault(nodeId, new HashMap<>()).getOrDefault(TAG_KEY_COUNTRY, "");
         try {
             return CountryBordersReader.getCountryIdByISOCode(countryCode);
         } catch (Exception ignore) {

@@ -281,25 +281,12 @@ public class ORSOSMReader extends OSMReader {
             int size = osmNodeIds.size();
 
             for (int i = 0; i < size; i++) {
-                // find the node
                 long osmId = osmNodeIds.get(i);
-                // replace the osm id with the internal id
-                int internalId = nodeData.getId(osmId);
                 Map<String, String> tagsForNode = nodeTags.get(osmId);
 
-                if (nodeCountryMap != null && nodeCountryMap.containsKey(osmId)) {
-                    if (tagsForNode == null)
-                        tagsForNode = new HashMap<>();
-                    tagsForNode.put(KEY_COUNTRY, nodeCountryMap.get(osmId));
-                }
-
                 if (tagsForNode != null) {
-                    tags.put(internalId, tagsForNode);
+                    tags.put(nodeData.getId(osmId), tagsForNode);
                 }
-            }
-
-            if (!tags.isEmpty()) {
-                way.setTag(KEY_ORS_NODE_TAGS, tags);
             }
         }
 
@@ -391,12 +378,6 @@ public class ORSOSMReader extends OSMReader {
                 for (int nodeId : new int[]{edge.getBaseNode(), edge.getAdjNode()}) {
                     long osmId = nodeData.getOsmId(nodeId);
                     Map<String, String> tagsForNode = nodeTags.get(osmId);
-
-                    if (nodeCountryMap != null && nodeCountryMap.containsKey(osmId)) {
-                        if (tagsForNode == null)
-                            tagsForNode = new HashMap<>();
-                        tagsForNode.put(KEY_COUNTRY, nodeCountryMap.get(osmId));
-                    }
 
                     if (tagsForNode != null) {
                         tags.put(nodeId, tagsForNode);
@@ -641,4 +622,28 @@ public class ORSOSMReader extends OSMReader {
         return barrierNodesSkipped.get();
     }
 
+    protected void addEdge(int fromIndex, int toIndex, PointList pointList, ReaderWay way, Map<String, Object> ghNodeTags) {
+        if (processNodeTags) {
+            Map<Integer, Map<String, String>> tags = new HashMap<>();
+            for (int nodeId : new int[]{fromIndex, toIndex}) {
+                long osmId = nodeData.getOsmId(nodeId);
+                Map<String, String> tagsForNode = nodeTags.get(osmId);
+
+                if (nodeCountryMap != null && nodeCountryMap.containsKey(osmId)) {
+                    if (tagsForNode == null)
+                        tagsForNode = new HashMap<>();
+                    tagsForNode.put(KEY_COUNTRY, nodeCountryMap.get(osmId));
+                }
+
+                if (tagsForNode != null) {
+                    tags.put(nodeId, tagsForNode);
+                }
+            }
+            if (!tags.isEmpty()) {
+                way.setTag(KEY_ORS_NODE_TAGS, tags);
+            }
+        }
+
+        super.addEdge(fromIndex, toIndex, pointList, way, ghNodeTags);
+    }
 }
