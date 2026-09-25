@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
 
@@ -38,14 +38,38 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
         this.orsGraphFileManager = orsGraphFileManager;
     }
 
-    String getProfileDescriptiveName() {
-        return orsGraphFileManager.getProfileDescriptiveName();
+    @Override
+    ORSGraphFileManager getOrsGraphFileManager() {
+        return orsGraphFileManager;
+    }
+
+    @Override
+    ORSGraphRepoStrategy getOrsGraphRepoStrategy() {
+        return orsGraphRepoStrategy;
+    }
+
+    @Override
+    GraphManagementRuntimeProperties getGraphManagementRuntimeProperties() {
+        return managementProps;
+    }
+
+    @Override
+    Logger getLogger() {
+        return LOGGER;
+    }
+
+    //TODO unit test
+    boolean isValidRepoConfig() {
+        return isNotBlank(this.managementProps.getRepoName()) &&
+                isNotBlank(this.managementProps.getRepoCoverage()) &&
+                isNotBlank(this.managementProps.getGraphVersion()) &&
+                isNotBlank(this.managementProps.getDerivedRepoBaseUrl().toString());
     }
 
     @Override
     public void downloadGraphIfNecessary() {
-        if (isNullOrEmpty(String.valueOf(managementProps.getDerivedRepoBaseUrl())) || isNullOrEmpty(managementProps.getRepoName()) || isNullOrEmpty(managementProps.getRepoCoverage()) || isNullOrEmpty(managementProps.getGraphVersion())) {
-            LOGGER.debug("[%s] ORSGraphManager is not configured - skipping check".formatted(getProfileDescriptiveName()));
+        if (! isValidRepoConfig()) {
+            LOGGER.debug("[%s] ORSGraphManager has no valid repo config - skipping check".formatted(getProfileDescriptiveName()));
             return;
         }
         if (orsGraphFileManager.isBusy()) {
@@ -55,36 +79,18 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
 
         LOGGER.debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
         try {
-            PersistedGraphBuildInfo previouslyDownloadedGraphBuildInfo = orsGraphFileManager.getDownloadedGraphBuildInfo();
-            File downloadedCompressedGraphFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
-            GraphBuildInfo activeGraphBuildInfo = orsGraphFileManager.getActiveGraphBuildInfo();
-            GraphBuildInfo downloadedExtractedGraphBuildInfo = orsGraphFileManager.getDownloadedExtractedGraphBuildInfo();
             GraphBuildInfo newlyDownloadedGraphBuildInfo = downloadLatestGraphBuildInfoFromRepository();
-            LOGGER.trace(("[%s] Comparing dates, downloading if first is after the others:%n" +
-                    "                         repo=%s%n" +
-                    "              activeGraphBuildInfo=%s%n" +
-                    " downloadedExtractedGraphBuildInfo=%s%n" +
-                    "previouslyDownloadedGraphBuildInfo=%s").formatted(getProfileDescriptiveName(),
-                    getDateOrEpocStart(newlyDownloadedGraphBuildInfo),
-                    getDateOrEpocStart(activeGraphBuildInfo),
-                    getDateOrEpocStart(downloadedExtractedGraphBuildInfo),
-                    getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphBuildInfo)));
 
-            if (!shouldDownloadGraph(
-                    getDateOrEpocStart(newlyDownloadedGraphBuildInfo),
-                    getDateOrEpocStart(activeGraphBuildInfo),
-                    getDateOrEpocStart(downloadedExtractedGraphBuildInfo),
-                    getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphBuildInfo))) {
-                LOGGER.info("[%s] No newer graph found in repository.".formatted(getProfileDescriptiveName()));
+            if (!shouldDownloadGraph(newlyDownloadedGraphBuildInfo)) {
                 return;
             }
 
             Path latestCompressedGraphInRepoPath = Path.of(managementProps.getRepoProfileGroup(), managementProps.getRepoCoverage(), managementProps.getGraphVersion(), orsGraphRepoStrategy.getRepoCompressedGraphFileName());
             long start = System.currentTimeMillis();
-            downloadFile(latestCompressedGraphInRepoPath, downloadedCompressedGraphFile);
+            downloadFile(latestCompressedGraphInRepoPath, orsGraphFileManager.getDownloadedCompressedGraphFile());
 
             long end = System.currentTimeMillis();
-            if (downloadedCompressedGraphFile.exists()) {
+            if (orsGraphFileManager.getDownloadedCompressedGraphFile().exists()) {
                 LOGGER.info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
             } else {
                 LOGGER.error("[%s] Invalid download path for compressed graph file: %s".formatted(getProfileDescriptiveName(), latestCompressedGraphInRepoPath));
@@ -134,13 +140,14 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
         return graphBuildInfoInRepo;
     }
 
-    public void downloadFile(Path repoPath, File localPath) {
-        if (repoPath == null || localPath == null) {
-            LOGGER.warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, localPath));
+    public void downloadFile(Path repoPath, File outputFile) {
+        if (repoPath == null || outputFile == null) {
+            LOGGER.warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, outputFile));
             return;
         }
+        File tempDownloadFile = orsGraphFileManager.asIncompleteFile(outputFile);
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath, localPath.getAbsolutePath()));
+            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath, tempDownloadFile.getAbsolutePath()));
         } else {
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath));
         }
@@ -159,11 +166,18 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
                     GetObjectRequest.builder()
                             .bucket(managementProps.getRepoName())
                             .key(repoPath.toString()).build(),
-                    Paths.get(localPath.toString())
+                    Paths.get(tempDownloadFile.toString())
             );
+            if (tempDownloadFile.renameTo(outputFile)) {
+                LOGGER.debug("[%s] Renamed temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+            } else {
+                LOGGER.error("[%s] Could not rename temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+            }
         } catch (URISyntaxException e) {
             LOGGER.warn("[%s] Caught %s when trying to use Url %s".formatted(getProfileDescriptiveName(), e, managementProps.getDerivedRepoBaseUrl()));
             throw new IllegalArgumentException(e);
+        } finally {
+            deleteFileWithLogging(tempDownloadFile, "[%s] Deleted temp download file: %s", "[%s] Could not delete temp download file: %s");
         }
     }
 }
