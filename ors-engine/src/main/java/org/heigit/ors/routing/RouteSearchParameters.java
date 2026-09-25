@@ -74,6 +74,10 @@ public class RouteSearchParameters {
     private boolean hasWalkingTime = false;
     private boolean hasScheduleDuration = false;
 
+    @Getter
+    @Setter
+    private int restThreshold = Integer.MAX_VALUE;
+
     @Setter
     @Getter
     private CustomModel customModel;
@@ -427,5 +431,9 @@ public class RouteSearchParameters {
 
     public boolean hasScheduleDuration() {
         return this.hasScheduleDuration;
+    }
+
+    public boolean hasRestThreshold() {
+        return this.restThreshold != Integer.MAX_VALUE;
     }
 }

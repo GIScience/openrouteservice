@@ -218,6 +218,10 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         if (buildProperties.getGtfsFile() != null && !buildProperties.getGtfsFile().toString().isEmpty())
             ghConfig.putObject("gtfs.file", buildProperties.getGtfsFile().toAbsolutePath().toString());
 
+        if (buildProperties.getFootRestData() != null && !buildProperties.getFootRestData().toString().isEmpty()) {
+            ghConfig.putObject("foot_rest_data", buildProperties.getFootRestData().toAbsolutePath().toString());
+        }
+
         String flagEncoder = vehicle;
         if (!Helper.isEmpty(buildProperties.getEncoderOptionsString()))
             flagEncoder += "|" + buildProperties.getEncoderOptionsString();

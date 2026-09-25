@@ -57,6 +57,8 @@ public class BuildProperties {
     private EncodedValuesProperties encodedValues = new EncodedValuesProperties();
     @JsonProperty("maximum_speed_lower_bound")
     private Double maximumSpeedLowerBound;
+    @JsonProperty("foot_rest_data")
+    private Path footRestData = null;
 
     public BuildProperties() {
     }
@@ -94,6 +96,7 @@ public class BuildProperties {
         if (gtfsFile != null) {
             gtfsFile = gtfsFile.toAbsolutePath();
         }
+        footRestData = ofNullable(footRestData).orElse(other.footRestData);
     }
 
     public void initExtStorages() {
