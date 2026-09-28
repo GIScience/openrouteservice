@@ -30,6 +30,7 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
+- migrate countries and borders storage to encoded values ([#2281](https://github.com/GIScience/openrouteservice/pull/2281))
 
 ### Deprecated
 
