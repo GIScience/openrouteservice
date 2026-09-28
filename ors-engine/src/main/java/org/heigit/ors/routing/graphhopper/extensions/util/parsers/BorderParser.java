@@ -146,7 +146,7 @@ public class BorderParser implements TagParser {
         String countryValue = way.getTag(tagKey);
         try {
             return Short.parseShort(cbReader.getId(countryValue));
-        } catch (Exception ignore) {
+        } catch (Exception _) {
             return 0;
         }
     }

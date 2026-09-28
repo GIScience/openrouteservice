@@ -622,6 +622,7 @@ public class ORSOSMReader extends OSMReader {
         return barrierNodesSkipped.get();
     }
 
+    @Override
     protected void addEdge(int fromIndex, int toIndex, PointList pointList, ReaderWay way, Map<String, Object> ghNodeTags) {
         if (processNodeTags) {
             Map<Integer, Map<String, String>> tags = new HashMap<>();
