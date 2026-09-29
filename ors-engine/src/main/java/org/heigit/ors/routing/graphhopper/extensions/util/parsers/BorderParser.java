@@ -138,7 +138,7 @@ public class BorderParser implements TagParser {
         String countryCode = nodeTags.getOrDefault(nodeId, new HashMap<>()).getOrDefault(TAG_KEY_COUNTRY, "");
         try {
             return CountryBordersReader.getCountryIdByISOCode(countryCode);
-        } catch (Exception ignore) {
+        } catch (Exception _) {
             return 0;
         }
     }

@@ -625,26 +625,30 @@ public class ORSOSMReader extends OSMReader {
     @Override
     protected void addEdge(int fromIndex, int toIndex, PointList pointList, ReaderWay way, Map<String, Object> ghNodeTags) {
         if (processNodeTags) {
-            Map<Integer, Map<String, String>> tags = new HashMap<>();
-            for (int nodeId : new int[]{fromIndex, toIndex}) {
-                long osmId = nodeData.getOsmId(nodeId);
-                Map<String, String> tagsForNode = nodeTags.get(osmId);
-
-                if (nodeCountryMap != null && nodeCountryMap.containsKey(osmId)) {
-                    if (tagsForNode == null)
-                        tagsForNode = new HashMap<>();
-                    tagsForNode.put(KEY_COUNTRY, nodeCountryMap.get(osmId));
-                }
-
-                if (tagsForNode != null) {
-                    tags.put(nodeId, tagsForNode);
-                }
-            }
-            if (!tags.isEmpty()) {
-                way.setTag(KEY_ORS_NODE_TAGS, tags);
-            }
+            addNodeTags(fromIndex, toIndex, way);
         }
 
         super.addEdge(fromIndex, toIndex, pointList, way, ghNodeTags);
+    }
+
+    private void addNodeTags(int fromIndex, int toIndex, ReaderWay way) {
+        Map<Integer, Map<String, String>> tags = new HashMap<>();
+        for (int nodeId : new int[]{fromIndex, toIndex}) {
+            long osmId = nodeData.getOsmId(nodeId);
+            Map<String, String> tagsForNode = nodeTags.get(osmId);
+
+            if (nodeCountryMap != null && nodeCountryMap.containsKey(osmId)) {
+                if (tagsForNode == null)
+                    tagsForNode = new HashMap<>();
+                tagsForNode.put(KEY_COUNTRY, nodeCountryMap.get(osmId));
+            }
+
+            if (tagsForNode != null) {
+                tags.put(nodeId, tagsForNode);
+            }
+        }
+        if (!tags.isEmpty()) {
+            way.setTag(KEY_ORS_NODE_TAGS, tags);
+        }
     }
 }
