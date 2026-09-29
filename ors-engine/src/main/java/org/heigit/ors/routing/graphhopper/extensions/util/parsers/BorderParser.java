@@ -43,6 +43,7 @@ public class BorderParser implements TagParser {
         this.countryEnc = CountryOther.create();
         this.parameters = orsGraphHopper.getProfileProperties().getBuild().getExtStorages().get(ExtendedStorageName.BORDERS.getName());
         this.preprocessed = Boolean.TRUE.equals(parameters.getPreprocessed());
+        orsGraphHopper.getProcessContext().setPreprocessedCountries(preprocessed);
 
         try {
             init(orsGraphHopper);
