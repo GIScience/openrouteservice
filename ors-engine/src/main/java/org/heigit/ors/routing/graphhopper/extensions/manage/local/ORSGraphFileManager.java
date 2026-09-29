@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
@@ -35,7 +34,6 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static tools.jackson.core.StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN;
@@ -62,7 +60,6 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                 LOGGER.error("[%s] Could not create graph directory %s".formatted(getProfileDescriptiveName(), activeGraphDirectory.getAbsolutePath()));
             }
         }
-        cleanupTempMinioFiles(getProfileGraphsDirectory().toPath());
     }
 
     public boolean hasActiveGraph() {
@@ -96,43 +93,8 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     public boolean isBusy() {
         return asIncompleteFile(getDownloadedCompressedGraphFile()).exists() ||
-                minioDownloadTempFileExists(getDownloadedCompressedGraphFile()) ||
                 asIncompleteFile(getDownloadedGraphBuildInfoFile()).exists() ||
                 asIncompleteFile(getDownloadedExtractedGraphDirectory()).exists();
-    }
-
-    /*
-     * If we find a MinIO temp file with the pattern <incompleteFileName>*.part.minio, we consider the download still ongoing
-     * */
-    private boolean minioDownloadTempFileExists(File incompleteFile) {
-        AtomicBoolean result = new AtomicBoolean(false);
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(incompleteFile.toPath().getParent(), incompleteFile.getName() + "*.part.minio")) {
-            dirStream.forEach(path -> {
-                LOGGER.debug("[%s] Found MinIO temporary download file: %s".formatted(getProfileDescriptiveName(), path.toAbsolutePath().toString()));
-                result.set(true);
-            });
-        } catch (IOException e) {
-            LOGGER.error("Error checking for MinIO temporary download files: %s".formatted(e.getMessage()));
-        }
-        return result.get();
-    }
-
-    /*
-    * Should be called on initialization to clean up any leftover MinIO temp files from previous runs
-    * */
-    private void cleanupTempMinioFiles(Path graphDir) {
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(graphDir, "*.part.minio")) {
-            dirStream.forEach(path -> {
-                try {
-                    Files.deleteIfExists(path);
-                    LOGGER.debug("[%s] Deleted MinIO temporary download file: %s".formatted(getProfileDescriptiveName(), path.toAbsolutePath().toString()));
-                } catch (IOException e) {
-                    LOGGER.error("Error deleting MinIO temporary download file %s: %s".formatted(path.toAbsolutePath().toString(), e.getMessage()));
-                }
-            });
-        } catch (IOException e) {
-            LOGGER.error("Error checking for MinIO temporary download files: %s".formatted(e.getMessage()));
-        }
     }
 
     private void deleteFileWithLogging(File file, String successMessage, String errorMessage) {
