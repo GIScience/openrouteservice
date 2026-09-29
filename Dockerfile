@@ -12,8 +12,9 @@ USER root
 # JVM needs but no JVM. So the runtime is built here and copied in.
 # /empty-tmp exists because the distroless base ships no /tmp at all and COPY
 # cannot create a directory.
+# jdk.net is needed by Apache HttpClient 5, which the AWS SDK S3 graph repo client uses.
 RUN dnf install -y binutils tar && \
-    jlink --add-modules java.se,jdk.unsupported,jdk.crypto.ec \
+    jlink --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.net \
     --strip-debug --no-man-pages --no-header-files --compress=zip-6 \
     --output /javaruntime && \
     mkdir -m 1777 /empty-tmp && \
