@@ -54,9 +54,9 @@ class FileSystemGraphRepoClientTest {
     }
 
     @Test
-    void downloadLatestGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
+    void downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        fileSystemGraphRepoClient.downloadLatestGraphBuildInfoFromRepository();
+        fileSystemGraphRepoClient.downloadGraphBuildInfoFromRepository();
         assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
     }

@@ -3,9 +3,9 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.util.Helper;
 import lombok.NoArgsConstructor;
-import org.apache.commons.compress.utils.FileNameUtils;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -22,9 +22,6 @@ import tools.jackson.databind.SerializationFeature;
 import tools.jackson.dataformat.yaml.YAMLFactory;
 import tools.jackson.dataformat.yaml.YAMLMapper;
 
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipFile;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -37,7 +34,6 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static tools.jackson.core.StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN;
