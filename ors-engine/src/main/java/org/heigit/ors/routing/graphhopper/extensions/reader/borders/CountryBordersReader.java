@@ -426,8 +426,8 @@ public class CountryBordersReader implements Serializable {
                 LOGGER.warn((counter - isoCCA3) + " countries have no ISO 3166-1 CCA3 code assigned.");
             } else {
                 LOGGER.info("ISO 3166-1 CCA3 codes enabled for all countries");
-                createCountryMap();
             }
+            createCountryMap();
         }
     }
 
