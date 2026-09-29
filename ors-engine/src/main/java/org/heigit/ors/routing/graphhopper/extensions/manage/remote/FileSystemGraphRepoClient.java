@@ -49,6 +49,7 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
         return LOGGER;
     }
 
+    @Override
     boolean isValidRepoConfig() {
         return isNotBlank(managementProps.getRepoName()) &&
                 isNotBlank(managementProps.getRepoCoverage()) &&
@@ -57,48 +58,29 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
     }
 
     @Override
-    public void downloadGraphIfNecessary() {
-        if (! isValidRepoConfig()) {
-            LOGGER.debug("[%s] ORSGraphManager has no valid repo config - skipping check".formatted(getProfileDescriptiveName()));
-            return;
-        }
-        if (orsGraphFileManager.isBusy()) {
-            LOGGER.debug("[%s] ORSGraphManager is busy - skipping check".formatted(getProfileDescriptiveName()));
-            return;
-        }
-
-        LOGGER.debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
-        try {
-            GraphBuildInfo newlyDownloadedGraphBuildInfo = downloadLatestGraphBuildInfoFromRepository();
-
-            if (!shouldDownloadGraph(newlyDownloadedGraphBuildInfo)) {
-                return;
-            }
-            Path latestCompressedGraphInRepoPath = Path.of(getRepoPath(),
-                    getRepoName(),
-                    getRepoProfileGroup(),
-                    getRepoCoverage(),
-                    getGraphVersion(),
-                    orsGraphRepoStrategy.getRepoCompressedGraphFileName());
-            long start = System.currentTimeMillis();
-            downloadFile(latestCompressedGraphInRepoPath, orsGraphFileManager.getDownloadedCompressedGraphFile());
-
-            long end = System.currentTimeMillis();
-            if (orsGraphFileManager.getDownloadedCompressedGraphFile().exists()) {
-                LOGGER.info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
-            } else {
-                LOGGER.error("[%s] Invalid download path for compressed graph file: %s".formatted(getProfileDescriptiveName(), latestCompressedGraphInRepoPath));
-            }
-        } catch (Exception e) {
-            LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), e);
-        }
+    protected void downloadCompressedGraphFromRepository() {
+        Path latestCompressedGraphInRepoPath = Path.of(
+                getRepoPath(),
+                getRepoName(),
+                getRepoProfileGroup(),
+                getRepoCoverage(),
+                getGraphVersion(),
+                getRepoCompressedGraphFileName());
+        downloadFile(latestCompressedGraphInRepoPath, orsGraphFileManager.getDownloadedCompressedGraphFile());
     }
 
-    GraphBuildInfo downloadLatestGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
+    GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo latestGraphBuildInfoInRepo = new GraphBuildInfo();
         LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
 
-        Path latestGraphBuildInfoInRepoPath = Path.of(getRepoPath(), getRepoName(), getRepoProfileGroup(), getRepoCoverage(), getGraphVersion(), orsGraphRepoStrategy.getRepoGraphBuildInfoFileName());
+        Path latestGraphBuildInfoInRepoPath = Path.of(
+                getRepoPath(),
+                getRepoName(),
+                getRepoProfileGroup(),
+                getRepoCoverage(),
+                getGraphVersion(),
+                getRepoGraphBuildInfoFileName());
+
         if (!latestGraphBuildInfoInRepoPath.toFile().exists()) {
             LOGGER.info("[%s] No graphBuildInfo found in remote repository: %s".formatted(getProfileDescriptiveName(), latestGraphBuildInfoInRepoPath.toFile().getAbsolutePath()));
             return latestGraphBuildInfoInRepo;
@@ -108,7 +90,7 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
         downloadFile(latestGraphBuildInfoInRepoPath, downloadedGraphBuildInfoFile);
 
         if (downloadedGraphBuildInfoFile.exists()) {
-            Path latestCompressedGraphInRepoPath = Path.of(getRepoPath(), getRepoName(), getRepoProfileGroup(), getRepoCoverage(), getGraphVersion(), orsGraphRepoStrategy.getRepoCompressedGraphFileName());
+            Path latestCompressedGraphInRepoPath = Path.of(getRepoPath(), getRepoName(), getRepoProfileGroup(), getRepoCoverage(), getGraphVersion(), getRepoCompressedGraphFileName());
             URI uri = latestCompressedGraphInRepoPath.toUri();
             latestGraphBuildInfoInRepo.setRemoteUri(uri);
 

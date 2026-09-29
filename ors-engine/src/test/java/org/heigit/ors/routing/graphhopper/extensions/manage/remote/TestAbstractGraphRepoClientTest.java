@@ -53,6 +53,21 @@ public class TestAbstractGraphRepoClientTest {
         Logger getLogger() {
             return null;
         }
+
+        @Override
+        GraphBuildInfo downloadGraphBuildInfoFromRepository() {
+            return null;
+        }
+
+        @Override
+        void downloadCompressedGraphFromRepository() {
+            //do nothing
+        }
+
+        @Override
+        boolean isValidRepoConfig() {
+            return false;
+        }
     }
 
     @ParameterizedTest

@@ -67,37 +67,13 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
     }
 
     @Override
-    public void downloadGraphIfNecessary() {
-        if (! isValidRepoConfig()) {
-            LOGGER.debug("[%s] ORSGraphManager has no valid repo config - skipping check".formatted(getProfileDescriptiveName()));
-            return;
-        }
-        if (orsGraphFileManager.isBusy()) {
-            LOGGER.debug("[%s] ORSGraphManager is busy - skipping check".formatted(getProfileDescriptiveName()));
-            return;
-        }
-
-        LOGGER.debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
-        try {
-            GraphBuildInfo newlyDownloadedGraphBuildInfo = downloadLatestGraphBuildInfoFromRepository();
-
-            if (!shouldDownloadGraph(newlyDownloadedGraphBuildInfo)) {
-                return;
-            }
-
-            Path latestCompressedGraphInRepoPath = Path.of(managementProps.getRepoProfileGroup(), managementProps.getRepoCoverage(), managementProps.getGraphVersion(), orsGraphRepoStrategy.getRepoCompressedGraphFileName());
-            long start = System.currentTimeMillis();
-            downloadFile(latestCompressedGraphInRepoPath, orsGraphFileManager.getDownloadedCompressedGraphFile());
-
-            long end = System.currentTimeMillis();
-            if (orsGraphFileManager.getDownloadedCompressedGraphFile().exists()) {
-                LOGGER.info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
-            } else {
-                LOGGER.error("[%s] Invalid download path for compressed graph file: %s".formatted(getProfileDescriptiveName(), latestCompressedGraphInRepoPath));
-            }
-        } catch (Exception exception) {
-            LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), exception);
-        }
+    protected void downloadCompressedGraphFromRepository() {
+        Path latestCompressedGraphInRepoPath = Path.of(
+                managementProps.getRepoProfileGroup(),
+                managementProps.getRepoCoverage(),
+                managementProps.getGraphVersion(),
+                orsGraphRepoStrategy.getRepoCompressedGraphFileName());
+        downloadFile(latestCompressedGraphInRepoPath, orsGraphFileManager.getDownloadedCompressedGraphFile());
     }
 
     private void deleteFileWithLogging(File file) {
@@ -119,13 +95,17 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
                 .collect(Collectors.joining("/"));
     }
 
-    GraphBuildInfo downloadLatestGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
+    GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo graphBuildInfoInRepo = new GraphBuildInfo();
         LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
 
-        Path latestGraphBuildInfoInRepoPath = Path.of(managementProps.getRepoProfileGroup(), managementProps.getRepoCoverage(), managementProps.getGraphVersion(), orsGraphRepoStrategy.getRepoGraphBuildInfoFileName());
+        Path latestGraphBuildInfoInRepoPath = Path.of(
+                getRepoProfileGroup(),
+                getRepoCoverage(),
+                getGraphVersion(),
+                getRepoGraphBuildInfoFileName());
 
-        File downloadedGraphBuildInfoFile = orsGraphFileManager.getDownloadedGraphBuildInfoFile();
+        File downloadedGraphBuildInfoFile = getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
         deleteFileWithLogging(downloadedGraphBuildInfoFile);
         downloadFile(latestGraphBuildInfoInRepoPath, downloadedGraphBuildInfoFile);
 
@@ -134,8 +114,8 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
             return graphBuildInfoInRepo;
         }
 
-        graphBuildInfoInRepo.withRemoteUriString(concatenateToUrlPath(managementProps.getRepoBaseUri(), managementProps.getRepoName(), latestGraphBuildInfoInRepoPath.toString()));
-        PersistedGraphBuildInfo persistedGraphBuildInfo = orsGraphFileManager.readOrsGraphBuildInfo(downloadedGraphBuildInfoFile);
+        graphBuildInfoInRepo.withRemoteUriString(concatenateToUrlPath(getRepoBaseUri(), getRepoName(), latestGraphBuildInfoInRepoPath.toString()));
+        PersistedGraphBuildInfo persistedGraphBuildInfo = getPersistedGraphBuildInfo(downloadedGraphBuildInfoFile);
         graphBuildInfoInRepo.setPersistedGraphBuildInfo(persistedGraphBuildInfo);
         return graphBuildInfoInRepo;
     }
@@ -145,7 +125,7 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
             LOGGER.warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, outputFile));
             return;
         }
-        File tempDownloadFile = orsGraphFileManager.asIncompleteFile(outputFile);
+        File tempDownloadFile = getIncompleteFile(outputFile);
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath, tempDownloadFile.getAbsolutePath()));
         } else {
@@ -154,17 +134,17 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
         try {
             if (s3Client == null) {
                 s3Client = S3Client.builder()
-                        .endpointOverride(managementProps.getDerivedRepoBaseUrl().toURI())
+                        .endpointOverride(getDerivedRepoBaseUrl().toURI())
                         .region(Region.US_EAST_1) //RustFS default region
                         .credentialsProvider(StaticCredentialsProvider.create(
-                                AwsBasicCredentials.create(managementProps.getRepoUser(), managementProps.getRepoPass())
+                                AwsBasicCredentials.create(getRepoUser(), getRepoPass())
                         ))
                         .forcePathStyle(true) // RustFS uses path-style URLs by default; virtual-host style requires RUSTFS_SERVER_DOMAINS
                         .build();
             }
             s3Client.getObject(
                     GetObjectRequest.builder()
-                            .bucket(managementProps.getRepoName())
+                            .bucket(getRepoName())
                             .key(repoPath.toString()).build(),
                     Paths.get(tempDownloadFile.toString())
             );
@@ -174,7 +154,7 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
                 LOGGER.error("[%s] Could not rename temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
             }
         } catch (URISyntaxException e) {
-            LOGGER.warn("[%s] Caught %s when trying to use Url %s".formatted(getProfileDescriptiveName(), e, managementProps.getDerivedRepoBaseUrl()));
+            LOGGER.warn("[%s] Caught %s when trying to use Url %s".formatted(getProfileDescriptiveName(), e, getDerivedRepoBaseUrl()));
             throw new IllegalArgumentException(e);
         } finally {
             deleteFileWithLogging(tempDownloadFile, "[%s] Deleted temp download file: %s", "[%s] Could not delete temp download file: %s");
