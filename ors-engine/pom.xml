@@ -259,16 +259,6 @@
             <version>2.54.20</version>
         </dependency>
 
-        <!-- Reported as unused by dependency:analyze, but required at runtime: minio pulls in
-             com.squareup.okhttp3:okhttp, which since OkHttp 5 is an empty Kotlin-multiplatform
-             stub jar (0 classes) whose JVM content Maven cannot see, as it is declared only in
-             Gradle module metadata. This artifact carries the actual implementation. -->
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp-jvm</artifactId>
-            <version>5.5.0</version>
-        </dependency>
-
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
