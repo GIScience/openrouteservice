@@ -74,7 +74,6 @@ class HttpRepoManagerTest {
     static class OrsGraphHelper {
         ORSGraphFileManager orsGraphFileManager;
         ORSGraphRepoClient orsGraphRepoClient;
-
     }
 
     private OrsGraphHelper setupOrsGraphHelper(GraphManagementRuntimeProperties graphManagementRuntimeProperties, Long timeVariable) {

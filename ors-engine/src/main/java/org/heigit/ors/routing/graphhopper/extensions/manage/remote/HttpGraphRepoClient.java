@@ -87,30 +87,6 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
     }
 
     @Override
-    public void downloadGraphIfNecessary() {
-        if (! isValidRepoConfig()) {
-            LOGGER.debug("[%s] ORSGraphManager has no valid repo config - skipping check".formatted(getProfileDescriptiveName()));
-            return;
-        }
-        if (orsGraphFileManager.isBusy()) {
-            LOGGER.debug("[%s] ORSGraphManager is busy - skipping check".formatted(getProfileDescriptiveName()));
-            return;
-        }
-
-        LOGGER.debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
-        try {
-            GraphBuildInfo newlyDownloadedGraphBuildInfo = downloadGraphBuildInfoFromRepository();
-            if (!shouldDownloadGraph(newlyDownloadedGraphBuildInfo)) {
-                return;
-            }
-
-            downloadCompressedGraphFromRepository();
-
-        } catch (Exception e) {
-            LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), e);
-        }
-    }
-
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo graphBuildInfoInRepo = new GraphBuildInfo();
         LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
@@ -133,7 +109,8 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
         return graphBuildInfoInRepo;
     }
 
-    void downloadCompressedGraphFromRepository() {
+    @Override
+    protected void downloadCompressedGraphFromRepository() {
         URL downloadUrl = createDownloadUrl(orsGraphRepoStrategy.getRepoCompressedGraphFileName());
         if (downloadUrl == null) {
             return;
