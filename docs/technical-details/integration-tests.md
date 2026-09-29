@@ -54,6 +54,23 @@ ors-test-scenarios/
 ./mvnw -pl ors-test-scenarios test -P integrationTests -Dcontainer.run.scenario=jar
 ```
 
+## Slim image S3 repository test
+
+`SlimImageS3RepoTest` runs the slim image from the root `Dockerfile` rather than a builder image.
+It builds the graphs of the apitests configuration (`ors-api/src/test/resources/application-test.yml`) in preparation mode,
+uploads them to a RustFS container, and checks that a fresh slim container downloads every profile from that S3
+repository and reports `ready` on `/ors/v2/health`.
+The `public-transport` and `driving-car-no-preparations` profiles are left out.
+
+Testcontainers builds images without BuildKit, which the `Dockerfile` needs, so the image has to be built first.
+The test uses `local/openrouteservice:test-slim`, or the image given in `container.slim.image`.
+Without the property, the test is skipped if the default image does not exist.
+
+```shell
+docker build --target slim -t local/openrouteservice:test-slim .
+./mvnw -pl ors-test-scenarios test -Dtest=integrationtests.SlimImageS3RepoTest
+```
+
 ## Advanced test runs
 
 The test module provides multiple properties to customize the test execution:
