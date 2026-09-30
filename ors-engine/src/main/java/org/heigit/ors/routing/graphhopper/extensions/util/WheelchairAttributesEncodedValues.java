@@ -19,31 +19,31 @@ public class WheelchairAttributesEncodedValues {
     BooleanEncodedValue surfaceQualityKnownEncoder;
 
     public WheelchairAttributesEncodedValues(EncodingManager encodingManager) {
-        if(encodingManager.hasEncodedValue(WheelchairSurface.KEY))
+        if (encodingManager.hasEncodedValue(WheelchairSurface.KEY))
             surfaceEncoder = encodingManager.getIntEncodedValue(WheelchairSurface.KEY);
 
-        if(encodingManager.hasEncodedValue(WheelchairSmoothness.KEY))
+        if (encodingManager.hasEncodedValue(WheelchairSmoothness.KEY))
             smoothnessEncoder = encodingManager.getIntEncodedValue(WheelchairSmoothness.KEY);
 
-        if(encodingManager.hasEncodedValue(WheelchairTrackType.KEY))
+        if (encodingManager.hasEncodedValue(WheelchairTrackType.KEY))
             trackTypeEncoder = encodingManager.getIntEncodedValue(WheelchairTrackType.KEY);
 
-        if(encodingManager.hasEncodedValue(WheelchairIncline.KEY))
+        if (encodingManager.hasEncodedValue(WheelchairIncline.KEY))
             inclineEncoder = encodingManager.getIntEncodedValue(WheelchairIncline.KEY);
 
-        if(encodingManager.hasEncodedValue(WheelchairWidth.KEY))
+        if (encodingManager.hasEncodedValue(WheelchairWidth.KEY))
             widthEncoder = encodingManager.getDecimalEncodedValue(WheelchairWidth.KEY);
 
-        if(encodingManager.hasEncodedValue(WheelchairKerb.KEY))
+        if (encodingManager.hasEncodedValue(WheelchairKerb.KEY))
             kerbEncoder = encodingManager.getIntEncodedValue(WheelchairKerb.KEY);
 
-        if(encodingManager.hasEncodedValue(WheelchairSuitable.KEY))
+        if (encodingManager.hasEncodedValue(WheelchairSuitable.KEY))
             suitableEncoder = encodingManager.getBooleanEncodedValue(WheelchairSuitable.KEY);
 
-        if(encodingManager.hasEncodedValue(WheelchairSide.KEY))
+        if (encodingManager.hasEncodedValue(WheelchairSide.KEY))
             sideEncoder = encodingManager.getEnumEncodedValue(WheelchairSide.KEY, WheelchairAttributes.Side.class);
 
-        if(encodingManager.hasEncodedValue(WheelchairSurfaceQualityKnown.KEY))
+        if (encodingManager.hasEncodedValue(WheelchairSurfaceQualityKnown.KEY))
             surfaceQualityKnownEncoder = encodingManager.getBooleanEncodedValue(WheelchairSurfaceQualityKnown.KEY);
     }
 
