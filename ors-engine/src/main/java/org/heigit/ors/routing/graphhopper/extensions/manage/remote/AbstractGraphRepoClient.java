@@ -14,19 +14,19 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
-abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
+public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
 
     abstract ORSGraphFileManager getOrsGraphFileManager();
     abstract ORSGraphRepoStrategy getOrsGraphRepoStrategy();
     abstract GraphManagementRuntimeProperties getGraphManagementRuntimeProperties();
     abstract Logger getLogger();
 
-    abstract boolean isValidRepoConfig();
+    public abstract boolean hasValidRepoConfig();
     abstract GraphBuildInfo downloadGraphBuildInfoFromRepository();
     abstract void downloadCompressedGraphFromRepository();
 
      public void downloadGraphIfNecessary() {
-        if (! isValidRepoConfig()) {
+        if (! hasValidRepoConfig()) {
             getLogger().debug("[%s] ORSGraphManager has no valid repo config - skipping check".formatted(getProfileDescriptiveName()));
             return;
         }

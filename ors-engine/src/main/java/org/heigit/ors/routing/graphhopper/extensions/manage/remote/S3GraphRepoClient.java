@@ -58,11 +58,13 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
         return LOGGER;
     }
 
-    //TODO unit test
-    boolean isValidRepoConfig() {
+    @Override
+    public boolean hasValidRepoConfig() {
         return isNotBlank(this.managementProps.getRepoName()) &&
                 isNotBlank(this.managementProps.getRepoCoverage()) &&
                 isNotBlank(this.managementProps.getGraphVersion()) &&
+                isNotBlank(this.managementProps.getRepoUser()) &&
+                isNotBlank(this.managementProps.getRepoPass()) &&
                 isNotBlank(this.managementProps.getDerivedRepoBaseUrl().toString());
     }
 

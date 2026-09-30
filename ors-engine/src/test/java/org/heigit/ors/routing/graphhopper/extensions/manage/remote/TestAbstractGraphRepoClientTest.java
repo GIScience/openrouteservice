@@ -65,7 +65,7 @@ public class TestAbstractGraphRepoClientTest {
         }
 
         @Override
-        boolean isValidRepoConfig() {
+        public boolean hasValidRepoConfig() {
             return false;
         }
     }
