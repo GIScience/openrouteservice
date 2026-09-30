@@ -58,8 +58,12 @@ class ORSGraphManagerTest {
     void getOrsGraphRepoClient(String className, String repoUri) {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withLocalGraphsRootAbsPath("graphs")
+                .withRepoName("myS3Repo")
+                .withRepoCoverage("lummerland")
                 .withRepoBaseUri(repoUri)
                 .withGraphVersion("1")
+                .withRepoUser("user")
+                .withRepoPass("pw")
                 .withLocalProfileName("driving-car")
                 .build();
         FlatORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);

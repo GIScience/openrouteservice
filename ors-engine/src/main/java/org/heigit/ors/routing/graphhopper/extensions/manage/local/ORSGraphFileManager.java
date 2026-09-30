@@ -182,7 +182,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
 
         if (activeGraphDirectory.renameTo(backupFile)) {
-            LOGGER.debug("[%s] Renamed old local graph directory %s to %s".formatted(getProfileDescriptiveName(), origAbsPath, newAbsPath));
+            LOGGER.info("[%s] Renamed old local graph directory %s to %s".formatted(getProfileDescriptiveName(), origAbsPath, newAbsPath));
         } else {
             LOGGER.error("[%s] Could not backup local graph directory %s to %s".formatted(getProfileDescriptiveName(), origAbsPath, newAbsPath));
         }
@@ -233,7 +233,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         File downloadedExtractedGraphDirectory = getDownloadedExtractedGraphDirectory();
 
         if (!hasDownloadedExtractedGraph()) {
-            LOGGER.trace("[%s] No downloaded graph directory found.".formatted(getProfileDescriptiveName()));
+            LOGGER.warn("[%s] No downloaded graph directory found.".formatted(getProfileDescriptiveName()));
             return new GraphBuildInfo().setLocalDirectory(downloadedExtractedGraphDirectory);
         }
 
@@ -243,7 +243,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     private GraphBuildInfo getGraphBuildInfo(File graphBuildInfoFile) throws ORSGraphFileManagerException {
         File graphDirectory = graphBuildInfoFile.getParentFile();
         if (!graphBuildInfoFile.exists() || !graphBuildInfoFile.isFile()) {
-            LOGGER.trace("[%s] No graph info file %s found in %s".formatted(getProfileDescriptiveName(), graphBuildInfoFile.getName(), graphBuildInfoFile.getParentFile().getName()));
+            LOGGER.warn("[%s] No graph info file %s found in %s".formatted(getProfileDescriptiveName(), graphBuildInfoFile.getName(), graphBuildInfoFile.getParentFile().getName()));
             return new GraphBuildInfo().setLocalDirectory(graphDirectory);
         }
 

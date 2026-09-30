@@ -79,7 +79,8 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
         }
     }
 
-    boolean isValidRepoConfig() {
+    @Override
+    public boolean hasValidRepoConfig() {
         return isNotBlank(managementProps.getRepoName()) &&
                 isNotBlank(managementProps.getRepoCoverage()) &&
                 isNotBlank(managementProps.getGraphVersion()) &&
