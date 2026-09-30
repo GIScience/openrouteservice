@@ -69,6 +69,7 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
         downloadFile(latestCompressedGraphInRepoPath, orsGraphFileManager.getDownloadedCompressedGraphFile());
     }
 
+    @Override
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo latestGraphBuildInfoInRepo = new GraphBuildInfo();
         LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
