@@ -118,8 +118,6 @@ public class ORSGraphManager {
     }
 
     public void manageStartup() {
-        if (!useGraphRepository()) return;
-
         orsGraphFileManager.cleanupIncompleteFiles();
 
         boolean hasActiveGraph = orsGraphFileManager.hasComaptibleActiveGraph();
