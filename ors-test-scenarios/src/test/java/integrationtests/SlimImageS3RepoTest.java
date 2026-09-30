@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -149,6 +150,8 @@ class SlimImageS3RepoTest {
         return env;
     }
 
+    // The caller closes the container; the with* chain hides that from the compiler's resource analysis.
+    @SuppressWarnings("resource")
     private static GenericContainer<?> slimContainer(String user, Path graphs, Path elevationCache) {
         return new GenericContainer<>(DockerImageName.parse(SLIM_IMAGE))
                 .withCreateContainerCmdModifier(cmd -> cmd.withUser(user))
@@ -175,6 +178,8 @@ class SlimImageS3RepoTest {
         }
     }
 
+    // The caller closes the container; the with* chain hides that from the compiler's resource analysis.
+    @SuppressWarnings("resource")
     private static GenericContainer<?> rustfsContainer(Network network) {
         return new GenericContainer<>(RUSTFS_IMAGE)
                 .withNetwork(network)
@@ -237,21 +242,29 @@ class SlimImageS3RepoTest {
         protected void waitUntilReady() {
             URI health = URI.create("http://%s:%d/ors/v2/health".formatted(waitStrategyTarget.getHost(), waitStrategyTarget.getMappedPort(ORS_PORT)));
             HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
+            Callable<Boolean> healthy = () -> {
+                try {
+                    return client.send(HttpRequest.newBuilder(health).build(), HttpResponse.BodyHandlers.discarding()).statusCode() == 200;
+                } catch (IOException _) {
+                    // Not listening yet.
+                    return false;
+                }
+            };
             long deadline = System.nanoTime() + startupTimeout.toNanos();
             while (System.nanoTime() < deadline) {
                 if (!waitStrategyTarget.isRunning()) {
                     throw new ContainerLaunchException("Container exited before %s answered 200".formatted(health));
                 }
                 try {
-                    if (client.send(HttpRequest.newBuilder(health).build(), HttpResponse.BodyHandlers.discarding()).statusCode() == 200) {
+                    // The rate limiter paces the polling.
+                    if (getRateLimiter().getWhenReady(healthy)) {
                         return;
                     }
-                    Thread.sleep(1000);
-                } catch (IOException _) {
-                    // Not listening yet.
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     throw new ContainerLaunchException("Interrupted while waiting for %s".formatted(health), e);
+                } catch (Exception e) {
+                    throw new ContainerLaunchException("Failed to query %s".formatted(health), e);
                 }
             }
             throw new ContainerLaunchException("Timed out after %s waiting for %s to answer 200".formatted(startupTimeout, health));
