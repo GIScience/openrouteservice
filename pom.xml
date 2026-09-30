@@ -36,8 +36,6 @@
 
     <properties>
         <java.version>25</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
