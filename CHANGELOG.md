@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- integration test loading graphs into the slim image from an S3 repository ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 
 ### Changed
 - migrate countries and borders storage to encoded values ([#2281](https://github.com/GIScience/openrouteservice/pull/2281))
@@ -35,8 +36,11 @@ Releasing is documented in RELEASE.md
 ### Deprecated
 
 ### Removed
+- leftover `okhttp-jvm` dependency ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 
 ### Fixed
+- slim image failing to download graphs from S3 repositories ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
+- ors-test-scenarios tests being skipped due to a `logback-classic` version mismatch ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 
 ### Security
 

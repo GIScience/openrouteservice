@@ -478,3 +478,17 @@ jobs:
           fi
           echo "::error::Graph compatibility comparison failed: ${RELEASED_IMAGE} can no longer load a graph built by this build, but both declare graph version ${BUILD_VERSION}. Deployed instances on that release would break. Either revert the graph format change, or bump <project.graphVersion> in pom.xml so existing deployments are told to rebuild."
           exit 1
+
+      - name: Set up Java for the slim image S3 repository test
+        if: ${{ !cancelled() && !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        uses: ./.github/actions/setup-build-environment
+        with:
+          with_java: 'true'
+          with_docker: 'false'
+
+      - name: Verify the slim image loads all apitests profiles from an S3 graph repository
+        if: ${{ !cancelled() && !(matrix.skip_on_draft && (needs.prepare_environment.outputs.is_draft == 'true')) }}
+        run: |
+          ./mvnw -B -pl ors-test-scenarios test \
+            -Dtest=integrationtests.SlimImageS3RepoTest \
+            -Dcontainer.slim.image=${{ env.TEST_SLIM_IMAGE_NAME }}
