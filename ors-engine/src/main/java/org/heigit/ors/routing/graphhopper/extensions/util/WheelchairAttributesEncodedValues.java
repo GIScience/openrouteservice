@@ -5,6 +5,8 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 
+import java.util.function.IntConsumer;
+
 public class WheelchairAttributesEncodedValues {
     IntEncodedValue surfaceEncoder;
     IntEncodedValue smoothnessEncoder;
@@ -45,37 +47,37 @@ public class WheelchairAttributesEncodedValues {
             surfaceQualityKnownEncoder = encodingManager.getBooleanEncodedValue(WheelchairSurfaceQualityKnown.KEY);
     }
 
+    private void readAttributeIfEvExists(IntsRef edgeFlags, IntEncodedValue ev, IntConsumer setter) {
+        if (ev != null) {
+            int value = ev.getInt(false, edgeFlags);
+            if (value > 0)
+                setter.accept(value);
+        }
+    }
+
     public WheelchairAttributes getAttributes(IntsRef edgeFlags) {
         WheelchairAttributes attrs = new WheelchairAttributes();
-        int surface = surfaceEncoder.getInt(false, edgeFlags);
-        if(surface > 0)
-            attrs.setSurfaceType(surface);
 
-        int smoothness = smoothnessEncoder.getInt(false, edgeFlags);
-        if(smoothness > 0)
-            attrs.setSmoothnessType(smoothness);
+        readAttributeIfEvExists(edgeFlags, surfaceEncoder, attrs::setSurfaceType);
+        readAttributeIfEvExists(edgeFlags, smoothnessEncoder, attrs::setSmoothnessType);
+        readAttributeIfEvExists(edgeFlags, trackTypeEncoder, attrs::setTrackType);
+        readAttributeIfEvExists(edgeFlags, inclineEncoder, attrs::setIncline);
+        readAttributeIfEvExists(edgeFlags, kerbEncoder, attrs::setSlopedKerbHeight);
 
-        int  trackType = trackTypeEncoder.getInt(false, edgeFlags);
-        if(trackType > 0)
-            attrs.setTrackType(trackType);
+        if (suitableEncoder != null)
+            attrs.setSuitable(suitableEncoder.getBool(false, edgeFlags));
 
-        attrs.setSuitable(suitableEncoder.getBool(false, edgeFlags));
-        attrs.setSide(sideEncoder.getEnum(false, edgeFlags));
-        attrs.setSurfaceQualityKnown(surfaceQualityKnownEncoder.getBool(false, edgeFlags));
+        if (sideEncoder != null)
+            attrs.setSide(sideEncoder.getEnum(false, edgeFlags));
 
-        int incline = inclineEncoder.getInt(false, edgeFlags);
-        if (incline > 0) {
-            attrs.setIncline(incline);
-        }
+        if (surfaceQualityKnownEncoder != null)
+            attrs.setSurfaceQualityKnown(surfaceQualityKnownEncoder.getBool(false, edgeFlags));
 
-        int width = (int) widthEncoder.getDecimal(false, edgeFlags);
-        if (width > 0) {
-            attrs.setWidth(width);
-        }
 
-        int kerb = kerbEncoder.getInt(false, edgeFlags);
-        if (kerb > 0) {
-            attrs.setSlopedKerbHeight(kerb);
+        if (widthEncoder != null) {
+            int width = (int) widthEncoder.getDecimal(false, edgeFlags);
+            if (width > 0)
+                attrs.setWidth(width);
         }
 
         return attrs;
