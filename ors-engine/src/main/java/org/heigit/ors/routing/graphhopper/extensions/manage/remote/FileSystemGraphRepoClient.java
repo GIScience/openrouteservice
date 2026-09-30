@@ -50,7 +50,7 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
     }
 
     @Override
-    boolean isValidRepoConfig() {
+    public boolean hasValidRepoConfig() {
         return isNotBlank(managementProps.getRepoName()) &&
                 isNotBlank(managementProps.getRepoCoverage()) &&
                 isNotBlank(managementProps.getGraphVersion()) &&

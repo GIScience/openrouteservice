@@ -49,28 +49,35 @@ public class ORSGraphManager {
     }
 
     public static ORSGraphRepoClient getOrsGraphRepoClient(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
-        ORSGraphRepoClient orsGraphRepoClient = new NullGraphRepoClient();
-
         switch (managementProps.getDerivedRepoType()) {
             case HTTP -> {
-                LOGGER.debug("Using HttpGraphRepoClient for repoUrl %s".formatted(managementProps.getDerivedRepoBaseUrl()));
-                orsGraphRepoClient = new HttpGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+                return checkValidRepoConfig(new HttpGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager), managementProps);
             }
             case FILESYSTEM -> {
-                LOGGER.debug("Using FileSystemGraphRepoClient for repoUri %s".formatted(managementProps.getDerivedRepoPath()));
-                orsGraphRepoClient = new FileSystemGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+                return checkValidRepoConfig(new FileSystemGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager), managementProps);
             }
             case S3 -> {
-                LOGGER.debug("Using S3GraphRepoClient for repoUrl %s".formatted(managementProps.getDerivedRepoBaseUrl()));
-                orsGraphRepoClient = new S3GraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+                return checkValidRepoConfig(new S3GraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager), managementProps);
             }
-            case NULL -> {
+            default ->
+            {
                 LOGGER.debug("No valid repositoryUri configured, using NullGraphRepoClient.");
-                orsGraphRepoClient = new NullGraphRepoClient();
+                return new NullGraphRepoClient();
             }
         }
+    }
 
-        return orsGraphRepoClient;
+    private static ORSGraphRepoClient checkValidRepoConfig(AbstractGraphRepoClient client, GraphManagementRuntimeProperties managementProps) {
+        if (client.hasValidRepoConfig()) {
+            LOGGER.debug("Using %s client implementation for repoUrl %s".formatted(managementProps.getDerivedRepoType(), managementProps.getDerivedRepoBaseUrl()));
+            return client;
+        } else {
+            LOGGER.error("[%s] Invalid %s graph repo config - graph management cannot be activated for this profile!".formatted(
+                    managementProps.getLocalProfileName(),
+                    managementProps.getDerivedRepoType()
+                    ));
+            return new NullGraphRepoClient();
+        }
     }
 
     public ProfileProperties loadProfilePropertiesFromActiveGraph(ORSGraphManager orsGraphManager, ProfileProperties profileProperties) throws ORSGraphFileManagerException {
