@@ -43,10 +43,12 @@ public class WheelchairKerbHeightParser extends WheelchairBaseParser<IntEncodedV
         heights = calcSingleKerbHeightFromSidedTagList(explicitKerbTags, heights);
 
         if (heights[0] > -1) {
+            hasLeftSidewalk = true;
             heightL = heights[0];
         }
 
         if (heights[1] > -1) {
+            hasRightSidewalk = true;
             heightR = heights[1];
         }
 
