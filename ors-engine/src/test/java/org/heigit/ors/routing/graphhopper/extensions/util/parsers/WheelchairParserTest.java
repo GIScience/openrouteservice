@@ -258,6 +258,31 @@ class WheelchairParserTest {
         assertEquals(-1, attrs.getSlopedKerbHeight());
     }
 
+    @Test
+    void TestCombineRegularAndSidewalkSideValues() {
+        ReaderWay way = new ReaderWay(1);
+
+        way.setTag("sidewalk:left:width", "0.1");
+        way.setTag("width", "0.2");
+
+        executeParsers(way);
+        WheelchairAttributesEncodedValues encValues = new WheelchairAttributesEncodedValues(em);
+        WheelchairAttributes attrs = encValues.getAttributes(intsRef);
+
+        assertEquals(10, attrs.getWidth()); // given in cm, smaller is worse and therefore kept when combining 0.1 and 0.2
+
+        ReaderWay way2 = new ReaderWay(1);
+        way2.setTag("footway", "crossing");
+        way2.setTag("sidewalk:right:kerb:height", "0.02");
+        way2.setTag("kerb:height", "0.03");
+        executeParsers(way2);
+
+        WheelchairAttributesEncodedValues encValues2 = new WheelchairAttributesEncodedValues(em);
+        WheelchairAttributes attrs2 = encValues2.getAttributes(intsRef);
+
+        assertEquals(3, attrs2.getSlopedKerbHeight()); // given in cm, more is worse in this case
+    }
+
     @Disabled("This test is new and fails, because an already previously existing issue. We will tackle this after the refactoring.")
     @Test
     void TestUseWorstKerbHeightTag() {
