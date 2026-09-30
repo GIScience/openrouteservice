@@ -94,7 +94,7 @@ public class ORSOSMReader extends OSMReader {
         nodeTagsToStore = new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload"));
         osmNodeTagValues = new GHLongObjectHashMap<>(200, .5f);
 
-        if(encodingManager.hasEncodedValue(WheelchairKerb.KEY)) {
+        if (encodingManager.hasEncodedValue(WheelchairKerb.KEY)) {
             this.processNodeTags = true;
             this.processSimpleGeom = true;
             extraTagKeys.add("kerb");
@@ -199,8 +199,7 @@ public class ORSOSMReader extends OSMReader {
                     }
                 }
             }
-        }
-        else {
+        } else {
             // Normal processing
             super.preprocessWay(first, last, way);
         }
@@ -334,8 +333,7 @@ public class ORSOSMReader extends OSMReader {
                         }
                         if (isTowerNode(nodeId)) {
                             coords.add(coordinate);
-                        }
-                        else {// TODO: check if we actually need to add  "empty" points
+                        } else {// TODO: check if we actually need to add  "empty" points
                             coords.add(new Coordinate(Double.NaN, Double.NaN));
                         }
                     } catch (Exception e) {
@@ -369,7 +367,7 @@ public class ORSOSMReader extends OSMReader {
             for (int i = 1; i < size - 1; i++) {
                 long nodeId = osmNodeIds.get(i);
                 if (osmNodeTagValues.containsKey(nodeId)) {
-                  osmNodeTagValues.get(nodeId).forEach((key, value) -> way.setTag(key, value.toString()));
+                    osmNodeTagValues.get(nodeId).forEach((key, value) -> way.setTag(key, value.toString()));
                 }
             }
         }
