@@ -1,5 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
@@ -13,6 +14,8 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
 
@@ -25,7 +28,7 @@ public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
     abstract GraphBuildInfo downloadGraphBuildInfoFromRepository();
     abstract void downloadCompressedGraphFromRepository();
 
-     public void downloadGraphIfNecessary() {
+    public void downloadGraphIfNecessary() {
         if (! hasValidRepoConfig()) {
             getLogger().debug("[%s] ORSGraphManager has no valid repo config - skipping check".formatted(getProfileDescriptiveName()));
             return;
@@ -188,6 +191,16 @@ public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
         } catch (IOException e) {
             getLogger().error(errorMessage.formatted(e.getMessage()));
         }
+    }
+
+    public String concatenateToUrlPath(String... values) {
+        return Stream.of(values)
+                .filter(StringUtils::isNotBlank)
+                .map(String::trim)
+                .map(s -> s.replaceAll("^/", ""))
+                .map(s -> s.replaceAll("/$", ""))
+                .filter(s -> !s.equals("."))
+                .collect(Collectors.joining("/"));
     }
 
 }

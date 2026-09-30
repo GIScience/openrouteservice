@@ -1,6 +1,5 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
@@ -14,13 +13,9 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -69,34 +64,6 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
     }
 
     @Override
-    protected void downloadCompressedGraphFromRepository() {
-        Path latestCompressedGraphInRepoPath = Path.of(
-                managementProps.getRepoProfileGroup(),
-                managementProps.getRepoCoverage(),
-                managementProps.getGraphVersion(),
-                orsGraphRepoStrategy.getRepoCompressedGraphFileName());
-        downloadFile(latestCompressedGraphInRepoPath, orsGraphFileManager.getDownloadedCompressedGraphFile());
-    }
-
-    private void deleteFileWithLogging(File file) {
-        try {
-            if (Files.deleteIfExists(file.toPath()))
-                LOGGER.debug("[%s] Deleted old downloaded graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
-        } catch (IOException _) {
-            LOGGER.error("[%s] Could not delete old downloaded graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
-        }
-    }
-
-    public static String concatenateToUrlPath(String... values) {
-        return Stream.of(values)
-                .filter(StringUtils::isNotBlank)
-                .map(String::trim)
-                .map(s -> s.replaceAll("^/", ""))
-                .map(s -> s.replaceAll("/$", ""))
-                .filter(s -> !s.equals("."))
-                .collect(Collectors.joining("/"));
-    }
-
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo graphBuildInfoInRepo = new GraphBuildInfo();
         LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
@@ -108,7 +75,11 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
                 getRepoGraphBuildInfoFileName());
 
         File downloadedGraphBuildInfoFile = getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
-        deleteFileWithLogging(downloadedGraphBuildInfoFile);
+        deleteFileWithLogging(downloadedGraphBuildInfoFile,
+                "[%s] Deleted old downloaded graphBuildInfo file: %s",
+                "[%s] Could not delete old downloaded graphBuildInfo file: %s"
+        );
+
         downloadFile(latestGraphBuildInfoInRepoPath, downloadedGraphBuildInfoFile);
 
         if (!downloadedGraphBuildInfoFile.exists()) {
@@ -120,6 +91,16 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
         PersistedGraphBuildInfo persistedGraphBuildInfo = getPersistedGraphBuildInfo(downloadedGraphBuildInfoFile);
         graphBuildInfoInRepo.setPersistedGraphBuildInfo(persistedGraphBuildInfo);
         return graphBuildInfoInRepo;
+    }
+
+    @Override
+    protected void downloadCompressedGraphFromRepository() {
+        Path latestCompressedGraphInRepoPath = Path.of(
+                managementProps.getRepoProfileGroup(),
+                managementProps.getRepoCoverage(),
+                managementProps.getGraphVersion(),
+                orsGraphRepoStrategy.getRepoCompressedGraphFileName());
+        downloadFile(latestCompressedGraphInRepoPath, orsGraphFileManager.getDownloadedCompressedGraphFile());
     }
 
     public void downloadFile(Path repoPath, File outputFile) {

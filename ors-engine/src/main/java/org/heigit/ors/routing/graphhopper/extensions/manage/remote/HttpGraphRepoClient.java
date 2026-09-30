@@ -2,7 +2,6 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import lombok.NoArgsConstructor;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
@@ -14,8 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -51,32 +48,6 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
     @Override
     Logger getLogger() {
         return LOGGER;
-    }
-
-    public static String concatenateToUrlPath(String... values) {
-        return Stream.of(values)
-                .filter(StringUtils::isNotBlank)
-                .map(String::trim)
-                .map(s -> s.replaceAll("^/", ""))
-                .map(s -> s.replaceAll("/$", ""))
-                .filter(s -> !s.equals("."))
-                .collect(Collectors.joining("/"));
-    }
-
-    public URL createDownloadUrl(String fileName) {
-        String urlString = concatenateToUrlPath(this.managementProps.getDerivedRepoBaseUrl().toString(),
-                this.managementProps.getRepoName(),
-                this.managementProps.getRepoProfileGroup(),
-                this.managementProps.getRepoCoverage(),
-                this.managementProps.getGraphVersion(),
-                fileName);
-
-        try {
-            return new URL(urlString);
-        } catch (MalformedURLException e) {
-            LOGGER.debug("[%s] Generated invalid download URL for graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), urlString));
-            return null;
-        }
     }
 
     @Override
@@ -127,6 +98,22 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
             LOGGER.info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
         } else {
             LOGGER.info("[%s] Compressed graph file not found in remote repository.".formatted(getProfileDescriptiveName()));
+        }
+    }
+
+    public URL createDownloadUrl(String fileName) {
+        String urlString = concatenateToUrlPath(this.managementProps.getDerivedRepoBaseUrl().toString(),
+                this.managementProps.getRepoName(),
+                this.managementProps.getRepoProfileGroup(),
+                this.managementProps.getRepoCoverage(),
+                this.managementProps.getGraphVersion(),
+                fileName);
+
+        try {
+            return new URL(urlString);
+        } catch (MalformedURLException e) {
+            LOGGER.debug("[%s] Generated invalid download URL for graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), urlString));
+            return null;
         }
     }
 
