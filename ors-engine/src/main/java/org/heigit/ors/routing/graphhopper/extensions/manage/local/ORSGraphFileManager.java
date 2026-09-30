@@ -65,6 +65,33 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return isExistingDirectoryWithFiles(getActiveGraphDirectory());
     }
 
+    public boolean hasComaptibleActiveGraph() {
+        if (!hasActiveGraph())
+            return false;
+
+        GraphBuildInfo graphBuildInfo = getActiveGraphBuildInfo();
+        if (isGraphCompatibleWithApplication(graphBuildInfo))
+            return true;
+
+        backupExistingGraph();
+        return false;
+    }
+
+    public boolean isGraphCompatibleWithApplication(GraphBuildInfo graphBuildInfo) {
+        String activeGraphVersion = graphBuildInfo.getPersistedGraphBuildInfo().getGraphVersion();
+        String applicationGraphVersion = graphManagementRuntimeProperties.getGraphVersion();
+        boolean sameGraphVersion = applicationGraphVersion.equals(activeGraphVersion);
+        if (!sameGraphVersion)
+            LOGGER.info("[%s] Local graph with graphVersion=%s is incompatible with application (graphVersion=%s)".formatted(
+                            graphManagementRuntimeProperties.getLocalProfileName(),
+                            activeGraphVersion,
+                            applicationGraphVersion
+                    )
+            );
+
+        return sameGraphVersion;
+    }
+
     public boolean hasGraphDownloadFile() {
         return getDownloadedCompressedGraphFile().exists();
     }
@@ -73,6 +100,20 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return isExistingDirectoryWithFiles(getDownloadedExtractedGraphDirectory());
     }
 
+    public boolean hasCompatibleDownloadedExtractedGraph() {
+        if (!hasDownloadedExtractedGraph())
+            return false;
+
+        GraphBuildInfo graphBuildInfo = getDownloadedExtractedGraphBuildInfo();
+        if (isGraphCompatibleWithApplication(graphBuildInfo))
+            return true;
+
+        deleteFileWithLogging(graphBuildInfo.getLocalDirectory(),
+                "[%s] Deleted incompatible downloaded extracted graph: %s",
+                "Error deleting incompatible downloaded extracted graph: %s");
+
+        return false;
+    }
     boolean isExistingDirectory(File directory) {
         return directory.exists() && directory.isDirectory();
     }
