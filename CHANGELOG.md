@@ -31,12 +31,15 @@ Releasing is documented in RELEASE.md
 
 ### Changed
 - migrate countries and borders storage to encoded values ([#2281](https://github.com/GIScience/openrouteservice/pull/2281))
+- update maven-install-plugin and maven-deploy-plugin to the Spring Boot managed versions ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 
 ### Deprecated
 
 ### Removed
+- JUnit libraries from the ors jar ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 
 ### Fixed
+- ors-benchmark using a different surefire version than the other modules ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 
 ### Security
 
