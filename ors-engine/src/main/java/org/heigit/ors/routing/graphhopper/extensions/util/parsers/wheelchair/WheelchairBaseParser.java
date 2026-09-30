@@ -326,10 +326,15 @@ public abstract class WheelchairBaseParser<T extends EncodedValue> implements Ta
 
         // Read sides
         String[] tagValues = getSidedTagValue(tagName);
-        if (tagValues[0] != null && !tagValues[0].isEmpty())
+        if (tagValues[0] != null && !tagValues[0].isEmpty()) {
+            hasLeftSidewalk = true;
             left = tagValueToEncodedValueFunction.applyAsInt(tagValues[0].toLowerCase());
-        if (tagValues[1] != null && !tagValues[1].isEmpty())
+        }
+
+        if (tagValues[1] != null && !tagValues[1].isEmpty()) {
+            hasRightSidewalk = true;
             right = tagValueToEncodedValueFunction.applyAsInt(tagValues[1].toLowerCase());
+        }
 
         // Select based on artificial ors-sidewalk-side tag
         return selectIntValueForSidewalkSide(way, center, left, right, moreIsBetter);
