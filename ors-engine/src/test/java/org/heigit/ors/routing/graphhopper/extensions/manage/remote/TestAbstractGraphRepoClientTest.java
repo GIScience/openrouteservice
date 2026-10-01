@@ -28,7 +28,7 @@ public class TestAbstractGraphRepoClientTest {
     @TempDir(cleanup = CleanupMode.ALWAYS)
     private static Path tempDir;
 
-    TestAbstractGraphRepoClient orsGraphRepoManager = new TestAbstractGraphRepoClient();
+    TestAbstractGraphRepoClient orsGraphRepoClient = new TestAbstractGraphRepoClient();
 
     /**
      * This class is used to test the methods of AbstractRepoManager
@@ -73,7 +73,7 @@ public class TestAbstractGraphRepoClientTest {
     @ParameterizedTest
     @MethodSource("shouldDownloadGraphMethodSource")
     void shouldDownloadGraph(Date remoteDate, Date activeDate, Date downloadedExtractedDate, Date downloadedCompressedDate, boolean expected) {
-        assertEquals(expected, orsGraphRepoManager.shouldDownloadGraph(remoteDate, activeDate, downloadedExtractedDate, downloadedCompressedDate));
+        assertEquals(expected, orsGraphRepoClient.shouldDownloadGraph(remoteDate, activeDate, downloadedExtractedDate, downloadedCompressedDate));
     }
 
     public static Stream<Arguments> shouldDownloadGraphMethodSource() {
@@ -107,13 +107,13 @@ public class TestAbstractGraphRepoClientTest {
     @ParameterizedTest
     @MethodSource("comparisonDates")
     void getDateOrEpocStart(Date expectedDate, GraphBuildInfo graphBuildInfo) {
-        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(graphBuildInfo));
+        assertEquals(expectedDate, orsGraphRepoClient.getDateOrEpocStart(graphBuildInfo));
     }
 
     @ParameterizedTest
     @MethodSource("comparisonDatesForDownloadFiles")
     void getDateOrEpocStart(Date expectedDate, File downloadFile, PersistedGraphBuildInfo persistedGraphBuildInfo) {
-        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(downloadFile, persistedGraphBuildInfo));
+        assertEquals(expectedDate, orsGraphRepoClient.getDateOrEpocStart(downloadFile, persistedGraphBuildInfo));
     }
 
     public static Stream<Arguments> comparisonDatesForDownloadFiles() throws IOException {
@@ -144,7 +144,7 @@ public class TestAbstractGraphRepoClientTest {
     @Test
     void newestDate() {
         assertEquals(new Date(LATER_DATE),
-                orsGraphRepoManager.newestDate(
+                orsGraphRepoClient.newestDate(
                         new Date(MIDDLE_DATE),
                         new Date(LATER_DATE),
                         new Date(EARLIER_DATE)));
