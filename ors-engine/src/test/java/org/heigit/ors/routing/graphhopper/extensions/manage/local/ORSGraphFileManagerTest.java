@@ -93,6 +93,112 @@ class ORSGraphFileManagerTest {
     }
 
     @Test
+    void isGraphCompatibleWithApplication_falseWhenGraphHasDifferentGraphVersion() throws IOException {
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
+                .withGraphVersion(REPO_NONEXISTING_GRAPHS_VERSION) //there is no graph in the repo with this graph version
+                .build());
+        createLocalGraph(LOCAL_PROFILE_NAME, LATER_DATE, EARLIER_DATE, REPO_GRAPHS_VERSION);
+        assertThat(orsGraphFileManager.isGraphCompatibleWithApplication(orsGraphFileManager.getActiveGraphBuildInfo()))
+                .isFalse();
+    }
+
+    @Test
+    void isGraphCompatibleWithApplication_trueWhenGraphHasSameGraphVersion() throws IOException {
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
+                .withGraphVersion(REPO_GRAPHS_VERSION)
+                .build());
+        createLocalGraph(LOCAL_PROFILE_NAME, LATER_DATE, EARLIER_DATE, REPO_GRAPHS_VERSION);
+        assertThat(orsGraphFileManager.isGraphCompatibleWithApplication(orsGraphFileManager.getActiveGraphBuildInfo()))
+                .isTrue();
+    }
+
+    @Test
+    void cleanupIncompatibleGraphs_doesNothingIfNoGraphsExist() throws IOException {
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
+                .withGraphVersion(REPO_GRAPHS_VERSION)
+                .build());
+        //do not create local graphs here
+        orsGraphFileManager.cleanupIncompatibleGraphs();
+    }
+
+    @Test
+    void cleanupIncompatibleGraphs_keepsCompatibleActiveGraph() throws IOException {
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
+                .withGraphVersion(REPO_NONEXISTING_GRAPHS_VERSION)
+                .build());
+        createLocalGraph(orsGraphFileManager.getActiveGraphDirName(), LATER_DATE, EARLIER_DATE, REPO_NONEXISTING_GRAPHS_VERSION);
+        assertThat(orsGraphFileManager.hasActiveGraph()).isTrue();
+
+        orsGraphFileManager.cleanupIncompatibleGraphs();
+
+        assertThat(orsGraphFileManager.hasActiveGraph()).isTrue();
+    }
+
+    @Test
+    void cleanupIncompatibleGraphs_backupsIncompatibleActiveGraph() throws IOException {
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
+                .withGraphVersion(REPO_GRAPHS_VERSION)
+                .withMaxNumberOfGraphBackups(1)
+                .build());
+        createLocalGraph(orsGraphFileManager.getActiveGraphDirName(), LATER_DATE, EARLIER_DATE, REPO_NONEXISTING_GRAPHS_VERSION);
+        assertThat(orsGraphFileManager.hasActiveGraph()).isTrue();
+
+        orsGraphFileManager.cleanupIncompatibleGraphs();
+
+        assertThat(orsGraphFileManager.hasActiveGraph()).isFalse();
+        assertThat(orsGraphFileManager.findGraphBackupsSortedByName()).hasSize(1);
+    }
+
+    @Test
+    void cleanupIncompatibleGraphs_deletesIncompatibleActiveGraph() throws IOException {
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
+                .withGraphVersion(REPO_GRAPHS_VERSION)
+                .withMaxNumberOfGraphBackups(0)
+                .build());
+        createLocalGraph(orsGraphFileManager.getActiveGraphDirName(), LATER_DATE, EARLIER_DATE, REPO_NONEXISTING_GRAPHS_VERSION);
+        assertThat(orsGraphFileManager.hasActiveGraph()).isTrue();
+
+        orsGraphFileManager.cleanupIncompatibleGraphs();
+
+        assertThat(orsGraphFileManager.hasActiveGraph()).isFalse();
+        assertThat(orsGraphFileManager.findGraphBackupsSortedByName()).hasSize(0);
+    }
+
+    @Test
+    void cleanupIncompatibleGraphs_keepsCompatibleDownloadedExtractedGraph() throws IOException {
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
+                .withGraphVersion(REPO_GRAPHS_VERSION)
+                .withMaxNumberOfGraphBackups(0)
+                .build());
+        createLocalGraph(orsGraphFileManager.getDownloadedExtractedGraphDirName(),
+                LATER_DATE, EARLIER_DATE, REPO_GRAPHS_VERSION);
+        assertThat(orsGraphFileManager.hasActiveGraph()).isFalse();
+        assertThat(orsGraphFileManager.hasDownloadedExtractedGraph()).isTrue();
+
+        orsGraphFileManager.cleanupIncompatibleGraphs();
+
+        assertThat(orsGraphFileManager.hasActiveGraph()).isFalse();
+        assertThat(orsGraphFileManager.hasDownloadedExtractedGraph()).isTrue();
+    }
+
+    @Test
+    void cleanupIncompatibleGraphs_deletesIncompatibleDownloadedExtractedGraph() throws IOException {
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
+                .withGraphVersion(REPO_GRAPHS_VERSION)
+                .build());
+        createLocalGraph(orsGraphFileManager.getDownloadedExtractedGraphDirName(),
+                LATER_DATE, EARLIER_DATE, REPO_NONEXISTING_GRAPHS_VERSION);
+        assertThat(orsGraphFileManager.hasActiveGraph()).isFalse();
+        assertThat(orsGraphFileManager.hasDownloadedExtractedGraph()).isTrue();
+
+        orsGraphFileManager.cleanupIncompatibleGraphs();
+
+        assertThat(orsGraphFileManager.hasActiveGraph()).isFalse();
+        assertThat(orsGraphFileManager.hasDownloadedExtractedGraph()).isFalse();
+    }
+
+
+    @Test
     void writeOrsGraphBuildInfo() throws IOException {
         setupOrsGraphFileManager(managementPropsBuilderWithDefaults().build());
         Path localGraphPath = createLocalGraph(LOCAL_PROFILE_NAME, LATER_DATE, EARLIER_DATE, REPO_GRAPHS_VERSION);
