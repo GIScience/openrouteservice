@@ -2,7 +2,6 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import lombok.NoArgsConstructor;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
@@ -14,11 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @NoArgsConstructor
 public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
@@ -34,80 +30,35 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
         this.orsGraphFileManager = orsGraphFileManager;
     }
 
-    String getProfileDescriptiveName() {
-        return orsGraphFileManager.getProfileDescriptiveName();
-    }
-
-    public static String concatenateToUrlPath(String... values) {
-        return Stream.of(values)
-                .filter(StringUtils::isNotBlank)
-                .map(String::trim)
-                .map(s -> s.replaceAll("^/", ""))
-                .map(s -> s.replaceAll("/$", ""))
-                .filter(s -> !s.equals("."))
-                .collect(Collectors.joining("/"));
-    }
-
-    public URL createDownloadUrl(String fileName) {
-        String urlString = concatenateToUrlPath(this.managementProps.getDerivedRepoBaseUrl().toString(),
-                this.managementProps.getRepoName(),
-                this.managementProps.getRepoProfileGroup(),
-                this.managementProps.getRepoCoverage(),
-                this.managementProps.getGraphVersion(),
-                fileName);
-
-        try {
-            return new URL(urlString);
-        } catch (MalformedURLException e) {
-            LOGGER.debug("[%s] Generated invalid download URL for graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), urlString));
-            return null;
-        }
-    }
-
-    private void deleteFileWithLogging(File file, String successMessage, String errorMessage) {
-        try {
-            if (Files.deleteIfExists(file.toPath()))
-                LOGGER.debug(successMessage.formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
-        } catch (IOException e) {
-            LOGGER.error(errorMessage.formatted(e.getMessage()));
-        }
+    @Override
+    ORSGraphFileManager getOrsGraphFileManager() {
+        return orsGraphFileManager;
     }
 
     @Override
-    public void downloadGraphIfNecessary() {
-        if (isNullOrEmpty(this.managementProps.getDerivedRepoBaseUrl().toString()) || isNullOrEmpty(this.managementProps.getRepoName()) || isNullOrEmpty(this.managementProps.getRepoCoverage()) || isNullOrEmpty(this.managementProps.getGraphVersion())) {
-            LOGGER.debug("[%s] ORSGraphManager is not configured - skipping check".formatted(getProfileDescriptiveName()));
-            return;
-        }
-        if (orsGraphFileManager.isBusy()) {
-            LOGGER.debug("[%s] ORSGraphManager is busy - skipping check".formatted(getProfileDescriptiveName()));
-            return;
-        }
-
-        LOGGER.debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
-        try {
-            PersistedGraphBuildInfo previouslyDownloadedGraphBuildInfo = orsGraphFileManager.getDownloadedGraphBuildInfo();
-            File downloadedCompressedGraphFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
-            GraphBuildInfo activeGraphBuildInfo = orsGraphFileManager.getActiveGraphBuildInfo();
-            GraphBuildInfo downloadedExtractedGraphBuildInfo = orsGraphFileManager.getDownloadedExtractedGraphBuildInfo();
-            GraphBuildInfo newlyDownloadedGraphBuildInfo = downloadGraphBuildInfoFromRepository();
-
-            if (!shouldDownloadGraph(
-                    getDateOrEpocStart(newlyDownloadedGraphBuildInfo),
-                    getDateOrEpocStart(activeGraphBuildInfo),
-                    getDateOrEpocStart(downloadedExtractedGraphBuildInfo),
-                    getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphBuildInfo))) {
-                LOGGER.info("[%s] No newer graph found in repository.".formatted(getProfileDescriptiveName()));
-                return;
-            }
-
-            downloadCompressedGraphFromRepository();
-
-        } catch (Exception e) {
-            LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), e);
-        }
+    ORSGraphRepoStrategy getOrsGraphRepoStrategy() {
+        return orsGraphRepoStrategy;
     }
 
+    @Override
+    GraphManagementRuntimeProperties getGraphManagementRuntimeProperties() {
+        return managementProps;
+    }
+
+    @Override
+    Logger getLogger() {
+        return LOGGER;
+    }
+
+    @Override
+    public boolean hasValidRepoConfig() {
+        return isNotBlank(managementProps.getRepoName()) &&
+                isNotBlank(managementProps.getRepoCoverage()) &&
+                isNotBlank(managementProps.getGraphVersion()) &&
+                isNotBlank(managementProps.getDerivedRepoBaseUrl().toString());
+    }
+
+    @Override
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo graphBuildInfoInRepo = new GraphBuildInfo();
         LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
@@ -130,7 +81,8 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
         return graphBuildInfoInRepo;
     }
 
-    void downloadCompressedGraphFromRepository() {
+    @Override
+    protected void downloadCompressedGraphFromRepository() {
         URL downloadUrl = createDownloadUrl(orsGraphRepoStrategy.getRepoCompressedGraphFileName());
         if (downloadUrl == null) {
             return;
@@ -149,10 +101,26 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
         }
     }
 
+    public URL createDownloadUrl(String fileName) {
+        String urlString = concatenateToUrlPath(this.managementProps.getDerivedRepoBaseUrl().toString(),
+                this.managementProps.getRepoName(),
+                this.managementProps.getRepoProfileGroup(),
+                this.managementProps.getRepoCoverage(),
+                this.managementProps.getGraphVersion(),
+                fileName);
+
+        try {
+            return new URL(urlString);
+        } catch (MalformedURLException e) {
+            LOGGER.debug("[%s] Generated invalid download URL for graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), urlString));
+            return null;
+        }
+    }
+
     public void downloadFile(URL downloadUrl, File outputFile) {
         File tempDownloadFile = orsGraphFileManager.asIncompleteFile(outputFile);
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), downloadUrl, outputFile.getAbsolutePath()));
+            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), downloadUrl, tempDownloadFile.getAbsolutePath()));
         } else {
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), downloadUrl));
         }

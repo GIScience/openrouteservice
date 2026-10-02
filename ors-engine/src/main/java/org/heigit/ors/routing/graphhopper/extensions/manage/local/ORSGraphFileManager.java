@@ -3,6 +3,8 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.util.Helper;
 import lombok.NoArgsConstructor;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.StringUtils;
@@ -20,14 +22,10 @@ import tools.jackson.databind.SerializationFeature;
 import tools.jackson.dataformat.yaml.YAMLFactory;
 import tools.jackson.dataformat.yaml.YAMLMapper;
 
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipFile;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
@@ -35,7 +33,6 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static tools.jackson.core.StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN;
@@ -62,11 +59,25 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                 LOGGER.error("[%s] Could not create graph directory %s".formatted(getProfileDescriptiveName(), activeGraphDirectory.getAbsolutePath()));
             }
         }
-        cleanupTempMinioFiles(getProfileGraphsDirectory().toPath());
     }
 
     public boolean hasActiveGraph() {
         return isExistingDirectoryWithFiles(getActiveGraphDirectory());
+    }
+
+    public boolean isGraphCompatibleWithApplication(GraphBuildInfo graphBuildInfo) {
+        String activeGraphVersion = graphBuildInfo.getPersistedGraphBuildInfo().getGraphVersion();
+        String applicationGraphVersion = graphManagementRuntimeProperties.getGraphVersion();
+        boolean sameGraphVersion = applicationGraphVersion.equals(activeGraphVersion);
+        if (!sameGraphVersion)
+            LOGGER.info("[%s] Local graph with graphVersion=%s is incompatible with application (graphVersion=%s)".formatted(
+                            graphManagementRuntimeProperties.getLocalProfileName(),
+                            activeGraphVersion,
+                            applicationGraphVersion
+                    )
+            );
+
+        return sameGraphVersion;
     }
 
     public boolean hasGraphDownloadFile() {
@@ -87,7 +98,11 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     }
 
     public File asIncompleteFile(File file) {
-        return new File(file.getAbsolutePath() + "." + INCOMPLETE_EXTENSION);
+        return asIncompleteFile(file, INCOMPLETE_EXTENSION);
+    }
+
+    public File asIncompleteFile(File file, String partialExtension) {
+        return new File(file.getAbsolutePath() + "." + partialExtension);
     }
 
     File asIncompleteDirectory(File directory) {
@@ -95,50 +110,28 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     }
 
     public boolean isBusy() {
-        return asIncompleteFile(getDownloadedCompressedGraphFile()).exists() ||
-                minioDownloadTempFileExists(getDownloadedCompressedGraphFile()) ||
-                asIncompleteFile(getDownloadedGraphBuildInfoFile()).exists() ||
-                asIncompleteFile(getDownloadedExtractedGraphDirectory()).exists();
+        return partialDownloadFileExists(getDownloadedCompressedGraphFile()) ||
+                partialDownloadFileExists(getDownloadedGraphBuildInfoFile()) ||
+                partialDownloadFileExists(getDownloadedExtractedGraphDirectory());
     }
 
-    /*
-     * If we find a MinIO temp file with the pattern <incompleteFileName>*.part.minio, we consider the download still ongoing
-     * */
-    private boolean minioDownloadTempFileExists(File incompleteFile) {
-        AtomicBoolean result = new AtomicBoolean(false);
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(incompleteFile.toPath().getParent(), incompleteFile.getName() + "*.part.minio")) {
-            dirStream.forEach(path -> {
-                LOGGER.debug("[%s] Found MinIO temporary download file: %s".formatted(getProfileDescriptiveName(), path.toAbsolutePath().toString()));
-                result.set(true);
-            });
-        } catch (IOException e) {
-            LOGGER.error("Error checking for MinIO temporary download files: %s".formatted(e.getMessage()));
-        }
-        return result.get();
-    }
-
-    /*
-    * Should be called on initialization to clean up any leftover MinIO temp files from previous runs
-    * */
-    private void cleanupTempMinioFiles(Path graphDir) {
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(graphDir, "*.part.minio")) {
-            dirStream.forEach(path -> {
-                try {
-                    Files.deleteIfExists(path);
-                    LOGGER.debug("[%s] Deleted MinIO temporary download file: %s".formatted(getProfileDescriptiveName(), path.toAbsolutePath().toString()));
-                } catch (IOException e) {
-                    LOGGER.error("Error deleting MinIO temporary download file %s: %s".formatted(path.toAbsolutePath().toString(), e.getMessage()));
-                }
-            });
-        } catch (IOException e) {
-            LOGGER.error("Error checking for MinIO temporary download files: %s".formatted(e.getMessage()));
-        }
+    private boolean partialDownloadFileExists(File file) {
+        return asIncompleteFile(file).exists();
     }
 
     private void deleteFileWithLogging(File file, String successMessage, String errorMessage) {
         try {
             if (Files.deleteIfExists(file.toPath()))
                 LOGGER.debug(successMessage.formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
+        } catch (IOException e) {
+            LOGGER.error(errorMessage.formatted(e.getMessage()));
+        }
+    }
+
+    private void deleteDirectoryWithLogging(File file, String successMessage, String errorMessage) {
+        try {
+            FileUtils.deleteDirectory(file);
+            LOGGER.debug(successMessage.formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
         } catch (IOException e) {
             LOGGER.error(errorMessage.formatted(e.getMessage()));
         }
@@ -171,6 +164,18 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
     }
 
+    public void cleanupIncompatibleGraphs() {
+        if (hasActiveGraph() && !isGraphCompatibleWithApplication(getActiveGraphBuildInfo())) {
+            backupExistingGraph();
+        }
+
+        if (hasDownloadedExtractedGraph() && !isGraphCompatibleWithApplication(getDownloadedExtractedGraphBuildInfo())) {
+            deleteDirectoryWithLogging(getDownloadedExtractedGraphBuildInfo().getLocalDirectory(),
+                    "[%s] Deleted incompatible downloaded extracted graph: %s",
+                    "Error deleting incompatible downloaded extracted graph: %s");
+        }
+    }
+
     public void backupExistingGraph() {
         if (!hasActiveGraph()) {
             deleteOldestBackups();
@@ -193,7 +198,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
 
         if (activeGraphDirectory.renameTo(backupFile)) {
-            LOGGER.debug("[%s] Renamed old local graph directory %s to %s".formatted(getProfileDescriptiveName(), origAbsPath, newAbsPath));
+            LOGGER.info("[%s] Renamed old local graph directory %s to %s".formatted(getProfileDescriptiveName(), origAbsPath, newAbsPath));
         } else {
             LOGGER.error("[%s] Could not backup local graph directory %s to %s".formatted(getProfileDescriptiveName(), origAbsPath, newAbsPath));
         }
@@ -244,7 +249,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         File downloadedExtractedGraphDirectory = getDownloadedExtractedGraphDirectory();
 
         if (!hasDownloadedExtractedGraph()) {
-            LOGGER.trace("[%s] No downloaded graph directory found.".formatted(getProfileDescriptiveName()));
+            LOGGER.warn("[%s] No downloaded graph directory found.".formatted(getProfileDescriptiveName()));
             return new GraphBuildInfo().setLocalDirectory(downloadedExtractedGraphDirectory);
         }
 
@@ -254,7 +259,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     private GraphBuildInfo getGraphBuildInfo(File graphBuildInfoFile) throws ORSGraphFileManagerException {
         File graphDirectory = graphBuildInfoFile.getParentFile();
         if (!graphBuildInfoFile.exists() || !graphBuildInfoFile.isFile()) {
-            LOGGER.trace("[%s] No graph info file %s found in %s".formatted(getProfileDescriptiveName(), graphBuildInfoFile.getName(), graphBuildInfoFile.getParentFile().getName()));
+            LOGGER.warn("[%s] No graph info file %s found in %s".formatted(getProfileDescriptiveName(), graphBuildInfoFile.getName(), graphBuildInfoFile.getParentFile().getName()));
             return new GraphBuildInfo().setLocalDirectory(graphDirectory);
         }
 
