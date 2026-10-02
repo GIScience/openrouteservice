@@ -102,7 +102,7 @@ class HttpRepoManagerTest {
     }
 
     private void setupActiveGraphDirectory(Long osmDateLocal, ORSGraphFileManager orsGraphFileManager) {
-        saveActiveGraphBuildInfoFile(orsGraphFileManager.getActiveGraphBuildInfoFile(), osmDateLocal, null);
+        saveActiveGraphBuildInfoFile(orsGraphFileManager.getActiveGraphBuildInfoFile(), osmDateLocal, null, REPO_GRAPHS_VERSION);
     }
 
     private static void printFileContent(String label, File file) throws IOException {
