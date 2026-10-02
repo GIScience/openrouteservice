@@ -7,12 +7,10 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphBuildI
 import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.DisplayName;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
+//@ExtendWith(MockitoExtension.class)
 class ORSGraphFileManagerTest {
 
     private static final String LOCAL_PROFILE_NAME = "truck";
@@ -66,7 +64,7 @@ class ORSGraphFileManagerTest {
     }
 
     private void createBackupDirectory(String dateString) throws IOException {
-        RepoManagerTestHelper.createLocalGraphDirectoryWithGraphBuildInfoFile(
+        createLocalGraphDirectoryWithGraphBuildInfoFile(
                 localGraphsRootPath,
                 LOCAL_PROFILE_NAME + "_" + dateString,
                 orsGraphFolderStrategy.getActiveGraphBuildInfoFileName(),
