@@ -65,18 +65,6 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return isExistingDirectoryWithFiles(getActiveGraphDirectory());
     }
 
-    public boolean hasComaptibleActiveGraph() {
-        if (!hasActiveGraph())
-            return false;
-
-        GraphBuildInfo graphBuildInfo = getActiveGraphBuildInfo();
-        if (isGraphCompatibleWithApplication(graphBuildInfo))
-            return true;
-
-        backupExistingGraph();
-        return false;
-    }
-
     public boolean isGraphCompatibleWithApplication(GraphBuildInfo graphBuildInfo) {
         String activeGraphVersion = graphBuildInfo.getPersistedGraphBuildInfo().getGraphVersion();
         String applicationGraphVersion = graphManagementRuntimeProperties.getGraphVersion();
@@ -100,20 +88,6 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return isExistingDirectoryWithFiles(getDownloadedExtractedGraphDirectory());
     }
 
-    public boolean hasCompatibleDownloadedExtractedGraph() {
-        if (!hasDownloadedExtractedGraph())
-            return false;
-
-        GraphBuildInfo graphBuildInfo = getDownloadedExtractedGraphBuildInfo();
-        if (isGraphCompatibleWithApplication(graphBuildInfo))
-            return true;
-
-        deleteFileWithLogging(graphBuildInfo.getLocalDirectory(),
-                "[%s] Deleted incompatible downloaded extracted graph: %s",
-                "Error deleting incompatible downloaded extracted graph: %s");
-
-        return false;
-    }
     boolean isExistingDirectory(File directory) {
         return directory.exists() && directory.isDirectory();
     }
@@ -154,6 +128,15 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
     }
 
+    private void deleteDirectoryWithLogging(File file, String successMessage, String errorMessage) {
+        try {
+            FileUtils.deleteDirectory(file);
+            LOGGER.debug(successMessage.formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
+        } catch (IOException e) {
+            LOGGER.error(errorMessage.formatted(e.getMessage()));
+        }
+    }
+
     public void cleanupIncompleteFiles() {
         File incompleteDownloadFile = asIncompleteFile(getDownloadedCompressedGraphFile());
         deleteFileWithLogging(incompleteDownloadFile,
@@ -178,6 +161,18 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             } catch (IOException e) {
                 LOGGER.error("[%s] Could not delete incomplete graph extraction folder from previous application run: %s".formatted(getProfileDescriptiveName(), incompleteExtractionFolder.getAbsolutePath()));
             }
+        }
+    }
+
+    public void cleanupIncompatibleGraphs() {
+        if (hasActiveGraph() && !isGraphCompatibleWithApplication(getActiveGraphBuildInfo())) {
+            backupExistingGraph();
+        }
+
+        if (hasDownloadedExtractedGraph() && !isGraphCompatibleWithApplication(getDownloadedExtractedGraphBuildInfo())) {
+            deleteDirectoryWithLogging(getDownloadedExtractedGraphBuildInfo().getLocalDirectory(),
+                    "[%s] Deleted incompatible downloaded extracted graph: %s",
+                    "Error deleting incompatible downloaded extracted graph: %s");
         }
     }
 

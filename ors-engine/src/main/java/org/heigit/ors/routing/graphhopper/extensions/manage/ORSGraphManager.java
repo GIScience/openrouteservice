@@ -119,9 +119,10 @@ public class ORSGraphManager {
 
     public void manageStartup() {
         orsGraphFileManager.cleanupIncompleteFiles();
+        orsGraphFileManager.cleanupIncompatibleGraphs();
 
-        boolean hasActiveGraph = orsGraphFileManager.hasComaptibleActiveGraph();
-        boolean hasDownloadedExtractedGraph = orsGraphFileManager.hasCompatibleDownloadedExtractedGraph();
+        boolean hasActiveGraph = orsGraphFileManager.hasActiveGraph();
+        boolean hasDownloadedExtractedGraph = orsGraphFileManager.hasDownloadedExtractedGraph();
 
         if (!hasActiveGraph && !hasDownloadedExtractedGraph && useGraphRepository()) {
             LOGGER.debug("[%s] No local graph or extracted downloaded graph found - trying to download and extract graph from repository".formatted(getQualifiedProfileName()));

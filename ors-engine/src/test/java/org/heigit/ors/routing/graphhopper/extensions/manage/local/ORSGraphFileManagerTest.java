@@ -4,7 +4,6 @@ import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphBuildInfo;
-import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-//@ExtendWith(MockitoExtension.class)
 class ORSGraphFileManagerTest {
 
     private static final String LOCAL_PROFILE_NAME = "truck";
@@ -38,13 +36,12 @@ class ORSGraphFileManagerTest {
     private Path tempDir;
 
     private Path localGraphsRootPath;
-    private Path localGraphPath;
     private ORSGraphFileManager orsGraphFileManager;
     private ORSGraphFolderStrategy orsGraphFolderStrategy;
 
     @BeforeEach
     public void setUp() throws IOException {
-        localGraphsRootPath = RepoManagerTestHelper.createLocalGraphsRootDirectory(tempDir);
+        localGraphsRootPath = createLocalGraphsRootDirectory(tempDir);
     }
 
     @AfterEach
@@ -52,15 +49,21 @@ class ORSGraphFileManagerTest {
         cleanupLocalGraphsRootDirectory(localGraphsRootPath);
     }
 
-    private void setupORSGraphManager(GraphManagementRuntimeProperties managementProps) throws IOException {
+    private void setupOrsGraphFileManager(GraphManagementRuntimeProperties managementProps) throws IOException {
         orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
         orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
-        localGraphPath = createLocalGraphDirectoryWithGraphBuildInfoFile(
+    }
+
+    private Path createLocalGraph(String dirName, Long importDate, Long osmDate, String graphVersion) throws IOException {
+        return createLocalGraphDirectoryWithGraphBuildInfoFile(
                 localGraphsRootPath,
-                LOCAL_PROFILE_NAME,
+                dirName,
                 orsGraphFolderStrategy.getActiveGraphBuildInfoFileName(),
-                LATER_DATE, EARLIER_DATE);
+                importDate,
+                osmDate,
+                graphVersion
+        );
     }
 
     private void createBackupDirectory(String dateString) throws IOException {
@@ -68,7 +71,7 @@ class ORSGraphFileManagerTest {
                 localGraphsRootPath,
                 LOCAL_PROFILE_NAME + "_" + dateString,
                 orsGraphFolderStrategy.getActiveGraphBuildInfoFileName(),
-                null, null);
+                null, null, REPO_GRAPHS_VERSION);
     }
 
     private void assertCorrectBackupDir(File backupDir) {
@@ -85,13 +88,15 @@ class ORSGraphFileManagerTest {
         return persistedGraphBuildInfo;
     }
 
-    private GraphManagementRuntimeProperties.Builder managementPropsBuilder() {
+    private GraphManagementRuntimeProperties.Builder managementPropsBuilderWithDefaults() {
         return createGraphManagementRuntimePropertiesBuilder(localGraphsRootPath, LOCAL_PROFILE_NAME, ENCODER_NAME);
     }
 
     @Test
     void writeOrsGraphBuildInfo() throws IOException {
-        setupORSGraphManager(managementPropsBuilder().build());
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults().build());
+        Path localGraphPath = createLocalGraph(LOCAL_PROFILE_NAME, LATER_DATE, EARLIER_DATE, REPO_GRAPHS_VERSION);
+
         File testFile = new File(localGraphPath.toFile(), "writeOrsGraphBuildInfoV1.yml");
         PersistedGraphBuildInfo persistedGraphBuildInfo = createOrsGraphBuildInfoV1();
         assertFalse(testFile.exists());
@@ -103,7 +108,8 @@ class ORSGraphFileManagerTest {
 
     @Test
     void readOrsGraphBuildInfo() throws IOException, ORSGraphFileManagerException {
-        setupORSGraphManager(managementPropsBuilder().build());
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults().build());
+        Path localGraphPath = createLocalGraph(LOCAL_PROFILE_NAME, LATER_DATE, EARLIER_DATE, REPO_GRAPHS_VERSION);
         File writtenTestFile = new File(localGraphPath.toFile(), "readOrsGraphBuildInfoV1.yml");
         PersistedGraphBuildInfo writtenPersistedGraphBuildInfo = createOrsGraphBuildInfoV1();
         ORSGraphFileManager.writeOrsGraphBuildInfo(writtenPersistedGraphBuildInfo, writtenTestFile);
@@ -115,7 +121,8 @@ class ORSGraphFileManagerTest {
 
     @Test
     void backupExistingGraph_noPreviousBackup() throws IOException {
-        setupORSGraphManager(managementPropsBuilder().withMaxNumberOfGraphBackups(3).build());
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults().withMaxNumberOfGraphBackups(3).build());
+        Path localGraphPath = createLocalGraph(LOCAL_PROFILE_NAME, LATER_DATE, EARLIER_DATE, REPO_GRAPHS_VERSION);
         File localGraphDir = localGraphPath.toFile();
         assertTrue(localGraphDir.isDirectory());
         assertEquals(0, orsGraphFileManager.findGraphBackupsSortedByName().size());
@@ -130,7 +137,8 @@ class ORSGraphFileManagerTest {
 
     @Test
     void backupExistingGraph_withPreviousBackup() throws IOException {
-        setupORSGraphManager(managementPropsBuilder().withMaxNumberOfGraphBackups(3).build());
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults().withMaxNumberOfGraphBackups(3).build());
+        Path localGraphPath = createLocalGraph(LOCAL_PROFILE_NAME, LATER_DATE, EARLIER_DATE, REPO_GRAPHS_VERSION);
         createBackupDirectory("2022-12-31_235959");
         assertTrue(localGraphPath.toFile().exists());
         assertEquals(1, orsGraphFileManager.findGraphBackupsSortedByName().size());
@@ -144,7 +152,8 @@ class ORSGraphFileManagerTest {
 
     @Test
     void backupExistingGraph_withMaxNumOfPreviousBackups() throws IOException {
-        setupORSGraphManager(managementPropsBuilder().withMaxNumberOfGraphBackups(2).build());
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults().withMaxNumberOfGraphBackups(2).build());
+        Path localGraphPath = createLocalGraph(LOCAL_PROFILE_NAME, LATER_DATE, EARLIER_DATE, REPO_GRAPHS_VERSION);
         createBackupDirectory("2022-12-31_235959");
         createBackupDirectory("2023-01-01_060000");
         assertTrue(localGraphPath.toFile().exists());
@@ -162,7 +171,7 @@ class ORSGraphFileManagerTest {
 
     @Test
     void deleteOldestBackups() throws IOException {
-        setupORSGraphManager(managementPropsBuilder().withMaxNumberOfGraphBackups(3).build());
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults().withMaxNumberOfGraphBackups(3).build());
         createBackupDirectory("2023-01-01_060000");
         createBackupDirectory("2023-01-02_060000");
         createBackupDirectory("2023-01-03_060000");
@@ -180,7 +189,7 @@ class ORSGraphFileManagerTest {
 
     @Test
     void deleteOldestBackups_maxNumberOfGraphBackupsIsZero() throws IOException {
-        setupORSGraphManager(managementPropsBuilder().withMaxNumberOfGraphBackups(0).build());
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults().withMaxNumberOfGraphBackups(0).build());
         createBackupDirectory("2023-01-01_060000");
         createBackupDirectory("2023-01-02_060000");
         createBackupDirectory("2023-01-03_060000");
@@ -196,7 +205,7 @@ class ORSGraphFileManagerTest {
 
     @Test
     void deleteOldestBackups_maxNumberOfGraphBackupsIsNegative() throws IOException {
-        setupORSGraphManager(managementPropsBuilder().withMaxNumberOfGraphBackups(-5).build());
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults().withMaxNumberOfGraphBackups(-5).build());
         createBackupDirectory("2023-01-01_060000");
         createBackupDirectory("2023-01-02_060000");
         createBackupDirectory("2023-01-03_060000");
@@ -213,7 +222,7 @@ class ORSGraphFileManagerTest {
     @Test
     @DisplayName("Given a .ghz archive containing a text file, when extractDownloadedGraph is called, then the file is extracted and the archive is deleted")
     void extractDownloadedGraph_extractsTextFileFromGhzArchive() throws IOException {
-        setupORSGraphManager(managementPropsBuilder().build());
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults().build());
         File ghzFile = new File(orsGraphFileManager.getDownloadedCompressedGraphFileAbsPath());
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(ghzFile))) {
             zos.putNextEntry(new ZipEntry("hello.txt"));
@@ -235,7 +244,7 @@ class ORSGraphFileManagerTest {
     @Test
     @DisplayName("Given a .ghz archive containing a path-traversal entry, when extractDownloadedGraph is called, then an exception is thrown and no file is written outside the extraction directory")
     void extractDownloadedGraph_zipSlipEntry_throwsException() throws IOException {
-        setupORSGraphManager(managementPropsBuilder().build());
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults().build());
         File ghzFile = new File(orsGraphFileManager.getDownloadedCompressedGraphFileAbsPath());
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(ghzFile))) {
             zos.putNextEntry(new ZipEntry("../../traversal.txt"));
@@ -251,7 +260,7 @@ class ORSGraphFileManagerTest {
     @Test
     @DisplayName("Given no .ghz archive exists, when extractDownloadedGraph is called, then nothing happens and no directory is created")
     void extractDownloadedGraph_noGhzFile_doesNothing() throws IOException {
-        setupORSGraphManager(managementPropsBuilder().build());
+        setupOrsGraphFileManager(managementPropsBuilderWithDefaults().build());
         assertFalse(orsGraphFileManager.hasGraphDownloadFile());
 
         orsGraphFileManager.extractDownloadedGraph();
