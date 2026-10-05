@@ -41,6 +41,8 @@ Releasing is documented in RELEASE.md
 ### Fixed
 - slim image failing to download graphs from S3 repositories ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - ors-test-scenarios tests being skipped due to a `logback-classic` version mismatch ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
+- `integrationTests` Maven profile not selecting any tests ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
+- integration tests failing to build their builder images ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 
 ### Security
 
