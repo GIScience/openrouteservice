@@ -38,7 +38,7 @@ class ORSGraphManagerTest {
     private ORSGraphManager orsGraphManager;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         localGraphsRootPath = createLocalGraphsRootDirectory(tempDir);
     }
 
