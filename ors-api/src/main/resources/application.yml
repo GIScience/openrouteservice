@@ -159,10 +159,10 @@ ors:
               weightings: recommended,shortest
               landmarks: 16
       repo:
-        repository_uri: #/tmp/graph-repo
-        repository_name: #public
-        repository_profile_group: #heigit
-        graph_extent: #planet
+        repository_uri:
+        repository_name:
+        repository_profile_group:
+        graph_extent:
       service:
         maximum_distance: 100000
         maximum_distance_dynamic_weights: 100000
