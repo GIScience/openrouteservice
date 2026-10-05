@@ -117,8 +117,10 @@ class ORSGraphFileManagerTest {
         setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
                 .withGraphVersion(REPO_GRAPHS_VERSION)
                 .build());
-        //do not create local graphs here
+        //Do not create local graphs here!
+        //Should also not throw an exception.
         orsGraphFileManager.cleanupIncompatibleGraphs();
+        assertThat(orsGraphFileManager.hasActiveGraph()).isFalse();
     }
 
     @Test
