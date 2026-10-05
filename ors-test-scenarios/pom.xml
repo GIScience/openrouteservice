@@ -97,10 +97,11 @@
                                 </goals>
                                 <configuration>
                                     <excludes>
-                                        <exclude>none</exclude>
+                                        <!-- Runs in the Docker image workflow against the built slim image, see the integration tests docs -->
+                                        <exclude>**/SlimImageS3RepoTest*</exclude>
                                     </excludes>
                                     <includes>
-                                        <include>**/integrationtests/**/*Test</include>
+                                        <include>**/integrationtests/**</include>
                                     </includes>
                                 </configuration>
                             </execution>
