@@ -38,7 +38,7 @@ public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
             return;
         }
 
-         getLogger().debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
+        getLogger().debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
         try {
             GraphBuildInfo newlyDownloadedGraphBuildInfo = downloadGraphBuildInfoFromRepository();
 
