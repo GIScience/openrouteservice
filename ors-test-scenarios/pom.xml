@@ -59,7 +59,6 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
-            <version>2.54.20</version>
             <scope>test</scope>
         </dependency>
         <dependency>
