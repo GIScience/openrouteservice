@@ -33,6 +33,7 @@ class ORSGraphManagerTest {
     private Path localGraphsRootPath;
     private FileSystemGraphRepoClient fileSystemGraphRepoClient;
     private ORSGraphFolderStrategy orsGraphFolderStrategy;
+    private ORSGraphRepoStrategy orsGraphRepoStrategy;
     private ORSGraphFileManager orsGraphFileManager;
     private ORSGraphManager orsGraphManager;
 
@@ -57,7 +58,7 @@ class ORSGraphManagerTest {
         orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
 
-        ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
+        orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
         fileSystemGraphRepoClient = new FileSystemGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
 
         orsGraphManager = new ORSGraphManager(managementProps, orsGraphFileManager, fileSystemGraphRepoClient);
@@ -223,14 +224,12 @@ class ORSGraphManagerTest {
             "false, false, repoName, http://my.domain.com",
     })
     void useGraphRepository(boolean expectUseRepo, boolean enable, String repoName, String baseUri) {
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
+        createContext(GraphManagementRuntimeProperties.Builder.empty()
                 .withEnabled(enable)
                 .withRepoName(repoName)
                 .withRepoBaseUri(baseUri)
                 .withLocalGraphsRootAbsPath("target/test-output/graphs")
-                .withLocalProfileName("useGraphRepository")
-                .build();
-        ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(managementProps);
+                .withLocalProfileName("useGraphRepository"));
         assertThat(orsGraphManager).isNotNull();
         assertThat(expectUseRepo).isEqualTo(orsGraphManager.useGraphRepository());
     }
@@ -257,7 +256,7 @@ class ORSGraphManagerTest {
             "S3GraphRepoClient, minio:https://my.domain.com/",
     })
     void getOrsGraphRepoClient(String className, String repoUri) {
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
+        GraphManagementRuntimeProperties.Builder managementPropsBuilder = GraphManagementRuntimeProperties.Builder.empty()
                 .withLocalGraphsRootAbsPath("graphs")
                 .withRepoName("myS3Repo")
                 .withRepoCoverage("lummerland")
@@ -265,12 +264,9 @@ class ORSGraphManagerTest {
                 .withGraphVersion("1")
                 .withRepoUser("user")
                 .withRepoPass("pw")
-                .withLocalProfileName("driving-car")
-                .build();
-        FlatORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
-        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
-        NamedGraphsRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
-        assertThat(ORSGraphManager.getOrsGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager).getClass().getSimpleName())
+                .withLocalProfileName("driving-car");
+        createContext(managementPropsBuilder);
+        assertThat(ORSGraphManager.getOrsGraphRepoClient(managementPropsBuilder.build(), orsGraphRepoStrategy, orsGraphFileManager).getClass().getSimpleName())
                 .isEqualTo(className);
     }
 }
