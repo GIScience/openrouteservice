@@ -62,6 +62,9 @@ Releasing is documented in RELEASE.md
 - increase graphVersion to 6 because graphs built with v9.10.0 (graphVersion=5) cannot be loaded
 - change indentation and numbering in RELEASE.md and add sentence about adding pinned documentation of previous latest release
 
+### Fixed
+- fix failing application start when local graphs have wrong graph version, e.g. after ors upgrade ([#2438](https://github.com/GIScience/openrouteservice/issues/2438))
+
 ## [10.0.0] - 2026-09-16
 
 ### Added
