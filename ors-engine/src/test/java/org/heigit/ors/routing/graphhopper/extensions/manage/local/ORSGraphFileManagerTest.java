@@ -113,7 +113,7 @@ class ORSGraphFileManagerTest {
     }
 
     @Test
-    void cleanupIncompatibleGraphs_doesNothingIfNoGraphsExist() throws IOException {
+    void cleanupIncompatibleGraphs_doesNothingIfNoGraphsExist() {
         setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
                 .withGraphVersion(REPO_GRAPHS_VERSION)
                 .build());
@@ -367,7 +367,7 @@ class ORSGraphFileManagerTest {
 
     @Test
     @DisplayName("Given no .ghz archive exists, when extractDownloadedGraph is called, then nothing happens and no directory is created")
-    void extractDownloadedGraph_noGhzFile_doesNothing() throws IOException {
+    void extractDownloadedGraph_noGhzFile_doesNothing() {
         setupOrsGraphFileManager(managementPropsBuilderWithDefaults().build());
         assertFalse(orsGraphFileManager.hasGraphDownloadFile());
 
