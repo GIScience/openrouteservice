@@ -34,8 +34,8 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -97,7 +97,8 @@ class SlimImageS3RepoTest {
     private static Path downloadedGraphs;
     // The host user in group 0, so the test can clean up what the containers write and the image's group permissions apply.
     private static String containerUser;
-    private static List<String> expectedProfiles;
+    private static Map<String, String> encoderByProfile;
+    private static String graphVersion;
 
     @BeforeAll
     static void buildAndUploadGraphs() throws IOException {
@@ -113,7 +114,7 @@ class SlimImageS3RepoTest {
         try (GenericContainer<?> ors = s3OrsContainer()) {
             ors.start();
             assertHealthReady(ors);
-            assertEveryProfileDownloaded(ors);
+            assertEveryProfileDownloaded();
         }
     }
 
@@ -137,7 +138,7 @@ class SlimImageS3RepoTest {
     }
 
     private static void prepareDirectories() throws IOException {
-        expectedProfiles = enabledApitestsProfiles();
+        encoderByProfile = enabledApitestsProfiles();
         elevationCache = Files.createDirectories(tempDir.resolve("elevation_cache"));
         Files.copy(TEST_FILES.resolve("elevation/srtm_38_03.gh"), elevationCache.resolve("srtm_38_03.gh"));
         builtGraphs = Files.createDirectories(tempDir.resolve("built-graphs"));
@@ -145,15 +146,21 @@ class SlimImageS3RepoTest {
         containerUser = "%s:0".formatted(Files.getAttribute(tempDir, "unix:uid"));
     }
 
-    private static List<String> enabledApitestsProfiles() throws IOException {
+    private static Map<String, String> enabledApitestsProfiles() throws IOException {
         JsonNode profiles = new ObjectMapper(new YAMLFactory()).readTree(TEST_CONFIG.toFile()).path("ors").path("engine").path("profiles");
-        List<String> enabled = new ArrayList<>();
+        Map<String, String> encoders = new LinkedHashMap<>();
         profiles.properties().forEach(profile -> {
-            if (profile.getValue().path("enabled").asBoolean(false) && !DISABLED_PROFILES.contains(profile.getKey())) {
-                enabled.add(profile.getKey());
+            JsonNode config = profile.getValue();
+            if (config.path("enabled").asBoolean(false) && !DISABLED_PROFILES.contains(profile.getKey())) {
+                encoders.put(profile.getKey(), config.path("encoder_name").asText(profile.getKey()));
             }
         });
-        return enabled;
+        return encoders;
+    }
+
+    // Name preparation mode gives a graph's archive and build info, and the S3 client looks up.
+    private static String repoFileName(String encoder, String extension) {
+        return "%s_%s_%s_%s.%s".formatted(PROFILE_GROUP, GRAPH_EXTENT, graphVersion, encoder, extension);
     }
 
     private static Map<String, String> commonEnv() {
@@ -192,17 +199,18 @@ class SlimImageS3RepoTest {
                 .withStartupCheckStrategy(new OneShotStartupCheckStrategy().withTimeout(Duration.ofMinutes(10)))) {
             prep.start();
         }
+        List<String> archives;
         try (Stream<Path> files = Files.list(builtGraphs)) {
-            List<Path> archives = files.filter(p -> p.getFileName().toString().endsWith(".ghz")).toList();
-            assertEquals(expectedProfiles.size(), archives.size(), "Expected one graph archive per profile %s, found %s".formatted(expectedProfiles, archives));
+            archives = files.map(p -> p.getFileName().toString()).filter(name -> name.endsWith(".ghz")).toList();
         }
+        assertEquals(encoderByProfile.size(), archives.size(), "Expected one graph archive per profile %s, found %s".formatted(encoderByProfile.keySet(), archives));
+        graphVersion = archives.getFirst().substring((PROFILE_GROUP + "_" + GRAPH_EXTENT + "_").length()).split("_", 2)[0];
     }
 
     /**
      * Uploads the archives to the layout S3GraphRepoClient reads: {@code <profile group>/<graph extent>/<graph version>/<file>}.
      */
     private static void uploadGraphs() throws IOException {
-        String prefix = PROFILE_GROUP + "_" + GRAPH_EXTENT + "_";
         try (S3Client s3 = S3Client.builder()
                 .endpointOverride(URI.create("http://%s:%d".formatted(RUSTFS.getHost(), RUSTFS.getMappedPort(RUSTFS_PORT))))
                 .region(Region.US_EAST_1)
@@ -212,9 +220,7 @@ class SlimImageS3RepoTest {
              Stream<Path> files = Files.list(builtGraphs)) {
             s3.createBucket(CreateBucketRequest.builder().bucket(BUCKET).build());
             files.filter(Files::isRegularFile).forEach(file -> {
-                String name = file.getFileName().toString();
-                String graphVersion = name.substring(prefix.length()).split("_", 2)[0];
-                String key = String.join("/", PROFILE_GROUP, GRAPH_EXTENT, graphVersion, name);
+                String key = String.join("/", PROFILE_GROUP, GRAPH_EXTENT, graphVersion, file.getFileName().toString());
                 s3.putObject(PutObjectRequest.builder().bucket(BUCKET).key(key).build(), file);
             });
         }
@@ -228,10 +234,20 @@ class SlimImageS3RepoTest {
         assertEquals("ready", new ObjectMapper().readTree(health.body()).path("status").asText());
     }
 
-    // Every profile must come from the repository. A graph built locally from the source file would hide a broken download.
-    private static void assertEveryProfileDownloaded(GenericContainer<?> ors) {
-        long downloads = ors.getLogs().lines().filter(l -> l.contains("Download of compressed graph file finished")).count();
-        assertEquals(expectedProfiles.size(), downloads, "Expected every profile to be downloaded from the S3 repository");
+    private static void assertEveryProfileDownloaded() throws IOException {
+        for (Map.Entry<String, String> profile : encoderByProfile.entrySet()) {
+            Path loadedBuildInfo = downloadedGraphs.resolve(profile.getKey()).resolve("graph_build_info.yml");
+            assertTrue(Files.isRegularFile(loadedBuildInfo), "No graph was loaded for profile %s".formatted(profile.getKey()));
+            // A graph built locally would carry a new build date, so equal build info proves it came from the repository.
+            assertEquals(Files.readString(builtGraphs.resolve(repoFileName(profile.getValue(), "yml"))), Files.readString(loadedBuildInfo),
+                    "Graph for profile %s does not come from the S3 repository".formatted(profile.getKey()));
+        }
+        try (Stream<Path> files = Files.list(downloadedGraphs)) {
+            List<String> leftovers = files.map(path -> path.getFileName().toString())
+                    .filter(name -> name.endsWith(".ghz") || name.endsWith(".incomplete") || name.endsWith("_incomplete"))
+                    .toList();
+            assertEquals(List.of(), leftovers, "Downloads or extractions were not cleaned up");
+        }
     }
 
     /**
