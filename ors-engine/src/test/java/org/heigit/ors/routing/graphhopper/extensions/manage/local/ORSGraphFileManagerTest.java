@@ -49,7 +49,7 @@ class ORSGraphFileManagerTest {
         cleanupLocalGraphsRootDirectory(localGraphsRootPath);
     }
 
-    private void setupOrsGraphFileManager(GraphManagementRuntimeProperties managementProps) throws IOException {
+    private void setupOrsGraphFileManager(GraphManagementRuntimeProperties managementProps) {
         orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
         orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
@@ -163,7 +163,7 @@ class ORSGraphFileManagerTest {
         orsGraphFileManager.cleanupIncompatibleGraphs();
 
         assertThat(orsGraphFileManager.hasActiveGraph()).isFalse();
-        assertThat(orsGraphFileManager.findGraphBackupsSortedByName()).hasSize(0);
+        assertThat(orsGraphFileManager.findGraphBackupsSortedByName()).isEmpty();
     }
 
     @Test
