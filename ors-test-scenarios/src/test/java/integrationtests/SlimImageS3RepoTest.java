@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.dockerjava.api.exception.NotFoundException;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.BindMode;
@@ -14,6 +16,7 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.startupcheck.OneShotStartupCheckStrategy;
 import org.testcontainers.containers.wait.strategy.AbstractWaitStrategy;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -40,7 +43,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * Runs the slim image end to end against an S3 graph repository: builds the apitests profiles in preparation mode,
@@ -49,9 +51,9 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * Unlike the other scenarios this runs the slim target of the root Dockerfile rather than a builder image, because the slim
  * image ships its own jlink'ed Java runtime. The image cannot be built from here: the Dockerfile needs BuildKit,
  * which Testcontainers does not use. Build it first, or point {@code container.slim.image} at an existing one.
- * Without the property the test is skipped if the default image is missing.
  */
 @Testcontainers(disabledWithoutDocker = true)
+@EnabledIf("slimImageRequestedOrPresent")
 class SlimImageS3RepoTest {
     private static final String SLIM_IMAGE_PROPERTY = "container.slim.image";
     private static final String SLIM_IMAGE = System.getProperty(SLIM_IMAGE_PROPERTY, "local/openrouteservice:test-slim");
@@ -73,51 +75,56 @@ class SlimImageS3RepoTest {
     // The apitests profiles that are not built and loaded here.
     private static final List<String> DISABLED_PROFILES = List.of("public-transport", "driving-car-no-preparations");
 
+    private static final Network NETWORK = Network.newNetwork();
+
+    // The Testcontainers extension starts and stops it; the with* chain hides that from the compiler's resource analysis.
+    @SuppressWarnings("resource")
+    @Container
+    private static final GenericContainer<?> RUSTFS = new GenericContainer<>(RUSTFS_IMAGE)
+            .withNetwork(NETWORK)
+            .withNetworkAliases(RUSTFS_ALIAS)
+            .withExposedPorts(RUSTFS_PORT)
+            .withEnv("RUSTFS_ACCESS_KEY", ACCESS_KEY)
+            .withEnv("RUSTFS_SECRET_KEY", SECRET_KEY)
+            .withEnv("RUSTFS_CONSOLE_ENABLE", "false")
+            .withEnv("RUSTFS_OBS_LOG_DIRECTORY", "")
+            .waitingFor(Wait.forHttp("/health").forPort(RUSTFS_PORT).forStatusCode(200).withStartupTimeout(Duration.ofMinutes(2)));
+
+    @TempDir
+    static Path tempDir;
+    private static Path elevationCache;
+    private static Path builtGraphs;
+    private static Path downloadedGraphs;
+    // The host user in group 0, so the test can clean up what the containers write and the image's group permissions apply.
+    private static String containerUser;
+    private static List<String> expectedProfiles;
+
+    @BeforeAll
+    static void buildAndUploadGraphs() throws IOException {
+        assertTrue(imageExists(SLIM_IMAGE), "Image %s not found. Build it with `docker build --target slim -t %s .` from the repository root, or set -D%s."
+                .formatted(SLIM_IMAGE, SLIM_IMAGE, SLIM_IMAGE_PROPERTY));
+        prepareDirectories();
+        buildGraphs();
+        uploadGraphs();
+    }
+
     @Test
-    void slimImageLoadsApitestsGraphsFromS3Repository(@TempDir Path tempDir) throws Exception {
-        boolean imageExists = imageExists(SLIM_IMAGE);
-        String missingImage = "Image %s not found. Build it with `docker build --target slim -t %s .` from the repository root, or set -D%s.".formatted(SLIM_IMAGE, SLIM_IMAGE, SLIM_IMAGE_PROPERTY);
-        // Skip a plain -P integrationTests run without the image, but fail when an image was asked for explicitly.
-        if (System.getProperty(SLIM_IMAGE_PROPERTY) == null) {
-            assumeTrue(imageExists, missingImage);
-        } else {
-            assertTrue(imageExists, missingImage);
+    void slimImageLoadsAllApitestsProfilesFromS3Repository() throws Exception {
+        try (GenericContainer<?> ors = s3OrsContainer()) {
+            ors.start();
+            assertHealthReady(ors);
+            assertEveryProfileDownloaded(ors);
         }
+    }
 
-        List<String> expectedProfiles = enabledApitestsProfiles();
-        Path elevationCache = Files.createDirectories(tempDir.resolve("elevation_cache"));
-        Files.copy(TEST_FILES.resolve("elevation/srtm_38_03.gh"), elevationCache.resolve("srtm_38_03.gh"));
-        Path builtGraphs = Files.createDirectories(tempDir.resolve("built-graphs"));
-        Path downloadedGraphs = Files.createDirectories(tempDir.resolve("downloaded-graphs"));
-        // Run as the host user so the test can clean up what the containers write, and in group 0 like the image expects.
-        String user = "%s:0".formatted(Files.getAttribute(tempDir, "unix:uid"));
-
-        buildGraphs(user, builtGraphs, elevationCache);
-        List<Path> archives;
-        try (Stream<Path> files = Files.list(builtGraphs)) {
-            archives = files.filter(p -> p.getFileName().toString().endsWith(".ghz")).toList();
-        }
-        assertEquals(expectedProfiles.size(), archives.size(), "Expected one graph archive per profile %s, found %s".formatted(expectedProfiles, archives));
-
-        try (Network network = Network.newNetwork();
-             GenericContainer<?> rustfs = rustfsContainer(network)) {
-            rustfs.start();
-            uploadGraphs(rustfs, builtGraphs);
-
-            try (GenericContainer<?> ors = s3OrsContainer(network, user, downloadedGraphs, elevationCache)) {
-                ors.start();
-
-                HttpResponse<String> health = HttpClient.newHttpClient().send(
-                        HttpRequest.newBuilder(URI.create("http://%s:%d/ors/v2/health".formatted(ors.getHost(), ors.getMappedPort(ORS_PORT)))).build(),
-                        HttpResponse.BodyHandlers.ofString());
-                assertEquals(200, health.statusCode());
-                assertEquals("ready", new ObjectMapper().readTree(health.body()).path("status").asText());
-
-                // Every profile must come from the repository. A graph built locally from the source file would hide a broken download.
-                long downloads = ors.getLogs().lines().filter(l -> l.contains("Download of compressed graph file finished")).count();
-                assertEquals(expectedProfiles.size(), downloads, "Expected every profile to be downloaded from the S3 repository");
-            }
-        }
+    /**
+     * Enables the test when an image was asked for explicitly, or when the default image exists locally. A plain
+     * -P integrationTests run without the image skips it; an explicitly requested but missing image fails in
+     * {@link #buildAndUploadGraphs()}.
+     */
+    static boolean slimImageRequestedOrPresent() {
+        return System.getProperty(SLIM_IMAGE_PROPERTY) != null
+                || DockerClientFactory.instance().isDockerAvailable() && imageExists(SLIM_IMAGE);
     }
 
     private static boolean imageExists(String image) {
@@ -127,6 +134,15 @@ class SlimImageS3RepoTest {
         } catch (NotFoundException _) {
             return false;
         }
+    }
+
+    private static void prepareDirectories() throws IOException {
+        expectedProfiles = enabledApitestsProfiles();
+        elevationCache = Files.createDirectories(tempDir.resolve("elevation_cache"));
+        Files.copy(TEST_FILES.resolve("elevation/srtm_38_03.gh"), elevationCache.resolve("srtm_38_03.gh"));
+        builtGraphs = Files.createDirectories(tempDir.resolve("built-graphs"));
+        downloadedGraphs = Files.createDirectories(tempDir.resolve("downloaded-graphs"));
+        containerUser = "%s:0".formatted(Files.getAttribute(tempDir, "unix:uid"));
     }
 
     private static List<String> enabledApitestsProfiles() throws IOException {
@@ -152,9 +168,9 @@ class SlimImageS3RepoTest {
 
     // The caller closes the container; the with* chain hides that from the compiler's resource analysis.
     @SuppressWarnings("resource")
-    private static GenericContainer<?> slimContainer(String user, Path graphs, Path elevationCache) {
+    private static GenericContainer<?> slimContainer(Path graphs) {
         return new GenericContainer<>(DockerImageName.parse(SLIM_IMAGE))
-                .withCreateContainerCmdModifier(cmd -> cmd.withUser(user))
+                .withCreateContainerCmdModifier(cmd -> cmd.withUser(containerUser))
                 .withFileSystemBind(TEST_CONFIG.toString(), ORS_HOME + "/ors-config.yml", BindMode.READ_ONLY)
                 .withFileSystemBind(graphs.toString(), ORS_HOME + "/graphs", BindMode.READ_WRITE)
                 .withFileSystemBind(elevationCache.toString(), ORS_HOME + "/elevation_cache", BindMode.READ_WRITE)
@@ -165,8 +181,8 @@ class SlimImageS3RepoTest {
      * Builds the graphs in preparation mode, which packs each one into a repository-ready .ghz archive plus .yml
      * build info, named {@code <profile group>_<graph extent>_<graph version>_<encoder>}, and exits.
      */
-    private static void buildGraphs(String user, Path graphs, Path elevationCache) {
-        try (GenericContainer<?> prep = slimContainer(user, graphs, elevationCache)
+    private static void buildGraphs() throws IOException {
+        try (GenericContainer<?> prep = slimContainer(builtGraphs)
                 // application-test.yml refers to its data files as ./src/test/files/..., relative to ORS_HOME.
                 .withFileSystemBind(TEST_FILES.toString(), ORS_HOME + "/src/test/files", BindMode.READ_ONLY)
                 .withEnv("ors.engine.preparation_mode", "true")
@@ -176,34 +192,24 @@ class SlimImageS3RepoTest {
                 .withStartupCheckStrategy(new OneShotStartupCheckStrategy().withTimeout(Duration.ofMinutes(10)))) {
             prep.start();
         }
-    }
-
-    // The caller closes the container; the with* chain hides that from the compiler's resource analysis.
-    @SuppressWarnings("resource")
-    private static GenericContainer<?> rustfsContainer(Network network) {
-        return new GenericContainer<>(RUSTFS_IMAGE)
-                .withNetwork(network)
-                .withNetworkAliases(RUSTFS_ALIAS)
-                .withExposedPorts(RUSTFS_PORT)
-                .withEnv("RUSTFS_ACCESS_KEY", ACCESS_KEY)
-                .withEnv("RUSTFS_SECRET_KEY", SECRET_KEY)
-                .withEnv("RUSTFS_CONSOLE_ENABLE", "false")
-                .withEnv("RUSTFS_OBS_LOG_DIRECTORY", "")
-                .waitingFor(Wait.forHttp("/health").forPort(RUSTFS_PORT).forStatusCode(200).withStartupTimeout(Duration.ofMinutes(2)));
+        try (Stream<Path> files = Files.list(builtGraphs)) {
+            List<Path> archives = files.filter(p -> p.getFileName().toString().endsWith(".ghz")).toList();
+            assertEquals(expectedProfiles.size(), archives.size(), "Expected one graph archive per profile %s, found %s".formatted(expectedProfiles, archives));
+        }
     }
 
     /**
      * Uploads the archives to the layout S3GraphRepoClient reads: {@code <profile group>/<graph extent>/<graph version>/<file>}.
      */
-    private static void uploadGraphs(GenericContainer<?> rustfs, Path graphs) throws IOException {
+    private static void uploadGraphs() throws IOException {
         String prefix = PROFILE_GROUP + "_" + GRAPH_EXTENT + "_";
         try (S3Client s3 = S3Client.builder()
-                .endpointOverride(URI.create("http://%s:%d".formatted(rustfs.getHost(), rustfs.getMappedPort(RUSTFS_PORT))))
+                .endpointOverride(URI.create("http://%s:%d".formatted(RUSTFS.getHost(), RUSTFS.getMappedPort(RUSTFS_PORT))))
                 .region(Region.US_EAST_1)
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(ACCESS_KEY, SECRET_KEY)))
                 .forcePathStyle(true)
                 .build();
-             Stream<Path> files = Files.list(graphs)) {
+             Stream<Path> files = Files.list(builtGraphs)) {
             s3.createBucket(CreateBucketRequest.builder().bucket(BUCKET).build());
             files.filter(Files::isRegularFile).forEach(file -> {
                 String name = file.getFileName().toString();
@@ -214,13 +220,27 @@ class SlimImageS3RepoTest {
         }
     }
 
+    private static void assertHealthReady(GenericContainer<?> ors) throws IOException, InterruptedException {
+        HttpResponse<String> health = HttpClient.newHttpClient().send(
+                HttpRequest.newBuilder(URI.create("http://%s:%d/ors/v2/health".formatted(ors.getHost(), ors.getMappedPort(ORS_PORT)))).build(),
+                HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, health.statusCode());
+        assertEquals("ready", new ObjectMapper().readTree(health.body()).path("status").asText());
+    }
+
+    // Every profile must come from the repository. A graph built locally from the source file would hide a broken download.
+    private static void assertEveryProfileDownloaded(GenericContainer<?> ors) {
+        long downloads = ors.getLogs().lines().filter(l -> l.contains("Download of compressed graph file finished")).count();
+        assertEquals(expectedProfiles.size(), downloads, "Expected every profile to be downloaded from the S3 repository");
+    }
+
     /**
      * Starts the slim image with graph management pointed at the S3 repository. The test data files are not
      * mounted, so the container cannot fall back to building graphs itself.
      */
-    private static GenericContainer<?> s3OrsContainer(Network network, String user, Path graphs, Path elevationCache) {
-        return slimContainer(user, graphs, elevationCache)
-                .withNetwork(network)
+    private static GenericContainer<?> s3OrsContainer() {
+        return slimContainer(downloadedGraphs)
+                .withNetwork(NETWORK)
                 .withExposedPorts(ORS_PORT)
                 .withEnv("server.port", String.valueOf(ORS_PORT))
                 .withEnv("ors.engine.graph_management.enabled", "true")
