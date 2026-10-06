@@ -21,9 +21,9 @@
         <url>https://github.com/GIScience/openrouteservice/issues</url>
     </issueManagement>
     <scm>
-        <url>git@github.com:GIScience/openrouteservice.git</url>
-        <connection>git@github.com:GIScience/openrouteservice.git</connection>
-        <developerConnection>git@github.com:GIScience/openrouteservice.git</developerConnection>
+        <url>https://github.com/GIScience/openrouteservice</url>
+        <connection>scm:git:https://github.com/GIScience/openrouteservice.git</connection>
+        <developerConnection>scm:git:git@github.com:GIScience/openrouteservice.git</developerConnection>
     </scm>
 
     <modules>
@@ -36,10 +36,6 @@
 
     <properties>
         <java.version>25</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
         <project.graphVersion>7</project.graphVersion>
@@ -52,7 +48,8 @@
              Do not remove, dropping this override is a downgrade -->
         <log4j2.version>2.26.1</log4j2.version>
         <springdoc-openapi-starter.version>3.1.1</springdoc-openapi-starter.version>
-        <!-- pinned to match the swagger-core version springdoc-openapi 3.1.0 itself uses -->
+        <!-- pinned to match the swagger-core version springdoc-openapi itself uses (its swagger-api.version);
+             re-check on every springdoc-openapi-starter bump -->
         <swagger-core.version>2.2.55</swagger-core.version>
         <swagger-parser.version>2.1.48</swagger-parser.version>
         <geotools.version>34.5</geotools.version>
@@ -106,9 +103,12 @@
              flags (ors-engine adds the Mockito agent) without restating these -->
         <surefire.base.argLine>-Duser.language=en -Duser.region=US</surefire.base.argLine>
         <rest-assured.version>6.0.1</rest-assured.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gatling.version>3.15.1</gatling.version>
         <commons-cli.version>1.11.0</commons-cli.version>
+        <gatling-maven-plugin.version>4.21.12</gatling-maven-plugin.version>
+        <awssdk.version>2.54.20</awssdk.version>
+        <!-- javax (pre-Jakarta) JAXB API, needed at runtime by springdoc - see ors-api -->
+        <javax-jaxb-api.version>2.3.1</javax-jaxb-api.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.organization>giscience</sonar.organization>
@@ -207,8 +207,6 @@
                 </exclusions>
             </dependency>
 
-            <!-- As long as swagger-parser uses snakeyaml <2 it cannot be used. Too many vulnerabilities. -->
-            <!-- The package is updated quite often. -->
             <dependency>
                 <groupId>io.swagger.parser.v3</groupId>
                 <artifactId>swagger-parser</artifactId>
@@ -276,6 +274,13 @@
                 <groupId>com.googlecode.json-simple</groupId>
                 <artifactId>json-simple</artifactId>
                 <version>${json-simple.version}</version>
+                <!-- json-simple 1.1.1 declares junit 4 as a compile dependency -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -431,6 +436,18 @@
                 <version>${commons-cli.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${awssdk.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${javax-jaxb-api.version}</version>
+            </dependency>
+
             <!-- geotools pulls EMF 2.15.0 in transitively (gt-metadata -> net.opengis.ows), and the
                  EMF POMs declare their own transitive dependencies as ranges - org.eclipse.emf.ecore.xmi
                  wants org.eclipse.emf.ecore:[2.15.0,3.0.0), which wants org.eclipse.emf.common:[2.15.0,3.0.0).
@@ -564,20 +581,12 @@
                     <version>3.16.0</version>
                 </plugin>
                 <plugin>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.2</version>
-                </plugin>
-                <plugin>
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <version>3.6.3</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>3.2.8</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.2</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -605,6 +614,11 @@
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.15</version>
+                </plugin>
+                <plugin>
+                    <groupId>io.gatling</groupId>
+                    <artifactId>gatling-maven-plugin</artifactId>
+                    <version>${gatling-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -32,17 +32,20 @@ Releasing is documented in RELEASE.md
 
 ### Changed
 - migrate countries and borders storage to encoded values ([#2281](https://github.com/GIScience/openrouteservice/pull/2281))
+- update maven-install-plugin and maven-deploy-plugin to the Spring Boot managed versions ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 
 ### Deprecated
 
 ### Removed
 - leftover `okhttp-jvm` dependency ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
+- JUnit libraries from the ors jar ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 
 ### Fixed
 - slim image failing to download graphs from S3 repositories ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - ors-test-scenarios tests being skipped due to a `logback-classic` version mismatch ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - `integrationTests` Maven profile not selecting any tests ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - integration tests failing to build their builder images ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
+- ors-benchmark using a different surefire version than the other modules ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 
 ### Security
 
