@@ -1,6 +1,6 @@
 # Building from Source
 
-**We recommend running openrouteservice using a Docker container (see [Running with Docker](Running-with-Docker))**
+**We recommend running openrouteservice using a Docker container (see [Running with Docker](./Running-with-Docker))**
 
 ## Installation from source
 
@@ -23,7 +23,7 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
      required for extended storages. You should make sure that these folders/files
      are accessible by the service, for example by using the `sudo chmod -R 777
      [path to folder]` command.
-     An explanation of the file format and parameters can be found [here](Configuration)
+     An explanation of the file format and parameters can be found [here](./Configuration)
   7. From within the `openrouteservice` root directory run the command `mvn package`. This will build
      openrouteservice ready for tomcat deployment.
   8. For running both the unit and api tests, add `-Papitests` as a parameter to `mvn`.
@@ -44,7 +44,7 @@ To run the project from within your IDE, you have to:
 
   1. Set up your IDE project and import `openrouteservice`
      modules as Maven model.
-     For IntelliJ Idea, have a look at [these instructions](Opening-Project-in-IntelliJ).
+     For IntelliJ Idea, have a look at [these instructions](./Opening-Project-in-IntelliJ).
 
   2. Configure your IDE to run `spring-boot:run` as the maven goal, setting the
      environment variable `ORS_CONFIG=ors-config-test.json`.
@@ -96,7 +96,7 @@ To run the project from within your IDE, you have to:
      message, you are good to go in creating routes.
 
 There are numerous settings within the `ors-config.json` which are highly dependent
-on your individual circumstances, but many of these [are documented](Configuration). As a guide
+on your individual circumstances, but many of these [are documented](./Configuration). As a guide
 however you can look at the `ors-config-sample.json` file in the
 `ors-api/src/main/resources` folder. If you run into issues relating
 to out of memory or similar, then you will need to adjust java/tomcat settings

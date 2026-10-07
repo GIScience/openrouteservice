@@ -12,6 +12,11 @@ import java.util.Map;
 
 import static java.util.Optional.ofNullable;
 
+/**
+ * /!\ Attention:
+ *     Changes in this class are likely to require
+ *     an increment of the graphVersion (top level pom.xml)
+ */
 @Getter
 @Setter
 public class BuildProperties {
@@ -102,6 +107,7 @@ public class BuildProperties {
                 continue;
             }
             ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
+
             switch (extendedStorageName) {
                 case HEAVY_VEHICLE -> handleHeavyVehicle(storage);
                 case OSM_ID -> handleOsmId();
@@ -111,6 +117,7 @@ public class BuildProperties {
                 case TOLLWAYS -> handleTollways();
                 case HILL_INDEX -> handleHillIndex();
                 case TRAIL_DIFFICULTY -> handleTrailDifficulty();
+                case BORDERS -> handleBorder();
                 default -> {
                     storage.initialize(extendedStorageName);
                     this.extStorages.put(key, storage);
@@ -226,6 +233,15 @@ public class BuildProperties {
         }
     }
 
+    private void handleBorder() {
+        if (encodedValues.getCountry() == null) {
+            encodedValues.setCountry(true);
+        }
+        if (encodedValues.getBorder() == null) {
+            encodedValues.setBorder(true);
+        }
+    }
+
     @JsonIgnore
     public String getEncoderOptionsString() {
         if (encoderOptions == null) return "";
@@ -234,6 +250,6 @@ public class BuildProperties {
 
     @JsonIgnore
     public String getEncodedValuesString() {
-        return encodedValues == null ? "" : encodedValues.toString();
+        return encodedValues == null ? "" : encodedValues.toEncodedValuesString();
     }
 }

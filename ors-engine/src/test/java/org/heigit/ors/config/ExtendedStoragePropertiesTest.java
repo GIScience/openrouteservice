@@ -2,13 +2,13 @@ package org.heigit.ors.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.config.profile.ExtendedStorageName;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -184,12 +184,12 @@ class ExtendedStoragePropertiesTest {
     }
 
     @Test
-    void testSerializationEmptyStorageProducesCorrectJson() throws Exception {
+    void testSerializationEmptyStorageProducesCorrectJson() {
         // Step 1: Create and configure an instance of ExtendedStorage
         ExtendedStorageProperties storage = new ExtendedStorageProperties();
 
         // Step 2: Serialize the object to JSON
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.builder().build();
         String jsonResult = mapper.writeValueAsString(storage);
 
         // Step 3: Assert JSON structure and values including enabled

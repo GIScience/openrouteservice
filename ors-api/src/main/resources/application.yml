@@ -8,7 +8,6 @@ server:
   error:
     whitelabel:
       enabled: false
-  # Keep the context-path at / else the war file run with tomcat will have the context-path of /ors/v2 as well.
   servlet:
     context-path: /ors
   tomcat:
@@ -32,6 +31,9 @@ springdoc:
       activated: true
     showExtensions: true
   api-docs:
+    # springdoc enables this endpoint whenever the property is unset, but warns on every startup
+    # until it is stated explicitly. Setting it here is a no-op behaviourally and silences that.
+    enabled: true
     path: /v2/api-docs
     version: OPENAPI_3_0
   packages-to-scan: org.heigit.ors
@@ -117,6 +119,7 @@ ors:
   engine:
     init_threads: 1
     preparation_mode: false
+    preparation_type: FOLDER
     graphs_data_access: RAM_STORE
     graph_management:
       enabled: false

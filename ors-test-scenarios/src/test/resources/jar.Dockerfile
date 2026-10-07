@@ -1,4 +1,9 @@
 # Look into the documentation under docs/technical-details/integration-tests.md for more information.
+
+# Throwaway integration-test image, built on the runner and never pushed.
+# checkov:skip=CKV_DOCKER_7: the base is ors-test-scenarios-jar-builder, built locally by Builder.Dockerfile - there is no registry digest to pin
+# checkov:skip=CKV_DOCKER_3: runs the ORS test instance as root inside a disposable container
+
 ARG CONTAINER_BUILD_DIR=/build
 ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 

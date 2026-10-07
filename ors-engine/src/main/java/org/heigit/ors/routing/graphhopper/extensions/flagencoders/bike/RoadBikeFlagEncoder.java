@@ -224,9 +224,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     boolean isPushingSection(ReaderWay way) {
         String highway = way.getTag(VAL_HIGHWAY);
         String trackType = way.getTag("tracktype");
-        return way.hasTag(VAL_HIGHWAY, pushingSectionsHighways)
-                || way.hasTag("railway", "platform")
-                || way.hasTag("bicycle", "dismount")
+        return super.isPushingSection(way)
                 || VAL_TRACK.equals(highway) && trackType != null && !VAL_GRADE_1.equals(trackType);
     }
 

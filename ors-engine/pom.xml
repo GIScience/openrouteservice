@@ -30,7 +30,7 @@
         <relativePath>../pom.xml</relativePath>
         <artifactId>openrouteservice</artifactId>
         <groupId>org.heigit.ors</groupId>
-        <version>9.11.0-SNAPSHOT</version>
+        <version>10.1.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -39,7 +39,6 @@
 
     <build>
         <finalName>ors</finalName>
-        <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -52,6 +51,36 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <plugins>
+            <!-- exposes ${org.mockito:mockito-core:jar} (the resolved path of the jar) for the
+                 surefire argLine below; binds to the initialize phase by default -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>resolve-dependency-paths</id>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- ors-engine is the only module using Mockito. Without being pre-loaded as an
+                         agent, Mockito self-attaches via byte-buddy at runtime, which the JDK warns
+                         about and will disallow outright in a future release. mockito-core declares
+                         Premain-Class, so this is the maintainers' supported wiring.
+                         Overrides the parent's argLine; ${surefire.base.argLine} carries its content -->
+                    <!--suppress UnresolvedMavenProperty -->
+                    <argLine>${surefire.base.argLine} -javaagent:${org.mockito:mockito-core:jar} ${surefireArgLine}</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
@@ -59,25 +88,21 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>${graphhopper.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-web-api</artifactId>
-            <version>${graphhopper.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-reader-gtfs</artifactId>
-            <version>${graphhopper.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-map-matching</artifactId>
-            <version>${graphhopper.version}</version>
         </dependency>
 
         <dependency>
@@ -119,12 +144,6 @@
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -147,9 +166,8 @@
             <artifactId>gt-referencing</artifactId>
         </dependency>
 
-        <!-- TODO: according dependency:analyze this
-        is not used, but build fails when not declared
-        -->
+        <!-- Reported as unused by dependency:analyze, but required at runtime: this is the EPSG
+             CRS database, resolved via SPI rather than by any compile-time reference -->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-epsg-hsql</artifactId>
@@ -160,6 +178,9 @@
             <artifactId>gt-geojson</artifactId>
         </dependency>
 
+        <!-- Reported as unused by dependency:analyze, but required at runtime: HereTrafficReader
+             loads the configured Streets.shp through FileDataStoreFinder, which discovers this
+             datastore via SPI -->
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
@@ -178,12 +199,6 @@
         <dependency>
             <groupId>me.tongfei</groupId>
             <artifactId>progressbar</artifactId>
-        </dependency>
-
-        <!-- Somehow the RoutingProfileLoader needs jline -->
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline</artifactId>
         </dependency>
 
         <dependency>
@@ -213,35 +228,29 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <groupId>tools.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>io.minio</groupId>
-            <artifactId>minio</artifactId>
-            <version>9.0.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp-jvm</artifactId>
-            <version>5.5.0</version>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -283,12 +292,6 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers-nginx</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers-minio</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

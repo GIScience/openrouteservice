@@ -5,12 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
-import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.json.simple.JSONObject;
-import org.locationtech.jts.geom.Geometry;
-import org.simpleframework.xml.core.Validate;
-import org.springframework.validation.annotation.Validated;
 
 @Schema(name = "MatchingRequest", description = "Matching service endpoint.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)

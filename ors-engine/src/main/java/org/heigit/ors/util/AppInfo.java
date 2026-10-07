@@ -68,9 +68,13 @@ public class AppInfo {
         String version = "0.0";
         Properties prop = new Properties();
 
-        try (InputStream in = Thread.currentThread().getContextClassLoader().getResource("version.properties").openStream()) {
-            prop.load(in);
-            version = prop.getProperty("version");
+        try (InputStream in = AppInfo.class.getResourceAsStream("/version.properties")) {
+            if (in == null) {
+                LOGGER.error("Initialization ERROR: version.properties not found on the classpath.");
+            } else {
+                prop.load(in);
+                version = prop.getProperty("version");
+            }
         } catch (Exception e) {
             LOGGER.error("Initialization ERROR: cannot read version!? " + e.getMessage());
         }
@@ -105,11 +109,15 @@ public class AppInfo {
 
         prop = new Properties();
         String graphVersion = "undefined";
-        try (InputStream in = Thread.currentThread().getContextClassLoader().getResource("engine.properties").openStream()) {
-            prop.load(in);
-            graphVersion = prop.getProperty("graphVersion", "undefined");
+        try (InputStream in = AppInfo.class.getResourceAsStream("/engine.properties")) {
+            if (in == null) {
+                LOGGER.error("Initialization ERROR: engine.properties not found on the classpath.");
+            } else {
+                prop.load(in);
+                graphVersion = prop.getProperty("graphVersion", "undefined");
+            }
         } catch (Exception e) {
-            LOGGER.error("Initialization ERROR: cannot read engineVersion. {}");
+            LOGGER.error("Initialization ERROR: cannot read engineVersion. " + e.getMessage());
         }
         GRAPH_VERSION = graphVersion;
     }

@@ -20,13 +20,12 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
 import lombok.Getter;
 import org.apache.log4j.Logger;
+import org.heigit.ors.common.PreparationType;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.TimeUtility;
@@ -119,9 +118,6 @@ public class RoutingProfile {
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
-        ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
-        gh.setPathProcessorFactory(pathProcessorFactory);
-
         gh.init(args);
 
         // MARQ24: make sure that we only use ONE instance of the ElevationProvider across the multiple vehicle profiles
@@ -137,12 +133,10 @@ public class RoutingProfile {
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
 
         gh.importOrLoad();
-        // store CountryBordersReader for later use
-        for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
-            if (builder.getName().equals(BordersGraphStorageBuilder.BUILDER_NAME)) {
-                pathProcessorFactory.setCountryBordersReader(((BordersGraphStorageBuilder) builder).getCbReader());
-            }
-        }
+
+        ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
+        pathProcessorFactory.setCountryBordersReader(gpc.getCountryBordersReader());
+        gh.setPathProcessorFactory(pathProcessorFactory);
 
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("[%d] Profile: '%s', encoder: '%s', location: '%s'.".formatted(profileId, profileProperties.getProfileName(), profileProperties.getEncoderName().toString(), gh.getOrsGraphManager().getActiveGraphDirAbsPath()));
@@ -161,7 +155,9 @@ public class RoutingProfile {
                 Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
         }
 
-        if (Boolean.TRUE.equals(engineProperties.getPreparationMode()) && !prepareGeneratedGraphForUpload(profileProperties, AppInfo.GRAPH_VERSION)) {
+        if (Boolean.TRUE.equals(engineProperties.getPreparationMode())
+                && engineProperties.getPreparationType() == PreparationType.ARCHIVE
+                && !prepareGeneratedGraphForUpload(profileProperties, AppInfo.GRAPH_VERSION)) {
             throw new IOException("Failed to prepare generated graph for upload for profile '%s'.".formatted(profileName));
         }
 
@@ -170,6 +166,8 @@ public class RoutingProfile {
 
     /**
      * Prepares the generated graph for upload when running in preparation mode.
+     * Only invoked when {@code preparation_type} is set to {@code ARCHIVE};
+     * with the default {@code FOLDER} the built graph is left extracted in place.
      *
      * <p>This is a static helper method which expects a fully-initialized {@link ProfileProperties}
      * instance and prepares the graph files located under {@code profileProperties.getGraphPath()/profileProperties.getProfileName()}.

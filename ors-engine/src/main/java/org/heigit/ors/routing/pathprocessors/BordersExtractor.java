@@ -1,41 +1,44 @@
 package org.heigit.ors.routing.pathprocessors;
 
-import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
+import com.graphhopper.routing.ev.Border;
+import com.graphhopper.routing.ev.Country;
+import com.graphhopper.routing.ev.CountryOther;
+import com.graphhopper.routing.ev.EnumEncodedValue;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.util.EdgeIteratorState;
+import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 
-import java.util.List;
 
 public class BordersExtractor {
     public enum Avoid {CONTROLLED, NONE, ALL}
-
-    private final BordersGraphStorage storage;
+    private final EnumEncodedValue<Border> border;
+    private final EnumEncodedValue<Country> country1;
+    private final EnumEncodedValue<Country> country2;
     private final int[] avoidCountries;
 
-    public BordersExtractor(BordersGraphStorage storage, int[] avoidCountries) {
-        this.storage = storage;
-        this.avoidCountries = avoidCountries;
+    public BordersExtractor(EncodingManager encodingManager, int[] avoidCountries) {
+      this.border = encodingManager.getEnumEncodedValue(Border.KEY, Border.class);
+      this.country1 = encodingManager.getEnumEncodedValue(Country.KEY, Country.class);
+      this.country2 = encodingManager.getEnumEncodedValue(CountryOther.KEY, Country.class);
+      this.avoidCountries = avoidCountries;
     }
 
-    public int getValue(int edgeId) {
-        // Get the type of border
-        return storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE);
+    public boolean isBorder(EdgeIteratorState edge) {
+        Border borderType = border.getEnum(false, edge.getFlags());
+        return borderType == Border.CONTROLLED || borderType == Border.OPEN;
     }
 
-    public boolean isBorder(int edgeId) {
-        int type = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE);
-        return (type == BordersGraphStorage.OPEN_BORDER || type == BordersGraphStorage.CONTROLLED_BORDER);
+    public boolean isControlledBorder(EdgeIteratorState edge) {
+        return border.getEnum(false, edge.getFlags()) == Border.CONTROLLED;
     }
 
-    public boolean isControlledBorder(int edgeId) {
-        return storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE) == BordersGraphStorage.CONTROLLED_BORDER;
+    public boolean isOpenBorder(EdgeIteratorState edge) {
+        return border.getEnum(false, edge.getFlags()) == Border.OPEN;
     }
 
-    public boolean isOpenBorder(int edgeId) {
-        return storage.getEdgeValue(edgeId, BordersGraphStorage.Property.TYPE) == BordersGraphStorage.OPEN_BORDER;
-    }
-
-    public boolean restrictedCountry(int edgeId) {
-        int startCountry = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.START);
-        int endCountry = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.END);
+    public boolean restrictedCountry(EdgeIteratorState edge)  {
+        int startCountry = CountryBordersReader.getCountryIdByISOCode(country1.getEnum(false, edge.getFlags()).name());
+        int endCountry = CountryBordersReader.getCountryIdByISOCode(country2.getEnum(false, edge.getFlags()).name());
 
         for (int i = 0; i < avoidCountries.length; i++) {
             if (startCountry == avoidCountries[i] || endCountry == avoidCountries[i]) {
@@ -43,29 +46,5 @@ public class BordersExtractor {
             }
         }
         return false;
-    }
-
-    /**
-     * Check whether the start and end nodes of a list of edges are in the same country.
-     *
-     * @param edgeIds Edges that the country should be checked for
-     * @return true if at least one node is in the same country
-     */
-    public boolean isSameCountry(List<Integer> edgeIds) {
-        if (edgeIds.isEmpty())
-            return true;
-
-        short country0 = storage.getEdgeValue(edgeIds.get(0), BordersGraphStorage.Property.START);
-        short country1 = storage.getEdgeValue(edgeIds.get(0), BordersGraphStorage.Property.END);
-        for (int edgeId : edgeIds) {
-            short country2 = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.START);
-            short country3 = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.END);
-            if (country0 != country2
-                    && country0 != country3
-                    && country1 != country2
-                    && country1 != country3)
-                return false;
-        }
-        return true;
     }
 }

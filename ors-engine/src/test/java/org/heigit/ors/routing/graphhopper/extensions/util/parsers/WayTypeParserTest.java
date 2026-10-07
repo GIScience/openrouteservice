@@ -12,7 +12,6 @@ import static org.heigit.ors.routing.graphhopper.extensions.reader.osmfeaturepro
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class WayTypeParserTest {
-    private EncodingManager em;
     private EnumEncodedValue<WayType> wayTypeEnc;
     private WayTypeParser parser;
     private IntsRef intsRef, relFlags;
@@ -20,7 +19,7 @@ class WayTypeParserTest {
     @BeforeEach
     void setUp() {
         parser = new WayTypeParser();
-        em = new EncodingManager.Builder().add(parser).build();
+        EncodingManager em = new EncodingManager.Builder().add(parser).build();
         wayTypeEnc = em.getEnumEncodedValue(WayType.KEY, WayType.class);
         relFlags = em.createRelationFlags();
         intsRef = em.createEdgeFlags();

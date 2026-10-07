@@ -1,6 +1,7 @@
 ors:
   engine:
     preparation_mode: true
+    preparation_type: ARCHIVE
     elevation:
       preprocessed: true
     profile_default:

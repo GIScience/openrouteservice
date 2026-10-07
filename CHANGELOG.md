@@ -28,9 +28,48 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- integration test loading graphs into the slim image from an S3 repository ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
+
+### Changed
+- migrate countries and borders storage to encoded values ([#2281](https://github.com/GIScience/openrouteservice/pull/2281))
+- update maven-install-plugin and maven-deploy-plugin to the Spring Boot managed versions ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
+
+### Deprecated
+
+### Removed
+- leftover `okhttp-jvm` dependency ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
+- JUnit libraries from the ors jar ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
+
+### Fixed
+- slim image failing to download graphs from S3 repositories ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
+- ors-test-scenarios tests being skipped due to a `logback-classic` version mismatch ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
+- `integrationTests` Maven profile not selecting any tests ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
+- integration tests failing to build their builder images ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
+- ors-benchmark using a different surefire version than the other modules ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
+
+### Security
+
+
+## [10.0.1] - 2026-09-23
+
+### Added
+- add workflow steps checking graph compatibility with latest release
+- add documentation of latest v9 version
+
+### Changed
+- replace the MinIO test container with rustfs in the graph repo client tests, matching the production repository backend ([#2427](https://github.com/GIScience/openrouteservice/issues/2427))
+- replace minio dependency with awssdk:s3 ([#2420](https://github.com/GIScience/openrouteservice/issues/2420))
+- increase graphVersion to 6 because graphs built with v9.10.0 (graphVersion=5) cannot be loaded
+- change indentation and numbering in RELEASE.md and add sentence about adding pinned documentation of previous latest release
+
+## [10.0.0] - 2026-09-16
+
+### Added
+- documentation for CSV extra info from graph-build CSV files ([#1974](https://github.com/GIScience/openrouteservice/issues/1974))
 - add SBOM and provenance via docker buildx commands ([#2347](https://github.com/GIScience/openrouteservice/pull/2347))
 - add OCI title/description/documentation labels to base image ([#2364](https://github.com/GIScience/openrouteservice/pull/2364))
 - disable file logging in the slim image so it can run with a read-only root filesystem given a tmpfs at `/tmp` for GeoTools' EPSG cache ([#2367](https://github.com/GIScience/openrouteservice/pull/2367))
+- new optional parameter `ors.engine.preparation_type` (`FOLDER`/`ARCHIVE`) controlling whether `preparation_mode` leaves built graphs extracted or packs them into `.ghz` archives ([#2316](https://github.com/GIScience/openrouteservice/issues/2316))
 
 ### Changed
 - replace Grype with Trivy for CI vulnerability scanning ([#2335](https://github.com/GIScience/openrouteservice/pull/2335))
@@ -40,10 +79,13 @@ Releasing is documented in RELEASE.md
 - reduce the Docker `HEALTHCHECK` interval from 30s to 10s to match Kubernetes' default probe interval; Kubernetes does not consume Docker's `HEALTHCHECK` itself, so this timing only affects plain Docker/Podman/Swarm deployments ([#2369](https://github.com/GIScience/openrouteservice/pull/2369))
 - harden the embedded Tomcat of the slim image: pin the already-effective response settings, shorten the connector timeout to 20s and disable Swagger UI and the OpenAPI document ([#2368](https://github.com/GIScience/openrouteservice/pull/2368))
 - bump Java to 25 across build, CI and Docker images ([#2382](https://github.com/GIScience/openrouteservice/pull/2382))
-
-### Deprecated
+- base the slim image on distroless Debian 13 ([#2387](https://github.com/GIScience/openrouteservice/pull/2387))
+- update to Spring Boot 4 ([#2393](https://github.com/GIScience/openrouteservice/pull/2393))
+- updated geotools to version 34.0 and pinned org.eclipse.emf dependencies to individual latest versions ([#2422](https://github.com/GIScience/openrouteservice/pull/2422))
 
 ### Removed
+- WAR/Tomcat packaging support ([#2398](https://github.com/GIScience/openrouteservice/pull/2398))
+- obsolete RPM packaging (`.rpm-packaging/`) ([#2397](https://github.com/GIScience/openrouteservice/pull/2397))
 
 ### Fixed
 - give the healthcheck a start-period so it survives longer graph loading ([#2365](https://github.com/GIScience/openrouteservice/pull/2365))
@@ -52,8 +94,10 @@ Releasing is documented in RELEASE.md
 - correct speed assignment for HGVs and disable acceleration heuristic on motorways/-roads ([#2329](https://github.com/GIScience/openrouteservice/pull/2329))
 - pass branch through to the reusable Docker build workflow so CI actually builds the triggering commit instead of always `main` ([#2340](https://github.com/GIScience/openrouteservice/pull/2340))
 - declare the JAXB and javax.xml.bind dependencies explicitly ([#2388](https://github.com/GIScience/openrouteservice/pull/2388))
+- fix cycling-electric slower than cycling-regular ([#2328](https://github.com/GIScience/openrouteservice/pull/2328))
 
 ### Security
+- assess the two currently unfixable glibc findings of the slim image's distroless base in `openvex.json`: [CVE-2019-1010022](https://www.cve.org/CVERecord?id=CVE-2019-1010022) (disputed upstream, `unimportant` in Debian) and [CVE-2026-5450](https://www.cve.org/CVERecord?id=CVE-2026-5450) (`%mc` scanf overflow, not called from the image, `no-dsa` for Debian 13). Both are non fixed libc6 to update to, so they are documented as `not_affected`.
 - update postcss to 8.5.25
 - update mermaid to 11.16.1 due to [CVE-2026-71437](https://www.cve.org/CVERecord?id=CVE-2026-71437), [CVE-2026-71438](https://www.cve.org/CVERecord?id=CVE-2026-71438), [CVE-2026-50159](https://www.cve.org/CVERecord?id=CVE-2026-50159), [CVE-2026-71436](https://www.cve.org/CVERecord?id=CVE-2026-71436) and [CVE-2026-71439](https://www.cve.org/CVERecord?id=CVE-2026-71439)
 - update dompurify to 3.4.13
@@ -62,6 +106,8 @@ Releasing is documented in RELEASE.md
 - update postgresql to 42.7.12 and jline to 4.2.1, add aircompressor dependency to fix [CVE-2025-67721](https://www.cve.org/CVERecord?id=CVE-2025-67721), [CVE-2026-56740](https://www.cve.org/CVERecord?id=CVE-2026-56740), [CVE-2026-56741](https://www.cve.org/CVERecord?id=CVE-2026-56741) and [CVE-2026-54291](https://www.cve.org/CVERecord?id=CVE-2026-54291) ([#2339](https://github.com/GIScience/openrouteservice/pull/2339))
 - update log4j to 2.25.5 due to [CVE-2026-49844](https://www.cve.org/CVERecord?id=CVE-2026-49844)
 - update httpclient5 to 5.6.3 due to [CVE-2026-71290](https://www.cve.org/CVERecord?id=CVE-2026-71290) and [CVE-2026-40542](https://www.cve.org/CVERecord?id=CVE-2026-40542)
+- force update tomcat-embed to 11.0.25 due to GHSA-9xv2-5v5q-p794, GHSA-gcx9-497g-6cp6 and GHSA-h3x4-894j-xpx5 ([#2413](https://github.com/GIScience/openrouteservice/pull/2413))
+- update nanoid to 3.3.19 due to [CVE-2026-67213](https://www.cve.org/CVERecord?id=CVE-2026-67213)
 
 
 ## [9.10.0] - 2026-07-28
@@ -1130,7 +1176,9 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.10.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v10.0.1...HEAD
+[10.0.1]: https://github.com/GIScience/openrouteservice/compare/v10.0.0...v10.0.1
+[10.0.0]: https://github.com/GIScience/openrouteservice/compare/v9.10.0...v10.0.0
 [9.10.0]: https://github.com/GIScience/openrouteservice/compare/v9.9.0...v9.10.0
 [9.9.0]: https://github.com/GIScience/openrouteservice/compare/v9.8.0...v9.9.0
 [9.8.0]: https://github.com/GIScience/openrouteservice/compare/v9.7.1...v9.8.0

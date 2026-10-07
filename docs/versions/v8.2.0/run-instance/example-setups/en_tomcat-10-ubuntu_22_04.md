@@ -3,7 +3,7 @@
 This guide will guide you how to set up openrouteservice v8 with Java 17 and Tomcat 10.
 
 ::: info
-To the [german version](de_tomcat-10-ubuntu_22_04) of this tutorial.
+To the [german version](./de_tomcat-10-ubuntu_22_04) of this tutorial.
 :::
 
 ## Prerequisites
@@ -240,7 +240,7 @@ Make sure to adjust the `-Xmx` value to a value that fits your system and graph.
 If you want to build another OSM-File, you can adjust the `source_file` value.
 
 If you want to learn more about the new configuration options in versions 8, check
-the [configuration documentation](/run-instance/configuration/index.md).
+the [configuration documentation](../configuration/index.md).
 
 **Example `setenv.sh` file for openrouteservice v8**
 

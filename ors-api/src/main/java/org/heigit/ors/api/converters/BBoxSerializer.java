@@ -15,12 +15,10 @@
 
 package org.heigit.ors.api.converters;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.heigit.ors.util.FormatUtility;
-
-import java.io.IOException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 public class BBoxSerializer extends StdSerializer<double[][]> {
     private static final int COORDINATE_PRECISION = 6;
@@ -34,7 +32,7 @@ public class BBoxSerializer extends StdSerializer<double[][]> {
     }
 
     @Override
-    public void serialize(double[][] coordinates, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(double[][] coordinates, JsonGenerator jsonGenerator, SerializationContext serializationContext) {
         double[][] formattedCoords = new double[coordinates.length][coordinates[0].length];
         formattedCoords[0][0] = FormatUtility.roundToDecimals(coordinates[0][0], COORDINATE_PRECISION);
         formattedCoords[0][1] = FormatUtility.roundToDecimals(coordinates[0][1], COORDINATE_PRECISION);

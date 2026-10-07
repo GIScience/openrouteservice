@@ -1,6 +1,6 @@
 # Building from Source
 
-If you need to customize your openrouteservice instance even further than what is possible by [configuration](configuration/index.md), you might need to make changes to the code. 
+If you need to customize your openrouteservice instance even further than what is possible by [configuration](./configuration/index.md), you might need to make changes to the code. 
 If you implement features that might be useful for others as well, consider [contributing](../contributing/index.md)! The following instructions are useful to get you set up to start modifying the code.
 
 
@@ -35,7 +35,7 @@ mvn spring-boot:run
 or in your IDE (see below). This will start openrouteservice on port `8082` with the default configuration `ors-config.yml` in the project root directory
 and a small OSM data set from Heidelberg.
 
-In the [Configuration](configuration/index.md) section you find the options how you can use customised configurations.  
+In the [Configuration](./configuration/index.md) section you find the options how you can use customised configurations.  
 
 
 ### Running from within IDE
@@ -203,7 +203,7 @@ mvn clean package
 
 You will find the fat JAR file in `ors-api/target/ors.jar`
 
-The chapter on [JAR](running-jar.md) artifact explains how to configure and run the JAR file.
+The chapter on [JAR](./running-jar.md) artifact explains how to configure and run the JAR file.
 
 
 ### Build WAR
@@ -216,7 +216,7 @@ mvn clean package -PbuildWar
 
 You will find the WAR file in `ors-api/target/ors.war`
 
-The chapter on [WAR](running-war.md) artifact explains how to configure and deploy the WAR file.
+The chapter on [WAR](./running-war.md) artifact explains how to configure and deploy the WAR file.
 
 
 ### Build docker image
@@ -224,7 +224,7 @@ The chapter on [WAR](running-war.md) artifact explains how to configure and depl
 ::: tip
 This chapter only describes how to _build_ a docker container locally.
 Before you _run_ your custom docker image the first time, 
-please read [running prebuilt images](running-with-docker.md#running-prebuilt-images) 
+please read [running prebuilt images](./running-with-docker.md#running-prebuilt-images) 
 to learn the preconditions and how the dockerized openrouteservice is operated.
 :::
 

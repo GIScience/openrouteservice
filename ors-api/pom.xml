@@ -30,18 +30,17 @@
         <relativePath>../pom.xml</relativePath>
         <artifactId>openrouteservice</artifactId>
         <groupId>org.heigit.ors</groupId>
-        <version>9.11.0-SNAPSHOT</version>
+        <version>10.1.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ors-api</artifactId>
     <name>ors-api</name>
 
-    <packaging>${packagingValue}</packaging>
+    <packaging>jar</packaging>
 
     <build>
         <finalName>ors</finalName>
-        <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -56,16 +55,6 @@
             </resource>
         </resources>
         <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <warSourceDirectory>WebContent</warSourceDirectory>
-                    <webXml>WebContent/WEB-INF/web.xml</webXml>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -109,13 +98,11 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
-            <version>${graphhopper.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-web-api</artifactId>
-            <version>${graphhopper.version}</version>
         </dependency>
 
         <dependency>
@@ -137,12 +124,6 @@
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -156,7 +137,8 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
 
-        <!-- The GPX responses need a Jakarta XML Binding implementation. -->
+        <!-- The GPX responses need a Jakarta XML Binding implementation.
+             Reported as unused by dependency:analyze because it is a runtime-only SPI. -->
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
@@ -164,11 +146,13 @@
         </dependency>
 
         <!-- springdoc's PolymorphicModelConverter introspects bean properties for
-             the pre-Jakarta javax.xml.bind annotations. -->
+             the pre-Jakarta javax.xml.bind annotations. Reported as unused by
+             dependency:analyze since nothing imports javax.xml.bind (ORS itself is fully on
+             jakarta.xml.bind), but removing it makes every request that renders a model
+             fail with NoClassDefFoundError: javax/xml/bind/annotation/XmlElement. -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -183,12 +167,6 @@
         </dependency>
 
         <!-- Spring dependencies -->
-        <!-- The following dependency is needed for the Spring Boot Actuator and validates beans -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jcl</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
@@ -228,6 +206,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
+            <exclusions>
+                <!-- pulls in Logback transitively via spring-boot-starter, which then competes
+                     with spring-boot-starter-log4j2 as the active SLF4J provider; Logback wins
+                     and fails to parse application.yml's Log4j2-specific %style/%highlight
+                     console pattern, printing the literal pattern instead of formatted output -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -251,6 +239,24 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- TestRestTemplate moved out of spring-boot-test into its own module in Spring Boot 4;
+             spring-boot-restclient provides the RestTemplateBuilder autoconfiguration it needs -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-resttestclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Reported as unused by dependency:analyze, but required at runtime: without it
+             TestRestTemplateTestAutoConfiguration fails to load with
+             NoClassDefFoundError: org/springframework/boot/restclient/RestTemplateBuilder,
+             breaking every @SpringBootTest in the module -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-restclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>io.swagger.parser.v3</groupId>
             <artifactId>swagger-parser</artifactId>
@@ -271,8 +277,9 @@
             <artifactId>swagger-annotations</artifactId>
         </dependency>
 
-        <!-- TODO: according dependency:analyze this
-        is not used, but build fails when not declared -->
+        <!-- Reported as unused by dependency:analyze because the code only imports from
+             springdoc-openapi-starter-common, which this pulls in; the starter itself supplies
+             the Swagger UI and the auto-configuration that publishes /v3/api-docs -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -283,24 +290,20 @@
             <artifactId>commons-compiler</artifactId>
         </dependency>
 
+        <!-- ORSEnvironmentPostProcessor needs org.apache.commons.logging.Log directly;
+             spring-jcl (which used to re-export it transitively) was removed in Spring Framework 7 -->
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
 
@@ -330,7 +333,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

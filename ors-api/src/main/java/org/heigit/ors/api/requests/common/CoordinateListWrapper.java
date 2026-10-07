@@ -16,11 +16,11 @@
 package org.heigit.ors.api.requests.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.converters.CoordinateListDeserializer;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.locationtech.jts.geom.Coordinate;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.ArrayList;
 import java.util.List;

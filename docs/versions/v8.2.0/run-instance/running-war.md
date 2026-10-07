@@ -2,13 +2,13 @@
 
 Like older versions, ORS version 8 can still be built and run as a Web Application Resource aka Web Archive (WAR).
 A WAR file can be deployed to a Servlet Container like Tomcat, which is running as a service.
-To run openrouteservice, you also need an OSM data file, e.g. from [Geofabrik](http://download.geofabrik.de). For more details see chapter [Data](data.md).
+To run openrouteservice, you also need an OSM data file, e.g. from [Geofabrik](http://download.geofabrik.de). For more details see chapter [Data](./data.md).
 
 ## Prerequisites
 
 * [Tomcat](https://tomcat.apache.org/) 10 (or higher) should be installed. E.g. on Ubuntu 22.04, follow these [instructions](https://linuxize.com/post/how-to-install-tomcat-10-on-ubuntu-22-04/). 
 
-To run openrouteservice, you also need an OSM data file, e.g. from [Geofabrik](http://download.geofabrik.de). For more details, see chapter [Data](data.md).
+To run openrouteservice, you also need an OSM data file, e.g. from [Geofabrik](http://download.geofabrik.de). For more details, see chapter [Data](./data.md).
 
 ## Download
 
@@ -16,7 +16,7 @@ Starting with version 8 you can download the ready to use WAR from the "Assets" 
 
 ## Build
 
-How this is done is independent of the artifact type you want to use and is documented in [Building from Source](building-from-source.md).
+How this is done is independent of the artifact type you want to use and is documented in [Building from Source](./building-from-source.md).
 
 ## Run
 
@@ -41,4 +41,4 @@ Then you need to add an environment variable to your `setenv.sh` pointing to tha
 ORS_CONFIG_LOCATION=/path/to/ors-config.yml
 ```
 
-For details on how to make openrouteservice apply the settings in the configuration file (there are multiple options) see chapter [Configuration](configuration/index.md).
+For details on how to make openrouteservice apply the settings in the configuration file (there are multiple options) see chapter [Configuration](./configuration/index.md).

@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static utils.ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER;
 import static utils.TestContainersHelper.*;
 
 @ExtendWith(TestcontainersExtension.class)
@@ -75,10 +74,6 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testMissingConfigButRequiredParamsAsArg(ContainerTestImageBare targetImage) {
-            if (targetImage.equals(ContainerTestImageBare.WAR_CONTAINER_BARE)) {
-                // This test is not applicable to the WAR container as it does not support command line arguments.
-                return;
-            }
             GenericContainer<?> container = initContainer(targetImage, false, "testMissingConfigButRequiredParamsAsArg");
             container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
                     "Config file './ors-config.yml' not found.",
@@ -161,11 +156,7 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         @Execution(ExecutionMode.CONCURRENT)
         void testDefaultProfileActivated(ContainerTestImageDefaults targetImage) {
             GenericContainer<?> container = initContainer(targetImage, false, "testDefaultProfileActivated");
-            if (targetImage.equals(WAR_CONTAINER)) {
-                container.setWaitStrategy(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config.yml"));
-            } else {
-                container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
-            }
+            container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             container.withStartupTimeout(Duration.ofSeconds(60));
             container.start();
 
@@ -201,11 +192,6 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testNonExistentConfigFail(ContainerTestImageDefaults targetImage) {
-            if (targetImage.equals(WAR_CONTAINER)) {
-                // This test is not applicable to the WAR container as Tomcat/war does not support command line or random environment variables that are not part of the application.properties.
-                // Tomcat encapsulates the environment variables and only passes spring-boot managed properties.
-                return;
-            }
             GenericContainer<?> container = initContainer(targetImage, false, "testNonExistentConfigFail");
             // Prepare the environment
             container.addEnv("ORS_CONFIG_LOCATION", "nonexistent/ors-config.yaml");

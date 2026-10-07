@@ -13,8 +13,6 @@
  */
 package org.heigit.ors.apitests.routing;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
@@ -36,6 +34,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.xml.XMLConstants;
@@ -767,10 +768,10 @@ class ResultTest extends ServiceTest {
                 .response();
 
         // Configure Jackson for strict duplicate detection
-        ObjectMapper mapper = new ObjectMapper().enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+        JsonMapper mapper = JsonMapper.builder().enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
 
         // Small check to ensure the mapper fails on duplicate keys
-        assertThrows(IOException.class, () -> mapper.readTree("{\"foo\": \"bar\", \"foo\": \"bar\"}"));
+        assertThrows(JacksonException.class, () -> mapper.readTree("{\"foo\": \"bar\", \"foo\": \"bar\"}"));
 
         // Attempt to parse the JSON and fail if any exception is thrown
         assertDoesNotThrow(() -> mapper.readTree(response.asString()));
@@ -1145,6 +1146,41 @@ class ResultTest extends ServiceTest {
         assertEquals(200, response.getStatusCode());
 
         checkExtraConsistency(response);
+    }
+
+    @Test
+    void testDifferentRoutesForRegularAndElectricBikeProfiles() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", HelperFunctions.constructCoords("8.763442,49.388882|8.762927,49.397541"));
+        body.put("preference", getParameter("preference"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "cycling-regular")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(1256.3, 1)))
+                .body("routes[0].summary.duration", is(closeTo(352.7, 1)))
+                .statusCode(200);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "cycling-electric")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(1038.2, 1)))
+                .body("routes[0].summary.duration", is(closeTo(251.7, 1)))
+                .statusCode(200);
     }
 
     @Test
