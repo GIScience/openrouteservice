@@ -423,7 +423,7 @@ public class RoutingRequest extends ServiceRequest {
 
     private GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
                                    double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile)
-            throws Exception {
+            throws InternalServerException {
 
         GHResponse resp;
 
@@ -554,7 +554,7 @@ public class RoutingRequest extends ServiceRequest {
     }
 
     private GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing
-            bearing, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile) throws Exception {
+            bearing, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile) throws InternalServerException {
         GHResponse resp;
 
         try {
