@@ -31,7 +31,6 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.6.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -52,6 +51,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -89,10 +93,11 @@
                                 </goals>
                                 <configuration>
                                     <excludes>
-                                        <exclude>none</exclude>
+                                        <!-- Runs in the Docker image workflow against the built slim image, see the integration tests docs -->
+                                        <exclude>**/SlimImageS3RepoTest*</exclude>
                                     </excludes>
                                     <includes>
-                                        <include>**/integrationtests/**/*Test</include>
+                                        <include>**/integrationtests/**</include>
                                     </includes>
                                 </configuration>
                             </execution>
