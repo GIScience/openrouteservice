@@ -149,6 +149,8 @@ public abstract class ContainerInitializer {
      * @param usePreBuildGraph   Whether to use a pre-built graph. If true graphMountSubPath is ignored and set to the hostSharedGraphPath.
      * @return The initialized container.
      */
+    // The caller closes the container; the with* chain hides that from the compiler's resource analysis.
+    @SuppressWarnings("resource")
     public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubPath, Boolean usePreBuildGraph, Duration startupTimeout) {
         if (containerTestImage == null) {
             throw new IllegalArgumentException("containerTestImage must not be null");

@@ -90,7 +90,7 @@ public class TestContainersHelper {
             await().atMost(maxWaitTimeInSeconds, TimeUnit.SECONDS).until(() ->
                     logPatterns.stream().allMatch(pattern -> container.getLogs().contains(pattern) == expected)
             );
-        } catch (Exception e) {
+        } catch (Exception _) {
             // If we reach here, not all patterns matched the expected presence
             List<String> mismatchedPatterns = logPatterns.stream().filter(pattern -> container.getLogs().contains(pattern) != expected).toList();
             // print mismatched patterns line by line
