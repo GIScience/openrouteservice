@@ -33,6 +33,7 @@ Releasing is documented in RELEASE.md
 ### Changed
 - migrate countries and borders storage to encoded values ([#2281](https://github.com/GIScience/openrouteservice/pull/2281))
 - update maven-install-plugin and maven-deploy-plugin to the Spring Boot managed versions ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
+- migrate wheelchair attributes storage to encoded values ([#2284](https://github.com/GIScience/openrouteservice/pull/2284))
 
 ### Deprecated
 
@@ -46,6 +47,7 @@ Releasing is documented in RELEASE.md
 - `integrationTests` Maven profile not selecting any tests ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - integration tests failing to build their builder images ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - ors-benchmark using a different surefire version than the other modules ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
+- inconsistent unit conversation of kerb heights in WheelchairGraphStorageBuilder ([#2444](https://github.com/GIScience/openrouteservice/pull/2444))
 
 ### Security
 
@@ -122,7 +124,6 @@ Releasing is documented in RELEASE.md
 - migrate trail difficulty storage to `sac_scale`, `mtb_scale`, and `mtb_scale_uphill` encoded values ([#2277](https://github.com/GIScience/openrouteservice/pull/2277))
 - migrate road access restrictions storage to a dedicated encoded value ([#2270](https://github.com/GIScience/openrouteservice/pull/2270))
 - update references to deprecated URL https://api.openrouteservice.org, update default attribution strings ([#2279](https://github.com/GIScience/openrouteservice/pull/2279))
-- migrate wheelchair attributes storage to encoded values ([#2284](https://github.com/GIScience/openrouteservice/pull/2284))
 
 ### Fixed
 - check whether `mtb_scale` values are within the valid range before attempting to store them ([#2280](https://github.com/GIScience/openrouteservice/pull/2280))
