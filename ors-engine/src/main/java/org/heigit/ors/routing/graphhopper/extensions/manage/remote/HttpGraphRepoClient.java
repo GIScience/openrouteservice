@@ -33,7 +33,8 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient {
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo graphBuildInfoInRepo = new GraphBuildInfo();
         //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-        getLogger().debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
+        getLogger().debug("[%s] Checking latest graphBuildInfo in remote repository..."
+                .formatted(getGraphFileManager().getProfileDescriptiveName()));
 
         URL downloadUrl = createDownloadUrl(getGraphRepoStrategy().getRepoGraphBuildInfoFileName());
         if (downloadUrl == null) {
@@ -44,7 +45,8 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient {
         downloadFile(downloadUrl, downloadedGraphBuildInfoFile);
         if (!downloadedGraphBuildInfoFile.exists()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            getLogger().info("[%s] No graphBuildInfo found in remote repository.".formatted(getProfileDescriptiveName()));
+            getLogger().info("[%s] No graphBuildInfo found in remote repository."
+                    .formatted(getGraphFileManager().getProfileDescriptiveName()));
             return graphBuildInfoInRepo;
         }
 
@@ -69,9 +71,11 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient {
 
         if (getGraphFileManager().getDownloadedCompressedGraphFile().exists()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            getLogger().info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
+            getLogger().info("[%s] Download of compressed graph file finished after %d ms"
+                    .formatted(getGraphFileManager().getProfileDescriptiveName(), end - start));
         } else {
-            getLogger().info("[%s] Compressed graph file not found in remote repository.".formatted(getProfileDescriptiveName()));
+            getLogger().info("[%s] Compressed graph file not found in remote repository."
+                    .formatted(getGraphFileManager().getProfileDescriptiveName()));
         }
     }
 
@@ -85,7 +89,8 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient {
         try {
             return new URL(urlString);
         } catch (MalformedURLException e) {
-            getLogger().debug("[%s] Generated invalid download URL for graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), urlString));
+            getLogger().debug("[%s] Generated invalid download URL for graphBuildInfo file: %s"
+                    .formatted(getGraphFileManager().getProfileDescriptiveName(), urlString));
             return null;
         }
     }
@@ -94,10 +99,15 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient {
         File tempDownloadFile = getGraphFileManager().asIncompleteFile(outputFile);
         if (getLogger().isTraceEnabled()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            getLogger().trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), downloadUrl, tempDownloadFile.getAbsolutePath()));
+            getLogger().trace("[%s] Downloading %s to local file %s...".formatted(
+                    getGraphFileManager().getProfileDescriptiveName(),
+                    downloadUrl,
+                    tempDownloadFile.getAbsolutePath()));
         } else {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            getLogger().info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), downloadUrl));
+            getLogger().info("[%s] Downloading %s...".formatted(
+                    getGraphFileManager().getProfileDescriptiveName(),
+                    downloadUrl));
         }
         try {
             int connectionTimeoutMillis = 2000;
@@ -108,12 +118,19 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient {
                     connectionTimeoutMillis,
                     readTimeoutMillis);
             if (tempDownloadFile.renameTo(outputFile)) {
-                getLogger().debug("[%s] Renamed temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+                getLogger().debug("[%s] Renamed temp file to %s".formatted(
+                        getGraphFileManager().getProfileDescriptiveName(),
+                        outputFile.getAbsolutePath()));
             } else {
-                getLogger().error("[%s] Could not rename temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+                getLogger().error("[%s] Could not rename temp file to %s".formatted(
+                        getGraphFileManager().getProfileDescriptiveName(),
+                        outputFile.getAbsolutePath()));
             }
         } catch (IOException e) {
-            getLogger().warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e.getClass().getName(), downloadUrl));
+            getLogger().warn("[%s] Caught %s when trying to download %s".formatted(
+                    getGraphFileManager().getProfileDescriptiveName(),
+                    e.getClass().getName(),
+                    downloadUrl));
         } finally {
             deleteFileWithLogging(tempDownloadFile, "[%s] Deleted temp download file: %s", "[%s] Could not delete temp download file: %s");
         }

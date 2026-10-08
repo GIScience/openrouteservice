@@ -41,13 +41,14 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient {
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo graphBuildInfoInRepo = new GraphBuildInfo();
         //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-        getLogger().debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
+        getLogger().debug("[%s] Checking latest graphBuildInfo in remote repository..."
+                .formatted(getGraphFileManager().getProfileDescriptiveName()));
 
         Path latestGraphBuildInfoInRepoPath = Path.of(
-                getRepoProfileGroup(),
-                getRepoCoverage(),
-                getGraphVersion(),
-                getRepoGraphBuildInfoFileName());
+                getManagementProps().getRepoProfileGroup(),
+                getManagementProps().getRepoCoverage(),
+                getManagementProps().getGraphVersion(),
+                getGraphRepoStrategy().getRepoGraphBuildInfoFileName());
 
         File downloadedGraphBuildInfoFile = getGraphFileManager().getDownloadedGraphBuildInfoFile();
         deleteFileWithLogging(downloadedGraphBuildInfoFile,
@@ -59,12 +60,17 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient {
 
         if (!downloadedGraphBuildInfoFile.exists()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            getLogger().info("[%s] No graphBuildInfo found in remote repository.".formatted(getProfileDescriptiveName()));
+            getLogger().info("[%s] No graphBuildInfo found in remote repository."
+                    .formatted(getGraphFileManager().getProfileDescriptiveName()));
             return graphBuildInfoInRepo;
         }
 
-        graphBuildInfoInRepo.withRemoteUriString(concatenateToUrlPath(getRepoBaseUri(), getRepoName(), latestGraphBuildInfoInRepoPath.toString()));
-        PersistedGraphBuildInfo persistedGraphBuildInfo = getPersistedGraphBuildInfo(downloadedGraphBuildInfoFile);
+        graphBuildInfoInRepo.withRemoteUriString(concatenateToUrlPath(
+                getManagementProps().getRepoBaseUri(),
+                getManagementProps().getRepoName(),
+                latestGraphBuildInfoInRepoPath.toString()));
+        PersistedGraphBuildInfo persistedGraphBuildInfo = getGraphFileManager()
+                .readOrsGraphBuildInfo(downloadedGraphBuildInfoFile);
         graphBuildInfoInRepo.setPersistedGraphBuildInfo(persistedGraphBuildInfo);
         return graphBuildInfoInRepo;
     }
@@ -81,41 +87,57 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient {
 
     public void downloadFile(Path repoPath, File outputFile) {
         if (repoPath == null || outputFile == null) {
-            getLogger().warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, outputFile));
+            getLogger().warn("[%s] Invalid download or local path: %s or %s"
+                    .formatted(getGraphFileManager().getProfileDescriptiveName(), repoPath, outputFile));
             return;
         }
-        File tempDownloadFile = getIncompleteFile(outputFile);
+        File tempDownloadFile = getGraphFileManager().asIncompleteFile(outputFile);
         if (getLogger().isTraceEnabled()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            getLogger().trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath, tempDownloadFile.getAbsolutePath()));
+            getLogger().trace("[%s] Downloading %s to local file %s..."
+                    .formatted(
+                            getGraphFileManager().getProfileDescriptiveName(),
+                            repoPath,
+                            tempDownloadFile.getAbsolutePath()));
         } else {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            getLogger().info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath));
+            getLogger().info("[%s] Downloading %s...".formatted(
+                    getGraphFileManager().getProfileDescriptiveName(),
+                    repoPath));
         }
         try {
             if (s3Client == null) {
                 s3Client = S3Client.builder()
-                        .endpointOverride(getDerivedRepoBaseUrl().toURI())
+                        .endpointOverride(getManagementProps().getDerivedRepoBaseUrl().toURI())
                         .region(Region.US_EAST_1) //RustFS default region
                         .credentialsProvider(StaticCredentialsProvider.create(
-                                AwsBasicCredentials.create(getRepoUser(), getRepoPass())
+                                AwsBasicCredentials.create(
+                                        getManagementProps().getRepoUser(),
+                                        getManagementProps().getRepoPass())
                         ))
                         .forcePathStyle(true) // RustFS uses path-style URLs by default; virtual-host style requires RUSTFS_SERVER_DOMAINS
                         .build();
             }
             s3Client.getObject(
                     GetObjectRequest.builder()
-                            .bucket(getRepoName())
+                            .bucket(getManagementProps().getRepoName())
                             .key(repoPath.toString()).build(),
                     Paths.get(tempDownloadFile.toString())
             );
             if (tempDownloadFile.renameTo(outputFile)) {
-                getLogger().debug("[%s] Renamed temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+                getLogger().debug("[%s] Renamed temp file to %s".formatted(
+                        getGraphFileManager().getProfileDescriptiveName(),
+                        outputFile.getAbsolutePath()));
             } else {
-                getLogger().error("[%s] Could not rename temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+                getLogger().error("[%s] Could not rename temp file to %s".formatted(
+                        getGraphFileManager().getProfileDescriptiveName(),
+                        outputFile.getAbsolutePath()));
             }
         } catch (URISyntaxException e) {
-            getLogger().warn("[%s] Caught %s when trying to use Url %s".formatted(getProfileDescriptiveName(), e, getDerivedRepoBaseUrl()));
+            getLogger().warn("[%s] Caught %s when trying to use Url %s".formatted(
+                    getGraphFileManager().getProfileDescriptiveName(),
+                    e,
+                    getManagementProps().getDerivedRepoBaseUrl()));
             throw new IllegalArgumentException(e);
         } finally {
             deleteFileWithLogging(tempDownloadFile, "[%s] Deleted temp download file: %s", "[%s] Could not delete temp download file: %s");

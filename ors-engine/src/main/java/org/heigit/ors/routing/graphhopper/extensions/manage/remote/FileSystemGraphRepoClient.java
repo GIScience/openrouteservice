@@ -36,11 +36,11 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient {
     protected void downloadCompressedGraphFromRepository() {
         Path latestCompressedGraphInRepoPath = Path.of(
                 getRepoPath(),
-                getRepoName(),
-                getRepoProfileGroup(),
-                getRepoCoverage(),
-                getGraphVersion(),
-                getRepoCompressedGraphFileName());
+                getManagementProps().getRepoName(),
+                getManagementProps().getRepoProfileGroup(),
+                getManagementProps().getRepoCoverage(),
+                getManagementProps().getGraphVersion(),
+                getGraphRepoStrategy().getRepoCompressedGraphFileName());
         downloadFile(latestCompressedGraphInRepoPath, getGraphFileManager().getDownloadedCompressedGraphFile());
     }
 
@@ -48,19 +48,23 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient {
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo latestGraphBuildInfoInRepo = new GraphBuildInfo();
         //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-        getLogger().debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
+        getLogger().debug("[%s] Checking latest graphBuildInfo in remote repository..."
+                .formatted(getGraphFileManager().getProfileDescriptiveName()));
 
         Path latestGraphBuildInfoInRepoPath = Path.of(
                 getRepoPath(),
-                getRepoName(),
-                getRepoProfileGroup(),
-                getRepoCoverage(),
-                getGraphVersion(),
-                getRepoGraphBuildInfoFileName());
+                getManagementProps().getRepoName(),
+                getManagementProps().getRepoProfileGroup(),
+                getManagementProps().getRepoCoverage(),
+                getManagementProps().getGraphVersion(),
+                getGraphRepoStrategy().getRepoGraphBuildInfoFileName());
 
         if (!latestGraphBuildInfoInRepoPath.toFile().exists()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            getLogger().info("[%s] No graphBuildInfo found in remote repository: %s".formatted(getProfileDescriptiveName(), latestGraphBuildInfoInRepoPath.toFile().getAbsolutePath()));
+            getLogger().info("[%s] No graphBuildInfo found in remote repository: %s"
+                    .formatted(
+                            getGraphFileManager().getProfileDescriptiveName(),
+                            latestGraphBuildInfoInRepoPath.toFile().getAbsolutePath()));
             return latestGraphBuildInfoInRepo;
         }
 
@@ -68,14 +72,21 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient {
         downloadFile(latestGraphBuildInfoInRepoPath, downloadedGraphBuildInfoFile);
 
         if (downloadedGraphBuildInfoFile.exists()) {
-            Path latestCompressedGraphInRepoPath = Path.of(getRepoPath(), getRepoName(), getRepoProfileGroup(), getRepoCoverage(), getGraphVersion(), getRepoCompressedGraphFileName());
+            Path latestCompressedGraphInRepoPath = Path.of(
+                    getRepoPath(),
+                    getManagementProps().getRepoName(),
+                    getManagementProps().getRepoProfileGroup(),
+                    getManagementProps().getRepoCoverage(),
+                    getManagementProps().getGraphVersion(),
+                    getGraphRepoStrategy().getRepoCompressedGraphFileName());
             URI uri = latestCompressedGraphInRepoPath.toUri();
             latestGraphBuildInfoInRepo.setRemoteUri(uri);
 
             PersistedGraphBuildInfo persistedGraphBuildInfo = getGraphFileManager().readOrsGraphBuildInfo(downloadedGraphBuildInfoFile);
             latestGraphBuildInfoInRepo.setPersistedGraphBuildInfo(persistedGraphBuildInfo);
         } else {
-            getLogger().error("[%s] Invalid download path for graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), latestGraphBuildInfoInRepoPath));
+            getLogger().error("[%s] Invalid download path for graphBuildInfo file: %s"
+                    .formatted(getGraphFileManager().getProfileDescriptiveName(), latestGraphBuildInfoInRepoPath));
         }
 
         return latestGraphBuildInfoInRepo;
@@ -83,20 +94,30 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient {
 
     public void downloadFile(Path repoPath, File localPath) {
         if (repoPath == null || localPath == null) {
-            getLogger().warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, localPath));
+            getLogger().warn("[%s] Invalid download or local path: %s or %s"
+                    .formatted(getGraphFileManager().getProfileDescriptiveName(), repoPath, localPath));
             return;
         }
         if (getLogger().isTraceEnabled()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            getLogger().trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getAbsolutePath(), localPath.getAbsolutePath()));
+            getLogger().trace("[%s] Downloading %s to local file %s..."
+                    .formatted(
+                            getGraphFileManager().getProfileDescriptiveName(),
+                            repoPath.toFile().getAbsolutePath(),
+                            localPath.getAbsolutePath()));
         } else {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            getLogger().info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getName()));
+            getLogger().info("[%s] Downloading %s...".formatted(
+                    getGraphFileManager().getProfileDescriptiveName(),
+                    repoPath.toFile().getName()));
         }
         try {
             Files.copy(repoPath, localPath.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            getLogger().warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e, repoPath.toFile().getAbsolutePath()));
+            getLogger().warn("[%s] Caught %s when trying to download %s".formatted(
+                    getGraphFileManager().getProfileDescriptiveName(),
+                    e,
+                    repoPath.toFile().getAbsolutePath()));
             throw new IllegalArgumentException(e);
         }
     }
