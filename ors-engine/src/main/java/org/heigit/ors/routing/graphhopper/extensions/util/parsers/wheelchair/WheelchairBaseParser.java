@@ -214,11 +214,11 @@ public abstract class WheelchairBaseParser<T extends EncodedValue> implements Ta
     }
 
     /**
-     * Converts a kerb height value to a numerical height (in centimetres). A kerb could be stored as an explicit height or
-     * as an indicator as to whether the kerb is lowered or not.
+     * Converts a kerb height value to a numerical height (in centimetres). A kerb could be stored as an explicit height
+     * or as an indicator whether the kerb is lowered or not.
      *
      * @param value The value of the tag
-     * @return The presumed height of the kerb in metres
+     * @return The presumed height of the kerb in centimeters
      */
     protected int convertKerbTagValueToCentimetres(String value) {
         int centimetreHeight = -1;
@@ -232,13 +232,7 @@ public abstract class WheelchairBaseParser<T extends EncodedValue> implements Ta
             case "at_grade", "flush" -> centimetreHeight = 0;
             default -> {
                 double metresHeight = UnitsConverter.convertOSMDistanceTagToMeters(value);
-                // If no unit was given in the tag, the value might be in meters or centimeters; we can only guess
-                // depending on the value
-                if (metresHeight < 0.15) {
-                    centimetreHeight = (int) (metresHeight * 100);
-                } else {
-                    centimetreHeight = (int) metresHeight;
-                }
+                centimetreHeight = (int) (metresHeight * 100);
             }
         }
 
