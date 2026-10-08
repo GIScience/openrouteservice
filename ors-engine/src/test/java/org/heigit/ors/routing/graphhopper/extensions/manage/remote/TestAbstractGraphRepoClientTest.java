@@ -1,10 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
-import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
-import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphBuildInfo;
-import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
@@ -34,24 +31,9 @@ public class TestAbstractGraphRepoClientTest {
      * This class is used to test the methods of AbstractRepoManager
      */
     static class TestAbstractGraphRepoClient extends AbstractGraphRepoClient {
-        @Override
-        ORSGraphFileManager getOrsGraphFileManager() {
-            return null;
-        }
 
-        @Override
-        ORSGraphRepoStrategy getOrsGraphRepoStrategy() {
-            return null;
-        }
-
-        @Override
-        GraphManagementRuntimeProperties getGraphManagementRuntimeProperties() {
-            return null;
-        }
-
-        @Override
-        Logger getLogger() {
-            return null;
+        TestAbstractGraphRepoClient(){
+            super(null, null, null);
         }
 
         @Override
