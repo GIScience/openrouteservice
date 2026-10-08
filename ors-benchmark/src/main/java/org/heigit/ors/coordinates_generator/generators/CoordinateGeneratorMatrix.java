@@ -13,8 +13,8 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.util.Timeout;
 import org.heigit.ors.coordinates_generator.model.Matrix;
 import org.heigit.ors.coordinates_generator.model.MatrixRepository;
-import org.heigit.ors.coordinates_generator.service.MatrixCalculator;
 import org.heigit.ors.coordinates_generator.service.CoordinateSnapper;
+import org.heigit.ors.coordinates_generator.service.MatrixCalculator;
 import org.heigit.ors.util.CoordinateGeneratorHelper;
 import org.heigit.ors.util.ProgressBarLogger;
 import org.slf4j.Logger;
@@ -34,7 +34,6 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorMatrix.class);
 
-    private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
     private static final String LOCATION_KEY = "location";
 
     private final int numMatrices;
@@ -47,16 +46,10 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     private final int numThreads;
     private final CloseableHttpClient httpClient;
 
-    protected CoordinateGeneratorMatrix(int numMatrices, double[] extent, String[] profiles, String baseUrl,
-            Map<String, Double> maxDistanceByProfile,
-            MatrixDimensions matrixDimensions) {
-        this(numMatrices, extent, profiles, baseUrl, maxDistanceByProfile, matrixDimensions, DEFAULT_THREAD_COUNT);
-    }
-
     public CoordinateGeneratorMatrix(int numMatrices, double[] extent, String[] profiles, String baseUrl,
-            Map<String, Double> maxDistanceByProfile,
-            MatrixDimensions matrixDimensions, int numThreads) {
-        super(extent, profiles, baseUrl, "matrix");
+                                     Map<String, Double> maxDistanceByProfile,
+                                     MatrixDimensions matrixDimensions, int numThreads, double snapRadius, int maxAttempts) {
+        super(extent, profiles, baseUrl, "matrix", maxAttempts);
         validateInputs(numMatrices, numThreads);
 
         this.numMatrices = numMatrices;
@@ -71,13 +64,13 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
             try {
                 return httpClient.execute(request, this::processResponse);
             } catch (IOException e) {
-                LOGGER.error("Error executing request: {}", e.getMessage());
+                LOGGER.debug("Error executing request: {}", e.getMessage());
                 return null;
             }
         };
 
         Map<String, String> headers = createHeaders();
-        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor);
+        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor, snapRadius);
         this.matrixCalculator = new MatrixCalculator(baseUrl, headers, mapper, requestExecutor);
     }
 
@@ -118,12 +111,12 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     }
 
     public void generateMatrices() {
-        generate(DEFAULT_MAX_ATTEMPTS);
+        generate();
     }
 
     @Override
-    public void generate(int maxAttempts) {
-        LOGGER.info("Starting route generation with {} threads and max attempts: {}", numThreads, maxAttempts);
+    public void generate() {
+        LOGGER.info("Starting route generation with {} threads and max attempts: {}", numThreads, this.maxAttempts);
         initializeCollections();
 
         ExecutorService executor = null;
@@ -132,7 +125,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
         try {
             executor = Executors.newFixedThreadPool(numThreads);
-            executeMatrixGeneration(executor, maxAttempts, shouldContinue, consecutiveFailedAttempts);
+            executeMatrixGeneration(executor, shouldContinue, consecutiveFailedAttempts);
         } catch (Exception e) {
             LOGGER.error("Error generating routes: ", e);
         } finally {
@@ -140,11 +133,11 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         }
     }
 
-    private void executeMatrixGeneration(ExecutorService executor, int maxAttempts,
+    private void executeMatrixGeneration(ExecutorService executor,
             AtomicBoolean shouldContinue, AtomicInteger consecutiveFailedAttempts) {
         try (ProgressBar pb = createProgressBar()) {
             while (!matrixRepository.areAllProfilesComplete(numMatrices) &&
-                    consecutiveFailedAttempts.get() < maxAttempts &&
+                    consecutiveFailedAttempts.get() < this.maxAttempts &&
                     shouldContinue.get()) {
 
                 int initialTotalMatrices = matrixRepository.getTotalMatrixCount();
@@ -168,13 +161,13 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
                 // Check if we made progress in this iteration
                 if (matrixRepository.getTotalMatrixCount() == initialTotalMatrices) {
                     int attempts = consecutiveFailedAttempts.incrementAndGet();
-                    pb.setExtraMessage(String.format("Attempt %d/%d - No new routes", attempts, maxAttempts));
+                    pb.setExtraMessage(String.format("Attempt %d/%d - No new routes", attempts, this.maxAttempts));
                 } else {
                     consecutiveFailedAttempts.set(0);
                 }
             }
 
-            finalizeProgress(pb, maxAttempts, consecutiveFailedAttempts.get());
+            finalizeProgress(pb, consecutiveFailedAttempts.get());
         }
     }
 
@@ -209,11 +202,11 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         pb.setExtraMessage(matrixRepository.getProgressMessage());
     }
 
-    private void finalizeProgress(ProgressBar pb, int maxAttempts, int attempts) {
+    private void finalizeProgress(ProgressBar pb, int attempts) {
         pb.stepTo(matrixRepository.getTotalMatrixCount());
-        if (attempts >= maxAttempts) {
+        if (attempts >= this.maxAttempts) {
             LOGGER.warn("Stopped route generation after {} attempts. Routes per profile: {}",
-                    maxAttempts, matrixRepository.getProgressMessage());
+                    this.maxAttempts, matrixRepository.getProgressMessage());
         }
     }
 
@@ -310,7 +303,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
         /**
          * Main method generating a number of matrices
-         * 
+         *
          * @return Whether a matrix was successfully added to the repository
          */
         private boolean generateMatricesForProfile() {
@@ -463,7 +456,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
         /**
          * Check whether two points are connected in a forward way
-         * 
+         *
          * @param from coordinate pair from
          * @param to   coordinate pair to
          * @return true if matrix was successfully calculated and points are routeable,
