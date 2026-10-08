@@ -180,7 +180,7 @@ public class TestContainersHelper {
         return waitForLogPatterns(container, logPatterns, maxWaitTimeInSeconds, expected);
     }
 
-    public static boolean waitForSuccessfulGrcRepoInitWithoutExistingGraph(GenericContainer<?> container, String profile, String fileRepoName, int maxWaitTimeInSeconds, boolean expected) {
+    public static boolean waitForSuccessfulGrcRepoInitWithoutExistingGraph(GenericContainer<?> container, String profile, int maxWaitTimeInSeconds, boolean expected) {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Creating graph directory /home/ors/openrouteservice/graphs/" + profile,
                 "Using FILESYSTEM client implementation for repoUri",
@@ -189,7 +189,7 @@ public class TestContainersHelper {
         return waitForLogPatterns(container, logPatterns, maxWaitTimeInSeconds, expected);
     }
 
-    public static boolean waitForSuccessfulGrcRepoInitWithExistingGraph(GenericContainer<?> container, String profile, String encoderName, String fileRepoName, int maxWaitTimeInSeconds, boolean expected) {
+    public static boolean waitForSuccessfulGrcRepoInitWithExistingGraph(GenericContainer<?> container, String profile, String encoderName, int maxWaitTimeInSeconds, boolean expected) {
         List<String> logPatterns = List.of(
                 "Using FILESYSTEM client implementation",
                 "[" + profile + "] Found local graph only",
