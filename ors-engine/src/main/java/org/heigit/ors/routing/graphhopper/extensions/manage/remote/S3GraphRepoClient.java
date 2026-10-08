@@ -1,6 +1,5 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
-import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
@@ -21,54 +20,28 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
 
-    private static final Logger LOGGER = Logger.getLogger(S3GraphRepoClient.class.getName());
-    private final GraphManagementRuntimeProperties managementProps;
-    private final ORSGraphFileManager orsGraphFileManager;
-    private final ORSGraphRepoStrategy orsGraphRepoStrategy;
     private S3Client s3Client;
 
     public S3GraphRepoClient(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
-        this.managementProps = managementProps;
-        this.orsGraphRepoStrategy = orsGraphRepoStrategy;
-        this.orsGraphFileManager = orsGraphFileManager;
-    }
-
-    @Override
-    ORSGraphFileManager getOrsGraphFileManager() {
-        return orsGraphFileManager;
-    }
-
-    @Override
-    ORSGraphRepoStrategy getOrsGraphRepoStrategy() {
-        return orsGraphRepoStrategy;
-    }
-
-    @Override
-    GraphManagementRuntimeProperties getGraphManagementRuntimeProperties() {
-        return managementProps;
-    }
-
-    @Override
-    Logger getLogger() {
-        return LOGGER;
+        super(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
     }
 
     @Override
     public boolean hasValidRepoConfig() {
-        return isNotBlank(this.managementProps.getRepoName()) &&
-                isNotBlank(this.managementProps.getRepoProfileGroup()) &&
-                isNotBlank(this.managementProps.getRepoCoverage()) &&
-                isNotBlank(this.managementProps.getGraphVersion()) &&
-                isNotBlank(this.managementProps.getRepoUser()) &&
-                isNotBlank(this.managementProps.getRepoPass()) &&
-                isNotBlank(this.managementProps.getDerivedRepoBaseUrl().toString());
+        return isNotBlank(getManagementProps().getRepoName()) &&
+                isNotBlank(getManagementProps().getRepoProfileGroup()) &&
+                isNotBlank(getManagementProps().getRepoCoverage()) &&
+                isNotBlank(getManagementProps().getGraphVersion()) &&
+                isNotBlank(getManagementProps().getRepoUser()) &&
+                isNotBlank(getManagementProps().getRepoPass()) &&
+                isNotBlank(getManagementProps().getDerivedRepoBaseUrl().toString());
     }
 
     @Override
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo graphBuildInfoInRepo = new GraphBuildInfo();
         //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-        LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
+        getLogger().debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
 
         Path latestGraphBuildInfoInRepoPath = Path.of(
                 getRepoProfileGroup(),
@@ -76,7 +49,7 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
                 getGraphVersion(),
                 getRepoGraphBuildInfoFileName());
 
-        File downloadedGraphBuildInfoFile = getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
+        File downloadedGraphBuildInfoFile = getGraphFileManager().getDownloadedGraphBuildInfoFile();
         deleteFileWithLogging(downloadedGraphBuildInfoFile,
                 "[%s] Deleted old downloaded graphBuildInfo file: %s",
                 "[%s] Could not delete old downloaded graphBuildInfo file: %s"
@@ -86,7 +59,7 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
 
         if (!downloadedGraphBuildInfoFile.exists()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            LOGGER.info("[%s] No graphBuildInfo found in remote repository.".formatted(getProfileDescriptiveName()));
+            getLogger().info("[%s] No graphBuildInfo found in remote repository.".formatted(getProfileDescriptiveName()));
             return graphBuildInfoInRepo;
         }
 
@@ -99,25 +72,25 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
     @Override
     protected void downloadCompressedGraphFromRepository() {
         Path latestCompressedGraphInRepoPath = Path.of(
-                managementProps.getRepoProfileGroup(),
-                managementProps.getRepoCoverage(),
-                managementProps.getGraphVersion(),
-                orsGraphRepoStrategy.getRepoCompressedGraphFileName());
-        downloadFile(latestCompressedGraphInRepoPath, orsGraphFileManager.getDownloadedCompressedGraphFile());
+                getManagementProps().getRepoProfileGroup(),
+                getManagementProps().getRepoCoverage(),
+                getManagementProps().getGraphVersion(),
+                getGraphRepoStrategy().getRepoCompressedGraphFileName());
+        downloadFile(latestCompressedGraphInRepoPath, getGraphFileManager().getDownloadedCompressedGraphFile());
     }
 
     public void downloadFile(Path repoPath, File outputFile) {
         if (repoPath == null || outputFile == null) {
-            LOGGER.warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, outputFile));
+            getLogger().warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, outputFile));
             return;
         }
         File tempDownloadFile = getIncompleteFile(outputFile);
-        if (LOGGER.isTraceEnabled()) {
+        if (getLogger().isTraceEnabled()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath, tempDownloadFile.getAbsolutePath()));
+            getLogger().trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath, tempDownloadFile.getAbsolutePath()));
         } else {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath));
+            getLogger().info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath));
         }
         try {
             if (s3Client == null) {
@@ -137,12 +110,12 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
                     Paths.get(tempDownloadFile.toString())
             );
             if (tempDownloadFile.renameTo(outputFile)) {
-                LOGGER.debug("[%s] Renamed temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+                getLogger().debug("[%s] Renamed temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
             } else {
-                LOGGER.error("[%s] Could not rename temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+                getLogger().error("[%s] Could not rename temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
             }
         } catch (URISyntaxException e) {
-            LOGGER.warn("[%s] Caught %s when trying to use Url %s".formatted(getProfileDescriptiveName(), e, getDerivedRepoBaseUrl()));
+            getLogger().warn("[%s] Caught %s when trying to use Url %s".formatted(getProfileDescriptiveName(), e, getDerivedRepoBaseUrl()));
             throw new IllegalArgumentException(e);
         } finally {
             deleteFileWithLogging(tempDownloadFile, "[%s] Deleted temp download file: %s", "[%s] Could not delete temp download file: %s");

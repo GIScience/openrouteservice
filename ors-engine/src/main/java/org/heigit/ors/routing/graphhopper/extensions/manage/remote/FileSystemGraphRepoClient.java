@@ -1,6 +1,5 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
-import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
@@ -18,44 +17,19 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
 
-    private final ORSGraphFileManager orsGraphFileManager;
-    private final ORSGraphRepoStrategy orsGraphRepoStrategy;
-    private final GraphManagementRuntimeProperties managementProps;
-    private static final Logger LOGGER = Logger.getLogger(FileSystemGraphRepoClient.class.getName());
-
-    public FileSystemGraphRepoClient(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
-        this.orsGraphRepoStrategy = orsGraphRepoStrategy;
-        this.orsGraphFileManager = orsGraphFileManager;
-        this.managementProps = graphManagementRuntimeProperties;
-    }
-
-    @Override
-    ORSGraphFileManager getOrsGraphFileManager() {
-        return orsGraphFileManager;
-    }
-
-    @Override
-    ORSGraphRepoStrategy getOrsGraphRepoStrategy() {
-        return orsGraphRepoStrategy;
-    }
-
-    @Override
-    GraphManagementRuntimeProperties getGraphManagementRuntimeProperties() {
-        return managementProps;
-    }
-
-    @Override
-    Logger getLogger() {
-        return LOGGER;
+    public FileSystemGraphRepoClient(GraphManagementRuntimeProperties graphManagementRuntimeProperties,
+                                     ORSGraphRepoStrategy orsGraphRepoStrategy,
+                                     ORSGraphFileManager orsGraphFileManager) {
+        super(graphManagementRuntimeProperties, orsGraphRepoStrategy, orsGraphFileManager);
     }
 
     @Override
     public boolean hasValidRepoConfig() {
-        return isNotBlank(managementProps.getRepoName()) &&
-                isNotBlank(managementProps.getRepoProfileGroup()) &&
-                isNotBlank(managementProps.getRepoCoverage()) &&
-                isNotBlank(managementProps.getGraphVersion()) &&
-                isNotBlank(managementProps.getDerivedRepoPath().toAbsolutePath().toString());
+        return isNotBlank(getManagementProps().getRepoName()) &&
+                isNotBlank(getManagementProps().getRepoProfileGroup()) &&
+                isNotBlank(getManagementProps().getRepoCoverage()) &&
+                isNotBlank(getManagementProps().getGraphVersion()) &&
+                isNotBlank(getManagementProps().getDerivedRepoPath().toAbsolutePath().toString());
     }
 
     @Override
@@ -67,14 +41,14 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
                 getRepoCoverage(),
                 getGraphVersion(),
                 getRepoCompressedGraphFileName());
-        downloadFile(latestCompressedGraphInRepoPath, orsGraphFileManager.getDownloadedCompressedGraphFile());
+        downloadFile(latestCompressedGraphInRepoPath, getGraphFileManager().getDownloadedCompressedGraphFile());
     }
 
     @Override
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo latestGraphBuildInfoInRepo = new GraphBuildInfo();
         //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-        LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
+        getLogger().debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
 
         Path latestGraphBuildInfoInRepoPath = Path.of(
                 getRepoPath(),
@@ -86,11 +60,11 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
 
         if (!latestGraphBuildInfoInRepoPath.toFile().exists()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            LOGGER.info("[%s] No graphBuildInfo found in remote repository: %s".formatted(getProfileDescriptiveName(), latestGraphBuildInfoInRepoPath.toFile().getAbsolutePath()));
+            getLogger().info("[%s] No graphBuildInfo found in remote repository: %s".formatted(getProfileDescriptiveName(), latestGraphBuildInfoInRepoPath.toFile().getAbsolutePath()));
             return latestGraphBuildInfoInRepo;
         }
 
-        File downloadedGraphBuildInfoFile = orsGraphFileManager.getDownloadedGraphBuildInfoFile();
+        File downloadedGraphBuildInfoFile = getGraphFileManager().getDownloadedGraphBuildInfoFile();
         downloadFile(latestGraphBuildInfoInRepoPath, downloadedGraphBuildInfoFile);
 
         if (downloadedGraphBuildInfoFile.exists()) {
@@ -98,10 +72,10 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
             URI uri = latestCompressedGraphInRepoPath.toUri();
             latestGraphBuildInfoInRepo.setRemoteUri(uri);
 
-            PersistedGraphBuildInfo persistedGraphBuildInfo = orsGraphFileManager.readOrsGraphBuildInfo(downloadedGraphBuildInfoFile);
+            PersistedGraphBuildInfo persistedGraphBuildInfo = getGraphFileManager().readOrsGraphBuildInfo(downloadedGraphBuildInfoFile);
             latestGraphBuildInfoInRepo.setPersistedGraphBuildInfo(persistedGraphBuildInfo);
         } else {
-            LOGGER.error("[%s] Invalid download path for graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), latestGraphBuildInfoInRepoPath));
+            getLogger().error("[%s] Invalid download path for graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), latestGraphBuildInfoInRepoPath));
         }
 
         return latestGraphBuildInfoInRepo;
@@ -109,20 +83,20 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
 
     public void downloadFile(Path repoPath, File localPath) {
         if (repoPath == null || localPath == null) {
-            LOGGER.warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, localPath));
+            getLogger().warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, localPath));
             return;
         }
-        if (LOGGER.isTraceEnabled()) {
+        if (getLogger().isTraceEnabled()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getAbsolutePath(), localPath.getAbsolutePath()));
+            getLogger().trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getAbsolutePath(), localPath.getAbsolutePath()));
         } else {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getName()));
+            getLogger().info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getName()));
         }
         try {
             Files.copy(repoPath, localPath.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            LOGGER.warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e, repoPath.toFile().getAbsolutePath()));
+            getLogger().warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e, repoPath.toFile().getAbsolutePath()));
             throw new IllegalArgumentException(e);
         }
     }

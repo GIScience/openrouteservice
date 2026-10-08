@@ -19,21 +19,46 @@ import java.util.stream.Stream;
 
 public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
 
-    abstract ORSGraphFileManager getOrsGraphFileManager();
-    abstract ORSGraphRepoStrategy getOrsGraphRepoStrategy();
-    abstract GraphManagementRuntimeProperties getGraphManagementRuntimeProperties();
-    abstract Logger getLogger();
+    private final ORSGraphFileManager orsGraphFileManager;
+    private final ORSGraphRepoStrategy orsGraphRepoStrategy;
+    private final GraphManagementRuntimeProperties managementProps;
+    private final Logger logger;
 
     public abstract boolean hasValidRepoConfig();
     abstract GraphBuildInfo downloadGraphBuildInfoFromRepository();
     abstract void downloadCompressedGraphFromRepository();
+
+    AbstractGraphRepoClient(GraphManagementRuntimeProperties managementProps,
+                            ORSGraphRepoStrategy repoStrategy,
+                            ORSGraphFileManager graphFileManager ) {
+        this.managementProps = managementProps;
+        this.orsGraphRepoStrategy = repoStrategy;
+        this.orsGraphFileManager = graphFileManager;
+        this.logger = Logger.getLogger(getClass().getName());
+    }
+
+    ORSGraphFileManager getGraphFileManager() {
+        return this.orsGraphFileManager;
+    }
+
+    ORSGraphRepoStrategy getGraphRepoStrategy() {
+        return this.orsGraphRepoStrategy;
+    }
+
+    GraphManagementRuntimeProperties getManagementProps() {
+        return this.managementProps;
+    }
+
+    Logger getLogger() {
+        return this.logger;
+    }
 
     public void downloadGraphIfNecessary() {
         if (! hasValidRepoConfig()) {
             getLogger().debug("[%s] ORSGraphManager has no valid repo config - skipping check".formatted(getProfileDescriptiveName()));
             return;
         }
-        if (getOrsGraphFileManager().isBusy()) {
+        if (getGraphFileManager().isBusy()) {
             getLogger().debug("[%s] ORSGraphManager is busy - skipping check".formatted(getProfileDescriptiveName()));
             return;
         }
@@ -51,7 +76,7 @@ public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
             downloadCompressedGraphFromRepository();
             long end = System.currentTimeMillis();
 
-            if (getOrsGraphFileManager().getDownloadedCompressedGraphFile().exists()) {
+            if (getGraphFileManager().getDownloadedCompressedGraphFile().exists()) {
                 //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
                 getLogger().info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
             } else {
@@ -63,68 +88,68 @@ public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
     }
 
     String getGraphVersion() {
-        return getGraphManagementRuntimeProperties().getGraphVersion();
+        return getManagementProps().getGraphVersion();
     }
 
     String getRepoCoverage() {
-        return getGraphManagementRuntimeProperties().getRepoCoverage();
+        return getManagementProps().getRepoCoverage();
     }
 
     String getRepoProfileGroup() {
-        return getGraphManagementRuntimeProperties().getRepoProfileGroup();
+        return getManagementProps().getRepoProfileGroup();
     }
     String getRepoPass() {
-        return getGraphManagementRuntimeProperties().getRepoPass();
+        return getManagementProps().getRepoPass();
     }
 
     String getRepoUser() {
-        return getGraphManagementRuntimeProperties().getRepoUser();
+        return getManagementProps().getRepoUser();
     }
 
     URL getDerivedRepoBaseUrl() {
-        return getGraphManagementRuntimeProperties().getDerivedRepoBaseUrl();
+        return getManagementProps().getDerivedRepoBaseUrl();
     }
 
     String getRepoName() {
-        return getGraphManagementRuntimeProperties().getRepoName();
+        return getManagementProps().getRepoName();
     }
 
     String getRepoBaseUri() {
-        return getGraphManagementRuntimeProperties().getRepoBaseUri();
+        return getManagementProps().getRepoBaseUri();
     }
 
     String getRepoPath() {
-        return getGraphManagementRuntimeProperties().getDerivedRepoPath().toAbsolutePath().toString();
+        return getManagementProps().getDerivedRepoPath().toAbsolutePath().toString();
     }
 
     File getIncompleteFile(File outputFile) {
-        return getOrsGraphFileManager().asIncompleteFile(outputFile);
+        return getGraphFileManager().asIncompleteFile(outputFile);
     }
 
     PersistedGraphBuildInfo getPersistedGraphBuildInfo(File downloadedGraphBuildInfoFile) {
-        return getOrsGraphFileManager().readOrsGraphBuildInfo(downloadedGraphBuildInfoFile);
+        return getGraphFileManager().readOrsGraphBuildInfo(downloadedGraphBuildInfoFile);
     }
 
     String getProfileDescriptiveName() {
-        return getOrsGraphFileManager().getProfileDescriptiveName();
+        return getGraphFileManager().getProfileDescriptiveName();
     }
 
     String getRepoGraphBuildInfoFileName() {
-        return getOrsGraphRepoStrategy().getRepoGraphBuildInfoFileName();
+        return getGraphRepoStrategy().getRepoGraphBuildInfoFileName();
     }
 
     String getRepoCompressedGraphFileName() {
-        return getOrsGraphRepoStrategy().getRepoCompressedGraphFileName();
+        return getGraphRepoStrategy().getRepoCompressedGraphFileName();
     }
 
     boolean shouldDownloadGraph(GraphBuildInfo newlyDownloadedGraphBuildInfo){
         return shouldDownloadGraph(
                 newlyDownloadedGraphBuildInfo,
-                getOrsGraphFileManager().getActiveGraphBuildInfo(),
-                getOrsGraphFileManager().getDownloadedExtractedGraphBuildInfo(),
-                getOrsGraphFileManager().getDownloadedCompressedGraphFile(),
-                getOrsGraphFileManager().getDownloadedGraphBuildInfo(),
-                getOrsGraphFileManager().getProfileDescriptiveName()
+                getGraphFileManager().getActiveGraphBuildInfo(),
+                getGraphFileManager().getDownloadedExtractedGraphBuildInfo(),
+                getGraphFileManager().getDownloadedCompressedGraphFile(),
+                getGraphFileManager().getDownloadedGraphBuildInfo(),
+                getGraphFileManager().getProfileDescriptiveName()
                 );
     }
 
