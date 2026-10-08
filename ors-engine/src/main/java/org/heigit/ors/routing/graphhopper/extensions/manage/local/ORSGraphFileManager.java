@@ -252,7 +252,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         File downloadedExtractedGraphDirectory = getDownloadedExtractedGraphDirectory();
 
         if (!hasDownloadedExtractedGraph()) {
-            LOGGER.warn("[%s] No downloaded graph directory found.".formatted(getProfileDescriptiveName()));
+            LOGGER.trace("[%s] No downloaded graph directory found.".formatted(getProfileDescriptiveName()));
             return new GraphBuildInfo().setLocalDirectory(downloadedExtractedGraphDirectory);
         }
 
