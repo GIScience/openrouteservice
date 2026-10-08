@@ -259,6 +259,7 @@ class ORSGraphManagerTest {
         GraphManagementRuntimeProperties.Builder managementPropsBuilder = GraphManagementRuntimeProperties.Builder.empty()
                 .withLocalGraphsRootAbsPath("graphs")
                 .withRepoName("myS3Repo")
+                .withRepoProfileGroup("community")
                 .withRepoCoverage("lummerland")
                 .withRepoBaseUri(repoUri)
                 .withGraphVersion("1")
