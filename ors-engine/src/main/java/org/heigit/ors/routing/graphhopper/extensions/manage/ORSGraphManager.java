@@ -70,7 +70,7 @@ public class ORSGraphManager {
     private static ORSGraphRepoClient checkValidRepoConfig(AbstractGraphRepoClient client, GraphManagementRuntimeProperties managementProps) {
         if (client.hasValidRepoConfig()) {
             //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-            LOGGER.debug("Using %s client implementation for repoUrl %s".formatted(managementProps.getDerivedRepoType(), managementProps.getDerivedRepoBaseUrl()));
+            LOGGER.debug("Using %s client implementation for repoUri %s".formatted(managementProps.getDerivedRepoType(), managementProps.getRepoBaseUri()));
             return client;
         } else {
             LOGGER.error("[%s] Invalid %s graph repo config - graph management cannot be activated for this profile!".formatted(
