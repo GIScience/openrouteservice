@@ -169,7 +169,7 @@ public class TestContainersHelper {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Scheduled graph activation check: Downloaded extracted graph available",
                 "Scheduled graph activation check done: Performing graph activation...",
-                "Using FILESYSTEM client implementation for repoUrl",
+                "Using FILESYSTEM client implementation for repoUri",
                 "[" + profile + "] Deleted graph-info download file from previous application run: /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_" + ContainerInitializer.GRAPH_VERSION + "_" + encoderName + ".yml",
                 "[" + profile + "] Found local graph and extracted downloaded graph",
                 "[" + profile + "] Renamed old local graph directory /home/ors/openrouteservice/graphs/driving-car to /home/ors/openrouteservice/graphs/" + profile + "_",
@@ -183,7 +183,7 @@ public class TestContainersHelper {
     public static boolean waitForSuccessfulGrcRepoInitWithoutExistingGraph(GenericContainer<?> container, String profile, String fileRepoName, int maxWaitTimeInSeconds, boolean expected) {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Creating graph directory /home/ors/openrouteservice/graphs/" + profile,
-                "Using FILESYSTEM client implementation for repoUrl",
+                "Using FILESYSTEM client implementation for repoUri",
                 "[" + profile + "] No local graph or extracted downloaded graph found - trying to download and extract graph from repository"
         );
         return waitForLogPatterns(container, logPatterns, maxWaitTimeInSeconds, expected);
