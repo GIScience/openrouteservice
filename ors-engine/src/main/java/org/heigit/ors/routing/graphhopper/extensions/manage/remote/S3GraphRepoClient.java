@@ -56,6 +56,7 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
     @Override
     public boolean hasValidRepoConfig() {
         return isNotBlank(this.managementProps.getRepoName()) &&
+                isNotBlank(this.managementProps.getRepoProfileGroup()) &&
                 isNotBlank(this.managementProps.getRepoCoverage()) &&
                 isNotBlank(this.managementProps.getGraphVersion()) &&
                 isNotBlank(this.managementProps.getRepoUser()) &&
