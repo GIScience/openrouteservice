@@ -69,6 +69,7 @@ public class ORSGraphManager {
 
     private static ORSGraphRepoClient checkValidRepoConfig(AbstractGraphRepoClient client, GraphManagementRuntimeProperties managementProps) {
         if (client.hasValidRepoConfig()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.debug("Using %s client implementation for repoUrl %s".formatted(managementProps.getDerivedRepoType(), managementProps.getDerivedRepoBaseUrl()));
             return client;
         } else {
@@ -125,6 +126,7 @@ public class ORSGraphManager {
         boolean hasDownloadedExtractedGraph = orsGraphFileManager.hasDownloadedExtractedGraph();
 
         if (!hasActiveGraph && !hasDownloadedExtractedGraph && useGraphRepository()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.debug("[%s] No local graph or extracted downloaded graph found - trying to download and extract graph from repository".formatted(getQualifiedProfileName()));
             downloadAndExtractLatestGraphIfNecessary();
             orsGraphFileManager.activateExtractedDownloadedGraph();
@@ -134,11 +136,13 @@ public class ORSGraphManager {
             orsGraphFileManager.activateExtractedDownloadedGraph();
         }
         if (hasActiveGraph && hasDownloadedExtractedGraph) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.debug("[%s] Found local graph and extracted downloaded graph".formatted(getQualifiedProfileName()));
             orsGraphFileManager.backupExistingGraph();
             orsGraphFileManager.activateExtractedDownloadedGraph();
         }
         if (hasActiveGraph && !hasDownloadedExtractedGraph) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.debug("[%s] Found local graph only".formatted(getQualifiedProfileName()));
         }
     }

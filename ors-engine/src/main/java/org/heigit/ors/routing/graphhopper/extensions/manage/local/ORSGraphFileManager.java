@@ -54,6 +54,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     public void initialize() {
         File activeGraphDirectory = getActiveGraphDirectory();
         if (!activeGraphDirectory.exists()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.debug("[%s] Creating graph directory %s".formatted(getProfileDescriptiveName(), activeGraphDirectory.getAbsolutePath()));
             if (!activeGraphDirectory.mkdirs()) {
                 LOGGER.error("[%s] Could not create graph directory %s".formatted(getProfileDescriptiveName(), activeGraphDirectory.getAbsolutePath()));
@@ -144,6 +145,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                 "Error deleting incomplete download file: %s");
 
         File graphBuildInfoDownloadFile = getDownloadedGraphBuildInfoFile();
+        //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
         deleteFileWithLogging(graphBuildInfoDownloadFile,
                 "[%s] Deleted graph-info download file from previous application run: %s",
                 "Error deleting graph-info download file: %s");
@@ -198,6 +200,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
 
         if (activeGraphDirectory.renameTo(backupFile)) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] Renamed old local graph directory %s to %s".formatted(getProfileDescriptiveName(), origAbsPath, newAbsPath));
         } else {
             LOGGER.error("[%s] Could not backup local graph directory %s to %s".formatted(getProfileDescriptiveName(), origAbsPath, newAbsPath));
@@ -315,6 +318,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     public void activateExtractedDownloadedGraph() {
         if (hasDownloadedExtractedGraph()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] Activating extracted downloaded graph.".formatted(getProfileDescriptiveName()));
             File downloadedExtractedGraphDirectory = getDownloadedExtractedGraphDirectory();
             if (downloadedExtractedGraphDirectory.renameTo(getActiveGraphDirectory())) {
@@ -328,6 +332,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     public void extractDownloadedGraph() {
         File graphDownloadFile = getDownloadedCompressedGraphFile();
         if (!graphDownloadFile.exists()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.debug("[%s] No downloaded graph to extract.".formatted(getProfileDescriptiveName()));
             return;
         }
@@ -344,6 +349,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
 
         try {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] Extracting downloaded graph file to %s".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
             long start = System.currentTimeMillis();
             double compressedMB = graphDownloadFile.length() / (1024.0 * 1024.0);
@@ -378,12 +384,14 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             long end = System.currentTimeMillis();
             double elapsedS = (end - start) / 1000.0;
             double throughputMBs = elapsedS > 0 ? compressedMB / elapsedS : 0;
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] Extracted %s (%.1f MB) in %.1fs (%.1f MB/s) using parallel ZipFile (commons-compress).".formatted(
                     getProfileDescriptiveName(), graphDownloadFile.getName(), compressedMB, elapsedS, throughputMBs));
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             deleteFileWithLogging(graphDownloadFile,
                     "[%s] Deleted downloaded graph file %s".formatted(getProfileDescriptiveName(), graphDownloadFileAbsPath),
                     "Error deleting downloaded graph file: %s");
-
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.debug("[%s] Renaming extraction directory to %s".formatted(
                     getProfileDescriptiveName(),
                     targetDirectoryAbsPath));
@@ -402,6 +410,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                     targetDirectoryAbsPath));
             throw new ORSGraphFileManagerException("Error during extraction of downloaded graph file: ", ioException);
         }
+        //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
         LOGGER.info("[%s] Downloaded graph was extracted and will be activated at next graph activation check or application start.".formatted(getProfileDescriptiveName()));
     }
 

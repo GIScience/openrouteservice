@@ -72,6 +72,7 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
     @Override
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo latestGraphBuildInfoInRepo = new GraphBuildInfo();
+        //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
         LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
 
         Path latestGraphBuildInfoInRepoPath = Path.of(
@@ -83,6 +84,7 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
                 getRepoGraphBuildInfoFileName());
 
         if (!latestGraphBuildInfoInRepoPath.toFile().exists()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] No graphBuildInfo found in remote repository: %s".formatted(getProfileDescriptiveName(), latestGraphBuildInfoInRepoPath.toFile().getAbsolutePath()));
             return latestGraphBuildInfoInRepo;
         }
@@ -110,8 +112,10 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
             return;
         }
         if (LOGGER.isTraceEnabled()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getAbsolutePath(), localPath.getAbsolutePath()));
         } else {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getName()));
         }
         try {

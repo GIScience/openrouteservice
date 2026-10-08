@@ -19,6 +19,10 @@ import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
 import lombok.Getter;
+import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
+import org.apache.commons.compress.archivers.zip.Zip64Mode;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.PreparationType;
 import org.heigit.ors.config.EngineProperties;
@@ -31,11 +35,6 @@ import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.TimeUtility;
 import org.json.simple.JSONObject;
 import org.springframework.util.FileSystemUtils;
-
-import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.archivers.zip.Zip64Mode;
 
 import java.io.File;
 import java.io.IOException;
@@ -139,6 +138,7 @@ public class RoutingProfile {
         gh.setPathProcessorFactory(pathProcessorFactory);
 
         if (LOGGER.isInfoEnabled()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%d] Profile: '%s', encoder: '%s', location: '%s'.".formatted(profileId, profileProperties.getProfileName(), profileProperties.getEncoderName().toString(), gh.getOrsGraphManager().getActiveGraphDirAbsPath()));
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
             LOGGER.info("[%d] Edges: %s - Nodes: %s.".formatted(profileId, ghStorage.getEdges(), ghStorage.getNodes()));
