@@ -102,7 +102,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return asIncompleteFile(file, INCOMPLETE_EXTENSION);
     }
 
-    public File asIncompleteFile(File file, String partialExtension) {
+    private File asIncompleteFile(File file, String partialExtension) {
         return new File(file.getAbsolutePath() + "." + partialExtension);
     }
 
