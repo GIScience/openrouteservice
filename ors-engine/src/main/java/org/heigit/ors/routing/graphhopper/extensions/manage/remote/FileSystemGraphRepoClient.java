@@ -15,7 +15,7 @@ import java.nio.file.StandardCopyOption;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
+public class FileSystemGraphRepoClient extends AbstractGraphRepoClient {
 
     public FileSystemGraphRepoClient(GraphManagementRuntimeProperties graphManagementRuntimeProperties,
                                      ORSGraphRepoStrategy orsGraphRepoStrategy,

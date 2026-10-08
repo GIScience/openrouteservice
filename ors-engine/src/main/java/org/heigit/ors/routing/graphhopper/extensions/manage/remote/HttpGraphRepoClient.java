@@ -14,7 +14,7 @@ import java.net.URL;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
+public class HttpGraphRepoClient extends AbstractGraphRepoClient {
 
     public HttpGraphRepoClient(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         super(managementProps, orsGraphRepoStrategy, orsGraphFileManager);

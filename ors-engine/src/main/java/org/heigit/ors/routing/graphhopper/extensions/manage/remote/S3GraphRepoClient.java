@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
+public class S3GraphRepoClient extends AbstractGraphRepoClient {
 
     private S3Client s3Client;
 
