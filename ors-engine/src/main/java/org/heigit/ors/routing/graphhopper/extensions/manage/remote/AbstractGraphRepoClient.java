@@ -9,7 +9,6 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileMa
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Date;
@@ -55,16 +54,19 @@ public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
 
     public void downloadGraphIfNecessary() {
         if (! hasValidRepoConfig()) {
-            getLogger().debug("[%s] ORSGraphManager has no valid repo config - skipping check".formatted(getProfileDescriptiveName()));
+            getLogger().debug("[%s] ORSGraphManager has no valid repo config - skipping check"
+                    .formatted(getGraphFileManager().getProfileDescriptiveName()));
             return;
         }
         if (getGraphFileManager().isBusy()) {
-            getLogger().debug("[%s] ORSGraphManager is busy - skipping check".formatted(getProfileDescriptiveName()));
+            getLogger().debug("[%s] ORSGraphManager is busy - skipping check"
+                    .formatted(getGraphFileManager().getProfileDescriptiveName()));
             return;
         }
 
         //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-        getLogger().debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
+        getLogger().debug("[%s] Checking for possible graph update from remote repository..."
+                .formatted(getGraphFileManager().getProfileDescriptiveName()));
         try {
             GraphBuildInfo newlyDownloadedGraphBuildInfo = downloadGraphBuildInfoFromRepository();
 
@@ -78,68 +80,20 @@ public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
 
             if (getGraphFileManager().getDownloadedCompressedGraphFile().exists()) {
                 //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
-                getLogger().info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
+                getLogger().info("[%s] Download of compressed graph file finished after %d ms"
+                        .formatted(getGraphFileManager().getProfileDescriptiveName(), end - start));
             } else {
-                getLogger().info("[%s] Compressed graph file not found in remote repository.".formatted(getProfileDescriptiveName()));
+                getLogger().info("[%s] Compressed graph file not found in remote repository."
+                        .formatted(getGraphFileManager().getProfileDescriptiveName()));
             }
         } catch (Exception exception) {
-            getLogger().error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), exception);
+            getLogger().error("[%s] Caught an exception during graph download check or graph download:"
+                    .formatted(getGraphFileManager().getProfileDescriptiveName()), exception);
         }
-    }
-
-    String getGraphVersion() {
-        return getManagementProps().getGraphVersion();
-    }
-
-    String getRepoCoverage() {
-        return getManagementProps().getRepoCoverage();
-    }
-
-    String getRepoProfileGroup() {
-        return getManagementProps().getRepoProfileGroup();
-    }
-    String getRepoPass() {
-        return getManagementProps().getRepoPass();
-    }
-
-    String getRepoUser() {
-        return getManagementProps().getRepoUser();
-    }
-
-    URL getDerivedRepoBaseUrl() {
-        return getManagementProps().getDerivedRepoBaseUrl();
-    }
-
-    String getRepoName() {
-        return getManagementProps().getRepoName();
-    }
-
-    String getRepoBaseUri() {
-        return getManagementProps().getRepoBaseUri();
     }
 
     String getRepoPath() {
         return getManagementProps().getDerivedRepoPath().toAbsolutePath().toString();
-    }
-
-    File getIncompleteFile(File outputFile) {
-        return getGraphFileManager().asIncompleteFile(outputFile);
-    }
-
-    PersistedGraphBuildInfo getPersistedGraphBuildInfo(File downloadedGraphBuildInfoFile) {
-        return getGraphFileManager().readOrsGraphBuildInfo(downloadedGraphBuildInfoFile);
-    }
-
-    String getProfileDescriptiveName() {
-        return getGraphFileManager().getProfileDescriptiveName();
-    }
-
-    String getRepoGraphBuildInfoFileName() {
-        return getGraphRepoStrategy().getRepoGraphBuildInfoFileName();
-    }
-
-    String getRepoCompressedGraphFileName() {
-        return getGraphRepoStrategy().getRepoCompressedGraphFileName();
     }
 
     boolean shouldDownloadGraph(GraphBuildInfo newlyDownloadedGraphBuildInfo){
@@ -215,7 +169,10 @@ public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
     void deleteFileWithLogging(File file, String successMessage, String errorMessage) {
         try {
             if (Files.deleteIfExists(file.toPath()))
-                getLogger().debug(successMessage.formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
+                getLogger().debug(successMessage.formatted(
+                        getGraphFileManager().getProfileDescriptiveName(),
+                        file.getAbsolutePath())
+                );
         } catch (IOException e) {
             getLogger().error(errorMessage.formatted(e.getMessage()));
         }
