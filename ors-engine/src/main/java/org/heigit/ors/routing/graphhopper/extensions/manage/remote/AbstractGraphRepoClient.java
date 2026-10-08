@@ -38,6 +38,7 @@ public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
             return;
         }
 
+        //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
         getLogger().debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
         try {
             GraphBuildInfo newlyDownloadedGraphBuildInfo = downloadGraphBuildInfoFromRepository();
@@ -51,6 +52,7 @@ public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
             long end = System.currentTimeMillis();
 
             if (getOrsGraphFileManager().getDownloadedCompressedGraphFile().exists()) {
+                //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
                 getLogger().info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
             } else {
                 getLogger().info("[%s] Compressed graph file not found in remote repository.".formatted(getProfileDescriptiveName()));
@@ -148,9 +150,10 @@ public abstract class AbstractGraphRepoClient implements ORSGraphRepoClient {
                 getDateOrEpocStart(downloadedExtractedGraphBuildInfo),
                 getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphBuildInfo));
 
-        if (!shouldDownload)
+        if (!shouldDownload) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             getLogger().info("[%s] No newer graph found in repository.".formatted(profileDescriptiveName));
-
+        }
         return shouldDownload;
     }
 

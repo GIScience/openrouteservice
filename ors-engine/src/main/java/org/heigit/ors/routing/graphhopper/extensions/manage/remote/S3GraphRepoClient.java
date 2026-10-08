@@ -66,6 +66,7 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
     @Override
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo graphBuildInfoInRepo = new GraphBuildInfo();
+        //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
         LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
 
         Path latestGraphBuildInfoInRepoPath = Path.of(
@@ -83,6 +84,7 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
         downloadFile(latestGraphBuildInfoInRepoPath, downloadedGraphBuildInfoFile);
 
         if (!downloadedGraphBuildInfoFile.exists()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] No graphBuildInfo found in remote repository.".formatted(getProfileDescriptiveName()));
             return graphBuildInfoInRepo;
         }
@@ -110,8 +112,10 @@ public class S3GraphRepoClient extends AbstractGraphRepoClient implements ORSGra
         }
         File tempDownloadFile = getIncompleteFile(outputFile);
         if (LOGGER.isTraceEnabled()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath, tempDownloadFile.getAbsolutePath()));
         } else {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath));
         }
         try {

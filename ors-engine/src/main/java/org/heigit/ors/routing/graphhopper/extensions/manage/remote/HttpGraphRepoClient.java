@@ -61,6 +61,7 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
     @Override
     GraphBuildInfo downloadGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
         GraphBuildInfo graphBuildInfoInRepo = new GraphBuildInfo();
+        //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
         LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
 
         URL downloadUrl = createDownloadUrl(orsGraphRepoStrategy.getRepoGraphBuildInfoFileName());
@@ -71,6 +72,7 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
         deleteFileWithLogging(downloadedGraphBuildInfoFile, "[%s] Deleted old downloaded graphBuildInfo file: %s", "[%s] Could not delete old downloaded graphBuildInfo file: %s");
         downloadFile(downloadUrl, downloadedGraphBuildInfoFile);
         if (!downloadedGraphBuildInfoFile.exists()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] No graphBuildInfo found in remote repository.".formatted(getProfileDescriptiveName()));
             return graphBuildInfoInRepo;
         }
@@ -95,6 +97,7 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
         long end = System.currentTimeMillis();
 
         if (orsGraphFileManager.getDownloadedCompressedGraphFile().exists()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
         } else {
             LOGGER.info("[%s] Compressed graph file not found in remote repository.".formatted(getProfileDescriptiveName()));
@@ -120,8 +123,10 @@ public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSG
     public void downloadFile(URL downloadUrl, File outputFile) {
         File tempDownloadFile = orsGraphFileManager.asIncompleteFile(outputFile);
         if (LOGGER.isTraceEnabled()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), downloadUrl, tempDownloadFile.getAbsolutePath()));
         } else {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), downloadUrl));
         }
         try {
