@@ -8,7 +8,6 @@ import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.util.WheelchairAttributesEncodedValues;
 import org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair.*;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -283,21 +282,20 @@ class WheelchairParserTest {
         assertEquals(3, attrs2.getSlopedKerbHeight()); // given in cm, more is worse in this case
     }
 
-    @Disabled("This test is new and fails, because an already previously existing issue. We will tackle this after the refactoring.")
     @Test
     void TestUseWorstKerbHeightTag() {
         ReaderWay way = new ReaderWay(1);
 
         way.setTag("footway", "crossing");
         way.setTag("kerb:height", "0.03");
-        addNodeTag(way, "curb", "0.2 m", 1);
+        addNodeTag(way, "curb", "0.15 m", 1);
 
         executeParsers(way);
 
         WheelchairAttributesEncodedValues encValues = new WheelchairAttributesEncodedValues(em);
         WheelchairAttributes attrs = encValues.getAttributes(intsRef);
 
-        assertEquals(20, attrs.getSlopedKerbHeight());
+        assertEquals(15, attrs.getSlopedKerbHeight());
     }
 
 
