@@ -33,7 +33,8 @@ public class PluginManager<T extends Plugin> {
             ROAD_ACCESS_RESTRICTIONS,
             HILL_INDEX,
             TRAIL_DIFFICULTY,
-            BORDERS
+            BORDERS,
+            WHEELCHAIR
     );
 
     private final ServiceLoader<T> loader;
