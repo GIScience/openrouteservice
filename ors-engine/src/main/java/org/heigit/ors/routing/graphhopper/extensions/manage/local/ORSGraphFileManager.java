@@ -67,7 +67,12 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     }
 
     public boolean isGraphCompatibleWithApplication(GraphBuildInfo graphBuildInfo) {
-        String activeGraphVersion = graphBuildInfo.getPersistedGraphBuildInfo().getGraphVersion();
+        PersistedGraphBuildInfo persistedGraphBuildInfo = graphBuildInfo.getPersistedGraphBuildInfo();
+        if (persistedGraphBuildInfo==null) {
+            return false;
+        }
+
+        String activeGraphVersion = persistedGraphBuildInfo.getGraphVersion();
         String applicationGraphVersion = graphManagementRuntimeProperties.getGraphVersion();
         boolean sameGraphVersion = applicationGraphVersion.equals(activeGraphVersion);
         if (!sameGraphVersion)
@@ -87,6 +92,13 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     public boolean hasDownloadedExtractedGraph() {
         return isExistingDirectoryWithFiles(getDownloadedExtractedGraphDirectory());
+    }
+
+    boolean isEmptyDirectory(File directory) {
+        if (directory==null) return false;
+        if (!directory.exists()) return false;
+        if (!directory.isDirectory()) return false;
+        return Objects.requireNonNull(directory.listFiles()).length==0;
     }
 
     boolean isExistingDirectory(File directory) {
@@ -170,12 +182,19 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         if (hasActiveGraph() && !isGraphCompatibleWithApplication(getActiveGraphBuildInfo())) {
             backupExistingGraph();
         }
-
+        if (isEmptyDirectory(getActiveGraphDirectory()))
+            deleteDirectoryWithLogging(getActiveGraphDirectory().getAbsoluteFile(),
+                    "[%s] Deleted incomplete active graph: %s",
+                    "Error deleting incomplete active graph: %s");
         if (hasDownloadedExtractedGraph() && !isGraphCompatibleWithApplication(getDownloadedExtractedGraphBuildInfo())) {
             deleteDirectoryWithLogging(getDownloadedExtractedGraphBuildInfo().getLocalDirectory(),
                     "[%s] Deleted incompatible downloaded extracted graph: %s",
                     "Error deleting incompatible downloaded extracted graph: %s");
         }
+        if (isEmptyDirectory(getDownloadedExtractedGraphDirectory()))
+            deleteDirectoryWithLogging(getDownloadedExtractedGraphDirectory().getAbsoluteFile(),
+                    "[%s] Deleted incomplete downloaded extracted graph: %s",
+                    "Error deleting incomplete downloaded extracted graph: %s");
     }
 
     public void backupExistingGraph() {
