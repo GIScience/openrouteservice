@@ -111,7 +111,7 @@ public class GraphRepoTest extends ContainerInitializer {
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForLogPatterns(container, List.of("[driving-car] No newer graph found in repository."), 12, true));
             container.stop();
@@ -149,7 +149,7 @@ public class GraphRepoTest extends ContainerInitializer {
             container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", 12, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 6, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, "driving-car", "driving-car", 6, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
@@ -190,7 +190,7 @@ public class GraphRepoTest extends ContainerInitializer {
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
 
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoActivationOnExistingGraph(container, "driving-car", "driving-car", 6, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 6, true), "The expected log patterns were not found in the logs.");
@@ -228,7 +228,7 @@ public class GraphRepoTest extends ContainerInitializer {
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
 
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-hgv", "/tmp/wrong-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-hgv", 12, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForEmptyGrcRepoCheck(container, "driving-hgv", "driving-hgv", "/tmp/wrong-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForFailedGraphActivationInOrsLogs(container, "/home/ors/openrouteservice/graphs/driving-hgv", 12));
             Assertions.assertFalse(container.isHealthy(), "The container should not be healthy.");
@@ -259,7 +259,7 @@ public class GraphRepoTest extends ContainerInitializer {
             container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", 12, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
@@ -316,7 +316,7 @@ public class GraphRepoTest extends ContainerInitializer {
             container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, "/tmp/test-filesystem-repo", 6, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, 6, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, customProfile, "driving-car", 6, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, customProfile, "driving-car", 6, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, customProfile, "driving-car", 12, true), "The expected log patterns were not found in the logs.");
@@ -422,7 +422,7 @@ public class GraphRepoTest extends ContainerInitializer {
             container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, 12, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, customProfile, "driving-car", 6, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, customProfile, "driving-car", 6, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, customProfile, "driving-car", 12, true), "The expected log patterns were not found in the logs.");
