@@ -105,7 +105,7 @@
         <gatling.version>3.16.0</gatling.version>
         <commons-cli.version>1.11.0</commons-cli.version>
         <gatling-maven-plugin.version>4.21.12</gatling-maven-plugin.version>
-        <awssdk.version>2.55.11</awssdk.version>
+        <awssdk.version>2.55.12</awssdk.version>
         <!-- javax (pre-Jakarta) JAXB API, needed at runtime by springdoc - see ors-api -->
         <javax-jaxb-api.version>2.3.1</javax-jaxb-api.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
