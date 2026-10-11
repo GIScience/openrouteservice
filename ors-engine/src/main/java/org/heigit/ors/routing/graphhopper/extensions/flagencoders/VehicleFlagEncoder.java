@@ -42,11 +42,13 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     public static final String KEY_VEHICLE_FORWARD = "vehicle:forward";
     public static final String KEY_MOTOR_VEHICLE_FORWARD = "motor_vehicle:forward";
     public static final String KEY_MOTORROAD = "motorroad";
+    public static final String KEY_MOTORWAY = "motorway";
+    public static final String KEY_MOTORWAY_LINK = "motorway_link";
+    public static final String KEY_RESIDENTIAL = "residential";
     private static final double ACCELERATION_SPEED_CUTOFF_MAX = 80.0;
     private static final double ACCELERATION_SPEED_CUTOFF_MIN = 20.0;
     public static final int AVERAGE_SECS_TO_100_KMPH = 10;
-    public static final String KEY_MOTORWAY_LINK = "motorway_link";
-    public static final String KEY_RESIDENTIAL = "residential";
+    public static final double MAX_SPEED_FACTOR = 0.9;
     protected SpeedLimitHandler speedLimitHandler;
 
     private double accelerationModifier = 0.0;
@@ -158,7 +160,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
         defaultSpeedMap = new HashMap<>();
         // autobahn
-        defaultSpeedMap.put("motorway", 100);
+        defaultSpeedMap.put(KEY_MOTORWAY, 100);
         defaultSpeedMap.put(KEY_MOTORWAY_LINK, 60);
         defaultSpeedMap.put(KEY_MOTORROAD, 90);
         // bundesstraße
@@ -207,8 +209,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             return edgeFlags;
 
         if (!access.isFerry()) {
-            // get assumed speed from highway type
-            double speed = getSpeed(way);
+            String highwayValue = getHighway(way);
+            double speed = getSpeed(way, highwayValue);
             speed = applyMaxSpeed(way, speed);
 
             // TODO: save conditional speeds only if their value is different from the default speed
@@ -223,9 +225,9 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             speed = getSurfaceSpeed(way, speed);
 
             if (way.hasTag(KEY_ESTIMATED_DISTANCE)) {
-                if (way.hasTag(KEY_HIGHWAY, KEY_RESIDENTIAL)) {
+                if (KEY_RESIDENTIAL.equals(highwayValue)) {
                     speed = addResedentialPenalty(speed, way);
-                } else if (this.useAcceleration) {
+                } else if (this.useAcceleration && !KEY_MOTORWAY.equals(highwayValue) && !KEY_MOTORROAD.equals(highwayValue)) {
                     double estDist = way.getTag(KEY_ESTIMATED_DISTANCE, Double.MAX_VALUE);
                     speed = adjustSpeedForAcceleration(estDist, speed);
                 }
@@ -333,8 +335,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
                 || way.hasTag(KEY_MOTOR_VEHICLE_FORWARD);
     }
 
-    protected double getSpeed(ReaderWay way) {
-        String highwayValue = getHighway(way);
+    protected double getSpeed(ReaderWay way, String highwayValue) {
         Integer speed = speedLimitHandler.getSpeed(highwayValue);
 
         // Note that Math.round(NaN) == 0
@@ -362,7 +363,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     protected String getHighway(ReaderWay way) {
         String highwayValue = way.getTag(KEY_HIGHWAY);
         if (!Helper.isEmpty(highwayValue) && way.hasTag(KEY_MOTORROAD, "yes")
-                && !highwayValue.equals("motorway") && !highwayValue.equals(KEY_MOTORWAY_LINK)) {
+                && !highwayValue.equals(KEY_MOTORWAY) && !highwayValue.equals(KEY_MOTORWAY_LINK)) {
             highwayValue = KEY_MOTORROAD;
         }
         return highwayValue;
@@ -371,7 +372,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     @Override
     protected double applyMaxSpeed(ReaderWay way, double speed) {
         double maxSpeed = this.getMaxSpeed(way);
-        return isValidSpeed(maxSpeed) ? maxSpeed * 0.9D : speed;
+        return isValidSpeed(maxSpeed) ? maxSpeed * MAX_SPEED_FACTOR : speed;
     }
 
     /**

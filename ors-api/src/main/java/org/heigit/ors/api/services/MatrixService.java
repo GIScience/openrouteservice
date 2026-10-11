@@ -118,6 +118,9 @@ public class MatrixService extends ApiService {
     }
 
     private int convertWeightingMethod(MatrixRequest request, APIEnums.RoutePreference preferenceIn) throws UnknownParameterValueException {
+        if (request.getProfile().equals(APIEnums.Profile.DRIVING_CAR) && preferenceIn.equals(APIEnums.RoutePreference.RECOMMENDED)) {
+            return WeightingMethod.FASTEST;
+        }
         int weightingMethod = WeightingMethod.getFromString(preferenceIn.toString());
         if (weightingMethod == WeightingMethod.UNKNOWN)
             throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PREFERENCE, preferenceIn.toString());

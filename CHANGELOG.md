@@ -36,6 +36,26 @@ Releasing is documented in RELEASE.md
 ### Fixed
 - Fix indentation issue in `MatrixRequest` class for preference field
 - Fix convertWeightingMethod logic to properly handle all preference values
+## [unreleased]
+
+### Added
+
+### Changed
+- replace Grype with Trivy for CI vulnerability scanning ([#2335](https://github.com/GIScience/openrouteservice/pull/2335))
+
+### Deprecated
+
+### Removed
+
+### Fixed
+- penalize routing through service ways ([#2313](https://github.com/GIScience/openrouteservice/pull/2313))
+- correct speed assignment for HGVs and disable acceleration heuristic on motorways/-roads ([#2329](https://github.com/GIScience/openrouteservice/pull/2329))
+
+### Security
+- update postcss to 8.5.25
+- update mermaid to 11.16.1 due to [CVE-2026-71437](https://www.cve.org/CVERecord?id=CVE-2026-71437), [CVE-2026-71438](https://www.cve.org/CVERecord?id=CVE-2026-71438), [CVE-2026-50159](https://www.cve.org/CVERecord?id=CVE-2026-50159), [CVE-2026-71436](https://www.cve.org/CVERecord?id=CVE-2026-71436) and [CVE-2026-71439](https://www.cve.org/CVERecord?id=CVE-2026-71439)
+- update dompurify to 3.4.13
+
 
 ## [9.10.0] - 2026-07-28
 
@@ -62,7 +82,7 @@ Releasing is documented in RELEASE.md
 - use direct mapping of node IDs to OSM IDs to correctly resolve node tags for edges containing cloned nodes ([#2319](https://github.com/GIScience/openrouteservice/pull/2319))
 
 ### Security
-- update postcss to 8.5.12
+- update postcss to 8.5.12 due to [CVE-2026-45623](https://www.cve.org/CVERecord?id=CVE-2026-45623)
 - update org.postgresql:postgresql to 42.7.11 due to [CVE-2025-49146](https://www.cve.org/CVERecord?id=CVE-2025-49146) and [CVE-2026-42198](https://www.cve.org/CVERecord?id=CVE-2026-42198)
 - update mermaid to 11.15.0
 - update uuid to 14.0.0 due to [CVE-2026-41907](https://www.cve.org/CVERecord?id=CVE-2026-41907) and [CVE-2026-41988](https://www.cve.org/CVERecord?id=CVE-2026-41988)
@@ -1103,6 +1123,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.10.0...HEAD
 [9.10.0]: https://github.com/GIScience/openrouteservice/compare/v9.9.0...v9.10.0
 [9.9.0]: https://github.com/GIScience/openrouteservice/compare/v9.8.0...v9.9.0
 [9.8.0]: https://github.com/GIScience/openrouteservice/compare/v9.7.1...v9.8.0

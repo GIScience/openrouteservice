@@ -175,13 +175,6 @@ class ResultTest extends ServiceTest {
         coordinatesCustom3.put(coordinateCustom6);
         addParameter("coordinatesCustom3", coordinatesCustom3);
 
-//        8.6947238445282, 49.41176896906394
-//        8.7036609649658, 49.41281775942496
-
-        // 8.687862753868105, 49.41309522267728
-        // 8.691891431808473, 49.41331858818114
-
-
         JSONArray unreachableCoords = new JSONArray();
         JSONArray unreachableCoord1 = new JSONArray();
         unreachableCoord1.put(6.929281);
@@ -1468,11 +1461,10 @@ class ResultTest extends ServiceTest {
     @Test
     void testMaximumSpeed() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", HelperFunctions.constructCoords("8.63348,49.41766|8.6441,49.4672"));
+        body.put("coordinates", getParameter("coordinatesCustom2"));
         body.put("preference", getParameter("preference"));
-        body.put("maximum_speed", 85);
 
-        //Test against default maximum speed lower bound setting
+        // Reference for driving-car
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
@@ -1483,12 +1475,10 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(closeTo(1710.7, 1)))
+                .body("routes[0].summary.duration", is(closeTo(524.4, 1)))
                 .statusCode(200);
 
-        //Test profile-specific maximum speed lower bound
-        body.put("maximum_speed", 75);
-
+        // Reference for driving-hgv
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
@@ -1499,7 +1489,37 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.duration", is(closeTo(1996.2, 1)))
+                .body("routes[0].summary.duration", is(closeTo(667.5, 1)))
+                .statusCode(200);
+
+        // Test against default maximum speed lower bound setting
+        body.put("maximum_speed", 85);
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-car")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.duration", is(closeTo(540.4, 1)))
+                .statusCode(200);
+
+        // Test profile-specific maximum speed lower bound of 75 km/h for driving-hgv profile
+        body.put("maximum_speed", 75);
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.duration", is(closeTo(691.9, 1)))
                 .statusCode(200);
     }
 
@@ -4432,7 +4452,7 @@ class ResultTest extends ServiceTest {
 
         JSONObject customModel = new JSONObject();
         customModel.put("priority", new JSONArray());
-        customModel.put("distance_influence", 150);
+        customModel.put("distance_influence", 175);
         body.put("custom_model", customModel);
 
         given()
@@ -4478,7 +4498,7 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(9746, 50f)))
-                .body("routes[0].summary.duration", is(closeTo(702f, 5f)))
+                .body("routes[0].summary.duration", is(closeTo(670.5, 5f)))
                 .statusCode(200);
     }
 
@@ -4788,6 +4808,49 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(60.3, 1)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testServiceWayPenalty() {
+        // Route without service ways should be preferred even though being slightly longer.
+        JSONArray coord1 = new JSONArray().put(8.679073).put(49.415723);
+        JSONArray coord2 = new JSONArray().put(8.677970).put(49.415520);
+        JSONArray coordinates = new JSONArray().put(coord1).put(coord2);
+
+        JSONObject body = new JSONObject()
+                .put("coordinates", coordinates)
+                .put("preference", "shortest");
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(97.2, 1)))
+                .statusCode(200);
+
+        // Service ways should still be used when absolutely necessary.
+        JSONArray coordVia = new JSONArray().put(8.6784911).put(49.4155591);
+        coordinates = new JSONArray().put(coord1).put(coordVia).put(coord2);
+        body.put("coordinates", coordinates);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(95.0, 1)))
                 .statusCode(200);
     }
 

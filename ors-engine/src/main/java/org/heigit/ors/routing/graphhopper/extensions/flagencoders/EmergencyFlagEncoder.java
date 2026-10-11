@@ -206,12 +206,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
     }
 
     @Override
-    protected double getSpeed(ReaderWay way) {
-        String highwayValue = way.getTag(KEY_HIGHWAY);
-        if (!Helper.isEmpty(highwayValue) && way.hasTag(KEY_MOTORROAD, "yes")
-                && !highwayValue.equals(KEY_MOTORWAY) && !highwayValue.equals(KEY_MOTORWAY_LINK)) {
-            highwayValue = KEY_MOTORROAD;
-        }
+    protected double getSpeed(ReaderWay way, String highwayValue) {
         Integer speed = speedLimitHandler.getSpeed(highwayValue);
         if (speed == null)
             throw new IllegalStateException(this + ", no speed found for: " + highwayValue + ", tags: " + way);
@@ -269,7 +264,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 
         if (!access.isFerry()) {
             // get assumed speed from highway type
-            double speed = getSpeed(way);
+            double speed = getSpeed(way, getHighway(way));
             speed = applyMaxSpeed(way, speed);
             speed = getSurfaceSpeed(way, speed);
 
