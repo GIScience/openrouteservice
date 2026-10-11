@@ -69,8 +69,8 @@ public class MatrixService extends ApiService {
 
         coreRequest.setProfileType(convertToMatrixProfileType(matrixRequest.getProfile()));
 
-        APIEnums.RoutePreference preference = matrixRequest.hasRoutePreference() ? matrixRequest.getRoutePreference() : APIEnums.RoutePreference.RECOMMENDED;
-        coreRequest.setWeightingMethod(convertWeightingMethod(matrixRequest, preference));
+        APIEnums.RoutePreference preference = matrixRequest.hasRoutePreference() ? matrixRequest.getRoutePreference() : null;
+        coreRequest.setWeightingMethod(preference != null ? convertWeightingMethod(matrixRequest, preference) : WeightingMethod.UNKNOWN);
 
         if (matrixRequest.hasMetrics())
             coreRequest.setMetrics(convertMetrics(matrixRequest.getMetrics()));
@@ -118,9 +118,6 @@ public class MatrixService extends ApiService {
     }
 
     private int convertWeightingMethod(MatrixRequest request, APIEnums.RoutePreference preferenceIn) throws UnknownParameterValueException {
-        if (request.getProfile().equals(APIEnums.Profile.DRIVING_CAR) && preferenceIn.equals(APIEnums.RoutePreference.RECOMMENDED)) {
-            return WeightingMethod.FASTEST;
-        }
         int weightingMethod = WeightingMethod.getFromString(preferenceIn.toString());
         if (weightingMethod == WeightingMethod.UNKNOWN)
             throw new UnknownParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PREFERENCE, preferenceIn.toString());
