@@ -49,28 +49,36 @@ public class ORSGraphManager {
     }
 
     public static ORSGraphRepoClient getOrsGraphRepoClient(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
-        ORSGraphRepoClient orsGraphRepoClient = new NullGraphRepoClient();
-
         switch (managementProps.getDerivedRepoType()) {
             case HTTP -> {
-                LOGGER.debug("Using HttpGraphRepoClient for repoUrl %s".formatted(managementProps.getDerivedRepoBaseUrl()));
-                orsGraphRepoClient = new HttpGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+                return checkValidRepoConfig(new HttpGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager), managementProps);
             }
             case FILESYSTEM -> {
-                LOGGER.debug("Using FileSystemGraphRepoClient for repoUri %s".formatted(managementProps.getDerivedRepoPath()));
-                orsGraphRepoClient = new FileSystemGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+                return checkValidRepoConfig(new FileSystemGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager), managementProps);
             }
             case S3 -> {
-                LOGGER.debug("Using S3GraphRepoClient for repoUrl %s".formatted(managementProps.getDerivedRepoBaseUrl()));
-                orsGraphRepoClient = new S3GraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+                return checkValidRepoConfig(new S3GraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager), managementProps);
             }
-            case NULL -> {
+            default ->
+            {
                 LOGGER.debug("No valid repositoryUri configured, using NullGraphRepoClient.");
-                orsGraphRepoClient = new NullGraphRepoClient();
+                return new NullGraphRepoClient();
             }
         }
+    }
 
-        return orsGraphRepoClient;
+    private static ORSGraphRepoClient checkValidRepoConfig(AbstractGraphRepoClient client, GraphManagementRuntimeProperties managementProps) {
+        if (client.hasValidRepoConfig()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
+            LOGGER.debug("Using %s client implementation for repoUri %s".formatted(managementProps.getDerivedRepoType(), managementProps.getRepoBaseUri()));
+            return client;
+        } else {
+            LOGGER.error("[%s] Invalid %s graph repo config - graph management cannot be activated for this profile!".formatted(
+                    managementProps.getLocalProfileName(),
+                    managementProps.getDerivedRepoType()
+                    ));
+            return new NullGraphRepoClient();
+        }
     }
 
     public ProfileProperties loadProfilePropertiesFromActiveGraph(ORSGraphManager orsGraphManager, ProfileProperties profileProperties) throws ORSGraphFileManagerException {
@@ -111,14 +119,14 @@ public class ORSGraphManager {
     }
 
     public void manageStartup() {
-        if (!useGraphRepository()) return;
-
         orsGraphFileManager.cleanupIncompleteFiles();
+        orsGraphFileManager.cleanupIncompatibleGraphs();
 
         boolean hasActiveGraph = orsGraphFileManager.hasActiveGraph();
         boolean hasDownloadedExtractedGraph = orsGraphFileManager.hasDownloadedExtractedGraph();
 
         if (!hasActiveGraph && !hasDownloadedExtractedGraph && useGraphRepository()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.debug("[%s] No local graph or extracted downloaded graph found - trying to download and extract graph from repository".formatted(getQualifiedProfileName()));
             downloadAndExtractLatestGraphIfNecessary();
             orsGraphFileManager.activateExtractedDownloadedGraph();
@@ -128,11 +136,13 @@ public class ORSGraphManager {
             orsGraphFileManager.activateExtractedDownloadedGraph();
         }
         if (hasActiveGraph && hasDownloadedExtractedGraph) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.debug("[%s] Found local graph and extracted downloaded graph".formatted(getQualifiedProfileName()));
             orsGraphFileManager.backupExistingGraph();
             orsGraphFileManager.activateExtractedDownloadedGraph();
         }
         if (hasActiveGraph && !hasDownloadedExtractedGraph) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.debug("[%s] Found local graph only".formatted(getQualifiedProfileName()));
         }
     }
