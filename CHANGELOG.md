@@ -42,6 +42,7 @@ Releasing is documented in RELEASE.md
 - JUnit libraries from the ors jar ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 
 ### Fixed
+- avoid `NullPointerException`s in the PostgreSQL statistics provider when the optional `password` or `port` is not configured: an unset `password` now lets pgjdbc read it from the file named by `PGPASSFILE` (e.g. a mounted Docker/Podman secret), an unset `port` defaults to 5432 ([#2450](https://github.com/GIScience/openrouteservice/pull/2450))
 - slim image failing to download graphs from S3 repositories ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - ors-test-scenarios tests being skipped due to a `logback-classic` version mismatch ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - `integrationTests` Maven profile not selecting any tests ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
