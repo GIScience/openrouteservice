@@ -182,10 +182,6 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         if (hasActiveGraph() && !isGraphCompatibleWithApplication(getActiveGraphBuildInfo())) {
             backupExistingGraph();
         }
-        if (isEmptyDirectory(getActiveGraphDirectory()))
-            deleteDirectoryWithLogging(getActiveGraphDirectory().getAbsoluteFile(),
-                    "[%s] Deleted incomplete active graph: %s",
-                    "Error deleting incomplete active graph: %s");
         if (hasDownloadedExtractedGraph() && !isGraphCompatibleWithApplication(getDownloadedExtractedGraphBuildInfo())) {
             deleteDirectoryWithLogging(getDownloadedExtractedGraphBuildInfo().getLocalDirectory(),
                     "[%s] Deleted incompatible downloaded extracted graph: %s",

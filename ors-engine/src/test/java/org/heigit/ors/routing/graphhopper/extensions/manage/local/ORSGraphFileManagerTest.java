@@ -197,22 +197,6 @@ class ORSGraphFileManagerTest {
     }
 
     @Test
-    void cleanupIncompatibleGraphs_deletesEmptyActiveGraphDirectory() throws IOException {
-        setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
-                .withGraphVersion(REPO_GRAPHS_VERSION)
-                .withMaxNumberOfGraphBackups(1)
-                .build());
-        createEmptyLocalGraphDir(orsGraphFileManager.getActiveGraphDirName());
-        assertThat(localGraphsRootPath).isNotEmptyDirectory();
-        assertThat(orsGraphFileManager.getActiveGraphDirectory()).isEmptyDirectory();
-
-        orsGraphFileManager.cleanupIncompatibleGraphs();
-
-        assertThat(orsGraphFileManager.hasActiveGraph()).isFalse();
-        assertThat(localGraphsRootPath).isEmptyDirectory();
-    }
-
-    @Test
     void cleanupIncompatibleGraphs_deletesIncompatibleActiveGraphIfMaxBackupsZero() throws IOException {
         setupOrsGraphFileManager(managementPropsBuilderWithDefaults()
                 .withGraphVersion(REPO_GRAPHS_VERSION)
@@ -271,8 +255,6 @@ class ORSGraphFileManagerTest {
 
         orsGraphFileManager.cleanupIncompatibleGraphs();
 
-        assertThat(localGraphsRootPath).isEmptyDirectory();
-        assertThat(orsGraphFileManager.hasActiveGraph()).isFalse();
         assertThat(orsGraphFileManager.hasDownloadedExtractedGraph()).isFalse();
     }
 
