@@ -47,6 +47,7 @@ Releasing is documented in RELEASE.md
 - `integrationTests` Maven profile not selecting any tests ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - integration tests failing to build their builder images ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - ors-benchmark using a different surefire version than the other modules ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
+- custom models being ignored in round-trip routing ([#2443](https://github.com/GIScience/openrouteservice/pull/2443))
 - inconsistent unit conversation of kerb heights in WheelchairGraphStorageBuilder ([#2444](https://github.com/GIScience/openrouteservice/pull/2444))
 
 ### Security

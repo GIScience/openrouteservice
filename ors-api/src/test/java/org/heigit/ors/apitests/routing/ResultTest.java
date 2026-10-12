@@ -4308,6 +4308,42 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testCustomProfileBlockTunnelsRoundTrip() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", HelperFunctions.constructCoords("8.680916,49.410973"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", false);
+
+        JSONObject roundTripOptions = new JSONObject();
+        roundTripOptions.put("length", 5000);
+        roundTripOptions.put("points", 3);
+        roundTripOptions.put("seed", 1);
+        JSONObject options = new JSONObject();
+        options.put("round_trip", roundTripOptions);
+        body.put("options", options);
+
+        JSONObject customModel = new JSONObject();
+        JSONObject priority = new JSONObject();
+        priority.put("if", "road_environment == TUNNEL");
+        priority.put("multiply_by", 0);
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(6561f, 60f))) // 7115m without blocking tunnels
+                .statusCode(200);
+    }
+
+    @Test
     void testCustomProfileBlockTunnelsRejectedWhenDisabled() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesCustom1"));
