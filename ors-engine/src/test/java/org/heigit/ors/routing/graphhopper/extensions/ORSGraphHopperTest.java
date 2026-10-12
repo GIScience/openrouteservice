@@ -48,6 +48,7 @@ class ORSGraphHopperTest {
                 .withLocalProfileName("buildGraphWithPreprocessedData")
                 .withLocalGraphsRootAbsPath("target/test-output/graphs")
                 .withRepoName("repoName")
+                .withGraphVersion("6")
                 .withRepoBaseUri("http://my.domain.com")
                 .build();
         ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(managementProps);

@@ -7,6 +7,7 @@ import com.graphhopper.routing.util.parsers.TagParserFactory;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.util.parsers.*;
+import org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair.*;
 
 public class OrsTagParserFactory implements TagParserFactory {
     private final ORSGraphHopper orsGraphHopper;
@@ -35,6 +36,15 @@ public class OrsTagParserFactory implements TagParserFactory {
                 case HgvAccess.KEY -> new VehicleAccessParser(HgvAccess.create(), HeavyVehicleAttributes.HGV);
                 case HazmatAccess.KEY -> new HazmatAccessParser();
                 case AccessRestriction.KEY -> new AccessRestrictionsParser(RoutingProfileType.getFromEncoderName(orsGraphHopper.getProfileProperties().getEncoderName().toString()));
+                case WheelchairSurface.KEY -> new WheelchairSurfaceParser();
+                case WheelchairSmoothness.KEY -> new WheelchairSmoothnessParser();
+                case WheelchairTrackType.KEY -> new WheelchairTrackTypeParser();
+                case WheelchairIncline.KEY -> new WheelchairInclineParser();
+                case WheelchairSide.KEY -> new WheelchairSideParser();
+                case WheelchairWidth.KEY -> new WheelchairWidthParser();
+                case WheelchairKerb.KEY -> new WheelchairKerbHeightParser();
+                case WheelchairSuitable.KEY -> new WheelchairSuitableParser();
+                case WheelchairSurfaceQualityKnown.KEY -> new WheelchairSurfaceQualityKnownParser();
                 case HillIndex.KEY -> new HillIndexParser();
                 case SacScale.KEY -> new SacScaleParser();
                 case MtbScale.KEY -> new MtbScaleParser(MtbScale.create(), false);

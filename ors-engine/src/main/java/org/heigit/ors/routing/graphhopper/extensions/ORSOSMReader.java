@@ -22,6 +22,7 @@ import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.OSMReaderConfig;
 import com.graphhopper.routing.ev.Border;
 import com.graphhopper.routing.ev.HillIndex;
+import com.graphhopper.routing.ev.WheelchairKerb;
 import com.graphhopper.routing.util.AbstractFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.EncodingManager.AcceptWay;
@@ -93,24 +94,24 @@ public class ORSOSMReader extends OSMReader {
         nodeTagsToStore = new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload"));
         osmNodeTagValues = new GHLongObjectHashMap<>(200, .5f);
 
+        if (encodingManager.hasEncodedValue(WheelchairKerb.KEY)) {
+            this.processNodeTags = true;
+            this.processSimpleGeom = true;
+            extraTagKeys.add("kerb");
+            extraTagKeys.add("kerb:both");
+            extraTagKeys.add("kerb:left");
+            extraTagKeys.add("kerb:right");
+            extraTagKeys.add("kerb:height");
+            extraTagKeys.add("kerb:both:height");
+            extraTagKeys.add("kerb:left:height");
+            extraTagKeys.add("kerb:right:height");
+        }
+
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
             if (b instanceof HereTrafficGraphStorageBuilder) {
                 this.processGeom = true;
                 this.processWholeGeom = true;
-            }
-
-            if (b instanceof WheelchairGraphStorageBuilder) {
-                this.processNodeTags = true;
-                this.processSimpleGeom = true;
-                extraTagKeys.add("kerb");
-                extraTagKeys.add("kerb:both");
-                extraTagKeys.add("kerb:left");
-                extraTagKeys.add("kerb:right");
-                extraTagKeys.add("kerb:height");
-                extraTagKeys.add("kerb:both:height");
-                extraTagKeys.add("kerb:left:height");
-                extraTagKeys.add("kerb:right:height");
             }
         }
 
@@ -198,8 +199,7 @@ public class ORSOSMReader extends OSMReader {
                     }
                 }
             }
-        }
-        else {
+        } else {
             // Normal processing
             super.preprocessWay(first, last, way);
         }
@@ -288,6 +288,10 @@ public class ORSOSMReader extends OSMReader {
                     tags.put(nodeData.getId(osmId), tagsForNode);
                 }
             }
+
+            if (!tags.isEmpty()) {
+                way.setTag(KEY_ORS_NODE_TAGS, tags);
+            }
         }
 
         if (processGeom || processSimpleGeom) {
@@ -329,8 +333,7 @@ public class ORSOSMReader extends OSMReader {
                         }
                         if (isTowerNode(nodeId)) {
                             coords.add(coordinate);
-                        }
-                        else {// TODO: check if we actually need to add  "empty" points
+                        } else {// TODO: check if we actually need to add  "empty" points
                             coords.add(new Coordinate(Double.NaN, Double.NaN));
                         }
                     } catch (Exception e) {
@@ -364,7 +367,7 @@ public class ORSOSMReader extends OSMReader {
             for (int i = 1; i < size - 1; i++) {
                 long nodeId = osmNodeIds.get(i);
                 if (osmNodeTagValues.containsKey(nodeId)) {
-                  osmNodeTagValues.get(nodeId).forEach((key, value) -> way.setTag(key, value.toString()));
+                    osmNodeTagValues.get(nodeId).forEach((key, value) -> way.setTag(key, value.toString()));
                 }
             }
         }
@@ -396,6 +399,7 @@ public class ORSOSMReader extends OSMReader {
             LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
         }
     }
+
 
     private void storeConditionalAccess(AcceptWay acceptWay, EdgeIteratorState edge) {
         for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {

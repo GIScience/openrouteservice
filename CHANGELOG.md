@@ -33,6 +33,7 @@ Releasing is documented in RELEASE.md
 ### Changed
 - migrate countries and borders storage to encoded values ([#2281](https://github.com/GIScience/openrouteservice/pull/2281))
 - update maven-install-plugin and maven-deploy-plugin to the Spring Boot managed versions ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
+- migrate wheelchair attributes storage to encoded values ([#2284](https://github.com/GIScience/openrouteservice/pull/2284))
 
 ### Deprecated
 
@@ -47,6 +48,7 @@ Releasing is documented in RELEASE.md
 - integration tests failing to build their builder images ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - ors-benchmark using a different surefire version than the other modules ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 - custom models being ignored in round-trip routing ([#2443](https://github.com/GIScience/openrouteservice/pull/2443))
+- inconsistent unit conversation of kerb heights in WheelchairGraphStorageBuilder ([#2444](https://github.com/GIScience/openrouteservice/pull/2444))
 
 ### Security
 
@@ -62,6 +64,9 @@ Releasing is documented in RELEASE.md
 - replace minio dependency with awssdk:s3 ([#2420](https://github.com/GIScience/openrouteservice/issues/2420))
 - increase graphVersion to 6 because graphs built with v9.10.0 (graphVersion=5) cannot be loaded
 - change indentation and numbering in RELEASE.md and add sentence about adding pinned documentation of previous latest release
+
+### Fixed
+- fix failing application start when local graphs have wrong graph version, e.g. after ors upgrade ([#2438](https://github.com/GIScience/openrouteservice/issues/2438))
 
 ## [10.0.0] - 2026-09-16
 

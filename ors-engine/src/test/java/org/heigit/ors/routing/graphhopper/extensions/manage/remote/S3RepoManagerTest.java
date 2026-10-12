@@ -151,7 +151,7 @@ class S3RepoManagerTest {
     }
 
     private void setupActiveGraphDirectory(Long osmDateLocal, ORSGraphFileManager orsGraphFileManager) {
-        saveActiveGraphBuildInfoFile(orsGraphFileManager.getActiveGraphBuildInfoFile(), osmDateLocal, null);
+        saveActiveGraphBuildInfoFile(orsGraphFileManager.getActiveGraphBuildInfoFile(), osmDateLocal, null, REPO_GRAPHS_VERSION);
     }
 
     @SneakyThrows
