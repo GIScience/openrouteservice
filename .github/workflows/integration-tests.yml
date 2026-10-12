@@ -95,7 +95,7 @@ jobs:
 
       - name: Download jar builder image artifact
         if: steps.cache_graph.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: ${{ needs.build_test_scenario_jar_builder_image.outputs.artifact_name_amd64 }}
           path: ${{ runner.temp }}/
@@ -157,7 +157,7 @@ jobs:
           echo "ARTIFACT_NAME=${{ needs.build_test_scenario_jar_builder_image.outputs.artifact_name_amd64 }}" >> $GITHUB_OUTPUT
 
       - name: Download runner ${{matrix.test-scenario}} artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: ${{ steps.identify-image-artifact-names.outputs.ARTIFACT_NAME }}
           path: ${{ runner.temp }}/
