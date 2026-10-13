@@ -44,7 +44,7 @@ COPY ors-engine /tmp/ors/ors-engine
 RUN ./mvnw -pl 'ors-api,ors-engine' \
     -q clean package -DskipTests -Dmaven.test.skip=true
 
-FROM docker.io/golang:1.27.2-alpine3.24@sha256:3b15ba438c60ab8fabe5fee3b11025c0049e358b31feff384648f11fc8e335f8 AS build-go
+FROM docker.io/golang:1.27.2-alpine3.24@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS build-go
 # ============================================================================
 # Build stage for Go-based tools
 # This stage is dedicated to building Go-based tools required in later stages.
