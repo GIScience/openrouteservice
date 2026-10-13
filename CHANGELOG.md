@@ -50,8 +50,10 @@ Releasing is documented in RELEASE.md
 - ors-benchmark using a different surefire version than the other modules ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 - custom models being ignored in round-trip routing ([#2443](https://github.com/GIScience/openrouteservice/pull/2443))
 - inconsistent unit conversation of kerb heights in WheelchairGraphStorageBuilder ([#2444](https://github.com/GIScience/openrouteservice/pull/2444))
+- Jackson 2 modules in the ors jar on mixed versions ([#2452](https://github.com/GIScience/openrouteservice/pull/2452))
 
 ### Security
+- update Jackson 3 to 3.1.7 due to [CVE-2026-91776](https://www.cve.org/CVERecord?id=CVE-2026-91776) and [CVE-2026-91777](https://www.cve.org/CVERecord?id=CVE-2026-91777) ([#2452](https://github.com/GIScience/openrouteservice/pull/2452))
 
 
 ## [10.0.1] - 2026-09-23
