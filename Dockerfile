@@ -44,13 +44,13 @@ COPY ors-engine /tmp/ors/ors-engine
 RUN ./mvnw -pl 'ors-api,ors-engine' \
     -q clean package -DskipTests -Dmaven.test.skip=true
 
-FROM docker.io/golang:1.27.1-alpine3.24@sha256:8a5910f31396cd4d89662f56c68b3ae31d374308270a1c3bd96672ee5ed43414 AS build-go
+FROM docker.io/golang:1.27.2-alpine3.24@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS build-go
 # ============================================================================
 # Build stage for Go-based tools
 # This stage is dedicated to building Go-based tools required in later stages.
 # ============================================================================
 
-RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.53.3
+RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.54.1
 
 FROM docker.io/amazoncorretto:25.0.4-alpine3.24@sha256:19f1e2198abaaf201f5b9faa39222412da3fad66415e9dfe253bd6763415097e AS base
 # ============================================================================

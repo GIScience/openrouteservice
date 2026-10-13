@@ -54,7 +54,7 @@ Releasing is documented in RELEASE.md
 
 ### Security
 - update Jackson 3 to 3.1.7 due to [CVE-2026-91776](https://www.cve.org/CVERecord?id=CVE-2026-91776) and [CVE-2026-91777](https://www.cve.org/CVERecord?id=CVE-2026-91777) ([#2452](https://github.com/GIScience/openrouteservice/pull/2452))
-
+- update golang base image with CVE fixes ([#2453](https://github.com/GIScience/openrouteservice/pull/2453))
 
 ## [10.0.1] - 2026-09-23
 
