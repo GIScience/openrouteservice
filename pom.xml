@@ -101,7 +101,7 @@
         <!-- the fixed part of surefire's argLine, kept in a property so modules can prepend their own
              flags (ors-engine adds the Mockito agent) without restating these -->
         <surefire.base.argLine>-Duser.language=en -Duser.region=US</surefire.base.argLine>
-        <rest-assured.version>6.0.1</rest-assured.version>
+        <rest-assured.version>6.1.0</rest-assured.version>
         <gatling.version>3.16.0</gatling.version>
         <commons-cli.version>1.11.0</commons-cli.version>
         <gatling-maven-plugin.version>4.21.12</gatling-maven-plugin.version>
