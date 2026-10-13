@@ -50,7 +50,7 @@ FROM docker.io/golang:1.27.2-alpine3.24@sha256:3b15ba438c60ab8fabe5fee3b11025c00
 # This stage is dedicated to building Go-based tools required in later stages.
 # ============================================================================
 
-RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.53.3
+RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.54.1
 
 FROM docker.io/amazoncorretto:25.0.4-alpine3.24@sha256:19f1e2198abaaf201f5b9faa39222412da3fad66415e9dfe253bd6763415097e AS base
 # ============================================================================
