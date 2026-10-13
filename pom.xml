@@ -59,13 +59,13 @@
         <eclipse-emf.version.common>2.46.0</eclipse-emf.version.common>
         <eclipse-emf.version.ecore>2.43.0</eclipse-emf.version.ecore>
         <eclipse-emf.version.xmi>2.41.0</eclipse-emf.version.xmi>
-        <!-- ors-engine/ors-api are fully on Jackson 3 (see tools.jackson.* below); this Jackson 2
-             pin remains only for ors-test-scenarios and ors-benchmark, standalone tool modules
-             that don't depend on ors-engine/ors-api or run through Spring MVC and were kept on
-             Jackson 2 as out of scope for the Spring Boot 4 migration -->
+        <!-- ors code is on Jackson 3 except ors-test-scenarios and ors-benchmark, kept on Jackson 2
+             as out of scope for the Spring Boot 4 migration. Jackson 2 still ships in ors.jar
+             regardless: springdoc's swagger-core and geotools depend on it, as does Gatling in
+             ors-benchmark. Drives the Jackson 2 BOM import below, which also pins jackson-annotations
+             for Jackson 3. Ahead of spring-boot-dependencies' jackson-2-bom.version (2.21.5); do
+             not remove, dropping this is a downgrade of the Jackson 2 that ships in ors.jar -->
         <fasterxml.jackson.version>2.22.3</fasterxml.jackson.version>
-        <!-- jackson-annotations dropped patch-level versioning as of 2.20; it has no 2.22.1 release -->
-        <fasterxml.jackson-annotations.version>2.22</fasterxml.jackson-annotations.version>
         <!-- overrides spring-boot-dependencies' jackson-bom.version (3.1.5), which is affected by
              CVE-2026-19032 (unrestricted URI scheme in the java.nio.file.Path deserializer);
              3.1.6 is the fix on Boot's own 3.1 line, 3.1.7 additionally fixes CVE-2026-91776 and
@@ -284,33 +284,13 @@
             </dependency>
 
             <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-yaml</artifactId>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <!-- the whole BOM rather than single artifacts, so every Jackson 2 module stays on
+                     one version with databind (e.g. swagger-core's jackson-datatype-jsr310) -->
                 <version>${fasterxml.jackson.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-csv</artifactId>
-                <version>${fasterxml.jackson.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${fasterxml.jackson.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${fasterxml.jackson.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${fasterxml.jackson-annotations.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>
