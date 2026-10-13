@@ -52,7 +52,7 @@ Releasing is documented in RELEASE.md
 - inconsistent unit conversation of kerb heights in WheelchairGraphStorageBuilder ([#2444](https://github.com/GIScience/openrouteservice/pull/2444))
 
 ### Security
-
+- update golang base image with CVE fixes ([#2453](https://github.com/GIScience/openrouteservice/pull/2453))
 
 ## [10.0.1] - 2026-09-23
 
