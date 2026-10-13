@@ -28,20 +28,35 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+
+## [10.1.0] - 2026-10-13
+
+### Added
 - integration test loading graphs into the slim image from an S3 repository ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 
 ### Changed
 - migrate countries and borders storage to encoded values ([#2281](https://github.com/GIScience/openrouteservice/pull/2281))
 - update maven-install-plugin and maven-deploy-plugin to the Spring Boot managed versions ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 - migrate wheelchair attributes storage to encoded values ([#2284](https://github.com/GIScience/openrouteservice/pull/2284))
-
-### Deprecated
+- increase graphVersion to 7 because graphs built with v10.0.1 (graphVersion=6) cannot be loaded ([#2281](https://github.com/GIScience/openrouteservice/pull/2281))
 
 ### Removed
 - leftover `okhttp-jvm` dependency ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - JUnit libraries from the ors jar ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 
 ### Fixed
+- fix failing application start when local graphs have wrong graph version, e.g. after ors upgrade ([#2438](https://github.com/GIScience/openrouteservice/issues/2438))
 - avoid `NullPointerException`s in the PostgreSQL statistics provider when the optional `password` or `port` is not configured: an unset `password` now lets pgjdbc read it from the file named by `PGPASSFILE` (e.g. a mounted Docker/Podman secret), an unset `port` defaults to 5432 ([#2450](https://github.com/GIScience/openrouteservice/pull/2450))
 - slim image failing to download graphs from S3 repositories ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - ors-test-scenarios tests being skipped due to a `logback-classic` version mismatch ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
@@ -49,7 +64,7 @@ Releasing is documented in RELEASE.md
 - integration tests failing to build their builder images ([#2437](https://github.com/GIScience/openrouteservice/pull/2437))
 - ors-benchmark using a different surefire version than the other modules ([#2439](https://github.com/GIScience/openrouteservice/pull/2439))
 - custom models being ignored in round-trip routing ([#2443](https://github.com/GIScience/openrouteservice/pull/2443))
-- inconsistent unit conversation of kerb heights in WheelchairGraphStorageBuilder ([#2444](https://github.com/GIScience/openrouteservice/pull/2444))
+- inconsistent unit conversion of kerb heights in WheelchairGraphStorageBuilder ([#2444](https://github.com/GIScience/openrouteservice/pull/2444))
 - Jackson 2 modules in the ors jar on mixed versions ([#2452](https://github.com/GIScience/openrouteservice/pull/2452))
 
 ### Security
@@ -67,9 +82,6 @@ Releasing is documented in RELEASE.md
 - replace minio dependency with awssdk:s3 ([#2420](https://github.com/GIScience/openrouteservice/issues/2420))
 - increase graphVersion to 6 because graphs built with v9.10.0 (graphVersion=5) cannot be loaded
 - change indentation and numbering in RELEASE.md and add sentence about adding pinned documentation of previous latest release
-
-### Fixed
-- fix failing application start when local graphs have wrong graph version, e.g. after ors upgrade ([#2438](https://github.com/GIScience/openrouteservice/issues/2438))
 
 ## [10.0.0] - 2026-09-16
 
@@ -1185,7 +1197,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v10.0.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v10.1.0...HEAD
+[10.1.0]: https://github.com/GIScience/openrouteservice/compare/v10.0.1...v10.1.0
 [10.0.1]: https://github.com/GIScience/openrouteservice/compare/v10.0.0...v10.0.1
 [10.0.0]: https://github.com/GIScience/openrouteservice/compare/v9.10.0...v10.0.0
 [9.10.0]: https://github.com/GIScience/openrouteservice/compare/v9.9.0...v9.10.0
