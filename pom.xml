@@ -65,7 +65,7 @@
              ors-benchmark. Drives the Jackson 2 BOM import below, which also pins jackson-annotations
              for Jackson 3. Ahead of spring-boot-dependencies' jackson-2-bom.version (2.21.5); do
              not remove, dropping this is a downgrade of the Jackson 2 that ships in ors.jar -->
-        <fasterxml.jackson.version>2.22.3</fasterxml.jackson.version>
+        <fasterxml.jackson.version>2.22.4</fasterxml.jackson.version>
         <!-- overrides spring-boot-dependencies' jackson-bom.version (3.1.5), which is affected by
              CVE-2026-19032 (unrestricted URI scheme in the java.nio.file.Path deserializer);
              3.1.6 is the fix on Boot's own 3.1 line, 3.1.7 additionally fixes CVE-2026-91776 and
