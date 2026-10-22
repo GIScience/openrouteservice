@@ -87,6 +87,22 @@ Add `-e "BUILD_GRAPHS=True" \` to trigger a graph rebuild.
 
 ## What you get
 
+Use `docker ps` to list running containers and check the `STATUS` column:
+```shell
+docker ps
+```
+
+The image includes a healthcheck that periodically requests the [health endpoint](../api-reference/endpoints/health/index.md).
+In addition to the container's uptime, Docker shows:
+
+* `(health: starting)`: The healthcheck has not succeeded yet. This is expected during startup.
+* `(healthy)`: The healthcheck succeeded; openrouteservice returned HTTP 200 (`{"status":"ready"}`) and reports that it is ready to process requests.
+* `(unhealthy)`: Repeated healthchecks have failed, for example because the endpoint returns HTTP 503 (`{"status":"not ready"}`) or cannot be reached.
+
+Building or loading graphs can take longer than the startup grace period, so a running container may temporarily show `(unhealthy)` until initialization finishes.
+Check progress or errors with `docker compose logs -tf` (see [Troubleshooting](#troubleshooting)).
+An unhealthy status does not by itself stop or restart the container.
+
 After some time, your openrouteservice should be running:
 ```shell
 curl http://localhost:8080/ors/v2/health
