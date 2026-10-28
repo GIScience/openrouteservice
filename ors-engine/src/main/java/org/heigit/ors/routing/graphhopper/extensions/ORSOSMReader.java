@@ -218,6 +218,8 @@ public class ORSOSMReader extends OSMReader {
             double totalDist = 0d;
             long nodeId = osmNodeIds.get(0);
             GHPoint3D ghPoint = nodeData.getCoordinates(nodeData.getId(nodeId));
+            if (ghPoint == null)
+                return;
             double firstLat = ghPoint.getLat();
             double firstLon = ghPoint.getLon();
             double currLat = firstLat;
@@ -229,6 +231,8 @@ public class ORSOSMReader extends OSMReader {
             for (int i = 1; i < len; i++) {
                 long nextNodeId = osmNodeIds.get(i);
                 ghPoint = nodeData.getCoordinates(nodeData.getId(nextNodeId));
+                if (ghPoint == null)
+                    return;
                 double nextLat = ghPoint.getLat();
                 double nextLon = ghPoint.getLon();
                 if (!Double.isNaN(currLat) && !Double.isNaN(currLon) && !Double.isNaN(nextLat) && !Double.isNaN(nextLon)) {
@@ -252,6 +256,8 @@ public class ORSOSMReader extends OSMReader {
         var osmNodeIds = way.getNodes();
         GHPoint3D firstPoint = nodeData.getCoordinates(nodeData.getId(osmNodeIds.get(0)));
         GHPoint3D lastPoint = nodeData.getCoordinates(nodeData.getId(osmNodeIds.get(osmNodeIds.size() - 1)));
+        if (firstPoint == null || lastPoint == null)
+            return;
         double firstLat = firstPoint.getLat(), firstLon = firstPoint.getLon();
         double lastLat = lastPoint.getLat(), lastLon = lastPoint.getLon();
         if (!Double.isNaN(firstLat) && !Double.isNaN(firstLon) && !Double.isNaN(lastLat) && !Double.isNaN(lastLon)) {
