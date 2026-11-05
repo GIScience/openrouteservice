@@ -30,6 +30,7 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
+- improve road bike average speeds to be faster on cycleways but slower on bad road surface or certain road types such as footways ([#2076](https://github.com/GIScience/openrouteservice/pull/2076))
 
 ### Deprecated
 
