@@ -36,6 +36,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- negative OSM way IDs no longer fail the graph build when the `osm_way_id` encoded value (`OsmId` storage) is enabled; they are stored as 0 and a warning is logged ([#2396](https://github.com/GIScience/openrouteservice/issues/2396))
 
 ### Security
 
