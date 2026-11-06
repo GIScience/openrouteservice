@@ -6,7 +6,7 @@ title: Hosted API Restrictions
 
 To provide services for thousands of users we have to restrict queries in our API to ensure our services stay stable for everyone.
 When you are using our API the following restrictions apply to the respective endpoints.
-If you want to make queries beyond these limits you should look into setting up your own customized [openrouteservice backend](./run-instance).
+If you want to make queries beyond these limits you should look into setting up your own customized [openrouteservice backend](./run-instance/index).
 
 ## Directions restrictions
 | Modes              | Maximum distance | Maximum distance with profile restrictions |
