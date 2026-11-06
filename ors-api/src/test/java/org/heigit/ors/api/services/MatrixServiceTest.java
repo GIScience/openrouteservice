@@ -373,4 +373,75 @@ class MatrixServiceTest {
         assertThrows(ParameterValueException.class, () -> matrixService.convertToMatrixProfileType(null));
     }
 
+    @Test
+    void convertMatrixRequestWithPreferenceTest() throws StatusCodeException {
+        // Test FASTEST preference
+        org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates, endpointsProperties);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        springMatrixRequest.setRoutePreference(APIEnums.RoutePreference.FASTEST);
+        springMatrixRequest.setSources(new String[]{"all"});
+        springMatrixRequest.setDestinations(new String[]{"all"});
+        MatrixRequest matrixRequest = matrixService.convertMatrixRequest(springMatrixRequest);
+        assertEquals(WeightingMethod.FASTEST, matrixRequest.getWeightingMethod());
+
+        // Test SHORTEST preference
+        springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates, endpointsProperties);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        springMatrixRequest.setRoutePreference(APIEnums.RoutePreference.SHORTEST);
+        springMatrixRequest.setSources(new String[]{"all"});
+        springMatrixRequest.setDestinations(new String[]{"all"});
+        matrixRequest = matrixService.convertMatrixRequest(springMatrixRequest);
+        assertEquals(WeightingMethod.SHORTEST, matrixRequest.getWeightingMethod());
+
+        // Test RECOMMENDED preference
+        springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates, endpointsProperties);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        springMatrixRequest.setRoutePreference(APIEnums.RoutePreference.RECOMMENDED);
+        springMatrixRequest.setSources(new String[]{"all"});
+        springMatrixRequest.setDestinations(new String[]{"all"});
+        matrixRequest = matrixService.convertMatrixRequest(springMatrixRequest);
+        assertEquals(WeightingMethod.RECOMMENDED, matrixRequest.getWeightingMethod());
+
+        // Test CUSTOM preference
+        springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates, endpointsProperties);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        springMatrixRequest.setRoutePreference(APIEnums.RoutePreference.CUSTOM);
+        springMatrixRequest.setSources(new String[]{"all"});
+        springMatrixRequest.setDestinations(new String[]{"all"});
+        matrixRequest = matrixService.convertMatrixRequest(springMatrixRequest);
+        assertEquals(WeightingMethod.CUSTOM, matrixRequest.getWeightingMethod());
+
+        // Test no preference (should be UNKNOWN)
+        springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates, endpointsProperties);
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        springMatrixRequest.setSources(new String[]{"all"});
+        springMatrixRequest.setDestinations(new String[]{"all"});
+        matrixRequest = matrixService.convertMatrixRequest(springMatrixRequest);
+        assertEquals(WeightingMethod.UNKNOWN, matrixRequest.getWeightingMethod());
+    }
+
+    @Test
+    void convertMatrixRequestWithInvalidPreferenceTest() throws StatusCodeException {
+        org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        springMatrixRequest.setRoutePreference(APIEnums.RoutePreference.FASTEST);
+        springMatrixRequest.setSources(new String[]{"all"});
+        springMatrixRequest.setDestinations(new String[]{"all"});
+        // This should not throw an exception for valid preferences
+        matrixService.convertMatrixRequest(springMatrixRequest);
+    }
+
+    @Test
+    void convertMatrixRequestWithUnknownPreferenceTest() {
+        org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(new ArrayList<>());
+        springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
+        springMatrixRequest.setSources(new String[]{"all"});
+        springMatrixRequest.setDestinations(new String[]{"all"});
+        // Test that UNKNOWN preference throws an exception
+        assertThrows(org.heigit.ors.exceptions.UnknownParameterValueException.class, () -> {
+            springMatrixRequest.setRoutePreference(null);
+            matrixService.convertMatrixRequest(springMatrixRequest);
+        });
+    }
+
 }
