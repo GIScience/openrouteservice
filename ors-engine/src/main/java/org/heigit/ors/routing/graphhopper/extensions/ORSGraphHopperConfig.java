@@ -218,7 +218,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         if (buildProperties.getGtfsFile() != null && !buildProperties.getGtfsFile().toString().isEmpty())
             ghConfig.putObject("gtfs.file", buildProperties.getGtfsFile().toAbsolutePath().toString());
 
-        if (buildProperties.getFootRestData() != null && !buildProperties.getFootRestData().toString().isEmpty()) {
+        if (hasFootRestData(buildProperties)) {
             ghConfig.putObject("foot_rest_data", buildProperties.getFootRestData().toAbsolutePath().toString());
         }
 
@@ -363,7 +363,23 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         if (Boolean.TRUE.equals(buildProperties.getInterpolateBridgesAndTunnels()))
             encodedValues.add(RoadEnvironment.KEY);
 
+        if (usesRestPoints(finalCategory, buildProperties))
+            encodedValues.add(Rest.KEY);
+
         ghConfig.putObject("graph.encoded_values", String.join(",", encodedValues));
+    }
+
+    /**
+     * Rest points are only used by pedestrian routing and only exist when a rest point file is configured.
+     */
+    private static boolean usesRestPoints(int profileCategory, BuildProperties buildProperties) {
+        boolean isPedestrianCategory = profileCategory == RoutingProfileCategory.WALKING
+                || profileCategory == RoutingProfileCategory.WHEELCHAIR;
+        return isPedestrianCategory && hasFootRestData(buildProperties);
+    }
+
+    private static boolean hasFootRestData(BuildProperties buildProperties) {
+        return buildProperties.getFootRestData() != null && !buildProperties.getFootRestData().toString().isEmpty();
     }
 
     public List<CHProfile> getCoreProfiles() {

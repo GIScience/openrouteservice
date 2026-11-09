@@ -17,6 +17,7 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.config.Profile;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.ev.Rest;
 import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.querygraph.QueryGraph;
@@ -112,7 +113,7 @@ public class ORSRouter extends Router {
 
         @Override
         protected PathCalculator createPathCalculator(QueryGraph queryGraph) {
-            RoutingAlgorithmFactory algorithmFactory = new MultiLabelRoutingAlgorithmFactory();
+            RoutingAlgorithmFactory algorithmFactory = new MultiLabelRoutingAlgorithmFactory(lookup.getDecimalEncodedValue(Rest.KEY));
             return new FlexiblePathCalculator(queryGraph, algorithmFactory, weighting, getAlgoOpts());
         }
     }

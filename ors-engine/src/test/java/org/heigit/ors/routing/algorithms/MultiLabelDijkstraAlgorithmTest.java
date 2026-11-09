@@ -19,6 +19,7 @@ import com.graphhopper.storage.index.LocationIndexTree;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
+import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSDefaultFlagEncoderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.PedestrianFlagEncoder;
@@ -43,14 +44,14 @@ class MultiLabelDijkstraAlgorithmTest {
 
     @BeforeEach
     void setUp() {
-        encodingManager = EncodingManager.create(
-                new ORSDefaultFlagEncoderFactory(),
-                FlagEncoderNames.PEDESTRIAN_ORS);
-        encoder = (PedestrianFlagEncoder) encodingManager.getEncoder(
-                FlagEncoderNames.PEDESTRIAN_ORS);
+        encoder = (PedestrianFlagEncoder) new ORSDefaultFlagEncoderFactory()
+                .createFlagEncoder(FlagEncoderNames.PEDESTRIAN_ORS, new PMap());
+        encodingManager = EncodingManager.start()
+                .add(encoder)
+                .add(Rest.create())
+                .build();
         weighting = new ShortestWeighting(encoder);
-        restEncodedValue =
-                encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY);
+        restEncodedValue = encodingManager.getDecimalEncodedValue(Rest.KEY);
     }
 
     @Test
@@ -407,7 +408,7 @@ class MultiLabelDijkstraAlgorithmTest {
 
     private InspectableAlgorithm createAlgorithm(
             Graph graph, double threshold, double penalty) {
-        return new InspectableAlgorithm(graph, weighting, threshold, penalty);
+        return new InspectableAlgorithm(graph, weighting, restEncodedValue, threshold, penalty);
     }
 
     private static boolean closeTo(double actual, double expected) {
@@ -426,9 +427,10 @@ class MultiLabelDijkstraAlgorithmTest {
         private InspectableAlgorithm(
                 Graph graph,
                 Weighting weighting,
+                DecimalEncodedValue restEnc,
                 double threshold,
                 double penalty) {
-            super(graph, weighting, TraversalMode.NODE_BASED,
+            super(graph, weighting, restEnc, TraversalMode.NODE_BASED,
                     threshold, penalty);
         }
 

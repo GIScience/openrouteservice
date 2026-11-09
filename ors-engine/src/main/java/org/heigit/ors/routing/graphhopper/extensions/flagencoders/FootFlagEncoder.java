@@ -46,7 +46,6 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
     private static final int MEAN_SPEED = 5;
     static final int FERRY_SPEED = 15;
     public static final String KEY_DESIGNATED = "designated";
-    public static final double REST_ENCODER_FACTOR = 0.01;
 
     private final Set<String> safeHighwayTags = new HashSet<>();
     private final Set<String> allowedHighwayTags = new HashSet<>();
@@ -170,7 +169,6 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
             registerNewEncodedValue.add(conditionalAccessEncoder);
         }
         footRouteEnc = getEnumEncodedValue(RouteNetwork.key("foot"), RouteNetwork.class);
-        registerNewEncodedValue.add(new OrsUnsignedDecimalEncodedValue(EncodingManager.getKey(prefix, Rest.KEY), 7, REST_ENCODER_FACTOR, false));
     }
 
     @Override

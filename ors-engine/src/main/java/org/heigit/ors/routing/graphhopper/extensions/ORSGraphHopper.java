@@ -344,7 +344,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                 }
             }
         }
-        if (config.has("foot_rest_data")) {
+        if (config.has("foot_rest_data") && getEncodingManager().hasEncodedValue(Rest.KEY)) {
             processGraphDependentEVData();
         }
     }
@@ -359,7 +359,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     private void processFootRestData(FootFlagEncoder encoder) {
         AtomicInteger imported = new AtomicInteger();
-        DecimalEncodedValue restEV = encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY);
+        DecimalEncodedValue restEV = getEncodingManager().getDecimalEncodedValue(Rest.KEY);
         PMap hintsMap = new PMap();
         ProfileTools.setWeightingMethod(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);
         ProfileTools.setWeighting(hintsMap, WeightingMethod.RECOMMENDED, RoutingProfileType.FOOT_WALKING, false);

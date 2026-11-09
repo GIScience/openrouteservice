@@ -3,10 +3,9 @@ package org.heigit.ors.routing.algorithms;
 import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.PathExtractor;
-import com.graphhopper.routing.ev.Rest;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.querygraph.QueryGraphHelper;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
-import com.graphhopper.routing.util.FootFlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -33,10 +32,11 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     protected int to = -1;
     protected double penalty;
     protected double restThreshold;
+    private final DecimalEncodedValue restEnc;
 
-
-    public MultiLabelDijkstraAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode, double restThreshold, double penalty) {
+    public MultiLabelDijkstraAlgorithm(Graph graph, Weighting weighting, DecimalEncodedValue restEnc, TraversalMode tMode, double restThreshold, double penalty) {
         super(graph, weighting, tMode);
+        this.restEnc = restEnc;
         queue = new PriorityQueue<>(INITIAL_CAPACITY);
         this.restThreshold = restThreshold;
         this.penalty = penalty;
@@ -176,8 +176,7 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     }
 
     private double offsetRelativeToBaseNode(EdgeIteratorState iter) {
-        FootFlagEncoder encoder = (FootFlagEncoder) weighting.getFlagEncoder();
-        double edgeRestValue = iter.get(encoder.getDecimalEncodedValue(encoder + "$" + Rest.KEY));
+        double edgeRestValue = iter.get(restEnc);
         if (edgeHasRestPoint(edgeRestValue) && GraphHelper.isReversed(iter)) {
             edgeRestValue = 1 - edgeRestValue;
         }

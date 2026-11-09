@@ -22,14 +22,20 @@ import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.AlgorithmOptions;
 import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.RoutingAlgorithmFactory;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 
 public class MultiLabelRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
+    private final DecimalEncodedValue restEnc;
+
+    public MultiLabelRoutingAlgorithmFactory(DecimalEncodedValue restEnc) {
+        this.restEnc = restEnc;
+    }
 
     @Override
     public RoutingAlgorithm createAlgo(Graph graph, Weighting weighting, AlgorithmOptions opts) {
-        AbstractRoutingAlgorithm algo = new MultiLabelDijkstraAlgorithm(graph, weighting, opts.getTraversalMode(), opts.getHints().getDouble("rest_threshold", Integer.MAX_VALUE), opts.getHints().getDouble("rest_penalty", 2.0));
+        AbstractRoutingAlgorithm algo = new MultiLabelDijkstraAlgorithm(graph, weighting, restEnc, opts.getTraversalMode(), opts.getHints().getDouble("rest_threshold", Integer.MAX_VALUE), opts.getHints().getDouble("rest_penalty", 2.0));
         algo.setMaxVisitedNodes(opts.getMaxVisitedNodes());
         return algo;
     }
