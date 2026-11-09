@@ -28,6 +28,7 @@ import org.heigit.ors.common.ServiceRequest;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.util.*;
 import org.locationtech.jts.geom.Coordinate;
@@ -534,8 +535,8 @@ public class RoutingRequest extends ServiceRequest {
                 req.getHints().putObject("maximum_speed_lower_bound", routingProfile.getProfileConfiguration().getBuild().getMaximumSpeedLowerBound());
             }
 
-            if (searchParams.hasRestThreshold()) {
-                req.getHints().putObject("rest_threshold", searchParams.getRestThreshold());
+            if (searchParams.hasParameters(ProfileParameters.class) && searchParams.getProfileParameters().hasRestThreshold()) {
+                req.getHints().putObject("rest_threshold", searchParams.getProfileParameters().getRestThreshold());
             }
 
             if (directedSegment) {

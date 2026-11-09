@@ -44,4 +44,8 @@ public class ProfileParameters {
     public List<String> getValidRestrictions() {
         return new ArrayList<>();
     }
+
+    public boolean hasRestThreshold() {
+        return restThreshold != Integer.MAX_VALUE;
+    }
 }

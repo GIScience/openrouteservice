@@ -4953,24 +4953,39 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testMultiLabelDijkstra() {
-        JSONObject body = new JSONObject();
-        body.put("coordinates", getParameter("coordinatesWalking"));
-        body.put("preference", "shortest");
-        JSONObject params = new JSONObject();
-        params.put("rest_threshold", 500);
-        JSONObject options = new JSONObject();
-        options.put("profile_params", params);
-        body.put("options", options);
+        JSONObject body = new JSONObject()
+                .put("coordinates", getParameter("coordinatesWalking"))
+                .put("preference", "shortest");
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.geoJsonContent)
                 .pathParam("profile", getParameter("footProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
-                .statusCode(200);
+                .statusCode(200)
+                .body("features[0].properties.summary.distance", is(closeTo(2091.5, 10)));
+
+        JSONObject params = new JSONObject()
+                .put("rest_threshold", 500);
+        JSONObject options = new JSONObject()
+                .put("profile_params", params);
+        body.put("options", options);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .statusCode(200)
+                .body("features[0].properties.summary.distance", is(closeTo(2109.8, 10)));
     }
 
     private JSONArray constructBearings(String coordString) {
