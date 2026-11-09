@@ -89,7 +89,7 @@
              do not remove, dropping this override is a downgrade -->
         <commons-logging.version>1.4.0</commons-logging.version>
         <commons-compress.version>1.28.0</commons-compress.version>
-        <typesafe-config.version>1.4.9</typesafe-config.version>
+        <typesafe-config.version>1.4.10</typesafe-config.version>
         <jts.version>1.20.0</jts.version>
         <org-json.version>20240303</org-json.version>
         <progressbar.version>0.10.2</progressbar.version>
@@ -106,7 +106,7 @@
         <gatling.version>3.16.0</gatling.version>
         <commons-cli.version>1.11.0</commons-cli.version>
         <gatling-maven-plugin.version>4.21.12</gatling-maven-plugin.version>
-        <awssdk.version>2.57.8</awssdk.version>
+        <awssdk.version>2.57.10</awssdk.version>
         <!-- javax (pre-Jakarta) JAXB API, needed at runtime by springdoc - see ors-api -->
         <javax-jaxb-api.version>2.3.1</javax-jaxb-api.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
