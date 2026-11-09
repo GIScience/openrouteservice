@@ -1,4 +1,4 @@
-FROM docker.io/maven:3.9.16-amazoncorretto-25@sha256:98295c180adc4b5c0a52b830e00c387c862d5827d395cd7737d8205170428785 AS build
+FROM docker.io/maven:3.10.0-amazoncorretto-25@sha256:cbe7e5baedf0b1fb0ad32d6e9d2610079d3c9c572faea31018084de7dd0b3553 AS build
 # ============================================================================
 # Build stage for Java-based ORS application
 # This stage is responsible for compiling and packaging the Java-based OpenRouteService (ORS) application.
@@ -12,8 +12,9 @@ USER root
 # JVM needs but no JVM. So the runtime is built here and copied in.
 # /empty-tmp exists because the distroless base ships no /tmp at all and COPY
 # cannot create a directory.
+# jdk.net is needed by Apache HttpClient 5, which the AWS SDK S3 graph repo client uses.
 RUN dnf install -y binutils tar && \
-    jlink --add-modules java.se,jdk.unsupported,jdk.crypto.ec \
+    jlink --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.net \
     --strip-debug --no-man-pages --no-header-files --compress=zip-6 \
     --output /javaruntime && \
     mkdir -m 1777 /empty-tmp && \
@@ -43,15 +44,15 @@ COPY ors-engine /tmp/ors/ors-engine
 RUN ./mvnw -pl 'ors-api,ors-engine' \
     -q clean package -DskipTests -Dmaven.test.skip=true
 
-FROM docker.io/golang:1.27.1-alpine3.24@sha256:cf6fca6641884b8433441b2b0652976f975e1d0fdd26d177eaaf8596087f3125 AS build-go
+FROM docker.io/golang:1.27.2-alpine3.24@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS build-go
 # ============================================================================
 # Build stage for Go-based tools
 # This stage is dedicated to building Go-based tools required in later stages.
 # ============================================================================
 
-RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.53.3
+RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.54.1
 
-FROM docker.io/amazoncorretto:25.0.4-alpine3.24@sha256:2ad5f5cf03a3970f2478b130dc28f51b179ce13c58154fe3ec1a6fdeb3b86e3a AS base
+FROM docker.io/amazoncorretto:25.0.4-alpine3.24@sha256:19f1e2198abaaf201f5b9faa39222412da3fad66415e9dfe253bd6763415097e AS base
 # ============================================================================
 # Base image stage: common setup for all runtime stages
 # This stage sets up the foundational environment for running the OpenRouteService (ORS) application.
@@ -85,7 +86,7 @@ LABEL org.opencontainers.image.title="openrouteservice"
 LABEL org.opencontainers.image.description="Open-source route planning service based on OpenStreetMap data"
 LABEL org.opencontainers.image.documentation="https://giscience.github.io/openrouteservice"
 
-FROM gcr.io/distroless/cc-debian13:nonroot@sha256:c31ff9abcb1910f3ab25c7957bdaf0bfe12a01eb546e8df2282f1c8f682b606c AS slim
+FROM gcr.io/distroless/cc-debian13:nonroot@sha256:e792ab3d241a468a4fd7519ddbbebe66b49b5f365771716ea688ad40b6c6f1c2 AS slim
 # ============================================================================
 # K8s-ready image stage
 # This stage is optimized for Kubernetes and container deployments with:

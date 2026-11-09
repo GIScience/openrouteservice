@@ -2,7 +2,7 @@
 
 ::: warning
 The graph management functionality is in beta testing and not yet available for the broader public.
-Please visit [graph repo client](/technical-details/graph-repo-client/) for a more in-depth understanding of this
+Please visit [graph repo client](../../../technical-details/graph-repo-client/) for a more in-depth understanding of this
 functionality.
 
 If you are interested in testing the graph management functionality,
@@ -12,7 +12,7 @@ or write us an E-Mail to [support@smartmobility.heigit.org](mailto:support@smart
 
 Properties beneath `ors.engine.graph_management` are used to define graph management for the entire openrouteservice
 instance.
-See [graph repo client](/technical-details/graph-repo-client/) for more information.
+See [graph repo client](../../../technical-details/graph-repo-client/) for more information.
 
 | Property              | Meaning                                                                      | Default                 |
 |-----------------------|------------------------------------------------------------------------------|-------------------------|

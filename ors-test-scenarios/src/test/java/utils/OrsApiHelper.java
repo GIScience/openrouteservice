@@ -7,6 +7,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class OrsApiHelper {
 
     public static boolean checkAvoidAreaRequest(String url, int expectedHttpCode) {
         try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            HttpURLConnection connection = (HttpURLConnection) URI.create(url).toURL().openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             connection.setRequestProperty("Accept", "application/geo+json; charset=utf-8");
@@ -27,14 +28,14 @@ public class OrsApiHelper {
 
             int responseCode = connection.getResponseCode();
             return responseCode == expectedHttpCode;
-        } catch (IOException e) {
+        } catch (IOException _) {
             return false;
         }
     }
 
     private static JsonNode getProfiles(String address, int port) throws IOException {
         // Create a new URL object with the address and port
-        URL url = new URL("http://" + address + ":" + port + "/ors/v2/status");
+        URL url = URI.create("http://" + address + ":" + port + "/ors/v2/status").toURL();
         // Create a new HTTP connection object with the URL
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         // Connect to the URL

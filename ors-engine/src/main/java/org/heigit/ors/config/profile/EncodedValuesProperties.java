@@ -15,6 +15,11 @@ import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
+/**
+ * /!\ Attention:
+ *     Changes in this class are highly likely to require
+ *     an increment of the graphVersion (top level pom.xml)
+ */
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -57,6 +62,24 @@ public class EncodedValuesProperties {
     private Boolean maxWeight;
     @JsonProperty(MaxWidth.KEY)
     private Boolean maxWidth;
+    @JsonProperty(WheelchairSurface.KEY)
+    private Boolean wheelchairSurface;
+    @JsonProperty(WheelchairSmoothness.KEY)
+    private Boolean wheelchairSmoothness;
+    @JsonProperty(WheelchairTrackType.KEY)
+    private Boolean wheelchairTrackType;
+    @JsonProperty(WheelchairSurfaceQualityKnown.KEY)
+    private Boolean wheelchairSurfaceQualityKnown;
+    @JsonProperty(WheelchairIncline.KEY)
+    private Boolean wheelchairIncline;
+    @JsonProperty(WheelchairWidth.KEY)
+    private Boolean wheelchairWidth;
+    @JsonProperty(WheelchairKerb.KEY)
+    private Boolean wheelchairKerb;
+    @JsonProperty(WheelchairSuitable.KEY)
+    private Boolean wheelchairSuitable;
+    @JsonProperty(WheelchairSide.KEY)
+    private Boolean wheelchairSide;
     @JsonProperty(AccessRestriction.KEY)
     private Boolean accessRestriction;
     @JsonProperty(Toll.KEY)
@@ -69,6 +92,10 @@ public class EncodedValuesProperties {
     private Boolean mtbScale;
     @JsonProperty(MtbScaleUphill.KEY)
     private Boolean mtbScaleUphill;
+    @JsonProperty(Country.KEY)
+    private Boolean country;
+    @JsonProperty(Border.KEY)
+    private Boolean border;
 
     public EncodedValuesProperties() {
     }
@@ -100,12 +127,23 @@ public class EncodedValuesProperties {
         properties.put(MaxLength.KEY, maxLength);
         properties.put(MaxWeight.KEY, maxWeight);
         properties.put(MaxWidth.KEY, maxWidth);
+        properties.put(WheelchairSurface.KEY, wheelchairSurface);
+        properties.put(WheelchairSmoothness.KEY, wheelchairSmoothness);
+        properties.put(WheelchairTrackType.KEY, wheelchairTrackType);
+        properties.put(WheelchairSurfaceQualityKnown.KEY, wheelchairSurfaceQualityKnown);
+        properties.put(WheelchairIncline.KEY, wheelchairIncline);
+        properties.put(WheelchairWidth.KEY, wheelchairWidth);
+        properties.put(WheelchairKerb.KEY, wheelchairKerb);
+        properties.put(WheelchairSuitable.KEY, wheelchairSuitable);
+        properties.put(WheelchairSide.KEY, wheelchairSide);
         properties.put(AccessRestriction.KEY, accessRestriction);
         properties.put(Toll.KEY, toll);
         properties.put(HillIndex.KEY, hillIndex);
         properties.put(SacScale.KEY, sacScale);
         properties.put(MtbScale.KEY, mtbScale);
         properties.put(MtbScaleUphill.KEY, mtbScaleUphill);
+        properties.put(Country.KEY, country);
+        properties.put(Border.KEY, border);
 
         return properties;
     }
@@ -116,7 +154,7 @@ public class EncodedValuesProperties {
     }
 
     @JsonIgnore
-    public String toString() {
+    public String toEncodedValuesString() {
         return getProperties().entrySet().stream()
                 .filter(e -> Boolean.TRUE.equals(e.getValue()))
                 .map(Map.Entry::getKey)
@@ -143,11 +181,22 @@ public class EncodedValuesProperties {
         maxLength = ofNullable(this.maxLength).orElse(other.maxLength);
         maxWeight = ofNullable(this.maxWeight).orElse(other.maxWeight);
         maxWidth = ofNullable(this.maxWidth).orElse(other.maxWidth);
+        wheelchairSurface = ofNullable(this.wheelchairSurface).orElse(other.wheelchairSurface);
+        wheelchairSmoothness = ofNullable(this.wheelchairSmoothness).orElse(other.wheelchairSmoothness);
+        wheelchairTrackType = ofNullable(this.wheelchairTrackType).orElse(other.wheelchairTrackType);
+        wheelchairSurfaceQualityKnown = ofNullable(this.wheelchairSurfaceQualityKnown).orElse(other.wheelchairSurfaceQualityKnown);
+        wheelchairIncline = ofNullable(this.wheelchairIncline).orElse(other.wheelchairIncline);
+        wheelchairWidth = ofNullable(this.wheelchairWidth).orElse(other.wheelchairWidth);
+        wheelchairKerb = ofNullable(this.wheelchairKerb).orElse(other.wheelchairKerb);
+        wheelchairSuitable = ofNullable(this.wheelchairSuitable).orElse(other.wheelchairSuitable);
+        wheelchairSide = ofNullable(this.wheelchairSide).orElse(other.wheelchairSide);
         accessRestriction = ofNullable(this.accessRestriction).orElse(other.accessRestriction);
         toll = ofNullable(this.toll).orElse(other.toll);
         hillIndex = ofNullable(this.hillIndex).orElse(other.hillIndex);
         sacScale = ofNullable(this.sacScale).orElse(other.sacScale);
         mtbScale = ofNullable(this.mtbScale).orElse(other.mtbScale);
         mtbScaleUphill = ofNullable(this.mtbScaleUphill).orElse(other.mtbScaleUphill);
+        country = ofNullable(this.country).orElse(other.country);
+        border = ofNullable(this.border).orElse(other.border);
     }
 }

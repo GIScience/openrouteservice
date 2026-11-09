@@ -83,7 +83,7 @@ An object specifying restrictions for `cycling-*`, `driving-hgv` or `wheelchair`
   | `length`   | Number  | Length restriction in meters.                                                                                                     |
   | `width`    | Number  | Width restriction in meters.                                                                                                      |
   | `height`   | Number  | Height restriction in meters.                                                                                                     |
-  | `axleload` | Number  | Axle load restriction in tons.                                                                                                     |
+  | `axleload` | Number  | Axle load restriction in tons.                                                                                                    |
   | `weight`   | Number  | Weight restriction in tons.                                                                                                       |
   | `hazmat`   | Boolean | Specifies whether to use appropriate routing for delivering hazardous goods and avoiding water protected areas. Default is false. |
 
@@ -92,7 +92,7 @@ An object specifying restrictions for `cycling-*`, `driving-hgv` or `wheelchair`
   | Parameter             | Type    | Description                                                                                                                 |
   |-----------------------|---------|-----------------------------------------------------------------------------------------------------------------------------|
   | `surface_type`        | String  | Specifies the minimum [surface type](http://wiki.openstreetmap.org/wiki/Key:surface). Default is `"cobblestone:flattened"`. |
-  | `track_type`          | String  | Specifies the minimum [quality](http://wiki.openstreetmap.org/wiki/Key:tracktype) of the route. Default is `"grade1"`.        |
+  | `track_type`          | String  | Specifies the minimum [quality](http://wiki.openstreetmap.org/wiki/Key:tracktype) of the route. Default is `"grade1"`.      |
   | `smoothness_type`     | String  | Specifies the minimum [smoothness](http://wiki.openstreetmap.org/wiki/Key:smoothness) of the route. Default is `"good"`.    |
   | `maximum_sloped_kerb` | Number  | Specifies the maximum height of the sloped kerb in meters. Values are `0.03`, `0.06`(default), `0.1` or `any`.              |
   | `maximum_incline`     | Integer | Specifies the maximum incline as a percentage. `3`, `6`(default), `10`, `15` or `any`.                                      |

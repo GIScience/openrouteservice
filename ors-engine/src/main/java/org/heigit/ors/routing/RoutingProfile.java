@@ -19,6 +19,10 @@ import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
 import lombok.Getter;
+import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
+import org.apache.commons.compress.archivers.zip.Zip64Mode;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.PreparationType;
 import org.heigit.ors.config.EngineProperties;
@@ -26,18 +30,11 @@ import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
-import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.TimeUtility;
 import org.json.simple.JSONObject;
 import org.springframework.util.FileSystemUtils;
-
-import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.archivers.zip.Zip64Mode;
 
 import java.io.File;
 import java.io.IOException;
@@ -120,9 +117,6 @@ public class RoutingProfile {
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
-        ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
-        gh.setPathProcessorFactory(pathProcessorFactory);
-
         gh.init(args);
 
         // MARQ24: make sure that we only use ONE instance of the ElevationProvider across the multiple vehicle profiles
@@ -138,14 +132,13 @@ public class RoutingProfile {
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
 
         gh.importOrLoad();
-        // store CountryBordersReader for later use
-        for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
-            if (builder.getName().equals(BordersGraphStorageBuilder.BUILDER_NAME)) {
-                pathProcessorFactory.setCountryBordersReader(((BordersGraphStorageBuilder) builder).getCbReader());
-            }
-        }
+
+        ORSPathProcessorFactory pathProcessorFactory = new ORSPathProcessorFactory();
+        pathProcessorFactory.setCountryBordersReader(gpc.getCountryBordersReader());
+        gh.setPathProcessorFactory(pathProcessorFactory);
 
         if (LOGGER.isInfoEnabled()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%d] Profile: '%s', encoder: '%s', location: '%s'.".formatted(profileId, profileProperties.getProfileName(), profileProperties.getEncoderName().toString(), gh.getOrsGraphManager().getActiveGraphDirAbsPath()));
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
             LOGGER.info("[%d] Edges: %s - Nodes: %s.".formatted(profileId, ghStorage.getEdges(), ghStorage.getNodes()));

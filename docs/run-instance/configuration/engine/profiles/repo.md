@@ -3,7 +3,7 @@
 Properties beneath `ors.engine.profiles.<PROFILE-NAME>.repo` are used to address a graph in a graph repository.
 If *all* of these properties are set,
 and if graph management is
-enabled [ors.engine.graph_management.enabled](/run-instance/configuration/engine/graph-management.md),
+enabled [ors.engine.graph_management.enabled](../graph-management.md),
 openrouteservice will use the specified repository to load the graph data.
 
 | key                      | type   | description                                                                                                                                                 | example values                                                                                        |
@@ -20,6 +20,6 @@ which makes it possible to have routing profiles from different repositories
 or in different geographic regions.
 
 Repository properties that are common for all routing profiles can be configured
-in [ors.engine.profile_default](/run-instance/configuration/engine/index.md)
+in [ors.engine.profile_default](../index.md)
 
-See [graph repo client](/technical-details/graph-repo-client/) for more information.
+See [graph repo client](../../../../technical-details/graph-repo-client/) for more information.

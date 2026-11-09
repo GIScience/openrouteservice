@@ -48,6 +48,7 @@ class ORSGraphHopperTest {
                 .withLocalProfileName("buildGraphWithPreprocessedData")
                 .withLocalGraphsRootAbsPath("target/test-output/graphs")
                 .withRepoName("repoName")
+                .withGraphVersion("6")
                 .withRepoBaseUri("http://my.domain.com")
                 .build();
         ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(managementProps);
@@ -120,6 +121,7 @@ class ORSGraphHopperTest {
                                                        EngineProperties engineProperties, ProfileProperties profileProperties) throws Exception {
         GraphProcessContext gpc = new GraphProcessContext(engineProperties.getProfiles().get(ROUTE_PROFILE_NAME));
         gpc.setGetElevationFromPreprocessedData(engineProperties.getElevation().getPreprocessed());
+        gpc.setPreprocessedCountries(true);
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties, profileProperties);
         gh.init(ghConfig);

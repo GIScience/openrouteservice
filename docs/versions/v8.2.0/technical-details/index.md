@@ -5,6 +5,6 @@
 In this section you can find additional information on some important value lists
 and explanation about the internal workings of the openrouteservice:
 
-* [Country List](country-list.md)
-* [Travel Speeds](travel-speeds/index.md)
-* [Tag Filtering](tag-filtering.md)
+* [Country List](./country-list.md)
+* [Travel Speeds](./travel-speeds/index.md)
+* [Tag Filtering](./tag-filtering.md)

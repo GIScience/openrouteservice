@@ -13,7 +13,7 @@ or write us an E-Mail to [support@smartmobility.heigit.org](mailto:support@smart
 Since v9 openrouteservice includes a client for graph repositories.
 This makes it possible to download and use graphs built elsewhere instead of building them locally.
 When using only graphs from a repository and
-configuring [ors.engine.graphs_data_acces](/run-instance/configuration/engine/index.md#orsengine)=`MMAP`,
+configuring [ors.engine.graphs_data_acces](../../run-instance/configuration/engine/index.md#orsengine)=`MMAP`,
 it is now possible to run openrouteservice on pretty small machines even with planet data.
 
 ## Graph Repository
@@ -271,7 +271,7 @@ If new graphs were not activated at runtime because no activation schedule is co
 or just because openrouteservice was stopped before the next scheduled graph activation time has come,
 the new graph(s) will be activated on the next application start.
 Even if graph management is not
-enabled ([ors.engine.graph_management.enabled](/run-instance/configuration/engine/graph-management.md))!
+enabled ([ors.engine.graph_management.enabled](../../run-instance/configuration/engine/graph-management.md))!
 
 #### Logging
 
@@ -335,13 +335,13 @@ the startup process also wipes out incomplete files or directories (they could r
 ### General Graph Management Setup
 
 The general graph management is configured in the config properties beneatch [
-`ors.engine.graph_management`](/run-instance/configuration/engine/graph-management.md).
+`ors.engine.graph_management`](../../run-instance/configuration/engine/graph-management.md).
 
 ### Graph Management Setup for Profiles
 
 To define a graph in the openrouteservice config, configuration parameters similar to the elements of
 the [repository structure](#repository-structure) are used
-(see also [`ors.engine.profiles.<PROFILE-NAME>.repo`](/run-instance/configuration/engine/profiles/repo.md)):
+(see also [`ors.engine.profiles.<PROFILE-NAME>.repo`](../../run-instance/configuration/engine/profiles/repo.md)):
 
 | Repo Path Parameter        | Configuration Parameter                                                               |
 |----------------------------|---------------------------------------------------------------------------------------|

@@ -17,12 +17,12 @@ please use the [corresponding repository](https://github.com/GIScience/ors-map-c
 ## Contributing code
 
 To help you get started, here is a document describing how
-to [build openrouteservice from code](/run-instance/building-from-source.md).
+to [build openrouteservice from code](../run-instance/building-from-source.md).
 We also put together a few [guidelines](https://github.com/GIScience/openrouteservice/blob/main/CONTRIBUTE.md)
 to help you in the process and keep the repository clean and tidy.
 
 ## Other ways to contribute
 
-* [Contributing translations](contributing-translations)
-* [Contributing to this documentation](backend-documentation)
+* [Contributing translations](./contributing-translations)
+* [Contributing to this documentation](./backend-documentation)
 * [Updating OpenStreetMap](https://wiki.openstreetmap.org/wiki/Beginners%27_guide)

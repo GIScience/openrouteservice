@@ -37,7 +37,7 @@ Which format to use in which scenario is documented in the config documentations
 
 * `.yml` is the default configuration format since version 8. You can find an [example configuration file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.yml) with all available configuration options. Only a minimal set of properties is active, all others are commented out.
 * `.env` files for Docker setup. There is also an [example env file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.env) that you can download and customize. 
-* `.json` config file: In the past openrouteservice was configured [via JSON file](json.md). This configuration method has been **deprecated** and will be eventually removed. Therefore, we strongly discourage you from using it. If you have an old JSON config, please consider to [migrate to the new config](https://github.com/GIScience/ors-config-migration#usage). 
+* `.json` config file: In the past openrouteservice was configured [via JSON file](./json.md). This configuration method has been **deprecated** and will be eventually removed. Therefore, we strongly discourage you from using it. If you have an old JSON config, please consider to [migrate to the new config](https://github.com/GIScience/ors-config-migration#usage). 
 
 All of the above described config files can contain the same logic application properties.
 
@@ -70,16 +70,16 @@ In [Alternative Configuration](#alternative-configuration) you find the syntax t
 
 The properties are organized in a hierarchical structure, with the following ones at top level.
 
-- [Spring Properties](spring/index.md), such as 
-    * [Server Properties](spring/server.md)
-    * [Logging Properties](spring/logging.md)
+- [Spring Properties](./spring/index.md), such as 
+    * [Server Properties](./spring/server.md)
+    * [Logging Properties](./spring/logging.md)
 - openrouteservice properties with these children:
-    * [ors.endpoints](ors/endpoints/index.md): Settings required at runtime to process API requests.
-    * [ors.engine](ors/engine/index.md): Settings required at graph-build time during startup.
-    * [ors.cors](ors/cors/index.md): Cross-origin resource sharing settings.
-    * [ors.messages](ors/messages/index.md): System messages that can be sent with API responses following simple rules.
+    * [ors.endpoints](./ors/endpoints/index.md): Settings required at runtime to process API requests.
+    * [ors.engine](./ors/engine/index.md): Settings required at graph-build time during startup.
+    * [ors.cors](./ors/cors/index.md): Cross-origin resource sharing settings.
+    * [ors.messages](./ors/messages/index.md): System messages that can be sent with API responses following simple rules.
 
-At the very least, openrouteservice needs the configuration to contain an enabled [profile](ors/engine/profiles.md) and the
+At the very least, openrouteservice needs the configuration to contain an enabled [profile](./ors/engine/profiles.md) and the
 reference to an [OSM data file](../data.md#osm-data) to run properly. Therefore, the minimal valid content of such a file
 would be, e.g.:
 

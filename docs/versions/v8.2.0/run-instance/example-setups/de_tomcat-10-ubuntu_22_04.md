@@ -3,7 +3,7 @@
 Dieses Tutorial zeigt dir, wie du openrouteservice v8 mit Java 17 und Tomcat 10 einrichtest.
 
 ::: info
-Zur [englischen Version](en_tomcat-10-ubuntu_22_04) dieses Tutorials.
+Zur [englischen Version](./en_tomcat-10-ubuntu_22_04) dieses Tutorials.
 :::
 
 ## Voraussetzungen
@@ -249,7 +249,7 @@ Stelle sicher, dass du den Wert von `-Xmx` an dein System und die Größe der ve
 Wenn du eine andere `OSM-Datei` erstellen möchtest, kannst du den Wert von source_file anpassen.
 
 Wenn du mehr über die neuen Konfigurationsoptionen in Version 8 erfahren möchtest, lies
-die [Konfigurationsdokumentation](/run-instance/configuration/index.md).
+die [Konfigurationsdokumentation](../configuration/index.md).
 
 **Beispiel `setenv.sh`-Datei für openrouteservice v8**
 

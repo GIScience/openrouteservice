@@ -5,8 +5,8 @@ route calculation.
 
 This parameter is available for directions requests only on profiles that have been created using the required encoder
 option set at graph build time. **This feature is still in experimental state and is currently not available on our
-public API for any profile**. You can use this feature on your [own openrouteservice instance](/run-instance/)
-by [enabling it for the profile](/run-instance/configuration/engine/profiles/build.md#encoder-options) in the
+public API for any profile**. You can use this feature on your [own openrouteservice instance](../../../run-instance/)
+by [enabling it for the profile](../../../run-instance/configuration/engine/profiles/build.md#encoder-options) in the
 `encoder_options`.
 
 The `custom_model` parameter is a JSON object, the following example shows the structure within a request body for the
@@ -140,7 +140,7 @@ more complex statement using Java boolean operators, e.g.
 `max_speed <= 30 && (road_environment == TUNNEL || roundabout)`.
 
 The variables that can be used in those statements are called `encoded values`, and different ones are available for
-different profiles. The available `encoded values` can be found in the response to the [status endpoint](/api-reference/endpoints/status/), in the array
+different profiles. The available `encoded values` can be found in the response to the [status endpoint](../status/), in the array
 `profiles.<PROFILE NAME>.encoded_values`. Below is a list of example `encoded values` and their possible values that are
 available. Note that this list is incomplete and the available variables depend on the profile in question.
 

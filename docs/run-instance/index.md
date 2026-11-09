@@ -17,13 +17,13 @@ long as you don't change basic things like configuration). You find links to inf
 right columns.
 
 But before you start operating your own openrouteservice in the technical way of your choice, please read the
-documentation regarding [System Requirements](system-requirements) and [Data](data)!
+documentation regarding [System Requirements](./system-requirements) and [Data](./data)!
 
-| Artifact                               | Download                                                                | or build yourself                                        | Run                                                                 | Configure                                                  | Trouble shoot                                                    | 
-|----------------------------------------|-------------------------------------------------------------------------|----------------------------------------------------------|---------------------------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------------|
-| [JAR](running-jar.md)                  | [Download JAR](running-jar.md#download)                                 | [Build JAR](building-from-source.md#build-jar)           | [Run JAR](running-jar.md#run)                                       | [Configure JAR](running-jar.md#configure)                  | [Troubleshoot JAR](running-jar.md#troubleshoot)                  | 
-| [Docker Image](running-with-docker.md) | [Download Docker Image](running-with-docker.md#running-prebuilt-images) | [Build Docker Image](running-with-docker.md#build-image) | [Run Docker Image](running-with-docker.md#running-prebuilt-images)  | [Configure Docker Image](running-with-docker.md#configure) | [Troubleshoot Docker Image](running-with-docker.md#troubleshoot) | 
-| [Source code](building-from-source.md) | [Download source code](building-from-source.md#download-source-code)    |                                                          | [Run source code](building-from-source.md#run-source-code-directly) | [Configure](building-from-source.md#configure)             |                                                                  | 
+| Artifact                                 | Download                                                                  | or build yourself                                          | Run                                                                   | Configure                                                    | Trouble shoot                                                      | 
+|------------------------------------------|---------------------------------------------------------------------------|------------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------|--------------------------------------------------------------------|
+| [JAR](./running-jar.md)                  | [Download JAR](./running-jar.md#download)                                 | [Build JAR](./building-from-source.md#build-jar)           | [Run JAR](./running-jar.md#run)                                       | [Configure JAR](./running-jar.md#configure)                  | [Troubleshoot JAR](./running-jar.md#troubleshoot)                  | 
+| [Docker Image](./running-with-docker.md) | [Download Docker Image](./running-with-docker.md#running-prebuilt-images) | [Build Docker Image](./running-with-docker.md#build-image) | [Run Docker Image](./running-with-docker.md#running-prebuilt-images)  | [Configure Docker Image](./running-with-docker.md#configure) | [Troubleshoot Docker Image](./running-with-docker.md#troubleshoot) | 
+| [Source code](./building-from-source.md) | [Download source code](./building-from-source.md#download-source-code)    |                                                            | [Run source code](./building-from-source.md#run-source-code-directly) | [Configure](./building-from-source.md#configure)             |                                                                    | 
 
 ::: tip
 We recommend to use the docker option for simplicity, or plain JAR if you do not want to install Docker.
@@ -31,7 +31,7 @@ We recommend to use the docker option for simplicity, or plain JAR if you do not
 
 ## Checking
 
-By default, the service status can be queried via the [health endpoint](/api-reference/endpoints/health/index.md).
+By default, the service status can be queried via the [health endpoint](../api-reference/endpoints/health/index.md).
 
 ```shell 
 curl 'http://localhost:8080/ors/v2/health'
@@ -39,7 +39,7 @@ curl 'http://localhost:8080/ors/v2/health'
 # {"status":"ready"}
 ```
 
-When the service is ready, you will be able to request the [status endpoint](/api-reference/endpoints/status/index.md)
+When the service is ready, you will be able to request the [status endpoint](../api-reference/endpoints/status/index.md)
 for further information on the running services.
 
 ```shell 

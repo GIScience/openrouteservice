@@ -74,7 +74,6 @@ class HttpRepoManagerTest {
     static class OrsGraphHelper {
         ORSGraphFileManager orsGraphFileManager;
         ORSGraphRepoClient orsGraphRepoClient;
-
     }
 
     private OrsGraphHelper setupOrsGraphHelper(GraphManagementRuntimeProperties graphManagementRuntimeProperties, Long timeVariable) {
@@ -103,7 +102,7 @@ class HttpRepoManagerTest {
     }
 
     private void setupActiveGraphDirectory(Long osmDateLocal, ORSGraphFileManager orsGraphFileManager) {
-        saveActiveGraphBuildInfoFile(orsGraphFileManager.getActiveGraphBuildInfoFile(), osmDateLocal, null);
+        saveActiveGraphBuildInfoFile(orsGraphFileManager.getActiveGraphBuildInfoFile(), osmDateLocal, null, REPO_GRAPHS_VERSION);
     }
 
     private static void printFileContent(String label, File file) throws IOException {
@@ -121,8 +120,11 @@ class HttpRepoManagerTest {
 
     @Test
     void concatenateToUrl() {
+        OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_NONEXISTING_GRAPHS_VERSION).build(), EARLIER_DATE);
+        orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
+
         assertEquals("https://my.domain.com/repo/group1/germany/0/graph.ghz",
-                HttpGraphRepoClient.concatenateToUrlPath("https://my.domain.com", "repo", "/group1", "/germany/", "0", "./", "graph.ghz/"));
+                ((HttpGraphRepoClient) orsGraphHelper.getOrsGraphRepoClient()).concatenateToUrlPath("https://my.domain.com", "repo", "/group1", "/germany/", "0", "./", "graph.ghz/"));
     }
 
     @Test

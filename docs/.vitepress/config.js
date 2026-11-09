@@ -294,7 +294,8 @@ export default withMermaid(defineVersionedConfig({
                                 {text: 'API Benchmarks', link: '/technical-details/api-benchmarks'}
                             ]
                         },
-                        {text: 'FAQ', link: '/frequently-asked-questions'}
+                        {text: 'FAQ', link: '/frequently-asked-questions'},
+                        {text: 'Hosted API Restrictions', link: '/hosted-api-restrictions'}
                     ]
                 }
             ],

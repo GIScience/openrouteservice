@@ -25,9 +25,9 @@ You will create two rectangular grids covering the same extent as your country l
     * Horizontal/Vertical spacing: **1 degree**
     * Grid: *cell grid*
 
-![grid_africa_grid](../../public/grid_africa_grid.png)
+![grid_africa_grid](/public/grid_africa_grid.png)
 
-![grid_africa_hierarchy](../../public/grid_africa_hierarchy.png)
+![grid_africa_hierarchy](/public/grid_africa_hierarchy.png)
 
 ## Step 3: Assign Hierarchy IDs
 
@@ -52,7 +52,7 @@ Join the two grids so that each 1° cell knows which 10° cell it belongs to.
 
     * The output will be a grid clipped by country borders (some cells remain square, others follow borders).
 
-![grid_africa_clip](../../public/grid_africa_clip.png)
+![grid_africa_clip](/public/grid_africa_clip.png)
 
 ## Step 5: Combine Country Names and Grid Attributes
 
@@ -64,7 +64,7 @@ Join the two grids so that each 1° cell knows which 10° cell it belongs to.
     * This step combines country names with hierarchy and cell IDs.
     * It may take some time depending on your dataset size.
 
-![grid_africa_join.png](../../public/grid_africa_join.png)
+![grid_africa_join.png](/public/grid_africa_join.png)
 
 The attribute table should now look like this:
 
@@ -96,4 +96,4 @@ This GeoJSON file can now be used within openrouteservice or related workflows.
 
 By selecting and merging inner country cells, you can reduce the number of features in the final GeoJSON file.
 
-![grid_africa_manual_merge.png](../../public/grid_africa_manual_merge.png)
+![grid_africa_manual_merge.png](/public/grid_africa_manual_merge.png)

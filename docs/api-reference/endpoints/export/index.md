@@ -236,7 +236,7 @@ and visualized with various tools including [QGIS](https://qgis.org) or [geojson
 ![Development server usage](/topojson_qgis.png "Export result in QGIS"){ style="display: block; margin: 0 auto"}
 
 To fully utilise this feature, your instance of openrouteservice needs to be configured so that the
-`OsmId` [external storage feature](/run-instance/configuration/engine/profiles/build#ext-storages) is enabled for the
+`OsmId` [external storage feature](../../../run-instance/configuration/engine/profiles/build#ext-storages) is enabled for the
 profile.
 
 This is an example request for a TopoJSON graph for the profile `driving-car`:

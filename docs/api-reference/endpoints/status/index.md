@@ -14,13 +14,13 @@ The GET request http://localhost:8082/ors/v2/status (host and port are dependent
       be configured. Graphs with the same `graph_version` are compatible, e.g. openrouteservice version Y can load
       graphs that were built with an older version X, if both versions have the same `graph_version`. The parameter is
       also used to find a graph in a graph repository,
-      if [graph management](/run-instance/configuration/engine/graph-management.md) is enabled.
+      if [graph management](../../../run-instance/configuration/engine/graph-management.md) is enabled.
 * `profiles`: Available (enabled) routing profiles.
   The profile names correspond to the keys in the configuration beneath `ors.engine.profiles`.   
   The profile names are used as path parameters in API requests and as directory names for the graph directories.
   Some basic information is shown for each profile:
     * `encoder_name`: The vehicle type
-    * `encoded_values`: The list of available encoded values that can be used in [custom models](/api-reference/endpoints/directions/custom-models)
+    * `encoded_values`: The list of available encoded values that can be used in [custom models](../directions/custom-models)
     * `osm_date`: Timestamp of the osm pbf file that was used for building the graph. This is usually the date of the
       latest included change.
     * `graph_build_date`: The date, when graph building was started for this routing profile.

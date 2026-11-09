@@ -1,0 +1,25 @@
+# user's ors-config.yml
+ors:
+  engine:
+    profile_default:
+      service:
+        maximum_distance: 300000
+        # maximum_waypoints:
+        maximum_snapping_radius: 300
+    profiles:
+      driving-car:
+        service:
+          maximum_distance: 400000
+          # maximum_waypoints:
+          # maximum_snapping_radius:
+      driving-hgv:
+        service:
+          # maximum_distance:
+          maximum_waypoints: 40
+          # maximum_snapping_radius:
+      foot-walking:
+        service:
+          # maximum_distance:
+          # maximum_waypoints:
+          maximum_snapping_radius: 400
+

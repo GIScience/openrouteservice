@@ -6,7 +6,7 @@ Since version 8, openrouteservice can be built as a fat JAR file that contains a
 
 * [java](https://www.java.com/en/) 17 (or higher) should be available, preferably as default Java environment.
 
-To run openrouteservice, you also need an OSM data file, e.g. from [Geofabrik](http://download.geofabrik.de). For more details, see chapter [Data](data.md).
+To run openrouteservice, you also need an OSM data file, e.g. from [Geofabrik](http://download.geofabrik.de). For more details, see chapter [Data](./data.md).
 
 ## Download
 
@@ -14,7 +14,7 @@ Starting with version 8 you can download the ready to use JAR file from the "Ass
 
 ## Build
 
-How this is done is independent of the artifact type you want to use and is documented in [Building from Source](building-from-source.md).
+How this is done is independent of the artifact type you want to use and is documented in [Building from Source](./building-from-source.md).
 
 ## Run
 
@@ -32,12 +32,12 @@ The recommended way to configure an openrouteservice instance run plain using th
 wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/ors-config.yml
 ```
 
-For details on how to make openrouteservice apply the settings in the configuration file (there are multiple options) see chapter [Configuration](configuration/index.md).
+For details on how to make openrouteservice apply the settings in the configuration file (there are multiple options) see chapter [Configuration](./configuration/index.md).
 
 ## Troubleshooting
 
 The place where the log files are written is defined by the configuration property `logging.file.name`.
-In the [logging documentation](configuration/spring/logging.md) you find more logging options like setting log level etc.
+In the [logging documentation](./configuration/spring/logging.md) you find more logging options like setting log level etc.
 
 The openrouteservice startup log looks similar to this:
 ```shell

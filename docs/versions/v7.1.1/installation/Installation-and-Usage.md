@@ -10,14 +10,14 @@ docker compose up
 ```
 
 This will pull the latest release version of openrouteservice from dockerhub and start it up using an example setup and the provided test OSM file. 
-You can also modify the configuration and source file settings to match your needs. For more details, check the [Running with Docker](Running-with-Docker)-Section. 
-More explanation about customization can be found in the [Advanced Docker Setup](Advanced-Docker-Setup)
+You can also modify the configuration and source file settings to match your needs. For more details, check the [Running with Docker](./Running-with-Docker)-Section. 
+More explanation about customization can be found in the [Advanced Docker Setup](./Advanced-Docker-Setup)
 
 ## Other Resources 
 
-* [Building from Source](Building-from-Source)
-* [System requirements](System-Requirements)
-* [Configuration](Configuration)
+* [Building from Source](./Building-from-Source)
+* [System requirements](./System-Requirements)
+* [Configuration](./Configuration)
 
 ## Usage
 Openrouteservice offers a set of endpoints for different spatial purposes. They are served with the help of [Tomcat in a java servlet container](https://github.com/GIScience/openrouteservice/blob/master/ors-api/WebContent/WEB-INF/web.xml). By default you will be able to query the services with these addresses:

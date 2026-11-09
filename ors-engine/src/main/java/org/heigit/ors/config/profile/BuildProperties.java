@@ -5,13 +5,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.heigit.ors.routing.graphhopper.extensions.util.parsers.wheelchair.WheelchairKerbHeightParser;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.Optional.ofNullable;
 
+/**
+ * /!\ Attention:
+ *     Changes in this class are likely to require
+ *     an increment of the graphVersion (top level pom.xml)
+ */
 @Getter
 @Setter
 public class BuildProperties {
@@ -98,6 +105,7 @@ public class BuildProperties {
         if (extStorages == null) {
             return;
         }
+
         for (Map.Entry<String, ExtendedStorageProperties> entry : extStorages.entrySet()) {
             String key = entry.getKey();
             ExtendedStorageProperties storage = entry.getValue();
@@ -105,6 +113,7 @@ public class BuildProperties {
                 continue;
             }
             ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
+
             switch (extendedStorageName) {
                 case HEAVY_VEHICLE -> handleHeavyVehicle(storage);
                 case OSM_ID -> handleOsmId();
@@ -114,6 +123,8 @@ public class BuildProperties {
                 case TOLLWAYS -> handleTollways();
                 case HILL_INDEX -> handleHillIndex();
                 case TRAIL_DIFFICULTY -> handleTrailDifficulty();
+                case BORDERS -> handleBorder();
+                case WHEELCHAIR -> handleWheelchair(storage);
                 default -> {
                     storage.initialize(extendedStorageName);
                     this.extStorages.put(key, storage);
@@ -229,6 +240,47 @@ public class BuildProperties {
         }
     }
 
+    private void handleWheelchair(ExtendedStorageProperties storage) {
+        WheelchairKerbHeightParser.setKerbHeightOnlyOnCrossing(Objects.requireNonNullElse(storage.getKerbsOnCrossings(), true));
+
+        if (encodedValues.getWheelchairSurface() == null) {
+            encodedValues.setWheelchairSurface(true);
+        }
+        if (encodedValues.getWheelchairSmoothness() == null) {
+            encodedValues.setWheelchairSmoothness(true);
+        }
+        if (encodedValues.getWheelchairTrackType() == null) {
+            encodedValues.setWheelchairTrackType(true);
+        }
+        if (encodedValues.getWheelchairIncline() == null) {
+            encodedValues.setWheelchairIncline(true);
+        }
+        if (encodedValues.getWheelchairWidth() == null) {
+            encodedValues.setWheelchairWidth(true);
+        }
+        if (encodedValues.getWheelchairKerb() == null) {
+            encodedValues.setWheelchairKerb(true);
+        }
+        if (encodedValues.getWheelchairSuitable() == null) {
+            encodedValues.setWheelchairSuitable(true);
+        }
+        if (encodedValues.getWheelchairSide() == null) {
+            encodedValues.setWheelchairSide(true);
+        }
+        if (encodedValues.getWheelchairSurfaceQualityKnown() == null) {
+            encodedValues.setWheelchairSurfaceQualityKnown(true);
+        }
+    }
+
+    private void handleBorder() {
+        if (encodedValues.getCountry() == null) {
+            encodedValues.setCountry(true);
+        }
+        if (encodedValues.getBorder() == null) {
+            encodedValues.setBorder(true);
+        }
+    }
+
     @JsonIgnore
     public String getEncoderOptionsString() {
         if (encoderOptions == null) return "";
@@ -237,6 +289,6 @@ public class BuildProperties {
 
     @JsonIgnore
     public String getEncodedValuesString() {
-        return encodedValues == null ? "" : encodedValues.toString();
+        return encodedValues == null ? "" : encodedValues.toEncodedValuesString();
     }
 }

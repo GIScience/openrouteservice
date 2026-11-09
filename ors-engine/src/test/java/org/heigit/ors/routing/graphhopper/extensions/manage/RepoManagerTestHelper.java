@@ -49,23 +49,33 @@ public class RepoManagerTestHelper {
         return localGraphsRootPath;
     }
 
-    public static Path createLocalGraphDirectory(Path localGraphsRootPath, String name) throws IOException {
-        Path localGraphDir = localGraphsRootPath.resolve(name);
+    public static Path createLocalGraphDirectory(Path localGraphsRootPath, String localProfileName) throws IOException {
+        Path localGraphDir = localGraphsRootPath.resolve(localProfileName);
         Files.createDirectories(localGraphDir);
         return localGraphDir;
     }
 
-    public static Path createLocalGraphDirectoryWithGraphBuildInfoFile(Path localGraphsRootPath, String name, String infoFileName, Long importDate, Long osmDate) throws IOException {
-        Path localGraphDir = createLocalGraphDirectory(localGraphsRootPath, name);
+    public static Path createLocalGraphDirectoryWithGraphBuildInfoFile(
+            Path localGraphsRootPath,
+            String dirName,
+            String infoFileName,
+            Long importDate,
+            Long osmDate,
+            String graphVersion) throws IOException {
+
+        Path localGraphDir = createLocalGraphDirectory(localGraphsRootPath, dirName);
         saveActiveGraphBuildInfoFile(
                 localGraphDir.resolve(infoFileName).toFile(),
                 Optional.ofNullable(importDate).orElse(LATER_DATE),
-                Optional.ofNullable(osmDate).orElse(EARLIER_DATE));
+                Optional.ofNullable(osmDate).orElse(EARLIER_DATE),
+                Optional.ofNullable(graphVersion).orElse(REPO_GRAPHS_VERSION)
+        );
         return localGraphDir;
     }
 
-    public static void saveActiveGraphBuildInfoFile(File activeGraphBuildInfoFile, Long graphBuildDate, Long osmDate) {
+    public static void saveActiveGraphBuildInfoFile(File activeGraphBuildInfoFile, Long graphBuildDate, Long osmDate, String graphVersion) {
         PersistedGraphBuildInfo activeGraphBuildInfoObject = new PersistedGraphBuildInfo();
+        activeGraphBuildInfoObject.setGraphVersion(graphVersion);
         if (graphBuildDate != null) activeGraphBuildInfoObject.setGraphBuildDate(new Date(graphBuildDate));
         if (osmDate != null) activeGraphBuildInfoObject.setOsmDate(new Date(osmDate));
         activeGraphBuildInfoObject.setProfileProperties(new ProfileProperties());
@@ -78,12 +88,12 @@ public class RepoManagerTestHelper {
 
     public static GraphManagementRuntimeProperties.Builder createGraphManagementRuntimePropertiesBuilder(
             Path localGraphsRootPath,
-            String profileName,
+            String localProfileName,
             String encoderName
     ) {
         return GraphManagementRuntimeProperties.Builder.empty()
                 .withLocalGraphsRootAbsPath(localGraphsRootPath.toString())
-                .withLocalProfileName(profileName)
+                .withLocalProfileName(localProfileName)
                 .withEncoderName(encoderName)
                 .withRepoBaseUri(TESTREPO_PATH)
                 .withRepoName(REPO_GRAPHS_REPO_NAME)

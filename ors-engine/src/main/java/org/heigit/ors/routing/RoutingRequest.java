@@ -424,8 +424,8 @@ public class RoutingRequest extends ServiceRequest {
     }
 
     private GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
-                                    double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile)
-            throws Exception {
+                                   double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile)
+            throws InternalServerException {
 
         GHResponse resp;
 
@@ -560,7 +560,7 @@ public class RoutingRequest extends ServiceRequest {
     }
 
     private GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing
-            bearing, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile) throws Exception {
+            bearing, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile) throws InternalServerException {
         GHResponse resp;
 
         try {
@@ -593,6 +593,10 @@ public class RoutingRequest extends ServiceRequest {
 
             if (props != null && !props.isEmpty())
                 req.getHints().putAll(props);
+
+            if (searchParams.getCustomModel() != null) {
+                req.setCustomModel(searchParams.getCustomModel());
+            }
 
             if (TemporaryUtilShelter.supportWeightingMethod(profileType))
                 ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, false);

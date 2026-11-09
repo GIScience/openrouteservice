@@ -180,7 +180,7 @@ By specifying additional properties, one can restrict the snapping to certain ty
 In case no valid edges of the specified type are found within the search radius, an empty array is returned for that feature.
 
 :::warning HINT
-The search radius can be configured in the service configuration file, see [`maximum_search_radius`](/run-instance/configuration/endpoints/matching.md).
+The search radius can be configured in the service configuration file, see [`maximum_search_radius`](../../../run-instance/configuration/endpoints/matching.md).
 :::
 
 ```shell

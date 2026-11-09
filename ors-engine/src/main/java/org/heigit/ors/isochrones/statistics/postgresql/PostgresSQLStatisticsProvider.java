@@ -82,17 +82,17 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
 
         HikariConfig config = new HikariConfig();
         String port = "5432";
-        if (parameters.containsKey("port"))
+        if (parameters.get("port") != null)
             port = Integer.toString((Integer) parameters.get("port"));
         config.setJdbcUrl("jdbc:postgresql://%s:%s/%s".formatted(parameters.get("host"), port, parameters.get("db_name")));
         config.setDataSourceClassName(PGSimpleDataSource.class.getName());
         config.addDataSourceProperty("databaseName", parameters.get("db_name"));
         config.addDataSourceProperty("user", parameters.get("user"));
-        if (parameters.containsKey(PARAM_KEY_PASS))
+        if (parameters.get(PARAM_KEY_PASS) != null)
             config.addDataSourceProperty(PARAM_KEY_PASS, parameters.get(PARAM_KEY_PASS));
         config.addDataSourceProperty("serverName", parameters.get("host"));
-        config.addDataSourceProperty("portNumber", parameters.get("port"));
-        if (parameters.containsKey("max_pool_size"))
+        config.addDataSourceProperty("portNumber", port);
+        if (parameters.get("max_pool_size") != null)
             config.setMaximumPoolSize((Integer) parameters.get("max_pool_size"));
         config.setMinimumIdle(1);
         config.setConnectionTestQuery("SELECT 1");

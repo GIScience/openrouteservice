@@ -49,6 +49,7 @@ public class GraphService {
     public void checkForUpdatesInRepo() {
 
         if (Boolean.FALSE.equals(enabled)) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.debug("Graph management is disabled, skipping scheduled repository check...");
             return;
         }
@@ -56,7 +57,7 @@ public class GraphService {
             LOGGER.debug("GraphService is currently activating new graphs, skipping scheduled repository check...");
             return;
         }
-
+        //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
         LOGGER.debug("Scheduled repository check...");
 
         if (graphActivationAttemptWasBlocked.get()) {
@@ -72,11 +73,12 @@ public class GraphService {
             if (orsGraphManager.isBusy()) {
                 LOGGER.info("[%s] Scheduled repository check: Download or extraction in progress".formatted(orsGraphManager.getQualifiedProfileName()));
             } else {
+                //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
                 LOGGER.info("[%s] Scheduled repository check: Checking for update.".formatted(orsGraphManager.getQualifiedProfileName()));
                 orsGraphManager.downloadAndExtractLatestGraphIfNecessary();
             }
         }
-
+        //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
         LOGGER.debug("Scheduled repository check done");
     }
 
@@ -95,7 +97,7 @@ public class GraphService {
             LOGGER.debug("Graph activation is in progress, skipping %s scheduled activation check...".formatted(trigger.toLowerCase()));
             return;
         }
-
+        //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
         LOGGER.debug("%s graph activation check...".formatted(trigger));
 
         // Even if graph activation is locked: Do the checks to start repeatedActivationAttempts.
@@ -114,22 +116,25 @@ public class GraphService {
         }
 
         if (!graphActivationNeeded) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("%s graph activation check done: No downloaded graphs found, no graph activation required.".formatted(trigger));
             return;
         }
         if (!graphActivationAllowed) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("%s graph activation check done: Activation currently not allowed, retrying every minute...".formatted(trigger));
             graphActivationAttemptWasBlocked.set(true);
             return;
         }
         if (isActivationLocked()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.warn("%s graph activation check done: File %s found - remove lock file manually! Retrying every minute...".formatted(
                     trigger,
                     ORSGraphManager.ACTIVATION_LOCKFILE_NAME));
             graphActivationAttemptWasBlocked.set(true);
             return;
         }
-
+        //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
         LOGGER.info("%s graph activation check done: Performing graph activation...".formatted(trigger));
         activateGraphs();
     }
@@ -149,6 +154,7 @@ public class GraphService {
 
     private void logDownloadedExtractedGraphAvailable(ORSGraphManager orsGraphManager, String trigger) {
         if (!graphActivationAttemptWasBlocked.get()) {
+            //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
             LOGGER.info("[%s] %s graph activation check: Downloaded extracted graph available".formatted(
                     orsGraphManager.getQualifiedProfileName(),
                     trigger));

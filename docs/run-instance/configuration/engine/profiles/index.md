@@ -38,7 +38,7 @@ The default profiles can be used just by enabling them,
 e.g. `ors.engine.profiles.driving-car.enabled=true`.
 Setting `encoder_name` is obviously not necessary for a default profile.
 You can further customize such a profile by overriding the
-[internal defaults](/run-instance/configuration/how-to-configure.md#internal-defaults).
+[internal defaults](../../how-to-configure.md#internal-defaults).
 
 The `ors.engine.profile_default` object is used to define default values for _all profiles_.
 It takes the same properties as the `profiles` object,
@@ -48,16 +48,16 @@ but be aware, that also all default profiles will be enabled with this setting.
 
 ::: warning
 The predefined default profiles' settings override settings that you specify in the `ors.engine.profile_default`!
-See [Defining Defaults for all Routing Profiles](/run-instance/configuration/how-to-configure.md#defining-defaults-for-all-routing-profiles)
+See [Defining Defaults for all Routing Profiles](../../how-to-configure.md#defining-defaults-for-all-routing-profiles)
 for details.
 To avoid this, use a custom name to define your profile.
 :::
 
-| key          | type    | description                                                                                                                                                                   | default value |
-|--------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| enabled      | boolean | Enables or disables the profile across openrouteservice endpoints                                                                                                             | `false`       |
-| encoder_name | string  | Encoder name used for this profile. Possible values are restricted to those in the table above!                                                                               | _NA_          |
-| graph_path   | string  | The root path to a directory for storing graphs. Defaults to `graphs`. For each profile a subdirectory with the same name as the profile name is created                      | `graphs`      |
-| build        | object  | Parameters for the [graph building phase](build.md)                                                                                                                           |               |
-| repo         | object  | Parameters regarding [graph repository reference](repo.md) used to download pre-calculated graphs with the [graph repo client](/technical-details/graph-repo-client/index.md) |               |
-| service      | object  | Parameters required when running the [service](service.md) that are specific to each profile                                                                                  |               |
+| key          | type    | description                                                                                                                                                                                | default value |
+|--------------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| enabled      | boolean | Enables or disables the profile across openrouteservice endpoints                                                                                                                          | `false`       |
+| encoder_name | string  | Encoder name used for this profile. Possible values are restricted to those in the table above!                                                                                            | _NA_          |
+| graph_path   | string  | The root path to a directory for storing graphs. Defaults to `graphs`. For each profile a subdirectory with the same name as the profile name is created                                   | `graphs`      |
+| build        | object  | Parameters for the [graph building phase](./build.md)                                                                                                                                      |               |
+| repo         | object  | Parameters regarding [graph repository reference](./repo.md) used to download pre-calculated graphs with the [graph repo client](../../../../technical-details/graph-repo-client/index.md) |               |
+| service      | object  | Parameters required when running the [service](./service.md) that are specific to each profile                                                                                             |               |

@@ -90,6 +90,7 @@ public class EngineService implements ServletContextListener {
                 ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
                 if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
                     if (LOGGER.isDebugEnabled()) {
+                        //Log message is asserted in GraphRepoTest/TestContainersHelper - change with care!
                         LOGGER.debug("[%s] Adding orsGraphManager for profile %s with encoder %s to GraphService".formatted(orsGraphManager.getQualifiedProfileName(), orsGraphManager.getQualifiedProfileName(), profile.getProfileConfiguration().getEncoderName()));
                     }
                     graphService.addGraphManagerInstance(orsGraphManager);

@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
+import static org.heigit.ors.routing.graphhopper.extensions.util.EncodedValues.hasCountryBorders;
 
 public class ExtraInfoProcessor implements PathProcessor {
     private GreenIndexGraphStorage extGreenIndex;
@@ -50,7 +51,6 @@ public class ExtraInfoProcessor implements PathProcessor {
     private IntEncodedValue mtbScaleEnc;
     private IntEncodedValue mtbScaleUphillEnc;
     private IntEncodedValue hillIndexEnc;
-    private BordersGraphStorage extCountryTraversalInfo;
     private CsvGraphStorage extCsvData;
     private ShadowIndexGraphStorage extShadowIndex;
 
@@ -110,6 +110,7 @@ public class ExtraInfoProcessor implements PathProcessor {
     private String skippedExtraInfo = "";
 
     private CountryBordersReader countryBordersReader;
+    private final int baseNodes;
 
     ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) {
         this(opts, graphHopperStorage, enc);
@@ -118,6 +119,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 
     ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) {
         encoder = enc;
+        baseNodes = graphHopperStorage.getNodes();
         encoderWithPriority = encoder.supports(PriorityWeighting.class);
         List<String> skippedExtras = new ArrayList<>();
 
@@ -270,9 +272,8 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.COUNTRY_INFO)) {
-                extCountryTraversalInfo = GraphStorageUtils.getGraphExtension(graphHopperStorage, BordersGraphStorage.class);
-                if (extCountryTraversalInfo != null) {
-                    countryTraversalInfo = new RouteExtraInfo("countryinfo", extCountryTraversalInfo);
+                if (hasCountryBorders(encoder)) {
+                    countryTraversalInfo = new RouteExtraInfo("countryinfo");
                     countryTraversalInfoBuilder = new AppendableRouteExtraInfoBuilder(countryTraversalInfo);
                 } else {
                     skippedExtras.add("countryinfo");
@@ -414,22 +415,18 @@ public class ExtraInfoProcessor implements PathProcessor {
     public void processPathEdge(EdgeIteratorState edge, PointList geom) {
         double dist = edge.getDistance();
 
-        // TODO Add extra info for crossed countries
-        if (extCountryTraversalInfo != null && countryBordersReader != null) {
-            short country1 = extCountryTraversalInfo.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), BordersGraphStorage.Property.START);
-            short country2 = extCountryTraversalInfo.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), BordersGraphStorage.Property.END);
-            // This check will correct the countries of an edge if the starting coordinate of the route lies in a different country than the start of the edge.
-            if (country1 != country2 && geom.size() > 0) {
-                Coordinate coordinate = new Coordinate();
-                coordinate.x = geom.getLon(0);
-                coordinate.y = geom.getLat(0);
-                CountryBordersPolygon[] countries = countryBordersReader.getCountry(coordinate);
+        if (countryTraversalInfoBuilder != null) {
+            Border border = encoder.getEnumEncodedValue(Border.KEY, Border.class).getEnum(false, edge.getFlags());
+            Country country = encoder.getEnumEncodedValue(Country.KEY, Country.class).getEnum(false, edge.getFlags());
+            int countryId = country == null ? 0 : CountryBordersReader.getCountryIdByISOCode(country.name());
+            if (border != Border.NONE && isVirtualNode(edge.getBaseNode()) && countryBordersReader != null) {
+                CountryBordersPolygon[] countries = countryBordersReader.getCountry(new Coordinate(geom.getLon(0), geom.getLat(0)));
                 if (countries.length >= 1) {
-                    country1 = Short.parseShort(countryBordersReader.getId(countryBordersReader.getCountry(coordinate)[0].getName()));
+                    countryId = Short.parseShort(countryBordersReader.getId(countries[0].getName()));
                 }
             }
-            if (countryTraversalInfoBuilder != null && country1 != 0) {
-                countryTraversalInfoBuilder.addSegment(country1, country1, geom, dist);
+            if (countryId != 0) {
+                countryTraversalInfoBuilder.addSegment(countryId, countryId, geom, dist);
             }
         }
 
@@ -566,5 +563,9 @@ public class ExtraInfoProcessor implements PathProcessor {
 
     public String getSkippedExtraInfo() {
         return skippedExtraInfo;
+    }
+
+    public boolean isVirtualNode(int nodeId) {
+        return nodeId >= baseNodes;
     }
 }

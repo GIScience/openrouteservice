@@ -1,6 +1,6 @@
 # Contributing
 * [Contributing Code](https://github.com/GIScience/openrouteservice/blob/master/CONTRIBUTE.md)
-* [Contributing Translations](Contributing-Translations)
+* [Contributing Translations](./Contributing-Translations)
 * [Updating OpenStreetMap](https://wiki.openstreetmap.org/wiki/Beginners%27_guide)
 
 When people contribute to openrouteservice, it makes [the whole

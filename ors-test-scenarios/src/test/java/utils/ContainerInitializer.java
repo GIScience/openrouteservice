@@ -115,6 +115,8 @@ public abstract class ContainerInitializer {
                 .withFileFromPath("ors-report-aggregation/pom.xml", rootPath.resolve("ors-report-aggregation/pom.xml"))
                 .withFileFromPath("ors-test-scenarios/pom.xml", rootPath.resolve("ors-test-scenarios/pom.xml"))
                 .withFileFromPath("ors-benchmark/pom.xml", rootPath.resolve("ors-benchmark/pom.xml"))
+                .withFileFromPath("mvnw", rootPath.resolve("mvnw"))
+                .withFileFromPath(".mvn/wrapper/maven-wrapper.properties", rootPath.resolve(".mvn/wrapper/maven-wrapper.properties"))
                 .withFileFromPath("ors-engine/src/main", rootPath.resolve("ors-engine/src/main"))
                 .withFileFromPath("ors-api/src/main", rootPath.resolve("ors-api/src/main"))
                 .withFileFromPath("ors-api/src/test/files/heidelberg.test.pbf", rootPath.resolve("ors-api/src/test/files/heidelberg.test.pbf"))
@@ -147,6 +149,8 @@ public abstract class ContainerInitializer {
      * @param usePreBuildGraph   Whether to use a pre-built graph. If true graphMountSubPath is ignored and set to the hostSharedGraphPath.
      * @return The initialized container.
      */
+    // The caller closes the container; the with* chain hides that from the compiler's resource analysis.
+    @SuppressWarnings("resource")
     public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubPath, Boolean usePreBuildGraph, Duration startupTimeout) {
         if (containerTestImage == null) {
             throw new IllegalArgumentException("containerTestImage must not be null");
