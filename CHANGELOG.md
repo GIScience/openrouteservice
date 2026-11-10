@@ -37,6 +37,8 @@ Releasing is documented in RELEASE.md
 
 ### Fixed
 
+- avoid null-pointer exceptions in way distance calculations for incomplete regional extracts ([#2473](https://github.com/GIScience/openrouteservice/issues/2473))
+
 ### Security
 
 
