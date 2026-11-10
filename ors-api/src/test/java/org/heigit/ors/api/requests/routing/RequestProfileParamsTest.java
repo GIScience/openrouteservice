@@ -40,4 +40,21 @@ class RequestProfileParamsTest {
         assertEquals(restrictions, params.getRestrictions());
         assertTrue(params.hasRestrictions());
     }
+
+    @Test
+    void testRestPenalty() {
+        assertFalse(params.hasRestPenalty());
+
+        params.setRestPenalty(1.5);
+
+        assertEquals(1.5, params.getRestPenalty());
+        assertTrue(params.hasRestPenalty());
+    }
+
+    @Test
+    void testRestPenaltyNullCountsAsNotSet() {
+        params.setRestPenalty(null);
+
+        assertFalse(params.hasRestPenalty());
+    }
 }

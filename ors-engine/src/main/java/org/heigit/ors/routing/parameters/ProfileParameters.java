@@ -26,6 +26,9 @@ public class ProfileParameters {
     @Getter
     @Setter
     protected int restThreshold = Integer.MAX_VALUE;
+    @Getter
+    @Setter
+    protected Double restPenalty;
 
     public void add(ProfileWeighting weighting) {
         if (weightings == null)
@@ -47,5 +50,9 @@ public class ProfileParameters {
 
     public boolean hasRestThreshold() {
         return restThreshold != Integer.MAX_VALUE;
+    }
+
+    public boolean hasRestPenalty() {
+        return restPenalty != null;
     }
 }

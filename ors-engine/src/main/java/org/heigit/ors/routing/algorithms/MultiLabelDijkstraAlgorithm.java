@@ -14,6 +14,7 @@ import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.parameters.RestParameters;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,12 +36,22 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     private final DecimalEncodedValue restEnc;
 
     public MultiLabelDijkstraAlgorithm(Graph graph, Weighting weighting, DecimalEncodedValue restEnc, TraversalMode tMode, double restThreshold, double penalty) {
+        checkRestArguments(restEnc, restThreshold, penalty);
         super(graph, weighting, tMode);
         this.restEnc = restEnc;
         queue = new PriorityQueue<>(INITIAL_CAPACITY);
         this.restThreshold = restThreshold;
         this.penalty = penalty;
         LOGGER.debug("MultiLabelDijkstraAlgorithm initialized with graph size: " + graph.getNodes() + ", weighting: " + weighting.getName() + ", traversal mode: " + tMode + ", rest threshold: " + restThreshold + ", penalty: " + penalty);
+    }
+
+    private static void checkRestArguments(DecimalEncodedValue restEnc, double restThreshold, double penalty) {
+        if (restEnc == null)
+            throw new IllegalArgumentException("Rest point routing needs the rest encoded value");
+        if (restThreshold <= 0)
+            throw new IllegalArgumentException("Rest threshold must be positive: " + restThreshold);
+        if (!RestParameters.isValidPenalty(penalty))
+            throw new IllegalArgumentException("Rest penalty must be a finite number of zero or more: " + penalty);
     }
 
     @Override

@@ -26,12 +26,15 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.PedestrianFlag
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MultiLabelDijkstraAlgorithmTest {
@@ -353,6 +356,30 @@ class MultiLabelDijkstraAlgorithmTest {
 
         markRestPoint(edge, 1);
         assertEquals(1, edge.get(restEncodedValue), EPSILON);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "0, 2",
+            "-1, 2",
+            "100, -1",
+            "100, NaN",
+            "100, Infinity"
+    })
+    @DisplayName("20. Invalid threshold or penalty values are rejected")
+    void rejectsInvalidThresholdOrPenalty(double threshold, double penalty) {
+        GraphHopperStorage graph = createGraph();
+
+        assertThrows(IllegalArgumentException.class, () -> createAlgorithm(graph, threshold, penalty));
+    }
+
+    @Test
+    @DisplayName("21. The rest encoded value is required")
+    void requiresRestEncodedValue() {
+        GraphHopperStorage graph = createGraph();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new InspectableAlgorithm(graph, weighting, null, 100, 2));
     }
 
     private void assertSingleEdgeWeight(

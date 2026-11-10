@@ -25,6 +25,7 @@ import com.graphhopper.routing.RoutingAlgorithmFactory;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
+import org.heigit.ors.routing.parameters.RestParameters;
 
 public class MultiLabelRoutingAlgorithmFactory implements RoutingAlgorithmFactory {
     private final DecimalEncodedValue restEnc;
@@ -35,7 +36,7 @@ public class MultiLabelRoutingAlgorithmFactory implements RoutingAlgorithmFactor
 
     @Override
     public RoutingAlgorithm createAlgo(Graph graph, Weighting weighting, AlgorithmOptions opts) {
-        AbstractRoutingAlgorithm algo = new MultiLabelDijkstraAlgorithm(graph, weighting, restEnc, opts.getTraversalMode(), opts.getHints().getDouble("rest_threshold", Integer.MAX_VALUE), opts.getHints().getDouble("rest_penalty", 2.0));
+        AbstractRoutingAlgorithm algo = new MultiLabelDijkstraAlgorithm(graph, weighting, restEnc, opts.getTraversalMode(), opts.getHints().getDouble(RestParameters.PARAM_REST_THRESHOLD, Integer.MAX_VALUE), opts.getHints().getDouble(RestParameters.PARAM_REST_PENALTY, RestParameters.DEFAULT_REST_PENALTY));
         algo.setMaxVisitedNodes(opts.getMaxVisitedNodes());
         return algo;
     }

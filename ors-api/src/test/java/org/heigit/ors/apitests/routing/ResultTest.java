@@ -5024,6 +5024,33 @@ class ResultTest extends ServiceTest {
                 .body("features[0].properties.summary.distance", is(closeTo(2109.8, 10)));
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "0, 2091.5",   // no penalty: the shortest route, as without rest_threshold
+            "2, 2109.8"    // the default penalty: the detour past the rest point
+    })
+    void testMultiLabelDijkstraRestPenalty(double restPenalty, double expectedDistance) {
+        JSONObject params = new JSONObject()
+                .put("rest_threshold", 500)
+                .put("rest_penalty", restPenalty);
+        JSONObject body = new JSONObject()
+                .put("coordinates", getParameter("coordinatesWalking"))
+                .put("preference", "shortest")
+                .put("options", new JSONObject().put("profile_params", params));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .statusCode(200)
+                .body("features[0].properties.summary.distance", is(closeTo(expectedDistance, 10)));
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");

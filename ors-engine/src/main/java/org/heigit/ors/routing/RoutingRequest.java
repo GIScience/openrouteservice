@@ -29,6 +29,7 @@ import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.parameters.ProfileParameters;
+import org.heigit.ors.routing.parameters.RestParameters;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.util.*;
 import org.locationtech.jts.geom.Coordinate;
@@ -423,6 +424,15 @@ public class RoutingRequest extends ServiceRequest {
         return ptRequest;
     }
 
+    private static void putRestHints(GHRequest req, RouteSearchParameters searchParams) {
+        if (!searchParams.hasParameters(ProfileParameters.class) || !searchParams.getProfileParameters().hasRestThreshold())
+            return;
+        ProfileParameters profileParameters = searchParams.getProfileParameters();
+        req.getHints().putObject(RestParameters.PARAM_REST_THRESHOLD, profileParameters.getRestThreshold());
+        req.getHints().putObject(RestParameters.PARAM_REST_PENALTY, profileParameters.hasRestPenalty()
+                ? profileParameters.getRestPenalty() : RestParameters.DEFAULT_REST_PENALTY);
+    }
+
     private GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
                                    double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile)
             throws InternalServerException {
@@ -535,9 +545,7 @@ public class RoutingRequest extends ServiceRequest {
                 req.getHints().putObject("maximum_speed_lower_bound", routingProfile.getProfileConfiguration().getBuild().getMaximumSpeedLowerBound());
             }
 
-            if (searchParams.hasParameters(ProfileParameters.class) && searchParams.getProfileParameters().hasRestThreshold()) {
-                req.getHints().putObject("rest_threshold", searchParams.getProfileParameters().getRestThreshold());
-            }
+            putRestHints(req, searchParams);
 
             if (directedSegment) {
                 resp = new RouteResultBuilder().constructFreeHandRoute(req);
@@ -703,6 +711,7 @@ public class RoutingRequest extends ServiceRequest {
     }
 
     public RouteResult[] computeRoute() throws Exception {
+        RestParameters.validate(getSearchParameters(), profile().getGraphhopper().getEncodingManager());
         if (getSearchParameters().getRoundTripLength() > 0) {
             return computeRoundTripRoute();
         } else {

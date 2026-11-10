@@ -32,6 +32,7 @@ import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import org.heigit.ors.routing.algorithms.MultiLabelRoutingAlgorithmFactory;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreRoutingAlgorithmFactory;
 import org.heigit.ors.routing.graphhopper.extensions.core.PrepareCoreLandmarks;
+import org.heigit.ors.routing.parameters.RestParameters;
 
 import java.util.Map;
 
@@ -66,7 +67,7 @@ public class ORSRouter extends Router {
     }
 
     private static boolean hasRestThreshold(PMap hints) {
-        return hints.getInt("rest_threshold", Integer.MAX_VALUE) != Integer.MAX_VALUE;
+        return hints.getInt(RestParameters.PARAM_REST_THRESHOLD, Integer.MAX_VALUE) != Integer.MAX_VALUE;
     }
 
     @Override

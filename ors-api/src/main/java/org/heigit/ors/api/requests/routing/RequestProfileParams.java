@@ -30,6 +30,7 @@ public class RequestProfileParams {
     public static final String PARAM_SURFACE_QUALITY_KNOWN = "surface_quality_known";
     public static final String PARAM_ALLOW_UNSUITABLE = "allow_unsuitable";
     public static final String PARAM_REST_THRESHOLD = "rest_threshold";
+    public static final String PARAM_REST_PENALTY = "rest_penalty";
 
     @JsonProperty(PARAM_WEIGHTINGS)
     private RequestProfileParamsWeightings weightings;
@@ -68,6 +69,12 @@ public class RequestProfileParams {
     private Integer restThreshold;
     @JsonIgnore
     private boolean hasRestThreshold = false;
+
+    @Schema(name = PARAM_REST_PENALTY, hidden = true)
+    @JsonProperty(PARAM_REST_PENALTY)
+    private Double restPenalty;
+    @JsonIgnore
+    private boolean hasRestPenalty = false;
 
     public RequestProfileParamsWeightings getWeightings() {
         return weightings;
@@ -114,6 +121,15 @@ public class RequestProfileParams {
         hasRestThreshold = true;
     }
 
+    public Double getRestPenalty() {
+        return restPenalty;
+    }
+
+    public void setRestPenalty(Double value) {
+        this.restPenalty = value;
+        hasRestPenalty = value != null;
+    }
+
     public boolean hasWeightings() {
         return hasWeightings;
     }
@@ -132,5 +148,9 @@ public class RequestProfileParams {
 
     public boolean hasRestThreshold() {
         return hasRestThreshold;
+    }
+
+    public boolean hasRestPenalty() {
+        return hasRestPenalty;
     }
 }
