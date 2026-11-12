@@ -310,6 +310,39 @@ class MultiLabelDijkstraAlgorithmTest {
         assertEquals(200, path.getWeight(), 0.5);
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "0.6, false, 140, 20",
+            "0.6, true, 140, 60",
+            "0.25, false, 180, 80",
+            "0.25, true, 180, 80",
+            "0.875, false, 180, 80",
+            "0.875, true, 180, 80"
+    })
+    @DisplayName("16a. Between two snaps on one edge, only a bench between them counts")
+    void middleVirtualSegmentUsesOnlyBenchBetweenSnaps(
+            double restPosition, boolean backwards, double expectedWeight, double expectedSinceRest) {
+        GraphHopperStorage graph = createGraph();
+        graph.getNodeAccess().setNode(0, 0, 0);
+        graph.getNodeAccess().setNode(1, 0, 0.0018);
+        markRestPoint(addEdge(graph, 0, 1, 200), restPosition);
+        LocationIndexTree index = new LocationIndexTree(graph, new RAMDirectory());
+        index.prepareIndex();
+        Snap at60m = index.findClosest(0, 0.00054, EdgeFilter.ALL_EDGES);
+        Snap at140m = index.findClosest(0, 0.00126, EdgeFilter.ALL_EDGES);
+        QueryGraph queryGraph = QueryGraph.create(graph, List.of(at60m, at140m));
+        int from = (backwards ? at140m : at60m).getClosestNode();
+        int to = (backwards ? at60m : at140m).getClosestNode();
+        InspectableAlgorithm algorithm = createAlgorithm(queryGraph, 30, 2);
+
+        Path path = algorithm.calcPath(from, to);
+
+        assertTrue(path.isFound());
+        assertEquals(80, path.getDistance(), 0.2);
+        assertEquals(expectedWeight, path.getWeight(), 0.5);
+        assertEquals(expectedSinceRest, algorithm.getActiveLabels(to).get(0).sinceRest, 0.2);
+    }
+
     @Test
     @DisplayName("17. Splitting an edge without rests leaves route cost unchanged")
     void edgeSplittingWithoutRestsIsInvariant() {

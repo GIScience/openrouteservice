@@ -10,6 +10,7 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHelper;
+import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
@@ -34,11 +35,13 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     protected double penalty;
     protected double restThreshold;
     private final DecimalEncodedValue restEnc;
+    private final EdgeExplorer virtualPieceExplorer;
 
     public MultiLabelDijkstraAlgorithm(Graph graph, Weighting weighting, DecimalEncodedValue restEnc, TraversalMode tMode, double restThreshold, double penalty) {
         checkRestArguments(restEnc, restThreshold, penalty);
         super(graph, weighting, tMode);
         this.restEnc = restEnc;
+        virtualPieceExplorer = graph.createEdgeExplorer();
         queue = new PriorityQueue<>(INITIAL_CAPACITY);
         this.restThreshold = restThreshold;
         this.penalty = penalty;
@@ -163,27 +166,52 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         }
     }
 
+    /**
+     * Maps the rest point of the original edge onto one virtual piece of it. Snapped points split the original edge
+     * into a chain of virtual pieces; the piece may lie anywhere in that chain, including between two snapped points.
+     *
+     * @return the rest point's position on the piece as a fraction from its base node, or -1 if it lies outside
+     */
     private double handleVirtualEdges(VirtualEdgeIteratorState virtualEdge) {
         EdgeIteratorState originalEdge = QueryGraphHelper.getOriginalEdgeFromVirtualEdge(virtualEdge, graph);
         double edgeRestValue = offsetRelativeToBaseNode(originalEdge);
-        if (edgeHasRestPoint(edgeRestValue)) {
-            double originalEdgeDistance = originalEdge.getDistance();
-            double virtualEdgeDistance = virtualEdge.getDistance();
-            double restPointDistance = edgeRestValue * originalEdgeDistance;
-            if (virtualEdge.getBaseNode() == originalEdge.getBaseNode()) {
-                // Before virtual node
-                if (restPointDistance < virtualEdgeDistance) {
-                    return restPointDistance / virtualEdgeDistance;
-                }
-            } else {
-                // After virtual node
-                restPointDistance -= originalEdgeDistance - virtualEdgeDistance;
-                if (restPointDistance > 0) {
-                    return restPointDistance / virtualEdgeDistance;
-                }
-            }
+        if (!edgeHasRestPoint(edgeRestValue))
+            return -1;
+        double pieceDistance = virtualEdge.getDistance();
+        double distanceBefore = distanceToOriginalNode(virtualEdge.getBaseNode(), virtualEdge.getEdge());
+        double distanceAfter = distanceToOriginalNode(virtualEdge.getAdjNode(), virtualEdge.getEdge());
+        double restPointDistance = edgeRestValue * (distanceBefore + pieceDistance + distanceAfter) - distanceBefore;
+        if (restPointDistance < 0 || restPointDistance > pieceDistance)
+            return -1;
+        return restPointDistance / pieceDistance;
+    }
+
+    /**
+     * Sums the virtual pieces from a node to the end of the original edge, walking away from the given piece.
+     */
+    private double distanceToOriginalNode(int node, int pieceEdge) {
+        int firstVirtualNode = graph.getBaseGraph().getNodes();
+        int currentNode = node;
+        int previousEdge = pieceEdge;
+        double distance = 0;
+        while (currentNode >= firstVirtualNode) {
+            EdgeIterator nextPiece = nextVirtualPiece(currentNode, previousEdge);
+            distance += nextPiece.getDistance();
+            previousEdge = nextPiece.getEdge();
+            currentNode = nextPiece.getAdjNode();
         }
-        return -1;
+        return distance;
+    }
+
+    /**
+     * A virtual node has exactly two edges, one towards each end of the original edge; returns the one not yet walked.
+     */
+    private EdgeIterator nextVirtualPiece(int virtualNode, int previousEdge) {
+        EdgeIterator iter = virtualPieceExplorer.setBaseNode(virtualNode);
+        iter.next();
+        if (iter.getEdge() == previousEdge)
+            iter.next();
+        return iter;
     }
 
     private double offsetRelativeToBaseNode(EdgeIteratorState iter) {
