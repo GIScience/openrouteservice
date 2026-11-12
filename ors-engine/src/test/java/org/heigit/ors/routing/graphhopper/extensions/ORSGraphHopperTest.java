@@ -1,14 +1,24 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.config.Profile;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.Rest;
+import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.storage.index.Snap;
+import com.graphhopper.util.shapes.GHPoint;
+import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
+import org.heigit.ors.util.AppInfo;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -17,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ORSGraphHopperTest {
     static final String GH_PROFILE_NAME = "car_ors";
     static final String ROUTE_PROFILE_NAME = "driving-car";
+    static final String FOOT_PROFILE_NAME = "foot-walking";
 
     /**
      * This tests loading an OSM dataset preprocessed with ors-preprocessor, as used on our production servers.
@@ -58,6 +69,60 @@ class ORSGraphHopperTest {
 
         ORSGraphHopperStorage storage = (ORSGraphHopperStorage) gh.getGraphHopperStorage();
         assertEquals(419, storage.getNodes());
+    }
+
+    @Test
+    void restPointsAreImportedWhenTheGraphIsBuiltAndNotAgainWhenItIsLoaded(@TempDir Path dir) throws Exception {
+        GHPoint builtWith = new GHPoint(49.3580784, 8.7439722);
+        GHPoint loadedWith = new GHPoint(49.3699229, 8.7457273);
+
+        ORSGraphHopper built = createFootGraphHopper(dir, writeRestPoints(dir, "built_with.csv", builtWith));
+        built.importOrLoad();
+        assertTrue(hasRestPoint(built, builtWith));
+        built.close();
+
+        ORSGraphHopper loaded = createFootGraphHopper(dir, writeRestPoints(dir, "loaded_with.csv", loadedWith));
+        loaded.importOrLoad();
+        assertTrue(hasRestPoint(loaded, builtWith));
+        assertFalse(hasRestPoint(loaded, loadedWith));
+        loaded.close();
+    }
+
+    private static Path writeRestPoints(Path dir, String fileName, GHPoint restPoint) throws IOException {
+        return Files.write(dir.resolve(fileName), List.of("lat,lon", restPoint.getLat() + "," + restPoint.getLon()));
+    }
+
+    private static boolean hasRestPoint(ORSGraphHopper gh, GHPoint point) {
+        DecimalEncodedValue restEnc = gh.getEncodingManager().getDecimalEncodedValue(Rest.KEY);
+        Snap snap = gh.getLocationIndex().findClosest(point.getLat(), point.getLon(), EdgeFilter.ALL_EDGES);
+        return snap.getClosestEdge().get(restEnc) != -1;
+    }
+
+    private static ORSGraphHopper createFootGraphHopper(Path dir, Path footRestData) throws Exception {
+        ProfileProperties profile = new ProfileProperties();
+        profile.setProfileName(FOOT_PROFILE_NAME);
+        profile.setEncoderName(EncoderNameEnum.FOOT_WALKING);
+        profile.getBuild().setSourceFile(Path.of("src/test/files/preprocessed_osm_data.pbf"));
+        profile.getBuild().setFootRestData(footRestData);
+
+        EngineProperties engineProperties = new EngineProperties();
+        engineProperties.setGraphsDataAccess(DataAccessEnum.RAM_STORE);
+        engineProperties.getElevation().setCachePath(Path.of(""));
+        engineProperties.getProfiles().put(FOOT_PROFILE_NAME, profile);
+
+        ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(GraphManagementRuntimeProperties.Builder.empty()
+                .withLocalProfileName(FOOT_PROFILE_NAME)
+                .withLocalGraphsRootAbsPath(dir.resolve("graphs").toString())
+                .withGraphVersion(AppInfo.GRAPH_VERSION)
+                .build());
+        ORSGraphHopperConfig ghConfig = ORSGraphHopperConfig.createGHSettings(profile, engineProperties, orsGraphManager.getActiveGraphDirAbsPath());
+        GraphProcessContext gpc = new GraphProcessContext(profile);
+        ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties, profile);
+        gh.setOrsGraphManager(orsGraphManager);
+        gh.setFlagEncoderFactory(new ORSDefaultFlagEncoderFactory());
+        gh.init(ghConfig);
+        gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
+        return gh;
     }
 
     @Test
