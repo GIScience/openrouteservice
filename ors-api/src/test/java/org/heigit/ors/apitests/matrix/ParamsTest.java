@@ -20,6 +20,8 @@ import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
@@ -719,5 +721,24 @@ class ParamsTest extends ServiceTest {
                 .assertThat()
                 .body("error.code", Matchers.is(MatrixErrorCodes.POINT_NOT_FOUND))
                 .statusCode(404);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"rest_threshold", "rest_penalty"})
+    void expectRestParametersToBeUnknown(String restParameter) {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
+        body.put("options", new JSONObject().put("profile_params", new JSONObject().put(restParameter, 500)));
+
+        given()
+                .headers(jsonContent)
+                .pathParam("profile", "foot-walking")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("error.code", Matchers.is(MatrixErrorCodes.UNKNOWN_PARAMETER))
+                .statusCode(400);
     }
 }

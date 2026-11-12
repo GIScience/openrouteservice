@@ -5051,6 +5051,30 @@ class ResultTest extends ServiceTest {
                 .body("features[0].properties.summary.distance", is(closeTo(expectedDistance, 10)));
     }
 
+    @Test
+    void testMultiLabelDijkstraWithWheelchairParameters() {
+        // surface_quality_known turns the profile parameters into WheelchairParameters; the rest threshold must survive
+        JSONObject params = new JSONObject()
+                .put("rest_threshold", 500)
+                .put("surface_quality_known", true);
+        JSONObject body = new JSONObject()
+                .put("coordinates", getParameter("coordinatesWalking"))
+                .put("preference", "shortest")
+                .put("options", new JSONObject().put("profile_params", params));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .statusCode(200)
+                .body("features[0].properties.summary.distance", is(closeTo(2109.8, 10)));
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");

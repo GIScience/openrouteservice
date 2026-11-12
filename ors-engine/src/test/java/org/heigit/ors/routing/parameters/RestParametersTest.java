@@ -6,6 +6,9 @@ import org.heigit.ors.exceptions.IncompatibleParameterException;
 import org.heigit.ors.exceptions.MissingParameterException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterException;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.graphhopper.extensions.util.parsers.RestParser;
@@ -107,6 +110,32 @@ class RestParametersTest {
         searchParams.setAlternativeRoutesCount(1);
 
         assertDoesNotThrow(() -> RestParameters.validate(searchParams, WITH_REST_DATA));
+    }
+
+    @Test
+    void servicesWithoutRestPointsAcceptRequestsWithoutRestValues() {
+        assertDoesNotThrow(() -> RestParameters.rejectRestParameters(null, IsochronesErrorCodes.UNKNOWN_PARAMETER));
+        assertDoesNotThrow(() -> RestParameters.rejectRestParameters(new RouteSearchParameters(), IsochronesErrorCodes.UNKNOWN_PARAMETER));
+        assertDoesNotThrow(() -> RestParameters.rejectRestParameters(searchParameters(new WheelchairParameters()), IsochronesErrorCodes.UNKNOWN_PARAMETER));
+    }
+
+    @Test
+    void servicesWithoutRestPointsRejectRestThreshold() {
+        RouteSearchParameters searchParams = searchParameters(restParameters(500, null));
+
+        StatusCodeException e = assertThrows(UnknownParameterException.class, () -> RestParameters.rejectRestParameters(searchParams, IsochronesErrorCodes.UNKNOWN_PARAMETER));
+        assertEquals(IsochronesErrorCodes.UNKNOWN_PARAMETER, e.getInternalCode());
+        assertTrue(e.getMessage().contains(RestParameters.PARAM_REST_THRESHOLD));
+    }
+
+    @Test
+    void servicesWithoutRestPointsRejectRestPenalty() {
+        ProfileParameters params = new ProfileParameters();
+        params.setRestPenalty(2.0);
+
+        StatusCodeException e = assertThrows(UnknownParameterException.class, () -> RestParameters.rejectRestParameters(searchParameters(params), MatrixErrorCodes.UNKNOWN_PARAMETER));
+        assertEquals(MatrixErrorCodes.UNKNOWN_PARAMETER, e.getInternalCode());
+        assertTrue(e.getMessage().contains(RestParameters.PARAM_REST_PENALTY));
     }
 
     @Test

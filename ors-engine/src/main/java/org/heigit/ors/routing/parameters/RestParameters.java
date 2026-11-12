@@ -6,6 +6,7 @@ import org.heigit.ors.exceptions.IncompatibleParameterException;
 import org.heigit.ors.exceptions.MissingParameterException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterException;
 import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingErrorCodes;
@@ -58,6 +59,21 @@ public final class RestParameters {
         if (searchParams.getAlternativeRoutesCount() > 1)
             throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, PARAM_REST_THRESHOLD,
                     RouteRequestParameterNames.PARAM_ALTERNATIVE_ROUTES);
+    }
+
+    /**
+     * Rejects rest parameters in services without rest point routing (isochrones, matrix), which would ignore them.
+     *
+     * @param unknownParameterErrorCode the service's error code for an unknown parameter
+     */
+    public static void rejectRestParameters(RouteSearchParameters searchParams, int unknownParameterErrorCode) throws UnknownParameterException {
+        ProfileParameters params = searchParams == null ? null : searchParams.getProfileParameters();
+        if (params == null)
+            return;
+        if (params.hasRestThreshold())
+            throw new UnknownParameterException(unknownParameterErrorCode, PARAM_REST_THRESHOLD);
+        if (params.hasRestPenalty())
+            throw new UnknownParameterException(unknownParameterErrorCode, PARAM_REST_PENALTY);
     }
 
     public static boolean isValidPenalty(double penalty) {

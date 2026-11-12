@@ -425,9 +425,9 @@ public class RoutingRequest extends ServiceRequest {
     }
 
     private static void putRestHints(GHRequest req, RouteSearchParameters searchParams) {
-        if (!searchParams.hasParameters(ProfileParameters.class) || !searchParams.getProfileParameters().hasRestThreshold())
-            return;
         ProfileParameters profileParameters = searchParams.getProfileParameters();
+        if (profileParameters == null || !profileParameters.hasRestThreshold())
+            return;
         req.getHints().putObject(RestParameters.PARAM_REST_THRESHOLD, profileParameters.getRestThreshold());
         req.getHints().putObject(RestParameters.PARAM_REST_PENALTY, profileParameters.hasRestPenalty()
                 ? profileParameters.getRestPenalty() : RestParameters.DEFAULT_REST_PENALTY);

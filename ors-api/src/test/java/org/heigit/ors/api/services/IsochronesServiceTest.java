@@ -11,7 +11,10 @@ import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
 import org.heigit.ors.exceptions.ParameterOutOfRangeException;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterException;
 import org.heigit.ors.isochrones.IsochroneRequest;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.json.simple.JSONArray;
@@ -279,6 +282,15 @@ class IsochronesServiceTest {
         assertNull(routeSearchParameters.getBearings());
         assertNull(routeSearchParameters.getMaximumRadiuses());
         assertNull(routeSearchParameters.getAvoidCountries());
+    }
+
+    @Test
+    void restThresholdIsRejected() {
+        request.setProfile(APIEnums.Profile.FOOT_WALKING);
+        request.getIsochronesOptions().getProfileParams().setRestThreshold(500);
+
+        StatusCodeException e = assertThrows(UnknownParameterException.class, () -> isochronesService.constructRouteSearchParameters(request));
+        assertEquals(IsochronesErrorCodes.UNKNOWN_PARAMETER, e.getInternalCode());
     }
 
     @Test
