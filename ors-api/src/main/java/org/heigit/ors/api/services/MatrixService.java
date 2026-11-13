@@ -5,10 +5,13 @@ import org.heigit.ors.api.config.ApiEngineProperties;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
+import org.heigit.ors.api.requests.matrix.MatrixRequestOptions;
+import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterException;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
@@ -16,6 +19,7 @@ import org.heigit.ors.matrix.MatrixSearchParameters;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.parameters.RestParameters;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -103,6 +107,7 @@ public class MatrixService extends ApiService {
         } catch (Exception e) {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_PROFILE);
         }
+        rejectRestParameters(matrixRequest.getMatrixOptions());
         processRequestOptions(matrixRequest.getMatrixOptions(), params);
 
         if (matrixRequest.getMatrixOptions().hasDynamicSpeeds()) {
@@ -110,6 +115,19 @@ public class MatrixService extends ApiService {
         }
 
         return isFlexibleMode(matrixRequest.getMatrixOptions());
+    }
+
+    /**
+     * The matrix does not convert {@code profile_params}; rest parameters get an error instead of being ignored.
+     */
+    private static void rejectRestParameters(MatrixRequestOptions options) throws UnknownParameterException {
+        if (!options.hasProfileParams())
+            return;
+        RequestProfileParams profileParams = options.getProfileParams();
+        if (profileParams.hasRestThreshold())
+            throw new UnknownParameterException(MatrixErrorCodes.UNKNOWN_PARAMETER, RestParameters.PARAM_REST_THRESHOLD);
+        if (profileParams.hasRestPenalty())
+            throw new UnknownParameterException(MatrixErrorCodes.UNKNOWN_PARAMETER, RestParameters.PARAM_REST_PENALTY);
     }
 
     public int convertMetrics(MatrixRequestEnums.Metrics[] metrics) throws ParameterValueException {
