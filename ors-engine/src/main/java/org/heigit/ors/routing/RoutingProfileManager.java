@@ -101,7 +101,7 @@ public class RoutingProfileManager {
             if (LOGGER.isInfoEnabled())
                 printStatistics();
         } catch (Exception ex) {
-            fail("Exception at RoutingProfileManager initialization: " + ex.getMessage());
+            fail("Exception at RoutingProfileManager initialization: " + ex.getMessage(), ex);
             Thread.currentThread().interrupt();
         }
         return this;
@@ -114,9 +114,8 @@ public class RoutingProfileManager {
             nCompletedTasks++;
             routingProfiles.put(rp.name(), rp);
         } catch (ExecutionException e) {
-            LOGGER.debug(e);
             if (ExceptionUtils.indexOfThrowable(e, FileNotFoundException.class) != -1) {
-                throw new IllegalStateException("Output files can not be written. Make sure ors.engine.graphs_data_access is set to a writable type! ");
+                throw new IllegalStateException("Output files can not be written. Make sure ors.engine.graphs_data_access is set to a writable type! ", e);
             }
             throw e;
         } catch (InterruptedException e) {
@@ -160,8 +159,20 @@ public class RoutingProfileManager {
     }
 
     private void fail(String message) {
+        fail(message, null);
+    }
+
+    // Wrappers like "Could not parse OSM file" hide the actual problem, so name the root cause; the stack trace only on DEBUG.
+    private void fail(String message, Throwable cause) {
         LOGGER.error("");
         LOGGER.error(message);
+        Throwable rootCause = ExceptionUtils.getRootCause(cause);
+        if (rootCause != cause) {
+            LOGGER.error("Root cause: " + ExceptionUtils.getMessage(rootCause));
+        }
+        if (cause != null) {
+            LOGGER.debug("Stack trace:", cause);
+        }
         LOGGER.error("");
         statusFailed = true;
         statusShutdown = true;
