@@ -35,15 +35,18 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
       - name: run unit tests
         run: ./mvnw -B install -Papitests -T $(nproc) -DCI=true
-      - name: Run the unit tests a second time with jacoco
-        run: |
-          # Ensure test stability across graph reloads.
-          ./mvnw -B verify -Papitests -T $(nproc) jacoco:report
-      - name: 'Prepare Sonar analysis'
-        uses: evaristegalois11/sonar-fork-analysis@9d67a15f17407c3bf39bb09c39a9d5d3794eeecd # v1
+      # Runs the unit tests a second time with jacoco, to ensure test stability across graph reloads, and then the
+      # Sonar analysis. On pull requests from forks it only prepares the analysis for the Sonar workflow.
+      - name: 'Run the unit tests a second time with jacoco, and analyse'
+        uses: galois-groups/sonar-fork-analysis@f947a3c4d3a2ece53e306324263198c9fd4273b3 # v2.2.0
         with:
-          distribution: 'temurin'
-          java-version: '25'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
           project-key: 'GIScience_openrouteservice'
+          sonar-organization: 'giscience'
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          build-goals: |
+            verify
+            jacoco:report
+          build-arguments: |
+            -Papitests
+            -T
+            1C
