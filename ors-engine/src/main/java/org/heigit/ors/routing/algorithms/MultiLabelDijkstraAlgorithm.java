@@ -124,8 +124,15 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         queue.add(nextLabel);
     }
 
+    /**
+     * Past the rest threshold every further metre costs the full penalty, so two labels there differ only in weight.
+     */
     private boolean dominates(Label aLabel, Label bLabel) {
-        return aLabel.weight <= bLabel.weight && aLabel.sinceRest <= bLabel.sinceRest;
+        return aLabel.weight <= bLabel.weight && cappedSinceRest(aLabel) <= cappedSinceRest(bLabel);
+    }
+
+    private double cappedSinceRest(Label label) {
+        return Math.min(label.sinceRest, restThreshold);
     }
 
     private double adjustWeightWithSinceRest(double tmpWeight, double edgeWeight, EdgeIterator iter, double sinceRest, double toRestFactor) {

@@ -206,6 +206,27 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
+    @DisplayName("10a. Past the threshold, a cheaper label dominates a more rested one")
+    void cheaperLabelDominatesWhenBothArePastThreshold() {
+        GraphHopperStorage graph = createGraph();
+        addEdge(graph, 0, 3, 150);
+        addEdge(graph, 0, 1, 120);
+        markRestPoint(addEdge(graph, 1, 3, 110), 0);
+        addEdge(graph, 3, 4, 10);
+
+        InspectableAlgorithm algorithm = createAlgorithm(graph, 100, 2);
+        Path path = algorithm.calcPath(0, 4);
+
+        assertEquals(IntArrayList.from(0, 3, 4), path.calcNodes());
+        assertEquals(280, path.getWeight(), EPSILON);
+        // the rested label (weight 290, 110 m since rest) pays the same penalty on every further metre
+        List<Label> labels = algorithm.getActiveLabels(3);
+        assertEquals(1, labels.size());
+        assertEquals(250, labels.get(0).weight, EPSILON);
+        assertEquals(150, labels.get(0).sinceRest, EPSILON);
+    }
+
+    @Test
     @DisplayName("11. Inactive queue labels are skipped")
     void skipsInactiveLabelsWhenTheyAreOnlyQueueEntries() {
         GraphHopperStorage graph = createGraph();
