@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- documentation of Docker container healthcheck states ([#1956](https://github.com/GIScience/openrouteservice/issues/1956))
 
 ### Changed
 
