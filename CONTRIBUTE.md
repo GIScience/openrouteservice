@@ -36,7 +36,10 @@ We'd like all pull requests to adhere to the following rules:
 - name your branch according to `<[hotfix/bugfix/feat/algo]>/<issue#>-<purpose>`, e.g. `feat/#381-simplify_geometry`
 - if you introduce new functions/classes, write unit or API tests
 - **limit the number of commits to a minimum**, i.e. use [`git commit --amend [--no-edit]`](https://www.atlassian.com/git/tutorials/rewriting-history#git-commit--amend)
-- use meaningful commit messages, e.g. `commit -m "Include geometry_simplify in API and core code"`
+- use meaningful commit messages and PR titles that follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format:
+  `<type>[optional scope]: <description>`, e.g. `git commit -m "feat: include geometry_simplify in API and core code"`.
+  Use `feat` for new features, `fix` for bug fixes and `docs` for documentation changes. Both commit messages and PR titles
+  are checked automatically.
 - if your branch needs an update from its base branch, use [`rebase`](https://blog.algolia.com/master-git-rebase/#rebasing-on-the-base-branch), e.g.
 
 ```

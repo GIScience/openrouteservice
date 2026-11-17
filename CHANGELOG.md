@@ -30,6 +30,7 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
+- document Conventional Commits requirements for commit messages and PR titles in the contribution guidelines ([#1680](https://github.com/GIScience/openrouteservice/issues/1680))
 
 ### Deprecated
 
