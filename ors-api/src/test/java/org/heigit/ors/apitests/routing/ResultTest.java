@@ -4776,7 +4776,10 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(false))
                 .body("error.code", is(2018))
-                .body("error.message", is("Cannot compile expression: in 'priority' entry,  invalid expression \"max_width < 30\": encoded value 'max_width' not available"))
+                // the tail of the message is GraphHopper's wording and may gain detail, so only pin what ORS promises
+                .body("error.message", allOf(startsWith("Cannot compile expression:"),
+                        containsString("invalid expression \"max_width < 30\""),
+                        containsString("encoded value 'max_width' not available")))
                 .statusCode(500);
     }
 
@@ -4807,7 +4810,146 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(false))
                 .body("error.code", is(2018))
-                .body("error.message", is("Cannot compile expression: in 'priority' entry,  invalid expression \"äöü this is not a valid condition expression.\""))
+                .body("error.message", allOf(startsWith("Cannot compile expression:"),
+                        containsString("invalid expression \"äöü this is not a valid condition expression.\"")))
+                .statusCode(500);
+    }
+
+    /**
+     * Builds a routing request for the car profile whose custom model blocks everything the given condition matches.
+     */
+    private JSONObject customModelBody(String condition, Object multiplyBy) {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom1"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject priority = new JSONObject();
+        priority.put("if", condition);
+        priority.put("multiply_by", multiplyBy);
+        JSONObject customModel = new JSONObject();
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+        return body;
+    }
+
+    /**
+     * A condition is written by the client and must be understood exactly as written, no matter how it is spread over
+     * lines or which escapes it uses. All of these mean "road_environment == TUNNEL" and must block the same tunnel
+     * as {@link #testCustomProfileBlockTunnels()}. Conditions used to be rewritten by splicing text at line-local
+     * column numbers, which silently corrupted every variant but the first (GHSA-mg8w-mq9r-f9c6).
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "road_environment == TUNNEL",
+            "road_environment ==\nTUNNEL",
+            "road_environment ==\r\nTUNNEL",
+            "road_environment ==\tTUNNEL",
+            "road_environment == \\u0054UNNEL"})
+    void testCustomProfileConditionWithLineBreaksAndEscapes(String condition) {
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(customModelBody(condition, 0).toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(3338f, 40f)))
+                .statusCode(200);
+    }
+
+    /**
+     * Only the operators a condition needs are accepted. Bitwise and shift operators have no use in a custom model
+     * and are rejected instead of being compiled.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "road_class.ordinal() & 1",
+            "road_class.ordinal() | 1",
+            "road_class.ordinal() ^ 1",
+            "road_class.ordinal() << 1"})
+    void testCustomProfileRejectsBitwiseOperators(String condition) {
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(customModelBody(condition, 0.5).toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(false))
+                .body("error.code", is(2018))
+                .body("error.message", allOf(startsWith("Cannot compile expression:"),
+                        containsString("not allowed")))
+                .statusCode(500);
+    }
+
+    /**
+     * Text inside a string literal is data. Whatever it contains, and wherever the literal sits in a multi-line
+     * condition, it must never end up as part of the compiled condition: the request is answered with a regular
+     * error instead.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "road_class == \"); x(\"",
+            "road_class ==\n\"); x(\"",
+            "road_class ==\t\"); x(\" || road_class == PRIMARY"})
+    void testCustomProfileStringLiteralIsNeverCompiled(String condition) {
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(customModelBody(condition, 0.5).toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(false))
+                .body("error.code", is(2018))
+                .body("error.message", startsWith("Cannot compile expression:"))
+                .statusCode(500);
+    }
+
+    /**
+     * Area names reach the generated code as part of a helper call, so a name that is not a plain identifier has to
+     * be rejected rather than written into it.
+     */
+    @Test
+    void testCustomProfileInvalidAreaNameFails() {
+        JSONObject area = new JSONObject();
+        area.put("type", "Feature");
+        JSONObject geometry = new JSONObject();
+        geometry.put("type", "Polygon");
+        JSONArray ring = new JSONArray();
+        ring.put(new JSONArray().put(8.7062144).put(49.4077481));
+        ring.put(new JSONArray().put(8.7068045).put(49.4108196));
+        ring.put(new JSONArray().put(8.7132203).put(49.4117201));
+        ring.put(new JSONArray().put(8.7062144).put(49.4077481));
+        geometry.put("coordinates", new JSONArray().put(ring));
+        area.put("geometry", geometry);
+
+        JSONObject body = customModelBody("in_custom1); x((", 0);
+        JSONObject areas = new JSONObject();
+        areas.put("custom1); x((", area);
+        body.getJSONObject("custom_model").put("areas", areas);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(false))
+                .body("error.code", is(2018))
+                .body("error.message", startsWith("Cannot compile expression:"))
                 .statusCode(500);
     }
 
