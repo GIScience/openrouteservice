@@ -30,14 +30,17 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
+- custom model conditions no longer accept bitwise and shift operators or unchecked method arguments ([#2494](https://github.com/GIScience/openrouteservice/pull/2494))
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+- custom model conditions spanning several lines or containing tabs or unicode escapes ([#2494](https://github.com/GIScience/openrouteservice/pull/2494))
 
 ### Security
+- fix arbitrary code execution through a custom model condition, GHSA-mg8w-mq9r-f9c6, by updating graphhopper to v4.17.0 ([#2494](https://github.com/GIScience/openrouteservice/pull/2494))
 - update the JVM in the Docker images to Corretto 25.0.5.1.2 ([#2495](https://github.com/GIScience/openrouteservice/pull/2495))
 
 
