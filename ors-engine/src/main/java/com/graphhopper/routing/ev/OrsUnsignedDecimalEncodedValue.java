@@ -4,12 +4,12 @@ import com.graphhopper.storage.IntsRef;
 
 /**
  * This class holds a decimal value and stores it as an unsigned integer value via a conversion factor and a maximum number
- * of bits.
+ * of bits. Unlike GraphHopper's {@link UnsignedDecimalEncodedValue}, the stored 0 is reserved for the default value and
+ * every other value is stored shifted by one, so 0.0 stays distinguishable from the default.
  */
 public final class OrsUnsignedDecimalEncodedValue extends UnsignedIntEncodedValue implements DecimalEncodedValue {
     private final double factor;
     private final double defaultValue;
-    private final boolean useMaximumAsInfinity;
 
     public OrsUnsignedDecimalEncodedValue(String name, int bits, double factor, boolean storeTwoDirections) {
         this(name, bits, factor, -1, storeTwoDirections);
@@ -23,16 +23,9 @@ public final class OrsUnsignedDecimalEncodedValue extends UnsignedIntEncodedValu
      * @param storeTwoDirections true if forward and backward direction of the edge should get two independent values.
      */
     public OrsUnsignedDecimalEncodedValue(String name, int bits, double factor, double defaultValue, boolean storeTwoDirections) {
-        this(name, bits, factor, defaultValue, storeTwoDirections, false);
-    }
-
-    public OrsUnsignedDecimalEncodedValue(String name, int bits, double factor, double defaultValue, boolean storeTwoDirections, boolean useMaximumAsInfinity) {
         super(name, bits, storeTwoDirections);
         this.factor = factor;
         this.defaultValue = defaultValue;
-        this.useMaximumAsInfinity = useMaximumAsInfinity;
-        if (useMaximumAsInfinity && Double.isInfinite(defaultValue))
-            throw new IllegalArgumentException("Default value and maximum value cannot be both infinity");
     }
 
     private int toInt(double val) {
@@ -43,13 +36,11 @@ public final class OrsUnsignedDecimalEncodedValue extends UnsignedIntEncodedValu
     public void setDecimal(boolean reverse, IntsRef ints, double value) {
         if (!isInitialized())
             throw new IllegalStateException("Call init before usage for EncodedValue " + toString());
-        if (useMaximumAsInfinity && Double.isInfinite(value)) {
-            super.setInt(reverse, ints, maxValue);
+        if (value == defaultValue) {
+            super.setInt(reverse, ints, 0);
             return;
         }
-        if (value == defaultValue)
-            value = 0;
-        else if (value > (maxValue - 1) * factor)
+        if (value > (maxValue - 1) * factor)
             throw new IllegalArgumentException(getName() + " value " + value + " too large for encoding. maxValue:" + getMaxDecimal());
         else if (value < 0)
             throw new IllegalArgumentException("Negative value for " + getName() + " not allowed! " + value);
@@ -62,8 +53,6 @@ public final class OrsUnsignedDecimalEncodedValue extends UnsignedIntEncodedValu
     @Override
     public double getDecimal(boolean reverse, IntsRef ref) {
         int value = getInt(reverse, ref);
-        if (useMaximumAsInfinity && value == maxValue)
-            return Double.POSITIVE_INFINITY;
         return value == 0 ? defaultValue : (value - 1)  * factor;
     }
 
