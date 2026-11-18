@@ -38,6 +38,7 @@ Releasing is documented in RELEASE.md
 ### Fixed
 
 ### Security
+- update the JVM in the Docker images to Corretto 25.0.5.1.2 ([#2495](https://github.com/GIScience/openrouteservice/pull/2495))
 
 
 ## [10.1.0] - 2026-10-13
