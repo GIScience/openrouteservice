@@ -30,11 +30,20 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
-- custom model conditions no longer accept bitwise and shift operators or unchecked method arguments ([#2494](https://github.com/GIScience/openrouteservice/pull/2494))
 
 ### Deprecated
 
 ### Removed
+
+### Fixed
+
+### Security
+
+
+## [10.1.1] - 2026-11-18
+
+### Changed
+- custom model conditions no longer accept bitwise and shift operators or unchecked method arguments ([#2494](https://github.com/GIScience/openrouteservice/pull/2494))
 
 ### Fixed
 - custom model conditions spanning several lines or containing tabs or unicode escapes ([#2494](https://github.com/GIScience/openrouteservice/pull/2494))
@@ -1202,7 +1211,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Consider turn restrictions if optimized=false is passed.
 
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v10.1.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v10.1.1...HEAD
+[10.1.1]: https://github.com/GIScience/openrouteservice/compare/v10.1.0...v10.1.1
 [10.1.0]: https://github.com/GIScience/openrouteservice/compare/v10.0.1...v10.1.0
 [10.0.1]: https://github.com/GIScience/openrouteservice/compare/v10.0.0...v10.0.1
 [10.0.0]: https://github.com/GIScience/openrouteservice/compare/v9.10.0...v10.0.0
