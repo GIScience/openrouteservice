@@ -40,6 +40,7 @@ Releasing is documented in RELEASE.md
 - custom model conditions spanning several lines or containing tabs or unicode escapes ([#2494](https://github.com/GIScience/openrouteservice/pull/2494))
 
 ### Security
+- update the distroless base of the slim image, fixing CVE-2026-85091 in zlib ([#2498](https://github.com/GIScience/openrouteservice/pull/2498))
 - fix arbitrary code execution through a custom model condition, GHSA-mg8w-mq9r-f9c6, by updating graphhopper to v4.17.0 ([#2494](https://github.com/GIScience/openrouteservice/pull/2494))
 - update the JVM in the Docker images to Corretto 25.0.5.1.2 ([#2495](https://github.com/GIScience/openrouteservice/pull/2495))
 
