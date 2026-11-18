@@ -12,8 +12,9 @@ import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
-import org.apache.log4j.Logger;
 import org.heigit.ors.routing.parameters.RestParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,7 +38,7 @@ import static java.lang.Math.max;
  */
 public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     public static final int INITIAL_CAPACITY = 2000;
-    private static final Logger LOGGER = Logger.getLogger(MultiLabelDijkstraAlgorithm.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MultiLabelDijkstraAlgorithm.class);
     protected PriorityQueue<Label> queue;
     protected HashMap<Integer, List<Label>> traversalIdToLabelMap = new HashMap<>();
     protected Label currentLabel;
@@ -56,7 +57,8 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
         queue = new PriorityQueue<>(INITIAL_CAPACITY);
         this.restThreshold = restThreshold;
         this.penalty = penalty;
-        LOGGER.debug("MultiLabelDijkstraAlgorithm initialized with graph size: " + graph.getNodes() + ", weighting: " + weighting.getName() + ", traversal mode: " + tMode + ", rest threshold: " + restThreshold + ", penalty: " + penalty);
+        LOGGER.debug("MultiLabelDijkstraAlgorithm initialized with graph size: {}, weighting: {}, traversal mode: {}, rest threshold: {}, penalty: {}",
+                graph.getNodes(), weighting.getName(), tMode, restThreshold, penalty);
     }
 
     private static void checkRestArguments(DecimalEncodedValue restEnc, double restThreshold, double penalty) {
@@ -70,7 +72,7 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
 
     @Override
     public Path calcPath(int from, int to) {
-        LOGGER.debug("Calculating path from " + from + " to " + to);
+        LOGGER.debug("Calculating path from {} to {}", from, to);
         checkAlreadyRun();
         this.to = to;
         currentLabel = Label.createStartLabel(from);
@@ -79,7 +81,6 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     }
 
     protected void runAlgo() {
-        LOGGER.debug("Running MultiLabelDijkstraAlgorithm...");
         while (!finished() && !isMaxVisitedNodesExceeded()) {
             visitedNodes++;
 
