@@ -4,12 +4,10 @@ import com.graphhopper.routing.AbstractRoutingAlgorithm;
 import com.graphhopper.routing.Path;
 import com.graphhopper.routing.PathExtractor;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
-import com.graphhopper.routing.querygraph.QueryGraphHelper;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphHelper;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
@@ -193,7 +191,7 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
      * @return the rest point's position on the piece as a fraction from its base node, or -1 if it lies outside
      */
     private double handleVirtualEdges(VirtualEdgeIteratorState virtualEdge) {
-        EdgeIteratorState originalEdge = QueryGraphHelper.getOriginalEdgeFromVirtualEdge(virtualEdge, graph);
+        EdgeIteratorState originalEdge = graph.getEdgeIteratorStateForKey(virtualEdge.getOriginalEdgeKey());
         double edgeRestValue = offsetRelativeToBaseNode(originalEdge);
         if (!edgeHasRestPoint(edgeRestValue))
             return -1;
@@ -236,10 +234,17 @@ public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
 
     private double offsetRelativeToBaseNode(EdgeIteratorState iter) {
         double edgeRestValue = iter.get(restEnc);
-        if (edgeHasRestPoint(edgeRestValue) && GraphHelper.isReversed(iter)) {
+        if (edgeHasRestPoint(edgeRestValue) && isAgainstStoredDirection(iter)) {
             edgeRestValue = 1 - edgeRestValue;
         }
         return edgeRestValue;
+    }
+
+    /**
+     * An edge key is even in the edge's stored direction and odd against it.
+     */
+    private static boolean isAgainstStoredDirection(EdgeIteratorState edge) {
+        return (edge.getEdgeKey() & 1) == 1;
     }
 
     private static boolean edgeHasRestPoint(double edgeRestValue) {
