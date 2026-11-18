@@ -41,6 +41,7 @@ Releasing is documented in RELEASE.md
 
 ### Security
 - fix arbitrary code execution through a custom model condition, GHSA-mg8w-mq9r-f9c6, by updating graphhopper to v4.17.0 ([#2494](https://github.com/GIScience/openrouteservice/pull/2494))
+- update the JVM in the Docker images to Corretto 25.0.5.1.2 ([#2495](https://github.com/GIScience/openrouteservice/pull/2495))
 
 
 ## [10.1.0] - 2026-10-13
