@@ -256,6 +256,37 @@ class MultiLabelDijkstraAlgorithmTest {
     }
 
     @Test
+    @DisplayName("12a. The search stops at the visited-node limit and returns an empty path")
+    void stopsAtMaxVisitedNodes() {
+        GraphHopperStorage graph = createGraph();
+        addEdge(graph, 0, 1, 100);
+        addEdge(graph, 1, 2, 100);
+        addEdge(graph, 2, 3, 100);
+        InspectableAlgorithm algorithm = createAlgorithm(graph, 100, 2);
+        algorithm.setMaxVisitedNodes(1);
+
+        Path path = algorithm.calcPath(0, 3);
+
+        assertFalse(path.isFound());
+        assertEquals(2, algorithm.getVisitedNodes());
+    }
+
+    @Test
+    @DisplayName("12b. A one-way edge is not walked against its direction")
+    void skipsOneWayEdgeAgainstItsDirection() {
+        GraphHopperStorage graph = createGraph();
+        GHUtility.setSpeed(5, true, false, encoder, graph.edge(0, 2).setDistance(100));
+        addEdge(graph, 2, 1, 150);
+        addEdge(graph, 1, 0, 150);
+
+        Path path = createAlgorithm(graph, 1000, 2).calcPath(2, 0);
+
+        assertTrue(path.isFound());
+        assertEquals(IntArrayList.from(2, 1, 0), path.calcNodes());
+        assertEquals(300, path.getDistance(), EPSILON);
+    }
+
+    @Test
     @DisplayName("13. Reverse routing mirrors the stored bench position")
     void reverseRoutingMirrorsStoredBenchPosition() {
         GraphHopperStorage graph = createGraph();
