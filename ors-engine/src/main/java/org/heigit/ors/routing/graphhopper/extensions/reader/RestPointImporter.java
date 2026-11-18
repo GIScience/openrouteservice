@@ -21,6 +21,14 @@ import java.util.List;
  * into the {@link Rest} encoded value. An edge stores one rest point as its position along the edge, measured from the
  * edge's stored base node: 0 is the base node, 1 the adjacent node. A rest point on a tower node is written to every
  * edge at that node.
+ * <p>
+ * Known limitations:
+ * <ul>
+ *     <li>An edge holds one rest point; a later one on the same edge replaces the earlier one.</li>
+ *     <li>There is no maximum snap distance: a rest point goes to the nearest edge the location index finds, however
+ *     far away. Only the index's search area, set by {@code location_index_resolution} and
+ *     {@code location_index_search_iterations}, limits it.</li>
+ * </ul>
  */
 public class RestPointImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestPointImporter.class);

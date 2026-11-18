@@ -24,6 +24,19 @@ import java.util.PriorityQueue;
 
 import static java.lang.Math.max;
 
+/**
+ * Rest point routing: a Dijkstra search with several labels per node, one for each useful combination of weight and
+ * distance walked since the last rest point. Every metre beyond the rest threshold costs the edge's weight per metre
+ * times the penalty on top. Rest points come from the {@link org.heigit.ors.routing.graphhopper.extensions.reader.RestPointImporter}.
+ * <p>
+ * Known limitations:
+ * <ul>
+ *     <li>Each leg of a route with via points is a separate search that starts rested, so a via point acts like a
+ *     rest point.</li>
+ *     <li>Node-based traversal, which the walking profiles use, forbids u-turns, so the search never walks into a dead
+ *     end to a rest point and back.</li>
+ * </ul>
+ */
 public class MultiLabelDijkstraAlgorithm extends AbstractRoutingAlgorithm {
     public static final int INITIAL_CAPACITY = 2000;
     private static final Logger LOGGER = Logger.getLogger(MultiLabelDijkstraAlgorithm.class);
