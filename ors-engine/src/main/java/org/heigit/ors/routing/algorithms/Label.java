@@ -16,11 +16,6 @@ public class Label extends SPTEntry {
         return new Label(EdgeIterator.NO_EDGE, nodeId, 0, 0);
     }
 
-    @Override
-    public Label getParent() {
-        return (Label) super.parent;
-    }
-
     public boolean isActive() {
         return active;
     }
