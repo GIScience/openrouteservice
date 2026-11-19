@@ -2,7 +2,7 @@
   "@context": "https://openvex.dev/ns/v0.2.0",
   "@id": "https://github.com/GIScience/openrouteservice/blob/main/openvex.json",
   "author": "HeiGIT openrouteservice maintainers",
-  "timestamp": "2026-11-18T00:00:00Z",
+  "timestamp": "2026-11-19T00:00:00Z",
   "version": 3,
   "statements": [
     {
@@ -1372,6 +1372,44 @@
       "justification": "vulnerable_code_not_in_execute_path",
       "impact_statement": "Same assessment as the statement above, with a versioned product purl for DevGuard.",
       "status_notes": "DevGuard reports this finding under the CVE id, not under a DEBIAN-CVE id, so this statement keeps the CVE id and only changes the product purl to the >=0.0.0-0 form DevGuard matches."
+    },
+    {
+      "timestamp": "2026-11-19T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-95690",
+        "description": "OpenSSL DTLS: out-of-sequence handshake fragments each allocate a full-size reassembly buffer (memory exhaustion)"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Nothing in the slim image loads OpenSSL: no executable or library outside the OpenSSL package itself links libssl.so.3 or libcrypto.so.3, and none names them for dlopen. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main), including the native libraries bundled in ors.jar. The JVM implements TLS and cryptography in Java (JSSE/JCA). libssl3t64 is part of the distroless cc base image and is never executed.",
+      "status_notes": "See the DEBIAN-CVE-2026-95690 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-19T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-95690",
+        "description": "Debian OSV identifier for CVE-2026-95690",
+        "aliases": ["CVE-2026-95690"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-95690 above, under the identifier DevGuard reports the finding as."
     },
     {
       "timestamp": "2026-11-18T00:00:00Z",
