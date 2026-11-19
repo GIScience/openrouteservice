@@ -12,6 +12,7 @@ import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.*;
+import org.heigit.ors.routing.parameters.RestParameters;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -523,8 +524,10 @@ public class RoutingService extends ApiService {
 
     private RouteSearchParameters processRouteRequestOptions(RouteRequest request, RouteSearchParameters params) throws StatusCodeException {
         params = processRequestOptions(request.getRouteOptions(), params);
-        if (request.getRouteOptions().hasProfileParams())
+        if (request.getRouteOptions().hasProfileParams()) {
             params.setProfileParams(convertParameters(request.getRouteOptions(), params.getProfileType()));
+            RestParameters.validateValues(params.getProfileParameters());
+        }
 
         if (request.getRouteOptions().hasVehicleType())
             params.setVehicleType(convertVehicleType(request.getRouteOptions().getVehicleType(), params.getProfileType()));

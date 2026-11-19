@@ -36,6 +36,7 @@ import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
+import org.heigit.ors.routing.parameters.RestParameters;
 import org.heigit.ors.util.ProfileTools;
 import org.heigit.ors.util.TemporaryUtilShelter;
 import org.locationtech.jts.geom.Coordinate;
@@ -197,6 +198,7 @@ public class MatrixRequest extends ServiceRequest {
      * @throws Exception
      */
     public MatrixResult computeMatrix(RoutingProfile routingProfile) throws Exception {
+        RestParameters.rejectRestParameters(getSearchParameters(), MatrixErrorCodes.UNKNOWN_PARAMETER);
         GraphHopper gh = routingProfile.getGraphhopper();
         String encoderName = RoutingProfileType.getEncoderName(getProfileType());
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);

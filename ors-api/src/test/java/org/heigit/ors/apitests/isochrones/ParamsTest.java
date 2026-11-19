@@ -20,6 +20,8 @@ import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Arrays;
 
@@ -810,5 +812,25 @@ class ParamsTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then().log().ifValidationFails()
                 .statusCode(200);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"rest_threshold", "rest_penalty"})
+    void expectRestParametersToBeUnknown(String restParameter) {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations_1"));
+        body.put("range", getParameter("ranges_2"));
+        body.put("options", new JSONObject().put("profile_params", new JSONObject().put(restParameter, 500)));
+
+        given()
+                .headers(geoJsonContent)
+                .pathParam("profile", "foot-walking")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("error.code", Matchers.is(IsochronesErrorCodes.UNKNOWN_PARAMETER))
+                .statusCode(400);
     }
 }

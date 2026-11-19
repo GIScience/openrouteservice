@@ -1835,4 +1835,65 @@ class ParamsTest extends ServiceTest {
                 .body("routes[0].extras.containsKey('steepness')", is(true))
                 .statusCode(200);
     }
+
+    @Test
+    void expectRestThresholdToBePositive() {
+        assertRestRoutingError(getParameter("footProfile"), restRequest(0, null), RoutingErrorCodes.INVALID_PARAMETER_VALUE);
+    }
+
+    @Test
+    void expectRestPenaltyToBeZeroOrMore() {
+        assertRestRoutingError(getParameter("footProfile"), restRequest(500, -1.0), RoutingErrorCodes.INVALID_PARAMETER_VALUE);
+    }
+
+    @Test
+    void expectRestPenaltyToRequireRestThreshold() {
+        assertRestRoutingError(getParameter("footProfile"), restRequest(null, 2.0), RoutingErrorCodes.MISSING_PARAMETER);
+    }
+
+    @Test
+    void expectRestThresholdToRequireRestPointData() {
+        assertRestRoutingError(getParameter("carProfile"), restRequest(500, null), RoutingErrorCodes.INCOMPATIBLE_PARAMETERS);
+    }
+
+    @Test
+    void expectRestThresholdToRejectRoundTrip() {
+        JSONObject body = restRequest(500, null);
+        body.put("coordinates", new JSONArray().put(new JSONArray().put(8.676023).put(49.416809)));
+        body.getJSONObject("options").put("round_trip", new JSONObject().put("length", 1000));
+        assertRestRoutingError(getParameter("footProfile"), body, RoutingErrorCodes.INCOMPATIBLE_PARAMETERS);
+    }
+
+    @Test
+    void expectRestThresholdToRejectAlternativeRoutes() {
+        JSONObject body = restRequest(500, null);
+        body.put("alternative_routes", new JSONObject().put("target_count", 2));
+        assertRestRoutingError(getParameter("footProfile"), body, RoutingErrorCodes.INCOMPATIBLE_PARAMETERS);
+    }
+
+    private JSONObject restRequest(Integer restThreshold, Double restPenalty) {
+        JSONObject profileParams = new JSONObject();
+        if (restThreshold != null)
+            profileParams.put("rest_threshold", restThreshold);
+        if (restPenalty != null)
+            profileParams.put("rest_penalty", restPenalty);
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesWalking"));
+        body.put("options", new JSONObject().put("profile_params", profileParams));
+        return body;
+    }
+
+    private void assertRestRoutingError(Object profile, JSONObject body, int errorCode) {
+        given()
+                .headers(jsonContent)
+                .pathParam("profile", profile)
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(false))
+                .body("error.code", is(errorCode))
+                .statusCode(400);
+    }
 }
