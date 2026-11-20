@@ -14,12 +14,13 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       actions: read # Required to download artifacts
+      contents: read # Required to fetch the pull request's commit
+      pull-requests: read # Required to look up the pull request
+      statuses: write # Required to post the analysis on the pull request
     steps:
       - name: 'Sonar analysis'
-        uses: evaristegalois11/sonar-fork-analysis@9d67a15f17407c3bf39bb09c39a9d5d3794eeecd # v1
+        uses: galois-groups/sonar-fork-analysis@f947a3c4d3a2ece53e306324263198c9fd4273b3 # v2.2.0
         with:
-          distribution: 'temurin'
-          java-version: '25'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
           project-key: 'GIScience_openrouteservice'
+          sonar-organization: 'giscience'
+          sonar-token: ${{ secrets.SONAR_TOKEN }}

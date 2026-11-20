@@ -1,4 +1,4 @@
-FROM docker.io/maven:3.10.0-amazoncorretto-25@sha256:cbe7e5baedf0b1fb0ad32d6e9d2610079d3c9c572faea31018084de7dd0b3553 AS build
+FROM docker.io/maven:3.10.0-amazoncorretto-25@sha256:5539f97dede38312a6b028c3c0a8dc0a88aff627a53c884fc035b0c38c697dd7 AS build
 # ============================================================================
 # Build stage for Java-based ORS application
 # This stage is responsible for compiling and packaging the Java-based OpenRouteService (ORS) application.
@@ -44,7 +44,7 @@ COPY ors-engine /tmp/ors/ors-engine
 RUN ./mvnw -pl 'ors-api,ors-engine' \
     -q clean package -DskipTests -Dmaven.test.skip=true
 
-FROM docker.io/golang:1.27.2-alpine3.24@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS build-go
+FROM docker.io/golang:1.27.4-alpine3.24@sha256:70bd7ddea8b6cbe5d6943cde279d6b67feb10cc924fb9100d1d8757c1575b280 AS build-go
 # ============================================================================
 # Build stage for Go-based tools
 # This stage is dedicated to building Go-based tools required in later stages.
@@ -52,7 +52,7 @@ FROM docker.io/golang:1.27.2-alpine3.24@sha256:f92b6ef800e499660581efdabdf25d9d8
 
 RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.54.1
 
-FROM docker.io/amazoncorretto:25.0.4-alpine3.24@sha256:19f1e2198abaaf201f5b9faa39222412da3fad66415e9dfe253bd6763415097e AS base
+FROM docker.io/amazoncorretto:25.0.5-alpine3.24@sha256:1124f698f69d2185828dbd1a1ebeb9aee21884ac64bed7af3deeafd20b21a9dc AS base
 # ============================================================================
 # Base image stage: common setup for all runtime stages
 # This stage sets up the foundational environment for running the OpenRouteService (ORS) application.
@@ -86,7 +86,7 @@ LABEL org.opencontainers.image.title="openrouteservice"
 LABEL org.opencontainers.image.description="Open-source route planning service based on OpenStreetMap data"
 LABEL org.opencontainers.image.documentation="https://giscience.github.io/openrouteservice"
 
-FROM gcr.io/distroless/cc-debian13:nonroot@sha256:e792ab3d241a468a4fd7519ddbbebe66b49b5f365771716ea688ad40b6c6f1c2 AS slim
+FROM gcr.io/distroless/cc-debian13:nonroot@sha256:cb87acc574abe719b6e5c547384defa2f7b1f24af9605d3f618cf852495d8be2 AS slim
 # ============================================================================
 # K8s-ready image stage
 # This stage is optimized for Kubernetes and container deployments with:
