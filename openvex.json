@@ -2,8 +2,8 @@
   "@context": "https://openvex.dev/ns/v0.2.0",
   "@id": "https://github.com/GIScience/openrouteservice/blob/main/openvex.json",
   "author": "HeiGIT openrouteservice maintainers",
-  "timestamp": "2026-09-08T00:00:00Z",
-  "version": 2,
+  "timestamp": "2026-11-19T00:00:00Z",
+  "version": 3,
   "statements": [
     {
       "timestamp": "2026-09-08T00:00:00Z",
@@ -45,10 +45,10 @@
       "status_notes": "DevGuard matches a version-less product purl against nothing, so the version is expressed as the constraint >=0.0.0-0, which its purl matcher reads as any version including Debian's revision suffixes."
     },
     {
-      "timestamp": "2026-09-08T00:00:00Z",
+      "timestamp": "2026-11-18T00:00:00Z",
       "vulnerability": {
-        "name": "CVE-2026-5450",
-        "description": "glibc: scanf family with %mc and an explicit field width above 1024 overflows the heap buffer by one byte (GLIBC-SA-2026-0009)"
+        "name": "CVE-2026-5435",
+        "description": "glibc: ns_printrrf, ns_printrr and fp_nquery write out of bounds when printing TSIG records"
       },
       "products": [
         {
@@ -60,15 +60,15 @@
       ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "The image runs a single Java application on the JVM; neither it nor anything else shipped in the slim image calls the scanf family with the %mc conversion, which is the only way to reach the overflow.",
-      "status_notes": "See the DEBIAN-CVE-2026-5450 statement below for the same assessment under the identifier DevGuard uses."
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports ns_printrrf, ns_printrr or fp_nquery. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2026-5435 statement below for the same assessment under the identifier DevGuard uses."
     },
     {
-      "timestamp": "2026-09-08T00:00:00Z",
+      "timestamp": "2026-11-18T00:00:00Z",
       "vulnerability": {
-        "name": "DEBIAN-CVE-2026-5450",
-        "description": "Debian OSV identifier for CVE-2026-5450",
-        "aliases": ["CVE-2026-5450"]
+        "name": "DEBIAN-CVE-2026-5435",
+        "description": "Debian OSV identifier for CVE-2026-5435",
+        "aliases": ["CVE-2026-5435"]
       },
       "products": [
         {
@@ -80,8 +80,1854 @@
       ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "Same assessment as CVE-2026-5450 above, under the identifier DevGuard reports the finding as.",
-      "status_notes": "The version is expressed as the constraint >=0.0.0-0 so the statement keeps matching across libc6 updates; DevGuard does not match version-less product purls."
+      "impact_statement": "Same assessment as CVE-2026-5435 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-6238",
+        "description": "glibc: ns_printrrf, ns_printrr and fp_nquery do not validate RDATA against its length"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports ns_printrrf, ns_printrr or fp_nquery. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2026-6238 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-6238",
+        "description": "Debian OSV identifier for CVE-2026-6238",
+        "aliases": ["CVE-2026-6238"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-6238 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2018-20796",
+        "description": "glibc: uncontrolled recursion in check_dst_limits_calc_pos_1 (regexec) with a crafted pattern"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports regcomp or regexec. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2018-20796 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2018-20796",
+        "description": "Debian OSV identifier for CVE-2018-20796",
+        "aliases": ["CVE-2018-20796"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2018-20796 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2019-9192",
+        "description": "glibc: uncontrolled recursion in check_dst_limits_calc_pos_1 (regexec) with a crafted pattern, disputed upstream"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports regcomp or regexec. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2019-9192 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2019-9192",
+        "description": "Debian OSV identifier for CVE-2019-9192",
+        "aliases": ["CVE-2019-9192"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2019-9192 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-100290",
+        "description": "glibc: regcomp and regexec read freed memory and double free when an allocation fails"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports regcomp or regexec. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2026-100290 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-100290",
+        "description": "Debian OSV identifier for CVE-2026-100290",
+        "aliases": ["CVE-2026-100290"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-100290 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-19499",
+        "description": "glibc: strfmon and strfmon_l write past the output buffer with right-justified padding"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports strfmon or strfmon_l. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2026-19499 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-19499",
+        "description": "Debian OSV identifier for CVE-2026-19499",
+        "aliases": ["CVE-2026-19499"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-19499 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-19542",
+        "description": "glibc: tdelete writes one pointer past its parent stack on a tree of depth 40"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports tsearch or tdelete. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2026-19542 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-19542",
+        "description": "Debian OSV identifier for CVE-2026-19542",
+        "aliases": ["CVE-2026-19542"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-19542 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-115819",
+        "description": "glibc: wide scanf family writes an extra null byte past the destination for %s and %["
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports any function of the wide scanf family. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2026-115819 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-115819",
+        "description": "Debian OSV identifier for CVE-2026-115819",
+        "aliases": ["CVE-2026-115819"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-115819 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-6791",
+        "description": "glibc: wordexp exhausts the stack on a long ~username (strndupa)"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports wordexp. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2026-6791 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-6791",
+        "description": "Debian OSV identifier for CVE-2026-6791",
+        "aliases": ["CVE-2026-6791"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-6791 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-6368",
+        "description": "glibc: wordexp with WRDE_APPEND returns invalid memory in we_wordv"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports wordexp. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2026-6368 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-6368",
+        "description": "Debian OSV identifier for CVE-2026-6368",
+        "aliases": ["CVE-2026-6368"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-6368 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2010-4756",
+        "description": "glibc: glob consumes CPU and memory on crafted patterns that match nothing"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports glob. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2010-4756 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2010-4756",
+        "description": "Debian OSV identifier for CVE-2010-4756",
+        "aliases": ["CVE-2010-4756"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2010-4756 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-5358",
+        "description": "glibc: obsolete NIS+ function nis_local_principal overflows a static buffer"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim image runs a single Java application. Nothing in it outside glibc itself imports nis_local_principal or any other NIS+ function. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main): the jlink runtime under /opt/java, /usr/bin/httpcheck and the native libraries bundled in ors.jar. Java code could only reach it through JNA or the FFM API: JNA is not on the classpath and no class in ors.jar references java.lang.foreign.Linker or SymbolLookup.",
+      "status_notes": "See the DEBIAN-CVE-2026-5358 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-5358",
+        "description": "Debian OSV identifier for CVE-2026-5358",
+        "aliases": ["CVE-2026-5358"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-5358 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-80489",
+        "description": "glibc iconv: EUC-JISX0213 decoder stops making progress and hangs the caller"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The affected code is the EUC-JISX0213 converter of glibc's iconv. Java converts charsets in Java, not through iconv. The only native callers in the image are libinstrument (loaded only with -javaagent; converts from UTF-8 to the locale's charset) and libsplashscreen (loaded only for a splash screen, which ors.jar does not declare; converts to UCS-2). Neither ever selects the affected converter. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main).",
+      "status_notes": "See the DEBIAN-CVE-2026-80489 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-80489",
+        "description": "Debian OSV identifier for CVE-2026-80489",
+        "aliases": ["CVE-2026-80489"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-80489 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-77117",
+        "description": "glibc iconv: SHIFT_JISX0213 decoder stops making progress and hangs the caller"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The affected code is the SHIFT_JISX0213 converter of glibc's iconv. Java converts charsets in Java, not through iconv. The only native callers in the image are libinstrument (loaded only with -javaagent; converts from UTF-8 to the locale's charset) and libsplashscreen (loaded only for a splash screen, which ors.jar does not declare; converts to UCS-2). Neither ever selects the affected converter. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main).",
+      "status_notes": "See the DEBIAN-CVE-2026-77117 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-77117",
+        "description": "Debian OSV identifier for CVE-2026-77117",
+        "aliases": ["CVE-2026-77117"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-77117 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-121758",
+        "description": "glibc iconv: ISO-2022-CN-EXT decoder reads past the input buffer"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The affected code is the ISO-2022-CN-EXT converter of glibc's iconv. Java converts charsets in Java, not through iconv. The only native callers in the image are libinstrument (loaded only with -javaagent; converts from UTF-8 to the locale's charset) and libsplashscreen (loaded only for a splash screen, which ors.jar does not declare; converts to UCS-2). Neither ever selects the affected converter. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main).",
+      "status_notes": "See the DEBIAN-CVE-2026-121758 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-121758",
+        "description": "Debian OSV identifier for CVE-2026-121758",
+        "aliases": ["CVE-2026-121758"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-121758 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-121757",
+        "description": "glibc iconv: CP949 decoder with //IGNORE reads past the input buffer"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The affected code is the CP949 converter of glibc's iconv. Java converts charsets in Java, not through iconv. The only native callers in the image are libinstrument (loaded only with -javaagent; converts from UTF-8 to the locale's charset) and libsplashscreen (loaded only for a splash screen, which ors.jar does not declare; converts to UCS-2). Neither ever selects the affected converter. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main).",
+      "status_notes": "See the DEBIAN-CVE-2026-121757 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-121757",
+        "description": "Debian OSV identifier for CVE-2026-121757",
+        "aliases": ["CVE-2026-121757"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-121757 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-124024",
+        "description": "glibc iconv: UCS-4 to IBM1390/IBM1399 encoder reads past the input buffer"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The affected code is the IBM1390 and IBM1399 converter of glibc's iconv. Java converts charsets in Java, not through iconv. The only native callers in the image are libinstrument (loaded only with -javaagent; converts from UTF-8 to the locale's charset) and libsplashscreen (loaded only for a splash screen, which ors.jar does not declare; converts to UCS-2). Neither ever selects the affected converter. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main).",
+      "status_notes": "See the DEBIAN-CVE-2026-124024 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-124024",
+        "description": "Debian OSV identifier for CVE-2026-124024",
+        "aliases": ["CVE-2026-124024"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-124024 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2019-1010023",
+        "description": "glibc: running ldd on a crafted ELF file can execute code"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Exploitation needs a victim to run ldd on attacker-supplied ELF files. The slim image ships no ldd and no shell, and the application never loads ELF files it receives. glibc upstream treats this as a non-security bug and Debian records it as unimportant, so no libc6 update will clear this finding.",
+      "status_notes": "See the DEBIAN-CVE-2019-1010023 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2019-1010023",
+        "description": "Debian OSV identifier for CVE-2019-1010023",
+        "aliases": ["CVE-2019-1010023"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2019-1010023 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2019-1010024",
+        "description": "glibc: ASLR can be bypassed through the cache of thread stacks and heaps"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_cannot_be_controlled_by_adversary",
+      "impact_statement": "An ASLR bypass is only useful together with a separate memory corruption bug that an attacker controls; this one does not give an attacker any control by itself. glibc upstream treats it as a non-security bug and Debian records it as unimportant, so no libc6 update will clear this finding. Same reasoning as CVE-2019-1010022.",
+      "status_notes": "See the DEBIAN-CVE-2019-1010024 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2019-1010024",
+        "description": "Debian OSV identifier for CVE-2019-1010024",
+        "aliases": ["CVE-2019-1010024"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_cannot_be_controlled_by_adversary",
+      "impact_statement": "Same assessment as CVE-2019-1010024 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2019-1010025",
+        "description": "glibc: heap addresses of pthread-created threads can be guessed"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_cannot_be_controlled_by_adversary",
+      "impact_statement": "An ASLR bypass is only useful together with a separate memory corruption bug that an attacker controls; this one does not give an attacker any control by itself. glibc's position is that ASLR bypass itself is not a vulnerability and Debian records it as unimportant, so no libc6 update will clear this finding. Same reasoning as CVE-2019-1010022.",
+      "status_notes": "See the DEBIAN-CVE-2019-1010025 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2019-1010025",
+        "description": "Debian OSV identifier for CVE-2019-1010025",
+        "aliases": ["CVE-2019-1010025"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_cannot_be_controlled_by_adversary",
+      "impact_statement": "Same assessment as CVE-2019-1010025 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-84243",
+        "description": "glibc gettext: LANGUAGE entries with '/' or '..' load message catalogs from arbitrary paths"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "gettext only reads LANGUAGE when LC_MESSAGES is not the C or POSIX locale. The slim image installs no locales (/usr/lib/locale is absent), so setlocale falls back to C and LANGUAGE is never read. The image has no setuid or setgid programs, and its environment is set by the operator, not by request input.",
+      "status_notes": "See the DEBIAN-CVE-2026-84243 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-84243",
+        "description": "Debian OSV identifier for CVE-2026-84243",
+        "aliases": ["CVE-2026-84243"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-84243 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-89092",
+        "description": "glibc nscd: a large DNS response overflows the nscd thread stack"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The bug is in the nscd daemon, which Debian ships in its own nscd package. The slim image does not contain nscd (/usr/sbin/nscd is absent) and nothing in it starts a name service cache daemon.",
+      "status_notes": "See the DEBIAN-CVE-2026-89092 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-89092",
+        "description": "Debian OSV identifier for CVE-2026-89092",
+        "aliases": ["CVE-2026-89092"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Same assessment as CVE-2026-89092 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-86805",
+        "description": "glibc ld.so: TOCTOU race when expanding $ORIGIN in DT_RPATH of setuid/setgid programs"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The vulnerable path only runs for setuid or setgid (AT_SECURE) programs. The slim image contains none (Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main)) and the application runs as the unprivileged user 1001.",
+      "status_notes": "See the DEBIAN-CVE-2026-86805 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-86805",
+        "description": "Debian OSV identifier for CVE-2026-86805",
+        "aliases": ["CVE-2026-86805"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-86805 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-95818",
+        "description": "glibc ld.so: stack buffer overflow for setuid/setgid programs whose RPATH starts with $ORIGIN"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The vulnerable path only runs for setuid or setgid (AT_SECURE) programs. The slim image contains none (Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main)) and the application runs as the unprivileged user 1001.",
+      "status_notes": "See the DEBIAN-CVE-2026-95818 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-95818",
+        "description": "Debian OSV identifier for CVE-2026-95818",
+        "aliases": ["CVE-2026-95818"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-95818 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-97399",
+        "description": "glibc: POWER8-optimised strncasecmp reads one byte past the size limit"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Only the strncasecmp implementation optimised for the POWER8 architecture is affected. The image is published for linux/amd64 and linux/arm64 only, whose libc6 builds do not contain that implementation.",
+      "status_notes": "See the DEBIAN-CVE-2026-97399 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-97399",
+        "description": "Debian OSV identifier for CVE-2026-97399",
+        "aliases": ["CVE-2026-97399"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Same assessment as CVE-2026-97399 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-18374",
+        "description": "glibc: fopen with an effectively empty ,ccs= mode extension overflows the heap"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_cannot_be_controlled_by_adversary",
+      "impact_statement": "The overflow needs an attacker-controlled fopen mode string containing ',ccs='. The JVM calls fopen with mode strings fixed in its native code; no binary in the image contains the string 'ccs=' (Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main)). Requests cannot influence the mode argument.",
+      "status_notes": "See the DEBIAN-CVE-2026-18374 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-18374",
+        "description": "Debian OSV identifier for CVE-2026-18374",
+        "aliases": ["CVE-2026-18374"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libc6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libc6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_cannot_be_controlled_by_adversary",
+      "impact_statement": "Same assessment as CVE-2026-18374 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-124709",
+        "description": "OpenSSL QUIC server: rejected streams reset by the peer are never freed (memory growth)"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Nothing in the slim image loads OpenSSL: no executable or library outside the OpenSSL package itself links libssl.so.3 or libcrypto.so.3, and none names them for dlopen. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main), including the native libraries bundled in ors.jar. The JVM implements TLS and cryptography in Java (JSSE/JCA). libssl3t64 is part of the distroless cc base image and is never executed.",
+      "status_notes": "See the DEBIAN-CVE-2026-124709 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-124709",
+        "description": "Debian OSV identifier for CVE-2026-124709",
+        "aliases": ["CVE-2026-124709"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-124709 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-88823",
+        "description": "OpenSSL AES-GCM-SIV: a zero-length AAD update discards the AAD supplied before it"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Nothing in the slim image loads OpenSSL: no executable or library outside the OpenSSL package itself links libssl.so.3 or libcrypto.so.3, and none names them for dlopen. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main), including the native libraries bundled in ors.jar. The JVM implements TLS and cryptography in Java (JSSE/JCA). libssl3t64 is part of the distroless cc base image and is never executed.",
+      "status_notes": "See the DEBIAN-CVE-2026-88823 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-88823",
+        "description": "Debian OSV identifier for CVE-2026-88823",
+        "aliases": ["CVE-2026-88823"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-88823 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-107493",
+        "description": "OpenSSL: PEM_X509_INFO_read_bio_ex frees entries of a caller-supplied stack on failure"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Nothing in the slim image loads OpenSSL: no executable or library outside the OpenSSL package itself links libssl.so.3 or libcrypto.so.3, and none names them for dlopen. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main), including the native libraries bundled in ors.jar. The JVM implements TLS and cryptography in Java (JSSE/JCA). libssl3t64 is part of the distroless cc base image and is never executed.",
+      "status_notes": "See the DEBIAN-CVE-2026-107493 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-107493",
+        "description": "Debian OSV identifier for CVE-2026-107493",
+        "aliases": ["CVE-2026-107493"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-107493 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-95691",
+        "description": "OpenSSL QUIC client: use after free on a retransmitted CRYPTO frame"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Nothing in the slim image loads OpenSSL: no executable or library outside the OpenSSL package itself links libssl.so.3 or libcrypto.so.3, and none names them for dlopen. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main), including the native libraries bundled in ors.jar. The JVM implements TLS and cryptography in Java (JSSE/JCA). libssl3t64 is part of the distroless cc base image and is never executed.",
+      "status_notes": "See the DEBIAN-CVE-2026-95691 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-95691",
+        "description": "Debian OSV identifier for CVE-2026-95691",
+        "aliases": ["CVE-2026-95691"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-95691 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-95692",
+        "description": "OpenSSL AES-GCM-SIV: an IV of the wrong length is over-read or silently truncated"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Nothing in the slim image loads OpenSSL: no executable or library outside the OpenSSL package itself links libssl.so.3 or libcrypto.so.3, and none names them for dlopen. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main), including the native libraries bundled in ors.jar. The JVM implements TLS and cryptography in Java (JSSE/JCA). libssl3t64 is part of the distroless cc base image and is never executed.",
+      "status_notes": "See the DEBIAN-CVE-2026-95692 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-95692",
+        "description": "Debian OSV identifier for CVE-2026-95692",
+        "aliases": ["CVE-2026-95692"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-95692 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-107496",
+        "description": "OpenSSL CMS: encrypting to an EC certificate with group order 1 loops forever"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Nothing in the slim image loads OpenSSL: no executable or library outside the OpenSSL package itself links libssl.so.3 or libcrypto.so.3, and none names them for dlopen. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main), including the native libraries bundled in ors.jar. The JVM implements TLS and cryptography in Java (JSSE/JCA). libssl3t64 is part of the distroless cc base image and is never executed.",
+      "status_notes": "See the DEBIAN-CVE-2026-107496 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-107496",
+        "description": "Debian OSV identifier for CVE-2026-107496",
+        "aliases": ["CVE-2026-107496"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-107496 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-35190",
+        "description": "OpenSSL: Suite B server with TLS 1.3 reads past a fixed group list"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Nothing in the slim image loads OpenSSL: no executable or library outside the OpenSSL package itself links libssl.so.3 or libcrypto.so.3, and none names them for dlopen. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main), including the native libraries bundled in ors.jar. The JVM implements TLS and cryptography in Java (JSSE/JCA). libssl3t64 is part of the distroless cc base image and is never executed.",
+      "status_notes": "See the DEBIAN-CVE-2026-35190 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-35190",
+        "description": "Debian OSV identifier for CVE-2026-35190",
+        "aliases": ["CVE-2026-35190"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-35190 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-88822",
+        "description": "OpenSSL QUIC: automatic peer address detection leaks uninitialised stack data"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Nothing in the slim image loads OpenSSL: no executable or library outside the OpenSSL package itself links libssl.so.3 or libcrypto.so.3, and none names them for dlopen. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main), including the native libraries bundled in ors.jar. The JVM implements TLS and cryptography in Java (JSSE/JCA). libssl3t64 is part of the distroless cc base image and is never executed.",
+      "status_notes": "See the DEBIAN-CVE-2026-88822 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-88822",
+        "description": "Debian OSV identifier for CVE-2026-88822",
+        "aliases": ["CVE-2026-88822"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-88822 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2010-0928",
+        "description": "OpenSSL: fault-injection attack on RSA signatures via supply voltage manipulation (LEON3 SoC)"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Nothing in the slim image loads OpenSSL: no executable or library outside the OpenSSL package itself links libssl.so.3 or libcrypto.so.3, and none names them for dlopen. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main), including the native libraries bundled in ors.jar. The JVM implements TLS and cryptography in Java (JSSE/JCA). libssl3t64 is part of the distroless cc base image and is never executed."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2010-0928",
+        "description": "OpenSSL: fault-injection attack on RSA signatures via supply voltage manipulation (LEON3 SoC)"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as the statement above, with a versioned product purl for DevGuard.",
+      "status_notes": "DevGuard reports this finding under the CVE id, not under a DEBIAN-CVE id, so this statement keeps the CVE id and only changes the product purl to the >=0.0.0-0 form DevGuard matches."
+    },
+    {
+      "timestamp": "2026-11-19T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-95690",
+        "description": "OpenSSL DTLS: out-of-sequence handshake fragments each allocate a full-size reassembly buffer (memory exhaustion)"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Nothing in the slim image loads OpenSSL: no executable or library outside the OpenSSL package itself links libssl.so.3 or libcrypto.so.3, and none names them for dlopen. Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main), including the native libraries bundled in ors.jar. The JVM implements TLS and cryptography in Java (JSSE/JCA). libssl3t64 is part of the distroless cc base image and is never executed.",
+      "status_notes": "See the DEBIAN-CVE-2026-95690 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-19T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-95690",
+        "description": "Debian OSV identifier for CVE-2026-95690",
+        "aliases": ["CVE-2026-95690"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/libssl3t64@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libssl3t64@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-95690 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-95619",
+        "description": "libstdc++: integer overflow in the aligned operator new"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The only C++ runtime functions imported by binaries in the slim image are the plain operator new/new[]/delete, std::nothrow and the __cxa_* ABI helpers (Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main)). No binary imports the aligned operator new (operator new(size_t, std::align_val_t)), and the HotSpot style guide forbids dynamic allocation of over-aligned types (https://github.com/openjdk/jdk/blob/master/doc/hotspot-style.md).",
+      "status_notes": "See the DEBIAN-CVE-2026-95619 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-95619",
+        "description": "Debian OSV identifier for CVE-2026-95619",
+        "aliases": ["CVE-2026-95619"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-95619 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-125709",
+        "description": "libstdc++: a failing byte-by-byte filebuf write still appends to the buffer"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The only C++ runtime functions imported by binaries in the slim image are the plain operator new/new[]/delete, std::nothrow and the __cxa_* ABI helpers (Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main)). No binary imports any std::basic_filebuf or iostream symbol; HotSpot does not use the C++ I/O library (https://github.com/openjdk/jdk/blob/master/doc/hotspot-style.md).",
+      "status_notes": "See the DEBIAN-CVE-2026-125709 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-125709",
+        "description": "Debian OSV identifier for CVE-2026-125709",
+        "aliases": ["CVE-2026-125709"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-125709 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-115456",
+        "description": "libstdc++: std::from_chars reads past a string that is not null-terminated"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The only C++ runtime functions imported by binaries in the slim image are the plain operator new/new[]/delete, std::nothrow and the __cxa_* ABI helpers (Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main)). No binary imports std::from_chars, and the HotSpot style guide does not permit <charconv> (https://github.com/openjdk/jdk/blob/master/doc/hotspot-style.md).",
+      "status_notes": "See the DEBIAN-CVE-2026-115456 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-115456",
+        "description": "Debian OSV identifier for CVE-2026-115456",
+        "aliases": ["CVE-2026-115456"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-115456 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-115455",
+        "description": "libstdc++: extracting a std::bitset from a wide-character stream overflows the stack"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The only C++ runtime functions imported by binaries in the slim image are the plain operator new/new[]/delete, std::nothrow and the __cxa_* ABI helpers (Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main)). Reading from a wide-character stream needs std::basic_istream<wchar_t>, which lives in libstdc++.so and is not imported by any binary; HotSpot does not use the C++ I/O library (https://github.com/openjdk/jdk/blob/master/doc/hotspot-style.md).",
+      "status_notes": "See the DEBIAN-CVE-2026-115455 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-115455",
+        "description": "Debian OSV identifier for CVE-2026-115455",
+        "aliases": ["CVE-2026-115455"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "Same assessment as CVE-2026-115455 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-114690",
+        "description": "libstdc++ parallel mode: undersized buffer in the parallel search implementation"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Parallel mode is header code that is only compiled into programs built with _GLIBCXX_PARALLEL and OpenMP, and such programs link the OpenMP runtime libgomp. Nothing in the slim image links or loads libgomp (Checked on the amd64 and arm64 v10.1.1-slim images (distroless cc-debian13 base, same Dockerfile as main)), and the HotSpot style guide forbids the parallel algorithms (https://github.com/openjdk/jdk/blob/master/doc/hotspot-style.md).",
+      "status_notes": "See the DEBIAN-CVE-2026-114690 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-114690",
+        "description": "Debian OSV identifier for CVE-2026-114690",
+        "aliases": ["CVE-2026-114690"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Same assessment as CVE-2026-114690 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-114691",
+        "description": "libstdc++: integer wrap in the std::vector<bool> constructor"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "std::vector<bool> is a header-only template: the shared library in libstdc++6 contains no vector<bool> code, so the vulnerable code would sit in a binary that uses it, not in this package. The HotSpot style guide forbids the standard containers (https://github.com/openjdk/jdk/blob/master/doc/hotspot-style.md). Exploitation also needs an attacker-chosen element count close to SIZE_MAX.",
+      "status_notes": "See the DEBIAN-CVE-2026-114691 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-114691",
+        "description": "Debian OSV identifier for CVE-2026-114691",
+        "aliases": ["CVE-2026-114691"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Same assessment as CVE-2026-114691 above, under the identifier DevGuard reports the finding as."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "CVE-2026-102010",
+        "description": "libstdc++ pb_ds: erase_if on a binary heap priority queue leaves a dangling pointer"
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The policy-based data structures (__gnu_pbds) are a header-only GNU extension: the shared library in libstdc++6 contains none of that code, so it would sit in a binary that uses it, not in this package. The HotSpot style guide forbids the standard containers (https://github.com/openjdk/jdk/blob/master/doc/hotspot-style.md), let alone GNU extensions.",
+      "status_notes": "See the DEBIAN-CVE-2026-102010 statement below for the same assessment under the identifier DevGuard uses."
+    },
+    {
+      "timestamp": "2026-11-18T00:00:00Z",
+      "vulnerability": {
+        "name": "DEBIAN-CVE-2026-102010",
+        "description": "Debian OSV identifier for CVE-2026-102010",
+        "aliases": ["CVE-2026-102010"]
+      },
+      "products": [
+        {
+          "@id": "pkg:deb/debian/gcc-14-base@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/gcc-14-base@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgcc-s1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgcc-s1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libgomp1@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libgomp1@>=0.0.0-0"
+          }
+        },
+        {
+          "@id": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0",
+          "identifiers": {
+            "purl": "pkg:deb/debian/libstdc%2B%2B6@>=0.0.0-0"
+          }
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Same assessment as CVE-2026-102010 above, under the identifier DevGuard reports the finding as."
     }
   ]
 }
