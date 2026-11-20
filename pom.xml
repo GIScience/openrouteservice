@@ -99,7 +99,7 @@
              flags (ors-engine adds the Mockito agent) without restating these -->
         <surefire.base.argLine>-Duser.language=en -Duser.region=US</surefire.base.argLine>
         <rest-assured.version>6.3.0</rest-assured.version>
-        <gatling.version>3.16.0</gatling.version>
+        <gatling.version>3.16.1</gatling.version>
         <commons-cli.version>1.11.0</commons-cli.version>
         <gatling-maven-plugin.version>4.21.12</gatling-maven-plugin.version>
         <awssdk.version>2.59.1</awssdk.version>
