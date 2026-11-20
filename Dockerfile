@@ -1,4 +1,4 @@
-FROM docker.io/maven:3.10.0-amazoncorretto-25@sha256:3e3ab2822917afe0d0254d3fb8d7ee1c655946485937bb7d5a8231243eec7f61 AS build
+FROM docker.io/maven:3.10.0-amazoncorretto-25@sha256:5539f97dede38312a6b028c3c0a8dc0a88aff627a53c884fc035b0c38c697dd7 AS build
 # ============================================================================
 # Build stage for Java-based ORS application
 # This stage is responsible for compiling and packaging the Java-based OpenRouteService (ORS) application.
