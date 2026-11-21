@@ -3,7 +3,6 @@ FROM docker.io/maven:3.10.0-amazoncorretto-25@sha256:5539f97dede38312a6b028c3c0a
 # Build stage for Java-based ORS application
 # This stage is responsible for compiling and packaging the Java-based OpenRouteService (ORS) application.
 # ============================================================================
-ARG DEBIAN_FRONTEND=noninteractive
 
 # hadolint ignore=DL3002
 USER root
