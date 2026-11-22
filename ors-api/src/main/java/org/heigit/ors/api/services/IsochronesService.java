@@ -23,6 +23,7 @@ import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.parameters.RestParameters;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -270,8 +271,10 @@ public class IsochronesService extends ApiService {
     RouteSearchParameters processIsochronesRequestOptions(IsochronesRequest isochronesRequest, RouteSearchParameters parameters) throws StatusCodeException {
         RouteRequestOptions options = isochronesRequest.getIsochronesOptions();
         parameters = processRequestOptions(options, parameters);
-        if (options.hasProfileParams())
+        if (options.hasProfileParams()) {
             parameters.setProfileParams(convertParameters(options, parameters.getProfileType()));
+            RestParameters.rejectRestParameters(parameters, IsochronesErrorCodes.UNKNOWN_PARAMETER);
+        }
         return parameters;
     }
 

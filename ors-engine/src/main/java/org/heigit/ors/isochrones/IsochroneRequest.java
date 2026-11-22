@@ -21,6 +21,7 @@ import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.*;
+import org.heigit.ors.routing.parameters.RestParameters;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.ProfileTools;
 import org.heigit.ors.util.TemporaryUtilShelter;
@@ -268,6 +269,7 @@ public class IsochroneRequest extends ServiceRequest {
         IsochroneMapCollection isoMaps = new IsochroneMapCollection();
         for (int i = 0; i < getTravellers().size(); ++i) {
             IsochroneSearchParameters searchParams = getSearchParameters(i);
+            RestParameters.rejectRestParameters(searchParams.getRouteParameters(), IsochronesErrorCodes.UNKNOWN_PARAMETER);
             RoutingProfile rp = routingProfileManager.getRoutingProfile(searchParams.getRouteParameters().getProfileName());
             IsochroneMap isochroneMap = buildIsochrone(searchParams, rp);
             isoMaps.add(isochroneMap);

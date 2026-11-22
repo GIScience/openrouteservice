@@ -3,11 +3,15 @@ package org.heigit.ors.api.services;
 import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
+import org.heigit.ors.api.requests.matrix.MatrixRequestOptions;
+import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.api.util.HelperFunctions;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.UnknownParameterException;
+import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.routing.RoutingProfileType;
@@ -373,4 +377,38 @@ class MatrixServiceTest {
         assertThrows(ParameterValueException.class, () -> matrixService.convertToMatrixProfileType(null));
     }
 
+    @Test
+    void profileParamsWithoutRestValuesAreAccepted() {
+        RequestProfileParams profileParams = new RequestProfileParams();
+        profileParams.setSurfaceQualityKnown(true);
+
+        assertDoesNotThrow(() -> matrixService.convertMatrixRequest(matrixRequestWithProfileParams(profileParams)));
+    }
+
+    @Test
+    void restThresholdIsRejected() {
+        RequestProfileParams profileParams = new RequestProfileParams();
+        profileParams.setRestThreshold(500);
+
+        StatusCodeException e = assertThrows(UnknownParameterException.class, () -> matrixService.convertMatrixRequest(matrixRequestWithProfileParams(profileParams)));
+        assertEquals(MatrixErrorCodes.UNKNOWN_PARAMETER, e.getInternalCode());
+    }
+
+    @Test
+    void restPenaltyIsRejected() {
+        RequestProfileParams profileParams = new RequestProfileParams();
+        profileParams.setRestPenalty(2.0);
+
+        StatusCodeException e = assertThrows(UnknownParameterException.class, () -> matrixService.convertMatrixRequest(matrixRequestWithProfileParams(profileParams)));
+        assertEquals(MatrixErrorCodes.UNKNOWN_PARAMETER, e.getInternalCode());
+    }
+
+    private org.heigit.ors.api.requests.matrix.MatrixRequest matrixRequestWithProfileParams(RequestProfileParams profileParams) throws ParameterValueException {
+        org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates, endpointsProperties);
+        springMatrixRequest.setProfile(APIEnums.Profile.FOOT_WALKING);
+        MatrixRequestOptions options = new MatrixRequestOptions();
+        options.setProfileParams(profileParams);
+        springMatrixRequest.setMatrixOptions(options);
+        return springMatrixRequest;
+    }
 }

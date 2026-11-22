@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- experimental rest point routing for walking and wheelchair profiles: routes pass rest points such as benches, read from the new build property `foot_rest_data` and requested with the hidden `profile_params` options `rest_threshold` and `rest_penalty` ([#2325](https://github.com/GIScience/openrouteservice/pull/2325))
 
 ### Changed
 

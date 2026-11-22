@@ -19,14 +19,15 @@ import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.gtfs.GraphHopperGtfs;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
-import com.graphhopper.routing.ev.HashMapSparseEncodedValue;
 import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
+import com.graphhopper.routing.util.DefaultSnapFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -57,7 +58,9 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
+import org.heigit.ors.routing.graphhopper.extensions.reader.RestPointImporter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
@@ -65,6 +68,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTraff
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
 import org.heigit.ors.util.AppInfo;
+import org.heigit.ors.util.ProfileTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +79,7 @@ import java.util.*;
 
 public class ORSGraphHopper extends GraphHopperGtfs {
     private static final Logger LOGGER = LoggerFactory.getLogger(ORSGraphHopper.class);
+    private static final String FOOT_REST_DATA = "foot_rest_data";
 
     @Getter
     private GraphProcessContext processContext;
@@ -85,6 +90,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private Eccentricity eccentricity;
 
     private int minNetworkSize = 200;
+    private boolean graphImported;
 
     private final CorePreparationHandler corePreparationHandler = new CorePreparationHandler();
     private final CoreLMPreparationHandler coreLMPreparationHandler = new CoreLMPreparationHandler();
@@ -333,6 +339,32 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                 }
             }
         }
+        if (graphImported && config.has(FOOT_REST_DATA) && getEncodingManager().hasEncodedValue(Rest.KEY)) {
+            importRestPoints();
+        }
+    }
+
+    /**
+     * Marks the graph as freshly imported. {@link #postProcessing} also runs when an existing graph is loaded; data
+     * written into the graph during the import, such as rest points, is then already stored.
+     */
+    @Override
+    protected void postImport() {
+        super.postImport();
+        graphImported = true;
+    }
+
+    private void importRestPoints() {
+        DecimalEncodedValue restEnc = getEncodingManager().getDecimalEncodedValue(Rest.KEY);
+        String filename = config.getString(FOOT_REST_DATA, null);
+        for (FlagEncoder encoder : getEncodingManager().fetchEdgeEncoders()) {
+            if (encoder instanceof FootFlagEncoder) {
+                Profile profile = getProfile(ProfileTools.makeProfileName(encoder.toString(), ProfileTools.VAL_RECOMMENDED, false));
+                Weighting weighting = createWeighting(profile, new PMap());
+                EdgeFilter snapFilter = new DefaultSnapFilter(weighting, getEncodingManager().getBooleanEncodedValue(Subnetwork.key(profile.getName())));
+                new RestPointImporter(getGraphHopperStorage().getBaseGraph(), getLocationIndex(), snapFilter, restEnc).importFile(filename);
+            }
+        }
     }
 
     @Override
@@ -438,7 +470,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
         return lmConfigs;
     }
-
 
 
     protected void prepareCore(boolean closeEarly) {

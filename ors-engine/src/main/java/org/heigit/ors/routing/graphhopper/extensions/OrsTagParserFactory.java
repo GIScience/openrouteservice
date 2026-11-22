@@ -50,6 +50,7 @@ public class OrsTagParserFactory implements TagParserFactory {
                 case MtbScale.KEY -> new MtbScaleParser(MtbScale.create(), false);
                 case MtbScaleUphill.KEY -> new MtbScaleParser(MtbScaleUphill.create(), true);
                 case Border.KEY -> new BorderParser(orsGraphHopper);
+                case Rest.KEY -> new RestParser();
                 default -> throw e;
             };
         }

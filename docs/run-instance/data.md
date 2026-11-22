@@ -63,6 +63,12 @@ The public transport profile integrates [GTFS](https://developers.google.com/tra
 
 Configuration parameters: [`ors.engine.profiles.<PROFILE-NAME>.gtfs_file`](./configuration/engine/profiles/build.md)
 
+### Rest Points
+Walking and wheelchair profiles can take rest points such as benches into account (experimental). The CSV file has a header line, then one rest point per line as `lat,lon`, e.g. the OSM nodes tagged `amenity=bench`.
+Each rest point is snapped to its closest edge when the graph is built; an edge keeps at most one rest point.
+
+Configuration parameters: [`ors.engine.profiles.<PROFILE-NAME>.build.foot_rest_data`](./configuration/engine/profiles/build.md)
+
 ### Green & Quiet
 The data used to identify green and quiet routes were derived from research projects in the GIScience research group at Heidelberg University. 
 More information about these can be found on the GIScience news blog [here](https://giscienceblog.uni-heidelberg.de/2017/07/03/healthy-routing-prefering-green-areas-added-to-openrouteserviceorg/) and [here](http://giscienceblog.uni-heidelberg.de/2017/07/10/reducing-stress-by-avoiding-noise-with-quiet-routing-in-openrouteservice/)

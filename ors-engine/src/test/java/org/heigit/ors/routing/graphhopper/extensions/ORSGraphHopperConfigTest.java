@@ -1,5 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
+import com.graphhopper.routing.ev.Rest;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.common.DataAccessEnum;
@@ -70,5 +71,32 @@ class ORSGraphHopperConfigTest {
         
         String encodedValues = config.getString("graph.encoded_values", "");
         assertEquals(shouldContain, Arrays.asList(encodedValues.split(",")).contains(ev));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "FOOT_WALKING, rest_points.csv, true",
+            "FOOT_HIKING, rest_points.csv, true",
+            "WHEELCHAIR, rest_points.csv, true",
+            "DRIVING_CAR, rest_points.csv, false",
+            "CYCLING_REGULAR, rest_points.csv, false",
+            "FOOT_WALKING, '', false",
+            "FOOT_WALKING, , false"
+    })
+    void restEncodedValueOnlyForPedestrianProfilesWithRestData(EncoderNameEnum encoderName, String footRestData, boolean shouldContain) {
+        ProfileProperties profile = new ProfileProperties();
+        profile.setEncoderName(encoderName);
+        profile.setProfileName(encoderName.toString());
+        if (footRestData != null)
+            profile.getBuild().setFootRestData(Path.of(footRestData));
+
+        EngineProperties engineConfig = new EngineProperties();
+        engineConfig.setGraphsDataAccess(DataAccessEnum.MMAP);
+        engineConfig.getElevation().setCachePath(Path.of(""));
+
+        ORSGraphHopperConfig config = ORSGraphHopperConfig.createGHSettings(profile, engineConfig, "");
+
+        String encodedValues = config.getString("graph.encoded_values", "");
+        assertEquals(shouldContain, Arrays.asList(encodedValues.split(",")).contains(Rest.KEY));
     }
 }
