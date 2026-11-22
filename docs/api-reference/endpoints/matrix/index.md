@@ -57,4 +57,11 @@ The first entry in the result `durations` list represents the duration in second
 
 To specify whether distances or duration (or both) are to be calculated, the `metrics` parameter can be set accordingly. The unit of distances can be meter, kilometer or miles. The unit of duration is always in seconds.
 
+To specify the route preference used to compute matrix costs, the `preference` parameter can be set. The following values are supported:
+
+- `fastest` - Compute routes based on fastest paths
+- `shortest` - Compute routes based on shortest paths
+- `recommended` - Compute routes based on recommended paths (default)
+- `custom` - Compute routes based on custom weighting
+
 For details about all request parameters and the response type, see the [API Playground](https://openrouteservice.org/dev/#/api-docs/matrix_service).

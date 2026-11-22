@@ -25,6 +25,17 @@ RELEASING:
 Releasing is documented in RELEASE.md
 -->
 
+## [Unreleased]
+
+### Added
+- Add `preference` parameter to matrix API endpoint to specify route preference (`fastest`, `shortest`, `recommended`, `custom`) ([#2322](https://github.com/GIScience/openrouteservice/pull/2322))
+
+### Changed
+- Update default behavior for matrix weighting method when no preference is specified (now defaults to UNKNOWN instead of RECOMMENDED)
+
+### Fixed
+- Fix indentation issue in `MatrixRequest` class for preference field
+- Fix convertWeightingMethod logic to properly handle all preference values
 ## [unreleased]
 
 ### Added
