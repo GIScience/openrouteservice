@@ -23,35 +23,39 @@ package org.heigit.ors.apitests.common;
 import io.restassured.RestAssured;
 import org.heigit.ors.api.Application;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.TestRestTemplate;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Application.class)
-@AutoConfigureTestRestTemplate
+// Application goes in @ContextConfiguration, not @SpringBootTest(classes = ...): since Spring
+// Framework 7.1, Spring Boot repeats @SpringBootTest classes once per level of the test class
+// hierarchy in the context cache key. Subclasses of different depth (AbstractContainerBaseTest)
+// then start a second ORS context, which fails on the open GTFS store of the first.
+// spring-projects/spring-boot#52905, spring-projects/spring-framework#37189
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(classes = Application.class)
 @ActiveProfiles("test")
 public abstract class ServiceTest extends InitializeGraphsOnce {
     private final Map<String, Object> dictUrlParams;
     private String endPointName;
     private String version;
 
-    @Autowired
-    private TestRestTemplate testRestTemplate;
-
     @LocalServerPort
     private Integer port;
+
+    @Value("${server.servlet.context-path:}")
+    private String contextPath;
 
     @BeforeEach
     void setupRestAssured() {
         RestAssured.port = port;
-        RestAssured.baseURI = testRestTemplate.getRootUri();
+        RestAssured.baseURI = "http://localhost:" + port + contextPath;
     }
 
     public ServiceTest() {
