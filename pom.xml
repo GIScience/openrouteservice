@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.2</version>
+        <version>4.2.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -51,7 +51,7 @@
         <!-- pinned to match the swagger-core version springdoc-openapi itself uses (its swagger-api.version);
              re-check on every springdoc-openapi-starter bump -->
         <swagger-core.version>2.2.55</swagger-core.version>
-        <swagger-parser.version>2.1.48</swagger-parser.version>
+        <swagger-parser.version>2.1.49</swagger-parser.version>
         <geotools.version>34.6</geotools.version>
         <!-- not a dependency we pick ourselves: geotools drags EMF in transitively. Pinned only to
              defuse the version ranges in EMF's own POMs - see the dependencyManagement entry below.
@@ -66,21 +66,14 @@
              for Jackson 3. Ahead of spring-boot-dependencies' jackson-2-bom.version (2.21.5); do
              not remove, dropping this is a downgrade of the Jackson 2 that ships in ors.jar -->
         <fasterxml.jackson.version>2.23.0</fasterxml.jackson.version>
-        <!-- overrides spring-boot-dependencies' jackson-bom.version (3.1.5), which is affected by
-             CVE-2026-19032 (unrestricted URI scheme in the java.nio.file.Path deserializer);
-             3.1.6 is the fix on Boot's own 3.1 line, 3.1.7 additionally fixes CVE-2026-91776 and
-             CVE-2026-91777 (unbounded type id cache / quadratic forward-reference resolution).
-
-             Deliberately behind graphhopper: the graphhopper.version pinned above was built against
-             Jackson 3.2.2, so its bytecode runs here on an older minor than it was compiled against.
-             Verified harmless - jdeps reports no unresolved tools.jackson class in graphhopper-core
-             or graphhopper-web-api against 3.1.7, and the full suite is green. Staying on Boot's 3.1
-             line is preferred over matching graphhopper, since Boot 4.1.1 is not tested against 3.2.
-
-             Once Boot ships jackson-bom.version >= 3.2.x, drop this override entirely: that clears the
-             CVE workaround and closes the skew with graphhopper in one step. -->
-        <jackson-bom.version>3.1.7</jackson-bom.version>
         <commons-io.version>2.22.0</commons-io.version>
+        <!-- spring-boot-dependencies stopped managing janino in Boot 4.2. graphhopper-core compiles
+             custom models with it and declares 3.1.6; keep the 3.1.12 Boot 4.1 used to manage -->
+        <janino.version>3.1.12</janino.version>
+        <!-- overrides spring-boot-dependencies' mockito.version (5.24.0): with JUnit 6.1 (Boot 4.2),
+             ors-engine's mockito-core -javaagent at 5.24.0 makes JUnit test discovery fail with
+             ClassNotFoundException for every test class. 5.23.0 works. Re-check on Mockito bumps -->
+        <mockito.version>5.23.0</mockito.version>
         <!-- deliberately ahead of spring-boot-dependencies' commons-logging.version (1.3.6);
              do not remove, dropping this override is a downgrade -->
         <commons-logging.version>1.4.0</commons-logging.version>
@@ -102,7 +95,7 @@
         <gatling.version>3.16.1</gatling.version>
         <commons-cli.version>1.11.0</commons-cli.version>
         <gatling-maven-plugin.version>4.22.3</gatling-maven-plugin.version>
-        <awssdk.version>2.59.2</awssdk.version>
+        <awssdk.version>2.59.7</awssdk.version>
         <!-- javax (pre-Jakarta) JAXB API, needed at runtime by springdoc - see ors-api -->
         <javax-jaxb-api.version>2.3.1</javax-jaxb-api.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
@@ -246,6 +239,18 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>janino</artifactId>
+                <version>${janino.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>commons-compiler</artifactId>
+                <version>${janino.version}</version>
             </dependency>
 
             <dependency>
