@@ -59,6 +59,13 @@
       "labels": ["dependencies", "build"]
     },
     {
+      "description": "springdoc and swagger-core move together in their own PR, after a human tick: the pom pins swagger-core to springdoc's version, and springdoc 3.2.1 (a patch) switched to swagger-core 3",
+      "matchPackageNames": ["org.springdoc:**", "io.swagger.core.v3:**"],
+      "groupName": "springdoc and swagger-core",
+      "dependencyDashboardApproval": true,
+      "labels": ["dependencies", "build"]
+    },
+    {
       "description": "The published image stays reviewable on its own",
       "matchManagers": ["dockerfile"],
       "matchFileNames": ["Dockerfile"],
