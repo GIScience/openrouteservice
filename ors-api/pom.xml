@@ -239,24 +239,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- TestRestTemplate moved out of spring-boot-test into its own module in Spring Boot 4;
-             spring-boot-restclient provides the RestTemplateBuilder autoconfiguration it needs -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-resttestclient</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Reported as unused by dependency:analyze, but required at runtime: without it
-             TestRestTemplateTestAutoConfiguration fails to load with
-             NoClassDefFoundError: org/springframework/boot/restclient/RestTemplateBuilder,
-             breaking every @SpringBootTest in the module -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-restclient</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>io.swagger.parser.v3</groupId>
             <artifactId>swagger-parser</artifactId>

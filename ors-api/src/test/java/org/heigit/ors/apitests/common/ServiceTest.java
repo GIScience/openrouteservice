@@ -23,9 +23,7 @@ package org.heigit.ors.apitests.common;
 import io.restassured.RestAssured;
 import org.heigit.ors.api.Application;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.TestRestTemplate;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
@@ -42,23 +40,22 @@ import java.util.Map;
 // spring-projects/spring-boot#52905, spring-projects/spring-framework#37189
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = Application.class)
-@AutoConfigureTestRestTemplate
 @ActiveProfiles("test")
 public abstract class ServiceTest extends InitializeGraphsOnce {
     private final Map<String, Object> dictUrlParams;
     private String endPointName;
     private String version;
 
-    @Autowired
-    private TestRestTemplate testRestTemplate;
-
     @LocalServerPort
     private Integer port;
+
+    @Value("${server.servlet.context-path:}")
+    private String contextPath;
 
     @BeforeEach
     void setupRestAssured() {
         RestAssured.port = port;
-        RestAssured.baseURI = testRestTemplate.getRootUri();
+        RestAssured.baseURI = "http://localhost:" + port + contextPath;
     }
 
     public ServiceTest() {
