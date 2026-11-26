@@ -400,10 +400,31 @@
                                 </goals>
                                 <configuration>
                                     <excludes>
-                                        <exclude>none</exclude>
+                                        <exclude>**/apitests/dynamicrouting/**</exclude>
                                     </excludes>
                                     <includes>
                                         <include>**/apitests/**/*Test</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                            <!-- Since Spring Framework 7.1 (Boot 4.2), test classes based on
+                                 AbstractContainerBaseTest no longer share the Spring context of the
+                                 other apitests. A second context in the same JVM reopens the
+                                 public-transport GTFS MapDB store while the first still holds it,
+                                 and ORS exits with "Wrong index checksum". This execution runs them
+                                 in their own JVM; drop it together with the public-transport profile -->
+                            <execution>
+                                <id>apitests-dynamic-data</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <excludes>
+                                        <exclude>none</exclude>
+                                    </excludes>
+                                    <includes>
+                                        <include>**/apitests/dynamicrouting/**/*Test</include>
                                     </includes>
                                 </configuration>
                             </execution>
