@@ -66,20 +66,6 @@
              for Jackson 3. Ahead of spring-boot-dependencies' jackson-2-bom.version (2.21.5); do
              not remove, dropping this is a downgrade of the Jackson 2 that ships in ors.jar -->
         <fasterxml.jackson.version>2.23.0</fasterxml.jackson.version>
-        <!-- overrides spring-boot-dependencies' jackson-bom.version (3.1.5), which is affected by
-             CVE-2026-19032 (unrestricted URI scheme in the java.nio.file.Path deserializer);
-             3.1.6 is the fix on Boot's own 3.1 line, 3.1.7 additionally fixes CVE-2026-91776 and
-             CVE-2026-91777 (unbounded type id cache / quadratic forward-reference resolution).
-
-             Deliberately behind graphhopper: the graphhopper.version pinned above was built against
-             Jackson 3.2.2, so its bytecode runs here on an older minor than it was compiled against.
-             Verified harmless - jdeps reports no unresolved tools.jackson class in graphhopper-core
-             or graphhopper-web-api against 3.1.7, and the full suite is green. Staying on Boot's 3.1
-             line is preferred over matching graphhopper, since Boot 4.1.1 is not tested against 3.2.
-
-             Once Boot ships jackson-bom.version >= 3.2.x, drop this override entirely: that clears the
-             CVE workaround and closes the skew with graphhopper in one step. -->
-        <jackson-bom.version>3.1.7</jackson-bom.version>
         <commons-io.version>2.22.0</commons-io.version>
         <!-- spring-boot-dependencies stopped managing janino in Boot 4.2. graphhopper-core compiles
              custom models with it and declares 3.1.6; keep the 3.1.12 Boot 4.1 used to manage -->
