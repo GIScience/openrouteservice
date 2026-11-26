@@ -81,6 +81,9 @@
              CVE workaround and closes the skew with graphhopper in one step. -->
         <jackson-bom.version>3.1.7</jackson-bom.version>
         <commons-io.version>2.22.0</commons-io.version>
+        <!-- spring-boot-dependencies stopped managing janino in Boot 4.2. graphhopper-core compiles
+             custom models with it and declares 3.1.6; keep the 3.1.12 Boot 4.1 used to manage -->
+        <janino.version>3.1.12</janino.version>
         <!-- deliberately ahead of spring-boot-dependencies' commons-logging.version (1.3.6);
              do not remove, dropping this override is a downgrade -->
         <commons-logging.version>1.4.0</commons-logging.version>
@@ -246,6 +249,18 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>janino</artifactId>
+                <version>${janino.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>commons-compiler</artifactId>
+                <version>${janino.version}</version>
             </dependency>
 
             <dependency>
