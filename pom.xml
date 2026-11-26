@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.2</version>
+        <version>4.1.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -51,7 +51,7 @@
         <!-- pinned to match the swagger-core version springdoc-openapi itself uses (its swagger-api.version);
              re-check on every springdoc-openapi-starter bump -->
         <swagger-core.version>2.2.55</swagger-core.version>
-        <swagger-parser.version>2.1.48</swagger-parser.version>
+        <swagger-parser.version>2.1.49</swagger-parser.version>
         <geotools.version>34.6</geotools.version>
         <!-- not a dependency we pick ourselves: geotools drags EMF in transitively. Pinned only to
              defuse the version ranges in EMF's own POMs - see the dependencyManagement entry below.
@@ -102,7 +102,7 @@
         <gatling.version>3.16.1</gatling.version>
         <commons-cli.version>1.11.0</commons-cli.version>
         <gatling-maven-plugin.version>4.22.3</gatling-maven-plugin.version>
-        <awssdk.version>2.59.2</awssdk.version>
+        <awssdk.version>2.59.7</awssdk.version>
         <!-- javax (pre-Jakarta) JAXB API, needed at runtime by springdoc - see ors-api -->
         <javax-jaxb-api.version>2.3.1</javax-jaxb-api.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
