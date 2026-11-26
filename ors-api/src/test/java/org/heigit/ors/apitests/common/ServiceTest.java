@@ -29,12 +29,19 @@ import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRe
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Application.class)
+// Application goes in @ContextConfiguration, not @SpringBootTest(classes = ...): since Spring
+// Framework 7.1, Spring Boot repeats @SpringBootTest classes once per level of the test class
+// hierarchy in the context cache key. Subclasses of different depth (AbstractContainerBaseTest)
+// then start a second ORS context, which fails on the open GTFS store of the first.
+// spring-projects/spring-boot#52905, spring-projects/spring-framework#37189
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(classes = Application.class)
 @AutoConfigureTestRestTemplate
 @ActiveProfiles("test")
 public abstract class ServiceTest extends InitializeGraphsOnce {
